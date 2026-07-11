@@ -1,0 +1,18 @@
+node_modules
+dist
+dist-ssr
+dev-dist
+*.tsbuildinfo
+*.local
+.env
+.env.*
+!.env.example
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# supabase local dev
+supabase/.branches
+supabase/.temp
