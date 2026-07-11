@@ -11,7 +11,7 @@ const NAV_ITEMS = [
 ]
 
 export function Shell() {
-  const { signOut } = useAuth()
+  const { session, signOut } = useAuth()
   const { memberships, activeBusinessId, setActiveBusinessId } = useTenant()
 
   return (
@@ -41,9 +41,12 @@ export function Shell() {
           ))}
         </nav>
 
-        <button className="sidebar__signout" onClick={() => signOut()}>
-          Cerrar sesión
-        </button>
+        <div className="sidebar__footer">
+          <span className="sidebar__user">{session?.user.email}</span>
+          <button className="btn btn--ghost btn--sm" onClick={() => signOut()}>
+            Cerrar sesión
+          </button>
+        </div>
       </aside>
 
       <main className="content">

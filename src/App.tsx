@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '@/context/AuthContext'
 import { TenantProvider } from '@/context/TenantContext'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
+import { RequireBusiness } from '@/components/layout/RequireBusiness'
 import { Shell } from '@/components/layout/Shell'
 import { Login } from '@/pages/Login'
 import { Dashboard } from '@/pages/Dashboard'
@@ -21,7 +22,9 @@ export function App() {
               path="/"
               element={
                 <ProtectedRoute>
-                  <Shell />
+                  <RequireBusiness>
+                    <Shell />
+                  </RequireBusiness>
                 </ProtectedRoute>
               }
             >

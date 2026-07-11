@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 import type { BusinessRole } from '@/types/database.types'
 
-interface Membership {
+export interface Membership {
   businessId: string
   businessName: string
   role: BusinessRole
@@ -14,6 +14,7 @@ interface TenantContextValue {
   activeBusinessId: string | null
   setActiveBusinessId: (id: string) => void
   loading: boolean
+  refresh: () => Promise<void>
 }
 
 const ACTIVE_BUSINESS_KEY = 'atiende:active-business-id'
@@ -28,50 +29,51 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   )
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+  const refresh = useCallback(async () => {
     if (!session) {
       setMemberships([])
       setLoading(false)
       return
     }
 
-    let cancelled = false
     setLoading(true)
 
-    supabase
+    const { data: businessUsers, error: buError } = await supabase
       .from('business_users')
-      .select('role, business_id, businesses(id, name)')
-      .then(({ data, error }) => {
-        if (cancelled) return
-        if (error || !data) {
-          setMemberships([])
-          setLoading(false)
-          return
-        }
+      .select('business_id, role')
 
-        const rows: Membership[] = data
-          .filter((row): row is typeof row & { businesses: { id: string; name: string } } => Boolean(row.businesses))
-          .map((row) => ({
-            businessId: row.businesses.id,
-            businessName: row.businesses.name,
-            role: row.role,
-          }))
-
-        setMemberships(rows)
-
-        const stillValid = rows.some((m) => m.businessId === activeBusinessId)
-        if (!stillValid && rows.length > 0) {
-          setActiveBusinessIdState(rows[0].businessId)
-          localStorage.setItem(ACTIVE_BUSINESS_KEY, rows[0].businessId)
-        }
-        setLoading(false)
-      })
-
-    return () => {
-      cancelled = true
+    if (buError || !businessUsers || businessUsers.length === 0) {
+      setMemberships([])
+      setLoading(false)
+      return
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    const businessIds = businessUsers.map((row: { business_id: string }) => row.business_id)
+    const { data: businesses } = await supabase.from('businesses').select('id, name').in('id', businessIds)
+
+    const nameById = new Map((businesses ?? []).map((b: { id: string; name: string }) => [b.id, b.name]))
+
+    const rows: Membership[] = businessUsers.map((row: { business_id: string; role: BusinessRole }) => ({
+      businessId: row.business_id,
+      businessName: nameById.get(row.business_id) ?? 'Negocio',
+      role: row.role,
+    }))
+
+    setMemberships(rows)
+
+    setActiveBusinessIdState((current) => {
+      const stillValid = rows.some((m) => m.businessId === current)
+      const next = stillValid ? current : (rows[0]?.businessId ?? null)
+      if (next) localStorage.setItem(ACTIVE_BUSINESS_KEY, next)
+      return next
+    })
+
+    setLoading(false)
   }, [session])
+
+  useEffect(() => {
+    refresh()
+  }, [refresh])
 
   function setActiveBusinessId(id: string) {
     setActiveBusinessIdState(id)
@@ -79,7 +81,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <TenantContext.Provider value={{ memberships, activeBusinessId, setActiveBusinessId, loading }}>
+    <TenantContext.Provider value={{ memberships, activeBusinessId, setActiveBusinessId, loading, refresh }}>
       {children}
     </TenantContext.Provider>
   )

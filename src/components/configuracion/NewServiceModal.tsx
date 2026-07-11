@@ -1,0 +1,79 @@
+import { useState, type FormEvent } from 'react'
+import { createService } from '@/lib/mutations'
+
+interface Props {
+  businessId: string
+  onClose: () => void
+  onCreated: () => void
+}
+
+export function NewServiceModal({ businessId, onClose, onCreated }: Props) {
+  const [name, setName] = useState('')
+  const [price, setPrice] = useState('')
+  const [duration, setDuration] = useState('30')
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setSubmitting(true)
+    setError(null)
+    try {
+      await createService({
+        businessId,
+        name,
+        priceCents: Math.round(parseFloat(price.replace(',', '.')) * 100),
+        durationMin: parseInt(duration, 10),
+      })
+      onCreated()
+      onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo crear el servicio')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <form className="modal" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
+        <div className="modal__header">
+          <h2>Nuevo servicio</h2>
+          <button type="button" className="btn btn--ghost btn--sm" onClick={onClose}>
+            ✕
+          </button>
+        </div>
+        <div className="form-grid">
+          <label>
+            Nombre
+            <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Manicura" />
+          </label>
+          <label>
+            Precio (€)
+            <input value={price} onChange={(e) => setPrice(e.target.value)} required placeholder="18.00" inputMode="decimal" />
+          </label>
+          <label>
+            Duración (min)
+            <input
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              required
+              min={5}
+              step={5}
+            />
+          </label>
+        </div>
+        {error && <p className="form-error">{error}</p>}
+        <div className="modal__footer">
+          <button type="button" className="btn" onClick={onClose}>
+            Cancelar
+          </button>
+          <button type="submit" className="btn btn--primary" disabled={submitting || !name || !price}>
+            {submitting ? 'Guardando…' : 'Crear servicio'}
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
