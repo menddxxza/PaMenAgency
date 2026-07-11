@@ -56,8 +56,15 @@ export function Estadisticas() {
     }))
   }, [appointments])
 
-  const conversionRate =
-    conversations.length === 0 ? 0 : Math.round((appointments.length / conversations.length) * 100)
+  // % de conversaciones cuyo cliente terminó con al menos una cita — no
+  // "citas / conversaciones" (eso podía superar el 100% si un cliente
+  // reservaba varias veces desde la misma conversación).
+  const conversionRate = useMemo(() => {
+    if (conversations.length === 0) return 0
+    const clientsWithAppointment = new Set(appointments.map((a) => a.client_id).filter(Boolean))
+    const converted = conversations.filter((c) => clientsWithAppointment.has(c.client_id)).length
+    return Math.round((converted / conversations.length) * 100)
+  }, [appointments, conversations])
 
   return (
     <div className="page">
