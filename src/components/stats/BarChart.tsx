@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 
 export interface BarChartDatum {
   label: string
@@ -12,13 +12,13 @@ interface Props {
   valueSuffix?: string
 }
 
-// Barra simple con tooltip al hover, leyenda con swatch + texto (nunca solo
-// color), y una vista de tabla accesible alternativa — ver dataviz skill:
-// references/marks-and-anatomy.md e interaction.md.
+// Barra simple con tooltip al hover y una vista de tabla accesible
+// alternativa — ver dataviz skill: references/marks-and-anatomy.md e
+// interaction.md. Sin leyenda: cada barra ya lleva su etiqueta categórica
+// directamente en el eje, así que un swatch de color aparte sería redundante.
 export function BarChart({ title, data, valueSuffix = '' }: Props) {
   const [hovered, setHovered] = useState<number | null>(null)
   const [showTable, setShowTable] = useState(false)
-  const uid = useId()
   const max = Math.max(1, ...data.map((d) => d.value))
 
   return (
@@ -97,15 +97,6 @@ export function BarChart({ title, data, valueSuffix = '' }: Props) {
           </tbody>
         </table>
       )}
-
-      <div className="chart-legend" id={uid}>
-        {data.map((d) => (
-          <span className="chart-legend__item" key={d.label}>
-            <span className="chart-legend__swatch" style={{ background: d.color }} />
-            {d.label}
-          </span>
-        ))}
-      </div>
     </div>
   )
 }
