@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useTenant } from '@/context/TenantContext'
 
@@ -13,11 +14,37 @@ const NAV_ITEMS = [
 export function Shell() {
   const { session, signOut } = useAuth()
   const { memberships, activeBusinessId, setActiveBusinessId } = useTenant()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const location = useLocation()
+
+  // Cierra el drawer al navegar (móvil) — evita que quede abierto tapando
+  // la página nueva tras tocar un link.
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [location.pathname])
 
   return (
     <div className="shell">
-      <aside className="sidebar">
-        <div className="sidebar__brand">Atiende</div>
+      <header className="mobile-topbar">
+        <button
+          className="mobile-topbar__menu-btn"
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Abrir menú"
+        >
+          ☰
+        </button>
+        <span className="mobile-topbar__brand">Atiende</span>
+      </header>
+
+      {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
+
+      <aside className={`sidebar ${sidebarOpen ? 'is-open' : ''}`}>
+        <div className="sidebar__brand-row">
+          <div className="sidebar__brand">Atiende</div>
+          <button className="sidebar__close-btn" onClick={() => setSidebarOpen(false)} aria-label="Cerrar menú">
+            ✕
+          </button>
+        </div>
 
         {memberships.length > 1 && (
           <select

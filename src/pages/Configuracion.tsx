@@ -119,6 +119,7 @@ export function Configuracion() {
         {services.length === 0 && <p className="empty-state">Todavía no hay servicios configurados.</p>}
 
         {services.length > 0 && (
+          <div className="table-scroll">
           <table className="table">
             <thead>
               <tr>
@@ -153,6 +154,7 @@ export function Configuracion() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

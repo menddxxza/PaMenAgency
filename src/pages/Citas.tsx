@@ -61,6 +61,7 @@ export function Citas() {
         )}
 
         {!loading && filtered.length > 0 && (
+          <div className="table-scroll">
           <table className="table">
             <thead>
               <tr>
@@ -117,6 +118,7 @@ export function Citas() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

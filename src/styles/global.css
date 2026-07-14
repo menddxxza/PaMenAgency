@@ -202,6 +202,51 @@ label {
   padding: 0 0.4rem;
 }
 
+.sidebar__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar__close-btn {
+  display: none;
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  padding: 0.25rem;
+}
+
+.mobile-topbar {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.mobile-topbar__menu-btn {
+  border: none;
+  background: transparent;
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0.25rem 0.4rem;
+  color: var(--text-primary);
+}
+
+.mobile-topbar__brand {
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
 .business-switcher {
   width: 100%;
 }
@@ -269,6 +314,66 @@ label {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- responsive: sidebar como drawer en móvil ---------- */
+
+@media (max-width: 860px) {
+  .shell {
+    flex-direction: column;
+  }
+
+  .mobile-topbar {
+    display: flex;
+  }
+
+  .sidebar__close-btn {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: 0 25% 0 0;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: var(--shadow-md);
+  }
+
+  .sidebar.is-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 11, 11, 0.4);
+    z-index: 40;
+  }
+
+  .content {
+    padding: 1.25rem;
+    max-width: 100%;
+  }
+
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .conversaciones {
+    grid-template-columns: 1fr;
+    height: calc(100vh - 8rem);
+  }
+
+  .conversaciones__list.has-active {
+    display: none;
+  }
+
+  .conversaciones__thread.is-hidden {
+    display: none;
+  }
 }
 
 /* ---------- login ---------- */
@@ -391,6 +496,10 @@ label {
 }
 
 /* ---------- tabla ---------- */
+
+.table-scroll {
+  overflow-x: auto;
+}
 
 .table {
   width: 100%;
@@ -611,6 +720,22 @@ label {
   border-bottom: 1px solid var(--border);
 }
 
+.conversaciones__thread-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.conversaciones__back-btn {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .conversaciones__back-btn {
+    display: inline-flex;
+  }
+}
+
 .conversaciones__messages {
   flex: 1;
   display: flex;
@@ -665,6 +790,7 @@ label {
 
 .conversaciones__composer input {
   flex: 1;
+  min-width: 0;
 }
 
 .conversaciones__empty {

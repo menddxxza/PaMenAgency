@@ -63,7 +63,7 @@ export function Conversaciones() {
 
   return (
     <div className="page conversaciones">
-      <aside className="conversaciones__list">
+      <aside className={`conversaciones__list ${activeConversation ? 'has-active' : ''}`}>
         {loading && <p className="empty-state">Cargando…</p>}
         {!loading && conversations.length === 0 && <p className="empty-state">Sin conversaciones todavía.</p>}
         {conversations.map((c) => {
@@ -86,13 +86,21 @@ export function Conversaciones() {
         })}
       </aside>
 
-      <section className="conversaciones__thread">
+      <section className={`conversaciones__thread ${!activeConversation ? 'is-hidden' : ''}`}>
         {!activeConversation && <div className="conversaciones__empty">Selecciona una conversación</div>}
 
         {activeConversation && (
           <>
             <div className="conversaciones__thread-header">
-              <div>
+              <div className="conversaciones__thread-header-title">
+                <button
+                  type="button"
+                  className="btn btn--ghost btn--sm conversaciones__back-btn"
+                  onClick={() => setActiveId(null)}
+                  aria-label="Volver a conversaciones"
+                >
+                  ←
+                </button>
                 <strong>
                   {clientById.get(activeConversation.client_id)?.name ||
                     clientById.get(activeConversation.client_id)?.phone ||
