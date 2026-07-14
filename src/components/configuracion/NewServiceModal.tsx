@@ -16,14 +16,26 @@ export function NewServiceModal({ businessId, onClose, onCreated }: Props) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+
+    const priceValue = parseFloat(price.replace(',', '.'))
+    const durationValue = parseInt(duration, 10)
+    if (!Number.isFinite(priceValue) || priceValue <= 0) {
+      setError('Introduce un precio válido, mayor que 0')
+      return
+    }
+    if (!Number.isFinite(durationValue) || durationValue <= 0) {
+      setError('Introduce una duración válida, mayor que 0')
+      return
+    }
+
     setSubmitting(true)
     setError(null)
     try {
       await createService({
         businessId,
         name,
-        priceCents: Math.round(parseFloat(price.replace(',', '.')) * 100),
-        durationMin: parseInt(duration, 10),
+        priceCents: Math.round(priceValue * 100),
+        durationMin: durationValue,
       })
       onCreated()
       onClose()
