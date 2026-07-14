@@ -6,6 +6,7 @@ import { useServices } from '@/hooks/useServices'
 import { updateBotConfig, updateBusinessSettings, toggleServiceActive } from '@/lib/mutations'
 import { NewServiceModal } from '@/components/configuracion/NewServiceModal'
 import { TeamSection } from '@/components/configuracion/TeamSection'
+import { BillingSection } from '@/components/configuracion/BillingSection'
 import type { BotTone } from '@/types/database.types'
 
 export function Configuracion() {
@@ -167,6 +168,8 @@ export function Configuracion() {
       </div>
 
       <TeamSection businessId={activeBusinessId} />
+
+      <BillingSection businessId={activeBusinessId} />
 
       {showNewService && (
         <NewServiceModal

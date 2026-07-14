@@ -10,7 +10,7 @@ export function Login() {
   const [submitting, setSubmitting] = useState(false)
 
   if (session) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/app" replace />
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -40,6 +40,9 @@ export function Login() {
         </button>
         <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
           ¿Olvidaste tu contraseña?
+        </Link>
+        <Link to="/signup" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
+          ¿No tenés cuenta? Creála
         </Link>
       </form>
     </div>

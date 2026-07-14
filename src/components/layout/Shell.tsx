@@ -2,21 +2,25 @@ import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useTenant } from '@/context/TenantContext'
-
-const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', end: true },
-  { to: '/citas', label: 'Citas' },
-  { to: '/clientes', label: 'Clientes' },
-  { to: '/conversaciones', label: 'Conversaciones' },
-  { to: '/estadisticas', label: 'Estadísticas' },
-  { to: '/configuracion', label: 'Configuración' },
-]
+import { useSubscription } from '@/hooks/useSubscription'
+import { PLANS } from '@/lib/plans'
 
 export function Shell() {
   const { session, signOut } = useAuth()
   const { memberships, activeBusinessId, setActiveBusinessId } = useTenant()
+  const { subscription } = useSubscription()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
+
+  const plan = PLANS[subscription?.plan ?? 'starter']
+  const navItems = [
+    { to: '/app', label: 'Dashboard', end: true },
+    { to: '/app/citas', label: 'Citas' },
+    ...(plan.hasClientes ? [{ to: '/app/clientes', label: 'Clientes' }] : []),
+    { to: '/app/conversaciones', label: 'Conversaciones' },
+    ...(plan.hasEstadisticas ? [{ to: '/app/estadisticas', label: 'Estadísticas' }] : []),
+    { to: '/app/configuracion', label: 'Configuración' },
+  ]
 
   // Cierra el drawer al navegar (móvil) — evita que quede abierto tapando
   // la página nueva tras tocar un link.
@@ -62,7 +66,7 @@ export function Shell() {
         )}
 
         <nav className="sidebar__nav">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} className="sidebar__link">
               {item.label}
             </NavLink>

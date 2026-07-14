@@ -9,6 +9,8 @@ export type AppointmentSource = 'bot' | 'manual'
 export type ConversationStatus = 'open' | 'closed'
 export type MessageSender = 'client' | 'bot' | 'staff'
 export type BotTone = 'cercano' | 'profesional' | 'directo' | 'divertido'
+export type PlanTier = 'starter' | 'pro' | 'agencia'
+export type SubscriptionStatus = 'incomplete' | 'trialing' | 'active' | 'past_due' | 'canceled'
 
 export interface Database {
   public: {
@@ -126,6 +128,20 @@ export interface Database {
         }
         Insert: Partial<Database['public']['Tables']['bot_config']['Row']> & { business_id: string }
         Update: Partial<Database['public']['Tables']['bot_config']['Row']>
+      }
+      subscriptions: {
+        Row: {
+          business_id: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          plan: PlanTier
+          status: SubscriptionStatus
+          current_period_end: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['subscriptions']['Row']> & { business_id: string }
+        Update: Partial<Database['public']['Tables']['subscriptions']['Row']>
       }
     }
     Functions: {
