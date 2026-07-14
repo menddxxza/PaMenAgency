@@ -6,6 +6,7 @@ import { useTenant } from '@/context/TenantContext'
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', end: true },
   { to: '/citas', label: 'Citas' },
+  { to: '/clientes', label: 'Clientes' },
   { to: '/conversaciones', label: 'Conversaciones' },
   { to: '/estadisticas', label: 'Estadísticas' },
   { to: '/configuracion', label: 'Configuración' },

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 
 export function Login() {
@@ -35,9 +35,12 @@ export function Login() {
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </label>
         {error && <p className="login__error">{error}</p>}
-        <button type="submit" disabled={submitting}>
+        <button type="submit" className="btn btn--primary" disabled={submitting}>
           {submitting ? 'Entrando…' : 'Entrar'}
         </button>
+        <Link to="/forgot-password" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
+          ¿Olvidaste tu contraseña?
+        </Link>
       </form>
     </div>
   )

@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useTenant } from '@/context/TenantContext'
+import { useToast } from '@/context/ToastContext'
 import { useBusinessSettings } from '@/hooks/useBusiness'
 import { useServices } from '@/hooks/useServices'
 import { updateBotConfig, updateBusinessSettings, toggleServiceActive } from '@/lib/mutations'
 import { NewServiceModal } from '@/components/configuracion/NewServiceModal'
+import { TeamSection } from '@/components/configuracion/TeamSection'
 import type { BotTone } from '@/types/database.types'
 
 export function Configuracion() {
   const { activeBusinessId } = useTenant()
+  const { showToast } = useToast()
   const { business, botConfig, loading, refresh } = useBusinessSettings()
   const { services, refresh: refreshServices } = useServices()
 
@@ -19,7 +22,6 @@ export function Configuracion() {
   const [savingBusiness, setSavingBusiness] = useState(false)
   const [savingBot, setSavingBot] = useState(false)
   const [showNewService, setShowNewService] = useState(false)
-  const [saved, setSaved] = useState<'business' | 'bot' | null>(null)
 
   useEffect(() => {
     if (business) {
@@ -36,19 +38,27 @@ export function Configuracion() {
   async function handleSaveBusiness() {
     if (!activeBusinessId) return
     setSavingBusiness(true)
-    await updateBusinessSettings(activeBusinessId, { name: businessName, whatsappNumber: whatsappNumber || null, timezone })
-    setSavingBusiness(false)
-    setSaved('business')
-    setTimeout(() => setSaved(null), 2000)
+    try {
+      await updateBusinessSettings(activeBusinessId, { name: businessName, whatsappNumber: whatsappNumber || null, timezone })
+      showToast('Datos del negocio guardados')
+    } catch {
+      showToast('No se pudo guardar', 'error')
+    } finally {
+      setSavingBusiness(false)
+    }
   }
 
   async function handleSaveBot() {
     if (!activeBusinessId) return
     setSavingBot(true)
-    await updateBotConfig(activeBusinessId, { tone, greetingMessage: greeting })
-    setSavingBot(false)
-    setSaved('bot')
-    setTimeout(() => setSaved(null), 2000)
+    try {
+      await updateBotConfig(activeBusinessId, { tone, greetingMessage: greeting })
+      showToast('Configuración del bot guardada')
+    } catch {
+      showToast('No se pudo guardar', 'error')
+    } finally {
+      setSavingBot(false)
+    }
   }
 
   if (loading || !activeBusinessId) return <div className="page">Cargando…</div>
@@ -77,7 +87,6 @@ export function Configuracion() {
           <button className="btn btn--primary" onClick={handleSaveBusiness} disabled={savingBusiness}>
             {savingBusiness ? 'Guardando…' : 'Guardar datos del negocio'}
           </button>
-          {saved === 'business' && <span style={{ color: 'var(--status-good)', fontSize: '0.85rem' }}>Guardado ✓</span>}
         </div>
       </div>
 
@@ -102,7 +111,6 @@ export function Configuracion() {
           <button className="btn btn--primary" onClick={handleSaveBot} disabled={savingBot}>
             {savingBot ? 'Guardando…' : 'Guardar configuración del bot'}
           </button>
-          {saved === 'bot' && <span style={{ color: 'var(--status-good)', fontSize: '0.85rem' }}>Guardado ✓</span>}
         </div>
       </div>
 
@@ -157,6 +165,8 @@ export function Configuracion() {
           </div>
         )}
       </div>
+
+      <TeamSection businessId={activeBusinessId} />
 
       {showNewService && (
         <NewServiceModal

@@ -91,6 +91,11 @@ export async function updateBotConfig(
   if (error) throw error
 }
 
+export async function updateClientNotes(clientId: string, notes: string) {
+  const { error } = await supabase.from('clients').update({ notes }).eq('id', clientId)
+  if (error) throw error
+}
+
 export async function updateBusinessSettings(
   businessId: string,
   input: { name: string; whatsappNumber: string | null; timezone: string },
