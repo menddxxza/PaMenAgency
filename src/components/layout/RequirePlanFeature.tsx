@@ -3,7 +3,7 @@ import { useSubscription } from '@/hooks/useSubscription'
 import { PLANS, type PlanDefinition } from '@/lib/plans'
 
 interface Props {
-  feature: keyof Pick<PlanDefinition, 'hasClientes' | 'hasEstadisticas' | 'hasFacturacion'>
+  feature: keyof Pick<PlanDefinition, 'hasClientes' | 'hasEstadisticas' | 'hasFacturacion' | 'hasInventario'>
   children: React.ReactNode
 }
 

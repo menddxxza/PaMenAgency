@@ -13,6 +13,7 @@ export type PlanTier = 'starter' | 'pro' | 'agencia'
 export type SubscriptionStatus = 'incomplete' | 'trialing' | 'active' | 'past_due' | 'canceled'
 export type InvoiceType = 'quote' | 'invoice'
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'cancelled'
+export type SupplierOrderStatus = 'pending' | 'received' | 'cancelled'
 
 export interface Faq {
   question: string
@@ -196,6 +197,58 @@ export interface Database {
         }
         Update: Partial<Database['public']['Tables']['invoice_items']['Row']>
       }
+      inventory_items: {
+        Row: {
+          id: string
+          business_id: string
+          name: string
+          unit: string
+          quantity: number
+          min_quantity: number
+          expiry_date: string | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['inventory_items']['Row']> & { business_id: string; name: string }
+        Update: Partial<Database['public']['Tables']['inventory_items']['Row']>
+      }
+      supplier_orders: {
+        Row: {
+          id: string
+          business_id: string
+          item_id: string | null
+          supplier_name: string
+          quantity: number
+          status: SupplierOrderStatus
+          ordered_at: string
+          received_at: string | null
+        }
+        Insert: Partial<Database['public']['Tables']['supplier_orders']['Row']> & {
+          business_id: string
+          supplier_name: string
+          quantity: number
+        }
+        Update: Partial<Database['public']['Tables']['supplier_orders']['Row']>
+      }
+      client_documents: {
+        Row: {
+          id: string
+          business_id: string
+          client_id: string
+          name: string
+          storage_path: string
+          mime_type: string | null
+          size_bytes: number | null
+          created_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['client_documents']['Row']> & {
+          business_id: string
+          client_id: string
+          name: string
+          storage_path: string
+        }
+        Update: Partial<Database['public']['Tables']['client_documents']['Row']>
+      }
     }
     Functions: {
       create_business: {
@@ -239,6 +292,10 @@ export interface Database {
           p_items: { service_id?: string | null; description: string; quantity: number; unit_price_cents: number }[]
         }
         Returns: string
+      }
+      receive_supplier_order: {
+        Args: { p_order_id: string }
+        Returns: void
       }
     }
   }

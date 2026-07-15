@@ -19,6 +19,7 @@ export function Shell() {
     ...(plan.hasClientes ? [{ to: '/app/clientes', label: 'Clientes' }] : []),
     { to: '/app/conversaciones', label: 'Conversaciones' },
     ...(plan.hasFacturacion ? [{ to: '/app/facturacion', label: 'Facturación' }] : []),
+    ...(plan.hasInventario ? [{ to: '/app/inventario', label: 'Inventario' }] : []),
     ...(plan.hasEstadisticas ? [{ to: '/app/estadisticas', label: 'Estadísticas' }] : []),
     { to: '/app/configuracion', label: 'Configuración' },
   ]

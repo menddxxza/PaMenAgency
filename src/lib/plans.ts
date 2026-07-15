@@ -10,6 +10,7 @@ export interface PlanDefinition {
   hasClientes: boolean
   hasEstadisticas: boolean
   hasFacturacion: boolean
+  hasInventario: boolean
   features: string[]
 }
 
@@ -28,6 +29,7 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     hasClientes: false,
     hasEstadisticas: false,
     hasFacturacion: false,
+    hasInventario: false,
     features: ['Citas (hasta 50/mes)', 'Conversaciones + bot de WhatsApp', '1 usuario', '1 negocio'],
   },
   pro: {
@@ -40,7 +42,16 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     hasClientes: true,
     hasEstadisticas: true,
     hasFacturacion: true,
-    features: ['Citas ilimitadas', 'Clientes (CRM)', 'Facturación', 'Estadísticas', 'Hasta 5 usuarios', '1 negocio'],
+    hasInventario: true,
+    features: [
+      'Citas ilimitadas',
+      'Clientes (CRM)',
+      'Facturación',
+      'Inventario',
+      'Estadísticas',
+      'Hasta 5 usuarios',
+      '1 negocio',
+    ],
   },
   agencia: {
     id: 'agencia',
@@ -52,6 +63,7 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     hasClientes: true,
     hasEstadisticas: true,
     hasFacturacion: true,
+    hasInventario: true,
     features: ['Todo lo de Pro', 'Negocios ilimitados', 'Equipo ilimitado', 'Soporte prioritario'],
   },
 }
