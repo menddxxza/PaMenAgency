@@ -19,6 +19,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? ''
+const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const HANDOFF_MARKER = 'HANDOFF_HUMANO'
 const HISTORY_LIMIT = 10
 
@@ -45,6 +46,18 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 })
   }
+
+  // Supabase solo exige "algún JWT válido" por defecto, lo cual incluye la
+  // sesión de cualquier usuario autenticado — no basta para garantizar que
+  // quien llama es n8n. Como esta función lee/escribe en nombre de
+  // CUALQUIER business_id que le pasen (para poder atender a cualquier
+  // negocio sin conocer de antemano cuál), hay que comprobar explícitamente
+  // que el caller trae la service_role key, o cualquier usuario podría leer
+  // la base de conocimiento y el historial de otro negocio, o inyectar
+  // mensajes de "bot" en su conversación.
+  if (req.headers.get('Authorization') !== `Bearer ${SERVICE_ROLE_KEY}`) {
+    return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 })
+  }
   if (!ANTHROPIC_API_KEY) {
     return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY no está configurada' }), { status: 500 })
   }
@@ -54,10 +67,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: 'business_id y conversation_id son obligatorios' }), { status: 400 })
   }
 
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-  )
+  const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', SERVICE_ROLE_KEY)
 
   const [{ data: business }, { data: botConfig }, { data: conversation }] = await Promise.all([
     supabase.from('businesses').select('name').eq('id', body.business_id).single(),
