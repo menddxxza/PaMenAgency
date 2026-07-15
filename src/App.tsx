@@ -15,6 +15,7 @@ import { Dashboard } from '@/pages/Dashboard'
 import { Citas } from '@/pages/Citas'
 import { Clientes } from '@/pages/Clientes'
 import { Conversaciones } from '@/pages/Conversaciones'
+import { Facturacion } from '@/pages/Facturacion'
 import { Estadisticas } from '@/pages/Estadisticas'
 import { Configuracion } from '@/pages/Configuracion'
 import { Suscripcion } from '@/pages/Suscripcion'
@@ -66,6 +67,14 @@ export function App() {
                   }
                 />
                 <Route path="conversaciones" element={<Conversaciones />} />
+                <Route
+                  path="facturacion"
+                  element={
+                    <RequirePlanFeature feature="hasFacturacion">
+                      <Facturacion />
+                    </RequirePlanFeature>
+                  }
+                />
                 <Route
                   path="estadisticas"
                   element={

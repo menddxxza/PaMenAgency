@@ -809,6 +809,21 @@ label {
   background: color-mix(in srgb, var(--status-neutral) 16%, transparent);
 }
 
+.badge--draft {
+  color: var(--status-neutral);
+  background: color-mix(in srgb, var(--status-neutral) 16%, transparent);
+}
+
+.badge--sent {
+  color: var(--status-warning);
+  background: color-mix(in srgb, var(--status-warning) 16%, transparent);
+}
+
+.badge--paid {
+  color: var(--status-good);
+  background: color-mix(in srgb, var(--status-good) 16%, transparent);
+}
+
 /* ---------- modal ---------- */
 
 .modal-overlay {

@@ -11,6 +11,8 @@ export type MessageSender = 'client' | 'bot' | 'staff'
 export type BotTone = 'cercano' | 'profesional' | 'directo' | 'divertido'
 export type PlanTier = 'starter' | 'pro' | 'agencia'
 export type SubscriptionStatus = 'incomplete' | 'trialing' | 'active' | 'past_due' | 'canceled'
+export type InvoiceType = 'quote' | 'invoice'
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'cancelled'
 
 export interface Faq {
   question: string
@@ -155,6 +157,45 @@ export interface Database {
         Insert: Partial<Database['public']['Tables']['subscriptions']['Row']> & { business_id: string }
         Update: Partial<Database['public']['Tables']['subscriptions']['Row']>
       }
+      invoices: {
+        Row: {
+          id: string
+          business_id: string
+          client_id: string | null
+          type: InvoiceType
+          number: string
+          status: InvoiceStatus
+          issue_date: string
+          due_date: string | null
+          notes: string | null
+          tax_rate: number
+          subtotal_cents: number
+          tax_cents: number
+          total_cents: number
+          created_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['invoices']['Row']> & { business_id: string }
+        Update: Partial<Database['public']['Tables']['invoices']['Row']>
+      }
+      invoice_items: {
+        Row: {
+          id: string
+          invoice_id: string
+          service_id: string | null
+          description: string
+          quantity: number
+          unit_price_cents: number
+          total_cents: number
+          created_at: string
+        }
+        Insert: Partial<Database['public']['Tables']['invoice_items']['Row']> & {
+          invoice_id: string
+          description: string
+          unit_price_cents: number
+          total_cents: number
+        }
+        Update: Partial<Database['public']['Tables']['invoice_items']['Row']>
+      }
     }
     Functions: {
       create_business: {
@@ -185,6 +226,19 @@ export interface Database {
       mark_reminder_sent: {
         Args: { p_appointment_id: string }
         Returns: void
+      }
+      create_invoice: {
+        Args: {
+          p_business_id: string
+          p_client_id: string | null
+          p_type: InvoiceType
+          p_issue_date: string
+          p_due_date: string | null
+          p_notes: string | null
+          p_tax_rate: number
+          p_items: { service_id?: string | null; description: string; quantity: number; unit_price_cents: number }[]
+        }
+        Returns: string
       }
     }
   }
