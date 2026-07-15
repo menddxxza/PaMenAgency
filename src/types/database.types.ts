@@ -12,6 +12,15 @@ export type BotTone = 'cercano' | 'profesional' | 'directo' | 'divertido'
 export type PlanTier = 'starter' | 'pro' | 'agencia'
 export type SubscriptionStatus = 'incomplete' | 'trialing' | 'active' | 'past_due' | 'canceled'
 
+export interface Faq {
+  question: string
+  answer: string
+}
+
+export interface KnowledgeBase {
+  faqs?: Faq[]
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -80,6 +89,7 @@ export interface Database {
           starts_at: string
           status: AppointmentStatus
           source: AppointmentSource
+          reminder_sent_at: string | null
           created_at: string
         }
         Insert: Partial<Database['public']['Tables']['appointments']['Row']> & {
@@ -123,7 +133,9 @@ export interface Database {
           business_id: string
           tone: BotTone
           greeting_message: string
-          knowledge_base: Record<string, unknown>
+          knowledge_base: KnowledgeBase
+          reminder_hours_before: number
+          faq_auto_reply: boolean
           updated_at: string
         }
         Insert: Partial<Database['public']['Tables']['bot_config']['Row']> & { business_id: string }
@@ -158,6 +170,21 @@ export interface Database {
           p_sender?: MessageSender
         }
         Returns: string
+      }
+      due_appointment_reminders: {
+        Args: Record<string, never>
+        Returns: {
+          appointment_id: string
+          business_id: string
+          client_phone: string
+          client_name: string | null
+          service_name: string | null
+          starts_at: string
+        }[]
+      }
+      mark_reminder_sent: {
+        Args: { p_appointment_id: string }
+        Returns: void
       }
     }
   }

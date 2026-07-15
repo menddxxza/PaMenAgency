@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import type { AppointmentStatus, BotTone } from '@/types/database.types'
+import type { AppointmentStatus, BotTone, KnowledgeBase } from '@/types/database.types'
 
 export async function createBusiness(name: string, slug: string, whatsappNumber?: string) {
   const { data, error } = await supabase.rpc('create_business', {
@@ -82,11 +82,23 @@ export async function toggleServiceActive(id: string, active: boolean) {
 
 export async function updateBotConfig(
   businessId: string,
-  input: { tone: BotTone; greetingMessage: string },
+  input: {
+    tone: BotTone
+    greetingMessage: string
+    reminderHoursBefore: number
+    faqAutoReply: boolean
+    knowledgeBase: KnowledgeBase
+  },
 ) {
   const { error } = await supabase
     .from('bot_config')
-    .update({ tone: input.tone, greeting_message: input.greetingMessage })
+    .update({
+      tone: input.tone,
+      greeting_message: input.greetingMessage,
+      reminder_hours_before: input.reminderHoursBefore,
+      faq_auto_reply: input.faqAutoReply,
+      knowledge_base: input.knowledgeBase,
+    })
     .eq('business_id', businessId)
   if (error) throw error
 }
