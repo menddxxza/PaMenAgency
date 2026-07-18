@@ -12,22 +12,37 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
+// El navegador (no n8n) llama a esta función directamente, así que necesita
+// cabeceras CORS: sin ellas, el navegador bloquea la petición antes de que
+// llegue al código de abajo y supabase-js solo reporta un error genérico
+// ("Failed to send a request to the Edge Function").
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 })
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders })
   }
 
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401 })
+    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: corsHeaders })
   }
 
   const body = await req.json().catch(() => null)
   if (!body?.business_id || !body?.email || !body?.role) {
-    return new Response(JSON.stringify({ error: 'business_id, email y role son obligatorios' }), { status: 400 })
+    return new Response(JSON.stringify({ error: 'business_id, email y role son obligatorios' }), {
+      status: 400,
+      headers: corsHeaders,
+    })
   }
   if (!['owner', 'staff', 'agency'].includes(body.role)) {
-    return new Response(JSON.stringify({ error: 'role inválido' }), { status: 400 })
+    return new Response(JSON.stringify({ error: 'role inválido' }), { status: 400, headers: corsHeaders })
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -48,6 +63,7 @@ Deno.serve(async (req) => {
   if (!membership || membership.role !== 'owner') {
     return new Response(JSON.stringify({ error: 'Solo el owner del negocio puede invitar personas' }), {
       status: 403,
+      headers: corsHeaders,
     })
   }
 
@@ -64,11 +80,14 @@ Deno.serve(async (req) => {
     const { data: existing } = await adminClient.auth.admin.listUsers()
     userId = existing?.users?.find((u) => u.email?.toLowerCase() === body.email.toLowerCase())?.id
   } else if (inviteError) {
-    return new Response(JSON.stringify({ error: inviteError.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: inviteError.message }), { status: 500, headers: corsHeaders })
   }
 
   if (!userId) {
-    return new Response(JSON.stringify({ error: 'No se pudo resolver el usuario invitado' }), { status: 500 })
+    return new Response(JSON.stringify({ error: 'No se pudo resolver el usuario invitado' }), {
+      status: 500,
+      headers: corsHeaders,
+    })
   }
 
   const { error: linkError } = await adminClient
@@ -76,8 +95,11 @@ Deno.serve(async (req) => {
     .upsert({ business_id: body.business_id, user_id: userId, role: body.role }, { onConflict: 'business_id,user_id' })
 
   if (linkError) {
-    return new Response(JSON.stringify({ error: linkError.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: linkError.message }), { status: 500, headers: corsHeaders })
   }
 
-  return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
 })

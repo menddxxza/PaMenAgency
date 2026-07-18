@@ -9,19 +9,31 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import Stripe from 'npm:stripe@14'
 
+// El navegador llama a esta función directamente, así que necesita
+// cabeceras CORS: sin ellas, el navegador bloquea la petición antes de que
+// llegue al código de abajo y supabase-js solo reporta un error genérico
+// ("Failed to send a request to the Edge Function").
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 })
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders })
   }
 
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401 })
+    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: corsHeaders })
   }
 
   const body = await req.json().catch(() => null)
   if (!body?.business_id) {
-    return new Response(JSON.stringify({ error: 'business_id es obligatorio' }), { status: 400 })
+    return new Response(JSON.stringify({ error: 'business_id es obligatorio' }), { status: 400, headers: corsHeaders })
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -41,6 +53,7 @@ Deno.serve(async (req) => {
   if (!membership || membership.role !== 'owner') {
     return new Response(JSON.stringify({ error: 'Solo el owner del negocio puede gestionar la facturación' }), {
       status: 403,
+      headers: corsHeaders,
     })
   }
 
@@ -52,7 +65,10 @@ Deno.serve(async (req) => {
     .single()
 
   if (!sub?.stripe_customer_id) {
-    return new Response(JSON.stringify({ error: 'Este negocio todavía no tiene una suscripción' }), { status: 400 })
+    return new Response(JSON.stringify({ error: 'Este negocio todavía no tiene una suscripción' }), {
+      status: 400,
+      headers: corsHeaders,
+    })
   }
 
   const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', { apiVersion: '2024-06-20' })
@@ -63,6 +79,6 @@ Deno.serve(async (req) => {
 
   return new Response(JSON.stringify({ url: portalSession.url }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
 })

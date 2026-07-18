@@ -8,19 +8,34 @@
 
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
+// El navegador llama a esta función directamente, así que necesita
+// cabeceras CORS: sin ellas, el navegador bloquea la petición antes de que
+// llegue al código de abajo y supabase-js solo reporta un error genérico
+// ("Failed to send a request to the Edge Function").
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 })
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders })
   }
 
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401 })
+    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: corsHeaders })
   }
 
   const body = await req.json().catch(() => null)
   if (!body?.business_id || !body?.member_id) {
-    return new Response(JSON.stringify({ error: 'business_id y member_id son obligatorios' }), { status: 400 })
+    return new Response(JSON.stringify({ error: 'business_id y member_id son obligatorios' }), {
+      status: 400,
+      headers: corsHeaders,
+    })
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -39,6 +54,7 @@ Deno.serve(async (req) => {
   if (!membership || membership.role !== 'owner') {
     return new Response(JSON.stringify({ error: 'Solo el owner del negocio puede quitar personas' }), {
       status: 403,
+      headers: corsHeaders,
     })
   }
 
@@ -53,14 +69,20 @@ Deno.serve(async (req) => {
   const ownerCount = allMembers?.filter((m) => m.role === 'owner').length ?? 0
 
   if (target?.role === 'owner' && ownerCount <= 1) {
-    return new Response(JSON.stringify({ error: 'No puedes quitar al único owner del negocio' }), { status: 400 })
+    return new Response(JSON.stringify({ error: 'No puedes quitar al único owner del negocio' }), {
+      status: 400,
+      headers: corsHeaders,
+    })
   }
 
   const { error } = await adminClient.from('business_users').delete().eq('id', body.member_id)
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 })
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders })
   }
 
-  return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } })
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
 })

@@ -17,20 +17,33 @@ const PLAN_PRICE_ENV: Record<string, string> = {
   agencia: 'STRIPE_PRICE_AGENCIA',
 }
 
+// El navegador llama a esta función directamente, así que necesita
+// cabeceras CORS: sin ellas, el navegador bloquea la petición antes de que
+// llegue al código de abajo y supabase-js solo reporta un error genérico
+// ("Failed to send a request to the Edge Function").
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
 Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 })
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders })
   }
 
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401 })
+    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: corsHeaders })
   }
 
   const body = await req.json().catch(() => null)
   if (!body?.business_id || !body?.plan || !PLAN_PRICE_ENV[body.plan]) {
     return new Response(JSON.stringify({ error: 'business_id y plan (starter|pro|agencia) son obligatorios' }), {
       status: 400,
+      headers: corsHeaders,
     })
   }
 
@@ -51,13 +64,17 @@ Deno.serve(async (req) => {
   if (!membership || membership.role !== 'owner') {
     return new Response(JSON.stringify({ error: 'Solo el owner del negocio puede contratar un plan' }), {
       status: 403,
+      headers: corsHeaders,
     })
   }
 
   const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', { apiVersion: '2024-06-20' })
   const priceId = Deno.env.get(PLAN_PRICE_ENV[body.plan]) ?? ''
   if (!priceId) {
-    return new Response(JSON.stringify({ error: `Falta configurar ${PLAN_PRICE_ENV[body.plan]}` }), { status: 500 })
+    return new Response(JSON.stringify({ error: `Falta configurar ${PLAN_PRICE_ENV[body.plan]}` }), {
+      status: 500,
+      headers: corsHeaders,
+    })
   }
 
   const adminClient = createClient(supabaseUrl, serviceKey)
@@ -93,6 +110,6 @@ Deno.serve(async (req) => {
 
   return new Response(JSON.stringify({ url: session.url }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   })
 })
