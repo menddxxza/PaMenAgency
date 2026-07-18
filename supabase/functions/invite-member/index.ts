@@ -54,21 +54,27 @@ Deno.serve(async (req) => {
   const callerClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
   })
-  const { data: membership, error: membershipError } = await callerClient
+  const { data: caller } = await callerClient.auth.getUser()
+  if (!caller?.user) {
+    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: corsHeaders })
+  }
+
+  // La policy de business_users deja ver todas las filas de un negocio al
+  // que perteneces (no solo la propia) — sin filtrar también por user_id,
+  // esta consulta devuelve una fila por cada miembro del negocio en cuanto
+  // hay más de uno, y `.single()` falla con "Cannot coerce... 2 rows".
+  const { data: membership } = await callerClient
     .from('business_users')
     .select('role')
     .eq('business_id', body.business_id)
+    .eq('user_id', caller.user.id)
     .single()
 
   if (!membership || membership.role !== 'owner') {
-    return new Response(
-      JSON.stringify({
-        error: 'Solo el owner del negocio puede invitar personas',
-        debug_membership: membership,
-        debug_error: membershipError,
-      }),
-      { status: 403, headers: corsHeaders },
-    )
+    return new Response(JSON.stringify({ error: 'Solo el owner del negocio puede invitar personas' }), {
+      status: 403,
+      headers: corsHeaders,
+    })
   }
 
   const adminClient = createClient(supabaseUrl, serviceKey)

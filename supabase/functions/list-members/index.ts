@@ -42,10 +42,19 @@ Deno.serve(async (req) => {
   const callerClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
   })
+  const { data: caller } = await callerClient.auth.getUser()
+  if (!caller?.user) {
+    return new Response(JSON.stringify({ error: 'No autenticado' }), { status: 401, headers: corsHeaders })
+  }
+
+  // Filtrar también por user_id: la policy deja ver todas las filas del
+  // negocio al que perteneces, no solo la propia, y sin este filtro
+  // `.single()` falla en cuanto el negocio tiene más de un miembro.
   const { data: membership } = await callerClient
     .from('business_users')
     .select('role')
     .eq('business_id', body.business_id)
+    .eq('user_id', caller.user.id)
     .single()
 
   if (!membership) {
