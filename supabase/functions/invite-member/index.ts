@@ -54,17 +54,21 @@ Deno.serve(async (req) => {
   const callerClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
   })
-  const { data: membership } = await callerClient
+  const { data: membership, error: membershipError } = await callerClient
     .from('business_users')
     .select('role')
     .eq('business_id', body.business_id)
     .single()
 
   if (!membership || membership.role !== 'owner') {
-    return new Response(JSON.stringify({ error: 'Solo el owner del negocio puede invitar personas' }), {
-      status: 403,
-      headers: corsHeaders,
-    })
+    return new Response(
+      JSON.stringify({
+        error: 'Solo el owner del negocio puede invitar personas',
+        debug_membership: membership,
+        debug_error: membershipError,
+      }),
+      { status: 403, headers: corsHeaders },
+    )
   }
 
   const adminClient = createClient(supabaseUrl, serviceKey)
