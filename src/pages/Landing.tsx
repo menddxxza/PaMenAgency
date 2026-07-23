@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PricingTable } from '@/components/billing/PricingTable'
+import { useScrollReveal } from '@/hooks/useScrollReveal'
+import { useMouseParallax } from '@/hooks/useMouseParallax'
 
 const PROBLEMS = [
   {
@@ -87,9 +89,11 @@ const CASES = [
 export function Landing() {
   const [activeCase, setActiveCase] = useState(CASES[0].id)
   const currentCase = CASES.find((c) => c.id === activeCase) ?? CASES[0]
+  const revealRef = useScrollReveal<HTMLDivElement>()
+  const heroRef = useMouseParallax<HTMLElement>()
 
   return (
-    <div className="landing">
+    <div className="landing" ref={revealRef}>
       <nav className="landing__nav">
         <span className="landing__nav-brand">Atiende</span>
         <div className="landing__nav-links">
@@ -103,8 +107,8 @@ export function Landing() {
         </div>
       </nav>
 
-      <header className="landing__hero">
-        <div className="landing__hero-copy">
+      <header className="landing__hero" ref={heroRef}>
+        <div className="landing__hero-copy reveal">
           <h1>El panel de citas y WhatsApp para tu negocio</h1>
           <p>
             Atiende conecta tu WhatsApp Business con un bot de IA que agenda citas solo, y te da un panel para
@@ -120,7 +124,7 @@ export function Landing() {
           </div>
         </div>
 
-        <div className="chat-mock" aria-hidden="true">
+        <div className="chat-mock reveal" style={{ transitionDelay: '0.12s' }} aria-hidden="true">
           <div className="chat-mock__header">
             <span className="chat-mock__dot" />
             <span>Tu negocio · WhatsApp</span>
@@ -139,10 +143,10 @@ export function Landing() {
       </header>
 
       <section className="landing__section landing__problem">
-        <h2>Lo que le pasa a un negocio sin esto</h2>
+        <h2 className="reveal">Lo que le pasa a un negocio sin esto</h2>
         <div className="problem-grid">
-          {PROBLEMS.map((p) => (
-            <div className="problem-card" key={p.title}>
+          {PROBLEMS.map((p, i) => (
+            <div className="problem-card reveal" style={{ transitionDelay: `${i * 0.08}s` }} key={p.title}>
               <h3>{p.title}</h3>
               <p>{p.desc}</p>
             </div>
@@ -151,10 +155,14 @@ export function Landing() {
       </section>
 
       <section className="landing__section" id="como-funciona">
-        <h2>Todo lo que necesita tu negocio</h2>
+        <h2 className="reveal">Todo lo que necesita tu negocio</h2>
         <div className="solution-grid">
-          {PILLARS.map((f) => (
-            <div className={`solution-card ${f.featured ? 'solution-card--featured' : ''}`} key={f.title}>
+          {PILLARS.map((f, i) => (
+            <div
+              className={`solution-card reveal ${f.featured ? 'solution-card--featured' : ''}`}
+              style={{ transitionDelay: `${i * 0.06}s` }}
+              key={f.title}
+            >
               <h3>{f.title}</h3>
               <p>{f.desc}</p>
             </div>
@@ -163,10 +171,10 @@ export function Landing() {
       </section>
 
       <section className="landing__section landing__process">
-        <h2>Cómo funciona</h2>
+        <h2 className="reveal">Cómo funciona</h2>
         <div className="process-steps">
-          {PROCESS.map((step) => (
-            <div className="process-step" key={step.number}>
+          {PROCESS.map((step, i) => (
+            <div className="process-step reveal" style={{ transitionDelay: `${i * 0.1}s` }} key={step.number}>
               <span className="process-step__number">{step.number}</span>
               <h3>{step.title}</h3>
               <p>{step.desc}</p>
@@ -176,8 +184,8 @@ export function Landing() {
       </section>
 
       <section className="landing__section landing__cases" id="casos">
-        <h2>Pensado para tu tipo de negocio</h2>
-        <div className="cases-tabs" role="tablist">
+        <h2 className="reveal">Pensado para tu tipo de negocio</h2>
+        <div className="cases-tabs reveal" role="tablist">
           {CASES.map((c) => (
             <button
               key={c.id}
@@ -190,15 +198,17 @@ export function Landing() {
             </button>
           ))}
         </div>
-        <div className="cases-panel">
+        <div className="cases-panel reveal">
           <h3>{currentCase.title}</h3>
           <p>{currentCase.desc}</p>
         </div>
       </section>
 
       <section className="landing__section" id="precios">
-        <h2>Planes simples, sin sorpresas</h2>
-        <PricingTable ctaLabel={() => 'Empezar'} onSelect={() => (window.location.href = '/signup')} />
+        <h2 className="reveal">Planes simples, sin sorpresas</h2>
+        <div className="reveal">
+          <PricingTable ctaLabel={() => 'Empezar'} onSelect={() => (window.location.href = '/signup')} />
+        </div>
       </section>
 
       <footer className="landing__footer">© {new Date().getFullYear()} Atiende</footer>
