@@ -17,7 +17,7 @@ export interface PlanDefinition {
 // Única fuente de verdad para nombres/precios/límites que se muestran en la
 // landing, el paywall y el gating de navegación. Los Price ID reales de
 // Stripe viven como secretos de Supabase (STRIPE_PRICE_STARTER, etc.), no
-// acá — así cambiar un precio en Stripe no obliga a tocar código.
+// aquí — así cambiar un precio en Stripe no obliga a tocar código.
 export const PLANS: Record<PlanTier, PlanDefinition> = {
   starter: {
     id: 'starter',

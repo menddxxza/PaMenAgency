@@ -42,7 +42,7 @@ export function Login() {
           ¿Olvidaste tu contraseña?
         </Link>
         <Link to="/signup" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
-          ¿No tenés cuenta? Creála
+          ¿No tienes cuenta? Créala
         </Link>
       </form>
     </div>

@@ -38,11 +38,11 @@ export function Suscripcion() {
           ← Volver al panel
         </Link>
       )}
-      <h1>{isActive ? 'Tu plan' : 'Activá tu suscripción para usar Atiende'}</h1>
+      <h1>{isActive ? 'Tu plan' : 'Activa tu suscripción para usar Atiende'}</h1>
       <p>
         {isActive
-          ? 'Podés cambiar de plan cuando quieras.'
-          : 'Elegí un plan para empezar a usar el panel — sin suscripción activa, el equipo no puede entrar.'}
+          ? 'Puedes cambiar de plan cuando quieras.'
+          : 'Elige un plan para empezar a usar el panel — sin suscripción activa, el equipo no puede entrar.'}
       </p>
       {myRole && myRole !== 'owner' && (
         <p className="form-error">Solo el dueño/a del negocio puede contratar o cambiar el plan.</p>

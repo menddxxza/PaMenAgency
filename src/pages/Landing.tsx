@@ -33,22 +33,22 @@ const PILLARS = [
   },
   {
     title: 'Facturación',
-    desc: 'Generá facturas numeradas ligadas a cada cliente y servicio, sin salir del panel.',
+    desc: 'Genera facturas numeradas ligadas a cada cliente y servicio, sin salir del panel.',
   },
   {
     title: 'Inventario',
-    desc: 'Controlá stock y pedidos a proveedores para no quedarte sin lo que necesitás para atender.',
+    desc: 'Controla el stock y los pedidos a proveedores para no quedarte sin lo que necesitas para atender.',
   },
   {
     title: 'Multi-negocio',
-    desc: 'Gestioná varios locales —o los de tus clientes, si trabajás como agencia— desde una sola cuenta.',
+    desc: 'Gestiona varios locales —o los de tus clientes, si trabajas como agencia— desde una sola cuenta.',
   },
 ]
 
 const PROCESS = [
   {
     number: '1',
-    title: 'Conectás tu WhatsApp',
+    title: 'Conecta tu WhatsApp',
     desc: 'Vinculamos el número de WhatsApp Business de tu negocio con Atiende. Sin cambiar de número, sin apps extra.',
   },
   {
@@ -58,8 +58,8 @@ const PROCESS = [
   },
   {
     number: '3',
-    title: 'Vos controlás todo desde el panel',
-    desc: 'Citas, clientes, conversaciones, facturación e inventario en un solo lugar. Tomás el chat cuando quieras.',
+    title: 'Tú controlas todo desde el panel',
+    desc: 'Citas, clientes, conversaciones, facturación e inventario en un solo lugar. Tomas el chat cuando quieras.',
   },
 ]
 
@@ -68,7 +68,7 @@ const CASES = [
     id: 'clinicas',
     label: 'Clínicas',
     title: 'Clínicas y consultas',
-    desc: 'El bot confirma turnos, recuerda a los pacientes su cita del día siguiente y resuelve dudas sobre horarios y ubicación, sin que la recepción tenga que estar pendiente del móvil todo el día.',
+    desc: 'El bot confirma citas, recuerda a los pacientes la suya del día siguiente y resuelve dudas sobre horarios y ubicación, sin que la recepción tenga que estar pendiente del móvil todo el día.',
   },
   {
     id: 'salones',
@@ -80,7 +80,7 @@ const CASES = [
     id: 'talleres',
     label: 'Talleres',
     title: 'Talleres y servicios técnicos',
-    desc: 'Agendá revisiones y entregas, llevá el historial de cada cliente y generá la factura del servicio sin pasar por hojas de cálculo sueltas.',
+    desc: 'Agenda revisiones y entregas, lleva el historial de cada cliente y genera la factura del servicio sin depender de hojas de cálculo sueltas.',
   },
 ]
 

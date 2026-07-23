@@ -37,7 +37,7 @@ export function Signup() {
         <h1>Crear cuenta</h1>
         {confirmSent ? (
           <p className="login__hint">
-            Te enviamos un email para confirmar tu cuenta. Confirmalo y después iniciá sesión para crear tu negocio.
+            Te hemos enviado un email para confirmar tu cuenta. Confírmalo y después inicia sesión para crear tu negocio.
           </p>
         ) : (
           <>
@@ -62,7 +62,7 @@ export function Signup() {
           </>
         )}
         <Link to="/login" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
-          ¿Ya tenés cuenta? Iniciá sesión
+          ¿Ya tienes cuenta? Inicia sesión
         </Link>
       </form>
     </div>
