@@ -4,7 +4,6 @@ import { useSupplierOrders } from '@/hooks/useSupplierOrders'
 import { receiveSupplierOrder, updateSupplierOrderStatus } from '@/lib/mutations'
 import { InventoryItemModal } from '@/components/inventario/InventoryItemModal'
 import { NewSupplierOrderModal } from '@/components/inventario/NewSupplierOrderModal'
-import { ImportInventoryPhotoModal } from '@/components/inventario/ImportInventoryPhotoModal'
 import { useToast } from '@/context/ToastContext'
 import type { Database, SupplierOrderStatus } from '@/types/database.types'
 
@@ -30,7 +29,6 @@ export function Inventario() {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null)
   const [showNewItem, setShowNewItem] = useState(false)
   const [showNewOrder, setShowNewOrder] = useState(false)
-  const [showImportPhoto, setShowImportPhoto] = useState(false)
 
   const itemById = useMemo(() => new Map(items.map((i) => [i.id, i])), [items])
   const lowStockCount = items.filter((i) => i.quantity <= i.min_quantity).length
@@ -60,14 +58,9 @@ export function Inventario() {
           <h1>Inventario</h1>
           <p>Material disponible, alertas de stock bajo y control de caducidades.</p>
         </div>
-        <div className="table__actions">
-          <button className="btn" onClick={() => setShowImportPhoto(true)}>
-            📷 Importar albarán con foto
-          </button>
-          <button className="btn btn--primary" onClick={() => setShowNewItem(true)}>
-            + Nuevo artículo
-          </button>
-        </div>
+        <button className="btn btn--primary" onClick={() => setShowNewItem(true)}>
+          + Nuevo artículo
+        </button>
       </div>
 
       <div className="stat-row">
@@ -208,9 +201,6 @@ export function Inventario() {
         <InventoryItemModal item={editingItem} onClose={() => setEditingItem(null)} onSaved={refresh} />
       )}
       {showNewOrder && <NewSupplierOrderModal onClose={() => setShowNewOrder(false)} onCreated={refreshOrders} />}
-      {showImportPhoto && (
-        <ImportInventoryPhotoModal onClose={() => setShowImportPhoto(false)} onImported={refresh} />
-      )}
     </div>
   )
 }

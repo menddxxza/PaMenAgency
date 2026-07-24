@@ -3,7 +3,6 @@ import { useClients } from '@/hooks/useClients'
 import { useAppointments } from '@/hooks/useAppointments'
 import { useServices } from '@/hooks/useServices'
 import { ClientDetailModal } from '@/components/clientes/ClientDetailModal'
-import { ImportClientPhotoModal } from '@/components/clientes/ImportClientPhotoModal'
 import type { Database } from '@/types/database.types'
 
 type Client = Database['public']['Tables']['clients']['Row']
@@ -14,7 +13,6 @@ export function Clientes() {
   const { services } = useServices()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Client | null>(null)
-  const [showImportPhoto, setShowImportPhoto] = useState(false)
 
   const serviceById = useMemo(() => new Map(services.map((s) => [s.id, s])), [services])
   const appointmentCountByClient = useMemo(() => {
@@ -39,9 +37,6 @@ export function Clientes() {
           <h1>Clientes</h1>
           <p>Contactos que han escrito o reservado citas.</p>
         </div>
-        <button className="btn btn--primary" onClick={() => setShowImportPhoto(true)}>
-          📷 Añadir con foto
-        </button>
       </div>
 
       <div className="card">
@@ -99,9 +94,6 @@ export function Clientes() {
           onClose={() => setSelected(null)}
           onSaved={refresh}
         />
-      )}
-      {showImportPhoto && (
-        <ImportClientPhotoModal onClose={() => setShowImportPhoto(false)} onImported={refresh} />
       )}
     </div>
   )
