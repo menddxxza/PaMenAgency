@@ -205,6 +205,7 @@ export interface Database {
           unit: string
           quantity: number
           min_quantity: number
+          unit_price: number | null
           expiry_date: string | null
           notes: string | null
           created_at: string

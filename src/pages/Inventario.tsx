@@ -4,6 +4,7 @@ import { useSupplierOrders } from '@/hooks/useSupplierOrders'
 import { receiveSupplierOrder, updateSupplierOrderStatus } from '@/lib/mutations'
 import { InventoryItemModal } from '@/components/inventario/InventoryItemModal'
 import { NewSupplierOrderModal } from '@/components/inventario/NewSupplierOrderModal'
+import { ImportInventoryPhotoModal } from '@/components/inventario/ImportInventoryPhotoModal'
 import { useToast } from '@/context/ToastContext'
 import type { Database, SupplierOrderStatus } from '@/types/database.types'
 
@@ -29,6 +30,7 @@ export function Inventario() {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null)
   const [showNewItem, setShowNewItem] = useState(false)
   const [showNewOrder, setShowNewOrder] = useState(false)
+  const [showImportPhoto, setShowImportPhoto] = useState(false)
 
   const itemById = useMemo(() => new Map(items.map((i) => [i.id, i])), [items])
   const lowStockCount = items.filter((i) => i.quantity <= i.min_quantity).length
@@ -58,9 +60,14 @@ export function Inventario() {
           <h1>Inventario</h1>
           <p>Material disponible, alertas de stock bajo y control de caducidades.</p>
         </div>
-        <button className="btn btn--primary" onClick={() => setShowNewItem(true)}>
-          + Nuevo artículo
-        </button>
+        <div className="table__actions">
+          <button className="btn" onClick={() => setShowImportPhoto(true)}>
+            📷 Importar albarán con foto
+          </button>
+          <button className="btn btn--primary" onClick={() => setShowNewItem(true)}>
+            + Nuevo artículo
+          </button>
+        </div>
       </div>
 
       <div className="stat-row">
@@ -94,6 +101,7 @@ export function Inventario() {
                   <th>Artículo</th>
                   <th>Cantidad</th>
                   <th>Mínimo</th>
+                  <th>Precio</th>
                   <th>Caducidad</th>
                   <th>Alertas</th>
                   <th></th>
@@ -114,6 +122,7 @@ export function Inventario() {
                       <td>
                         {item.min_quantity} {item.unit}
                       </td>
+                      <td>{item.unit_price != null ? `${item.unit_price.toFixed(2)}€` : '—'}</td>
                       <td>{item.expiry_date ? new Date(item.expiry_date).toLocaleDateString('es-ES') : '—'}</td>
                       <td>
                         <div className="table__actions">
@@ -199,6 +208,9 @@ export function Inventario() {
         <InventoryItemModal item={editingItem} onClose={() => setEditingItem(null)} onSaved={refresh} />
       )}
       {showNewOrder && <NewSupplierOrderModal onClose={() => setShowNewOrder(false)} onCreated={refreshOrders} />}
+      {showImportPhoto && (
+        <ImportInventoryPhotoModal onClose={() => setShowImportPhoto(false)} onImported={refresh} />
+      )}
     </div>
   )
 }

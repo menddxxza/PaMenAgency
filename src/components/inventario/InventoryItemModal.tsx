@@ -17,6 +17,7 @@ export function InventoryItemModal({ item, onClose, onSaved }: Props) {
   const [unit, setUnit] = useState(item?.unit ?? 'unidad')
   const [quantity, setQuantity] = useState(item ? String(item.quantity) : '0')
   const [minQuantity, setMinQuantity] = useState(item ? String(item.min_quantity) : '0')
+  const [unitPrice, setUnitPrice] = useState(item?.unit_price != null ? String(item.unit_price) : '')
   const [expiryDate, setExpiryDate] = useState(item?.expiry_date ?? '')
   const [notes, setNotes] = useState(item?.notes ?? '')
   const [error, setError] = useState<string | null>(null)
@@ -37,6 +38,12 @@ export function InventoryItemModal({ item, onClose, onSaved }: Props) {
       return
     }
 
+    const unitPriceValue = unitPrice.trim() ? parseFloat(unitPrice.replace(',', '.')) : null
+    if (unitPriceValue !== null && !Number.isFinite(unitPriceValue)) {
+      setError('El precio no es válido')
+      return
+    }
+
     setSubmitting(true)
     setError(null)
     try {
@@ -45,6 +52,7 @@ export function InventoryItemModal({ item, onClose, onSaved }: Props) {
         unit: unit.trim() || 'unidad',
         quantity: quantityValue,
         minQuantity: minQuantityValue,
+        unitPrice: unitPriceValue,
         expiryDate: expiryDate || null,
         notes: notes.trim() || null,
       }
@@ -87,6 +95,10 @@ export function InventoryItemModal({ item, onClose, onSaved }: Props) {
           <label>
             Alerta de stock bajo (mínimo)
             <input value={minQuantity} onChange={(e) => setMinQuantity(e.target.value)} required inputMode="decimal" />
+          </label>
+          <label>
+            Precio de compra (€)
+            <input value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} inputMode="decimal" placeholder="Opcional" />
           </label>
           <label>
             Fecha de caducidad

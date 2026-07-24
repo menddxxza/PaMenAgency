@@ -190,6 +190,7 @@ export async function createInventoryItem(input: {
   unit: string
   quantity: number
   minQuantity: number
+  unitPrice?: number | null
   expiryDate: string | null
   notes: string | null
 }) {
@@ -199,6 +200,7 @@ export async function createInventoryItem(input: {
     unit: input.unit,
     quantity: input.quantity,
     min_quantity: input.minQuantity,
+    unit_price: input.unitPrice ?? null,
     expiry_date: input.expiryDate,
     notes: input.notes,
   })
@@ -207,7 +209,15 @@ export async function createInventoryItem(input: {
 
 export async function updateInventoryItem(
   id: string,
-  input: { name: string; unit: string; quantity: number; minQuantity: number; expiryDate: string | null; notes: string | null },
+  input: {
+    name: string
+    unit: string
+    quantity: number
+    minQuantity: number
+    unitPrice?: number | null
+    expiryDate: string | null
+    notes: string | null
+  },
 ) {
   const { error } = await supabase
     .from('inventory_items')
@@ -216,6 +226,7 @@ export async function updateInventoryItem(
       unit: input.unit,
       quantity: input.quantity,
       min_quantity: input.minQuantity,
+      unit_price: input.unitPrice ?? null,
       expiry_date: input.expiryDate,
       notes: input.notes,
     })

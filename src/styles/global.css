@@ -1153,6 +1153,25 @@ label {
   gap: 1rem;
 }
 
+.modal--wide {
+  width: 680px;
+}
+
+/* ---------- importar documento con foto (albarán / ficha de cliente) ---------- */
+
+.scan-hint {
+  font-size: 0.85rem;
+}
+
+.scan-preview {
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  align-self: flex-start;
+}
+
 .modal__header {
   display: flex;
   justify-content: space-between;
