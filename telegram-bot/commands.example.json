@@ -1,0 +1,17 @@
+{
+  "estado": {
+    "cmd": "git status",
+    "description": "Ver el estado del repo de Atiende",
+    "cwd": "."
+  },
+  "actualizar": {
+    "cmd": "git pull",
+    "description": "Traer los últimos cambios del repo",
+    "cwd": "."
+  },
+  "build": {
+    "cmd": "npm run build",
+    "description": "Compilar la app",
+    "cwd": "."
+  }
+}

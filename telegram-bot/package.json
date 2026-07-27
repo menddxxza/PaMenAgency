@@ -1,0 +1,23 @@
+{
+  "name": "atiende-telegram-bot",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev:soporte": "tsx watch src/support-bot/index.ts",
+    "dev:personal": "tsx watch src/personal-bot/index.ts",
+    "start:soporte": "tsx src/support-bot/index.ts",
+    "start:personal": "tsx src/personal-bot/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "dotenv": "^16.4.5",
+    "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  }
+}
