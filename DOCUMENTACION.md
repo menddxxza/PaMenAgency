@@ -62,6 +62,9 @@ Todas estas páginas viven detrás de login + negocio creado + suscripción acti
 - **Estadísticas** *(Pro/Agencia)* — gráficas del negocio (citas, conversaciones, conversión del bot).
 - **Configuración** — datos del negocio (nombre, WhatsApp, zona horaria), configuración del bot (tono, recordatorios automáticos con horas de antelación configurables, respuesta automática de IA a preguntas frecuentes con base de conocimiento editable), servicios ofrecidos, y gestión del equipo (invitar/eliminar miembros).
 - **Suscripción** — ver plan actual, cambiar de plan, o gestionar la suscripción/facturación desde el Billing Portal de Stripe.
+- **Selector de negocio** (en la barra lateral) — si una cuenta pertenece a más de un negocio, puede cambiar de uno a otro sin cerrar sesión; el menú de navegación se adapta automáticamente a las funciones que tiene el plan de cada negocio.
+- **Onboarding** — si una cuenta confirmada todavía no tiene ningún negocio creado, se le pide crear el primero (nombre, slug, número de WhatsApp) antes de entrar al panel.
+- **Página 404** — cualquier ruta que no exista muestra una página de "no encontrado" en vez de romperse.
 
 ---
 
