@@ -3,6 +3,7 @@ import { useTenant } from '@/context/TenantContext'
 import { useClients } from '@/hooks/useClients'
 import { useServices } from '@/hooks/useServices'
 import { createInvoice } from '@/lib/mutations'
+import { Modal } from '@/components/ui/Modal'
 import type { InvoiceType } from '@/types/database.types'
 
 interface Props {
@@ -119,15 +120,21 @@ export function NewInvoiceModal({ onClose, onCreated }: Props) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <form className="modal" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
-        <div className="modal__header">
-          <h2>{type === 'quote' ? 'Nuevo presupuesto' : 'Nueva factura'}</h2>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={onClose}>
-            ✕
+    <Modal
+      title={type === 'quote' ? 'Nuevo presupuesto' : 'Nueva factura'}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <button type="button" className="btn" onClick={onClose}>
+            Cancelar
           </button>
-        </div>
-
+          <button type="submit" className="btn btn--primary" disabled={submitting}>
+            {submitting ? 'Guardando…' : type === 'quote' ? 'Crear presupuesto' : 'Crear factura'}
+          </button>
+        </>
+      }
+    >
         <div className="form-grid">
           <label>
             Tipo de documento
@@ -226,17 +233,11 @@ export function NewInvoiceModal({ onClose, onCreated }: Props) {
           </div>
         </div>
 
-        {error && <p className="form-error">{error}</p>}
-
-        <div className="modal__footer">
-          <button type="button" className="btn" onClick={onClose}>
-            Cancelar
-          </button>
-          <button type="submit" className="btn btn--primary" disabled={submitting}>
-            {submitting ? 'Guardando…' : type === 'quote' ? 'Crear presupuesto' : 'Crear factura'}
-          </button>
-        </div>
-      </form>
-    </div>
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+    </Modal>
   )
 }

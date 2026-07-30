@@ -7,9 +7,12 @@ import { updateBotConfig, updateBusinessSettings, toggleServiceActive } from '@/
 import { NewServiceModal } from '@/components/configuracion/NewServiceModal'
 import { TeamSection } from '@/components/configuracion/TeamSection'
 import { BillingSection } from '@/components/configuracion/BillingSection'
+import { usePageTitle } from '@/hooks/usePageTitle'
+import { FullPageLoader } from '@/components/layout/FullPageLoader'
 import type { BotTone, Faq } from '@/types/database.types'
 
 export function Configuracion() {
+  usePageTitle('Configuración')
   const { activeBusinessId } = useTenant()
   const { showToast } = useToast()
   const { business, botConfig, loading, refresh } = useBusinessSettings()
@@ -86,7 +89,17 @@ export function Configuracion() {
     setFaqs((prev) => prev.filter((_, i) => i !== index))
   }
 
-  if (loading || !activeBusinessId) return <div className="page">Cargando…</div>
+  async function handleToggleService(id: string, active: boolean) {
+    try {
+      await toggleServiceActive(id, active)
+      await refreshServices()
+      showToast(active ? 'Servicio activado' : 'Servicio desactivado')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'No se pudo cambiar el servicio', 'error')
+    }
+  }
+
+  if (loading || !activeBusinessId) return <FullPageLoader />
 
   return (
     <div className="page">
@@ -201,7 +214,11 @@ export function Configuracion() {
           </button>
         </div>
 
-        {services.length === 0 && <p className="empty-state">Todavía no hay servicios configurados.</p>}
+        {services.length === 0 && (
+          <p className="empty-state">
+            Todavía no hay servicios configurados. El bot los necesita para poder ofrecer horarios y precios al reservar.
+          </p>
+        )}
 
         {services.length > 0 && (
           <div className="table-scroll">
@@ -221,16 +238,14 @@ export function Configuracion() {
                   <td>{s.name}</td>
                   <td>{(s.price_cents / 100).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}</td>
                   <td>{s.duration_min} min</td>
-                  <td>{s.active ? 'Sí' : 'No'}</td>
+                  <td>
+                    <span className={`badge badge--${s.active ? 'confirmed' : 'closed'}`}>
+                      {s.active ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
                   <td>
                     <div className="table__actions">
-                      <button
-                        className="btn btn--sm"
-                        onClick={async () => {
-                          await toggleServiceActive(s.id, !s.active)
-                          refreshServices()
-                        }}
-                      >
+                      <button className="btn btn--sm" onClick={() => handleToggleService(s.id, !s.active)}>
                         {s.active ? 'Desactivar' : 'Activar'}
                       </button>
                     </div>

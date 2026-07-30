@@ -70,3 +70,11 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
 
 export const PLAN_ORDER: PlanTier[] = ['starter', 'pro', 'agencia']
 export const PLANS_LIST = PLAN_ORDER.map((id) => PLANS[id])
+
+// Duración de la prueba gratis. El valor real que decide el acceso lo pone
+// la base de datos (create_business, en 0011_free_trial.sql); esta constante
+// es solo para el texto que ve el cliente — si se cambia una, cambiar la otra.
+export const TRIAL_DAYS = 5
+
+// Plan con el que se prueba: durante la prueba se ve el producto completo.
+export const TRIAL_PLAN: PlanTier = 'pro'

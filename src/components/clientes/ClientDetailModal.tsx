@@ -2,6 +2,8 @@ import { useRef, useState } from 'react'
 import { deleteClientDocument, getClientDocumentUrl, updateClientNotes, uploadClientDocument } from '@/lib/mutations'
 import { useClientDocuments } from '@/hooks/useClientDocuments'
 import { useToast } from '@/context/ToastContext'
+import { Modal } from '@/components/ui/Modal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import type { Database } from '@/types/database.types'
 
 type Client = Database['public']['Tables']['clients']['Row']
@@ -29,6 +31,7 @@ export function ClientDetailModal({ client, appointments, serviceById, onClose, 
   const [notes, setNotes] = useState(client.notes ?? '')
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [docToDelete, setDocToDelete] = useState<{ id: string; name: string; storagePath: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { documents, loading: loadingDocuments, refresh: refreshDocuments } = useClientDocuments(client.id)
@@ -85,15 +88,21 @@ export function ClientDetailModal({ client, appointments, serviceById, onClose, 
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal__header">
-          <h2>{client.name || client.phone}</h2>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={onClose}>
-            ✕
+    <>
+    <Modal
+      title={client.name || client.phone}
+      onClose={onClose}
+      footer={
+        <>
+          <button type="button" className="btn" onClick={onClose}>
+            Cerrar
           </button>
-        </div>
-
+          <button type="button" className="btn btn--primary" onClick={handleSave} disabled={saving}>
+            {saving ? 'Guardando…' : 'Guardar notas'}
+          </button>
+        </>
+      }
+    >
         <div className="form-grid">
           <div>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Teléfono</span>
@@ -153,8 +162,8 @@ export function ClientDetailModal({ client, appointments, serviceById, onClose, 
                       </button>
                       <button
                         type="button"
-                        className="btn btn--ghost btn--sm"
-                        onClick={() => handleDeleteDocument(doc.id, doc.storage_path)}
+                        className="btn btn--ghost btn--sm btn--danger"
+                        onClick={() => setDocToDelete({ id: doc.id, name: doc.name, storagePath: doc.storage_path })}
                       >
                         Eliminar
                       </button>
@@ -165,16 +174,21 @@ export function ClientDetailModal({ client, appointments, serviceById, onClose, 
             )}
           </div>
         </div>
+    </Modal>
 
-        <div className="modal__footer">
-          <button type="button" className="btn" onClick={onClose}>
-            Cerrar
-          </button>
-          <button type="button" className="btn btn--primary" onClick={handleSave} disabled={saving}>
-            {saving ? 'Guardando…' : 'Guardar notas'}
-          </button>
-        </div>
-      </div>
-    </div>
+    {docToDelete && (
+      <ConfirmDialog
+        title="Eliminar documento"
+        message={`Se borrará "${docToDelete.name}" de forma permanente, también del almacenamiento. No se puede recuperar.`}
+        confirmLabel="Sí, eliminar"
+        danger
+        onCancel={() => setDocToDelete(null)}
+        onConfirm={async () => {
+          await handleDeleteDocument(docToDelete.id, docToDelete.storagePath)
+          setDocToDelete(null)
+        }}
+      />
+    )}
+    </>
   )
 }

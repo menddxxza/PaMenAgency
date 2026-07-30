@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { usePageTitle } from '@/hooks/usePageTitle'
+import { TRIAL_DAYS } from '@/lib/plans'
 
 export function Signup() {
+  usePageTitle('Crear cuenta')
   const { session, signUp } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -35,6 +38,11 @@ export function Signup() {
     <div className="login">
       <form className="login__form" onSubmit={handleSubmit}>
         <h1>Crear cuenta</h1>
+        {!confirmSent && (
+          <p className="login__hint">
+            {TRIAL_DAYS} días gratis con el plan Pro completo. No se pide tarjeta.
+          </p>
+        )}
         {confirmSent ? (
           <p className="login__hint">
             Te hemos enviado un email para confirmar tu cuenta. Confírmalo y después inicia sesión para crear tu negocio.

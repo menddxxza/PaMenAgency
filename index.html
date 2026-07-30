@@ -5,9 +5,41 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#111827" />
+
+    <!-- El color de la barra del navegador acompaña a la paleta real de la
+         app (beige en claro, casi negro en oscuro); antes era un azul
+         pizarra heredado que no aparece en ninguna pantalla. -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fdfaf4" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a1a19" />
+
+    <title>Atiende · Citas y WhatsApp para tu negocio</title>
+    <meta
+      name="description"
+      content="Atiende conecta el WhatsApp de tu negocio con un bot de IA que responde y agenda citas solo, y te da un panel para llevar agenda, clientes, facturación e inventario desde un único sitio."
+    />
+    <link rel="canonical" href="https://www.atiendeapp.es/" />
+
+    <!-- Sin esto, el enlace compartido por WhatsApp o LinkedIn —que es como
+         va a llegar a la mayoría de negocios— sale sin título ni resumen. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Atiende" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:title" content="Atiende · Citas y WhatsApp para tu negocio" />
+    <meta
+      property="og:description"
+      content="Un bot de IA atiende tu WhatsApp y agenda citas solo. Tú lo controlas todo desde un panel: agenda, clientes, facturación e inventario."
+    />
+    <meta property="og:url" content="https://www.atiendeapp.es/" />
+    <meta property="og:image" content="https://www.atiendeapp.es/icons/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Atiende · Citas y WhatsApp para tu negocio" />
+    <meta
+      name="twitter:description"
+      content="Un bot de IA atiende tu WhatsApp y agenda citas solo. Tú lo controlas todo desde un panel."
+    />
+    <meta name="twitter:image" content="https://www.atiendeapp.es/icons/icon-512.png" />
+
     <link rel="manifest" href="/manifest.json" />
-    <title>Atiende</title>
   </head>
   <body>
     <div id="root"></div>

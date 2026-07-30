@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { PricingTable } from '@/components/billing/PricingTable'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 import { useMouseParallax } from '@/hooks/useMouseParallax'
+import { TRIAL_DAYS } from '@/lib/plans'
 
 const PROBLEMS = [
   {
@@ -86,6 +87,31 @@ const CASES = [
   },
 ]
 
+// Respuestas a las dudas que frenan la contratación. Todas se corresponden
+// con algo que la app ya hace hoy — al cambiar el producto, revisar aquí.
+const FAQS = [
+  {
+    q: `¿Qué incluye la prueba de ${TRIAL_DAYS} días?`,
+    a: `El plan Pro completo: citas, clientes, conversaciones, facturación, inventario y estadísticas. No se pide tarjeta y no hay nada que cancelar: si al cabo de ${TRIAL_DAYS} días no eliges plan, el panel deja de abrirse y tus datos se quedan guardados por si vuelves.`,
+  },
+  {
+    q: '¿Tengo que cambiar mi número de WhatsApp?',
+    a: 'No. Se conecta el número de WhatsApp Business que ya usas, sin cambiar de número y sin instalar aplicaciones extra.',
+  },
+  {
+    q: '¿Y si el bot no sabe qué contestar?',
+    a: 'Puedes tomar el control de cualquier conversación desde el panel y seguir tú el chat, en el mismo hilo y sin que el cliente note el cambio.',
+  },
+  {
+    q: '¿Puedo cambiar de plan más adelante?',
+    a: 'Sí, desde la pantalla de Suscripción, cuando quieras. También puedes gestionar los datos de facturación desde ahí.',
+  },
+  {
+    q: '¿Sirve si tengo varios locales?',
+    a: 'Sí. Con el plan Agencia gestionas negocios y equipo ilimitados desde una sola cuenta, cambiando de uno a otro desde el propio panel.',
+  },
+]
+
 export function Landing() {
   const [activeCase, setActiveCase] = useState(CASES[0].id)
   const currentCase = CASES.find((c) => c.id === activeCase) ?? CASES[0]
@@ -96,10 +122,18 @@ export function Landing() {
     <div className="landing" ref={revealRef}>
       <nav className="landing__nav">
         <span className="landing__nav-brand">Atiende</span>
-        <div className="landing__nav-links">
+
+        {/* Separados en dos grupos para que en móvil las secciones bajen a
+            una segunda línea y la marca y el botón de alta se queden
+            siempre arriba y enteros. */}
+        <div className="landing__nav-sections">
           <a href="#como-funciona">Cómo funciona</a>
           <a href="#casos">Casos de uso</a>
           <a href="#precios">Precios</a>
+          <a href="#faq">Dudas</a>
+        </div>
+
+        <div className="landing__nav-actions">
           <Link to="/login">Iniciar sesión</Link>
           <Link to="/signup" className="btn btn--primary" style={{ textDecoration: 'none' }}>
             Empezar
@@ -116,12 +150,16 @@ export function Landing() {
           </p>
           <div className="landing__hero-actions">
             <Link to="/signup" className="btn btn--primary" style={{ textDecoration: 'none' }}>
-              Empezar gratis
+              Probar {TRIAL_DAYS} días gratis
             </Link>
             <a href="#precios" className="btn btn--ghost">
               Ver planes
             </a>
           </div>
+          <p className="landing__hero-note">
+            Sin tarjeta. Pruebas el plan Pro completo durante {TRIAL_DAYS} días; si no te convence, no haces nada y
+            ya está.
+          </p>
         </div>
 
         <div className="chat-mock reveal" style={{ transitionDelay: '0.12s' }} aria-hidden="true">
@@ -206,12 +244,51 @@ export function Landing() {
 
       <section className="landing__section" id="precios">
         <h2 className="reveal">Planes simples, sin sorpresas</h2>
+        <p className="landing__section-note reveal">
+          Todos empiezan con {TRIAL_DAYS} días gratis del plan Pro completo, sin tarjeta. Eliges plan cuando ya sepas
+          si te sirve.
+        </p>
         <div className="reveal">
-          <PricingTable ctaLabel={() => 'Empezar'} onSelect={() => (window.location.href = '/signup')} />
+          <PricingTable ctaLabel={() => `Probar ${TRIAL_DAYS} días gratis`} onSelect={() => (window.location.href = '/signup')} />
         </div>
       </section>
 
-      <footer className="landing__footer">© {new Date().getFullYear()} Atiende</footer>
+      <section className="landing__section" id="faq">
+        <h2 className="reveal">Dudas frecuentes</h2>
+        <div className="faq-list">
+          {FAQS.map((item, i) => (
+            <details className="faq-item reveal" style={{ transitionDelay: `${i * 0.06}s` }} key={item.q}>
+              <summary>{item.q}</summary>
+              <p>{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* Tras leer precios y dudas, la página terminaba en el pie: no había
+          dónde pulsar sin volver a subir. */}
+      <section className="landing__section">
+        <div className="final-cta reveal">
+          <h2>¿Lo probamos con tu negocio?</h2>
+          <p>
+            Crea tu cuenta y ten el panel funcionando hoy mismo, con {TRIAL_DAYS} días gratis por delante y sin poner
+            una tarjeta. Si tienes dudas antes de empezar, escríbenos y te ayudamos a montarlo.
+          </p>
+          <div className="final-cta__actions">
+            <Link to="/signup" className="btn btn--primary" style={{ textDecoration: 'none' }}>
+              Empezar gratis
+            </Link>
+            <a href="mailto:soporte.Atiende@gmail.com" className="btn">
+              Escribirnos
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <footer className="landing__footer">
+        <span>© {new Date().getFullYear()} Atiende</span>
+        <a href="mailto:soporte.Atiende@gmail.com">soporte.Atiende@gmail.com</a>
+      </footer>
     </div>
   )
 }

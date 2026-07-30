@@ -5,6 +5,11 @@ import { receiveSupplierOrder, updateSupplierOrderStatus } from '@/lib/mutations
 import { InventoryItemModal } from '@/components/inventario/InventoryItemModal'
 import { NewSupplierOrderModal } from '@/components/inventario/NewSupplierOrderModal'
 import { useToast } from '@/context/ToastContext'
+import { usePageTitle } from '@/hooks/usePageTitle'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { SkeletonRows } from '@/components/ui/Skeleton'
+import { IconInventario } from '@/components/layout/NavIcons'
 import type { Database, SupplierOrderStatus } from '@/types/database.types'
 
 type InventoryItem = Database['public']['Tables']['inventory_items']['Row']
@@ -23,12 +28,14 @@ function daysUntil(dateStr: string): number {
 }
 
 export function Inventario() {
+  usePageTitle('Inventario')
   const { items, loading, refresh } = useInventory()
   const { orders, loading: loadingOrders, refresh: refreshOrders } = useSupplierOrders()
   const { showToast } = useToast()
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null)
   const [showNewItem, setShowNewItem] = useState(false)
   const [showNewOrder, setShowNewOrder] = useState(false)
+  const [toCancelOrder, setToCancelOrder] = useState<string | null>(null)
 
   const itemById = useMemo(() => new Map(items.map((i) => [i.id, i])), [items])
   const lowStockCount = items.filter((i) => i.quantity <= i.min_quantity).length
@@ -47,8 +54,13 @@ export function Inventario() {
   }
 
   async function handleCancelOrder(orderId: string) {
-    await updateSupplierOrderStatus(orderId, 'cancelled')
-    refreshOrders()
+    try {
+      await updateSupplierOrderStatus(orderId, 'cancelled')
+      await refreshOrders()
+      showToast('Pedido cancelado')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'No se pudo cancelar el pedido', 'error')
+    }
   }
 
   return (
@@ -83,8 +95,19 @@ export function Inventario() {
       </div>
 
       <div className="card">
-        {loading && <p className="empty-state">Cargando…</p>}
-        {!loading && items.length === 0 && <p className="empty-state">Todavía no hay artículos en el inventario.</p>}
+        {loading && <SkeletonRows rows={5} />}
+        {!loading && items.length === 0 && (
+          <EmptyState
+            icon={<IconInventario />}
+            title="El inventario está vacío"
+            description="Da de alta el material que usas y Atiende te avisará cuando baje del mínimo o esté a punto de caducar."
+            action={
+              <button className="btn btn--primary" onClick={() => setShowNewItem(true)}>
+                + Nuevo artículo
+              </button>
+            }
+          />
+        )}
 
         {!loading && items.length > 0 && (
           <div className="table-scroll">
@@ -148,8 +171,12 @@ export function Inventario() {
           </button>
         </div>
 
-        {loadingOrders && <p className="empty-state">Cargando…</p>}
-        {!loadingOrders && orders.length === 0 && <p className="empty-state">Sin pedidos registrados.</p>}
+        {loadingOrders && <SkeletonRows rows={3} />}
+        {!loadingOrders && orders.length === 0 && (
+          <p className="empty-state">
+            Sin pedidos registrados. Al marcar un pedido como recibido, su cantidad se suma al stock automáticamente.
+          </p>
+        )}
 
         {!loadingOrders && orders.length > 0 && (
           <div className="table-scroll">
@@ -182,7 +209,7 @@ export function Inventario() {
                           <button className="btn btn--sm" onClick={() => handleReceiveOrder(order.id)}>
                             Marcar recibido
                           </button>
-                          <button className="btn btn--sm btn--danger" onClick={() => handleCancelOrder(order.id)}>
+                          <button className="btn btn--sm btn--danger" onClick={() => setToCancelOrder(order.id)}>
                             Cancelar
                           </button>
                         </div>
@@ -201,6 +228,20 @@ export function Inventario() {
         <InventoryItemModal item={editingItem} onClose={() => setEditingItem(null)} onSaved={refresh} />
       )}
       {showNewOrder && <NewSupplierOrderModal onClose={() => setShowNewOrder(false)} onCreated={refreshOrders} />}
+
+      {toCancelOrder && (
+        <ConfirmDialog
+          title="Cancelar pedido"
+          message="El pedido quedará como cancelado y no repondrá stock. No se puede deshacer."
+          confirmLabel="Sí, cancelar el pedido"
+          danger
+          onCancel={() => setToCancelOrder(null)}
+          onConfirm={async () => {
+            await handleCancelOrder(toCancelOrder)
+            setToCancelOrder(null)
+          }}
+        />
+      )}
     </div>
   )
 }

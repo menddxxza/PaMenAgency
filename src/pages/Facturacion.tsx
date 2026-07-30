@@ -1,8 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useInvoices } from '@/hooks/useInvoices'
 import { useClients } from '@/hooks/useClients'
+import { useToast } from '@/context/ToastContext'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { updateInvoiceStatus } from '@/lib/mutations'
 import { NewInvoiceModal } from '@/components/facturacion/NewInvoiceModal'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { SkeletonRows } from '@/components/ui/Skeleton'
+import { IconFacturacion } from '@/components/layout/NavIcons'
 import type { InvoiceStatus, InvoiceType } from '@/types/database.types'
 
 const STATUS_LABEL: Record<InvoiceStatus, string> = {
@@ -22,10 +28,14 @@ function formatEuros(cents: number): string {
 }
 
 export function Facturacion() {
+  usePageTitle('Facturación')
   const { invoices, loading, refresh } = useInvoices()
   const { clients } = useClients()
+  const { showToast } = useToast()
   const [typeFilter, setTypeFilter] = useState<InvoiceType | 'all'>('all')
   const [showNewModal, setShowNewModal] = useState(false)
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const [toCancel, setToCancel] = useState<string | null>(null)
 
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients])
   const filtered = invoices.filter((i) => typeFilter === 'all' || i.type === typeFilter)
@@ -35,9 +45,19 @@ export function Facturacion() {
     .reduce((sum, i) => sum + i.total_cents, 0)
 
   async function handleStatusChange(id: string, status: InvoiceStatus) {
-    await updateInvoiceStatus(id, status)
-    refresh()
+    setBusyId(id)
+    try {
+      await updateInvoiceStatus(id, status)
+      await refresh()
+      showToast(`Documento marcado como "${STATUS_LABEL[status].toLowerCase()}"`)
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'No se pudo actualizar el documento', 'error')
+    } finally {
+      setBusyId(null)
+    }
   }
+
+  const cancelTarget = toCancel ? invoices.find((i) => i.id === toCancel) : null
 
   return (
     <div className="page">
@@ -69,9 +89,30 @@ export function Facturacion() {
           </select>
         </div>
 
-        {loading && <p className="empty-state">Cargando…</p>}
+        {loading && <SkeletonRows rows={5} />}
 
-        {!loading && filtered.length === 0 && <p className="empty-state">No hay documentos todavía.</p>}
+        {!loading && filtered.length === 0 && (
+          <EmptyState
+            icon={<IconFacturacion />}
+            title={invoices.length === 0 ? 'Todavía no has emitido nada' : 'Nada con este filtro'}
+            description={
+              invoices.length === 0
+                ? 'Crea presupuestos y facturas ligados a tus clientes y servicios, con numeración correlativa automática por año.'
+                : 'Cambia el filtro para ver el resto de documentos.'
+            }
+            action={
+              invoices.length === 0 ? (
+                <button className="btn btn--primary" onClick={() => setShowNewModal(true)}>
+                  + Nuevo documento
+                </button>
+              ) : (
+                <button className="btn btn--sm" onClick={() => setTypeFilter('all')}>
+                  Ver todos
+                </button>
+              )
+            }
+          />
+        )}
 
         {!loading && filtered.length > 0 && (
           <div className="table-scroll">
@@ -103,19 +144,28 @@ export function Facturacion() {
                       <td>
                         <div className="table__actions">
                           {invoice.status === 'draft' && (
-                            <button className="btn btn--sm" onClick={() => handleStatusChange(invoice.id, 'sent')}>
+                            <button
+                              className="btn btn--sm"
+                              disabled={busyId === invoice.id}
+                              onClick={() => handleStatusChange(invoice.id, 'sent')}
+                            >
                               Marcar enviada
                             </button>
                           )}
                           {invoice.status === 'sent' && (
-                            <button className="btn btn--sm" onClick={() => handleStatusChange(invoice.id, 'paid')}>
+                            <button
+                              className="btn btn--sm"
+                              disabled={busyId === invoice.id}
+                              onClick={() => handleStatusChange(invoice.id, 'paid')}
+                            >
                               Marcar cobrada
                             </button>
                           )}
                           {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
                             <button
                               className="btn btn--sm btn--danger"
-                              onClick={() => handleStatusChange(invoice.id, 'cancelled')}
+                              disabled={busyId === invoice.id}
+                              onClick={() => setToCancel(invoice.id)}
                             >
                               Cancelar
                             </button>
@@ -132,6 +182,20 @@ export function Facturacion() {
       </div>
 
       {showNewModal && <NewInvoiceModal onClose={() => setShowNewModal(false)} onCreated={refresh} />}
+
+      {toCancel && (
+        <ConfirmDialog
+          title="Cancelar documento"
+          message={`Se cancelará ${cancelTarget ? `${TYPE_LABEL[cancelTarget.type].toLowerCase()} ${cancelTarget.number}` : 'este documento'}. El número queda reservado y no se reutiliza, para no romper la numeración correlativa.`}
+          confirmLabel="Sí, cancelar"
+          danger
+          onCancel={() => setToCancel(null)}
+          onConfirm={async () => {
+            await handleStatusChange(toCancel, 'cancelled')
+            setToCancel(null)
+          }}
+        />
+      )}
     </div>
   )
 }

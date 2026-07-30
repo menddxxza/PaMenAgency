@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useTenant } from '@/context/TenantContext'
 import { createInventoryItem, updateInventoryItem } from '@/lib/mutations'
+import { Modal } from '@/components/ui/Modal'
 import type { Database } from '@/types/database.types'
 
 type InventoryItem = Database['public']['Tables']['inventory_items']['Row']
@@ -71,14 +72,21 @@ export function InventoryItemModal({ item, onClose, onSaved }: Props) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <form className="modal" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
-        <div className="modal__header">
-          <h2>{item ? 'Editar artículo' : 'Nuevo artículo'}</h2>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={onClose}>
-            ✕
+    <Modal
+      title={item ? 'Editar artículo' : 'Nuevo artículo'}
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <button type="button" className="btn" onClick={onClose}>
+            Cancelar
           </button>
-        </div>
+          <button type="submit" className="btn btn--primary" disabled={submitting || !name}>
+            {submitting ? 'Guardando…' : item ? 'Guardar cambios' : 'Crear artículo'}
+          </button>
+        </>
+      }
+    >
         <div className="form-grid">
           <label>
             Nombre
@@ -109,16 +117,11 @@ export function InventoryItemModal({ item, onClose, onSaved }: Props) {
             <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Opcional" />
           </label>
         </div>
-        {error && <p className="form-error">{error}</p>}
-        <div className="modal__footer">
-          <button type="button" className="btn" onClick={onClose}>
-            Cancelar
-          </button>
-          <button type="submit" className="btn btn--primary" disabled={submitting || !name}>
-            {submitting ? 'Guardando…' : item ? 'Guardar cambios' : 'Crear artículo'}
-          </button>
-        </div>
-      </form>
-    </div>
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+    </Modal>
   )
 }

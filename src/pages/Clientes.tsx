@@ -3,11 +3,16 @@ import { useClients } from '@/hooks/useClients'
 import { useAppointments } from '@/hooks/useAppointments'
 import { useServices } from '@/hooks/useServices'
 import { ClientDetailModal } from '@/components/clientes/ClientDetailModal'
+import { usePageTitle } from '@/hooks/usePageTitle'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { SkeletonRows } from '@/components/ui/Skeleton'
+import { IconClientes } from '@/components/layout/NavIcons'
 import type { Database } from '@/types/database.types'
 
 type Client = Database['public']['Tables']['clients']['Row']
 
 export function Clientes() {
+  usePageTitle('Clientes')
   const { clients, loading, refresh } = useClients()
   const { appointments } = useAppointments()
   const { services } = useServices()
@@ -41,16 +46,46 @@ export function Clientes() {
 
       <div className="card">
         <div className="filter-row">
+          <label className="sr-only" htmlFor="client-search">
+            Buscar cliente
+          </label>
           <input
+            id="client-search"
+            type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por nombre o teléfono…"
             style={{ minWidth: '240px' }}
           />
+          {query && (
+            <span className="filter-row__count">
+              {filtered.length} de {clients.length}
+            </span>
+          )}
         </div>
 
-        {loading && <p className="empty-state">Cargando…</p>}
-        {!loading && filtered.length === 0 && <p className="empty-state">Sin clientes que coincidan.</p>}
+        {loading && <SkeletonRows rows={6} />}
+
+        {!loading && clients.length === 0 && (
+          <EmptyState
+            icon={<IconClientes />}
+            title="Aún no tienes clientes"
+            description="Cada persona que escriba por WhatsApp o reserve una cita se da de alta aquí sola, con su historial y sus documentos."
+          />
+        )}
+
+        {!loading && clients.length > 0 && filtered.length === 0 && (
+          <EmptyState
+            icon={<IconClientes />}
+            title="Ningún cliente coincide"
+            description={`No hay resultados para "${query.trim()}". Prueba con parte del nombre o con los últimos dígitos del teléfono.`}
+            action={
+              <button className="btn btn--sm" onClick={() => setQuery('')}>
+                Limpiar búsqueda
+              </button>
+            }
+          />
+        )}
 
         {!loading && filtered.length > 0 && (
           <div className="table-scroll">

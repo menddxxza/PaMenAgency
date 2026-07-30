@@ -2,6 +2,10 @@ import { useMemo } from 'react'
 import { useAppointments } from '@/hooks/useAppointments'
 import { useConversations } from '@/hooks/useConversations'
 import { BarChart } from '@/components/stats/BarChart'
+import { usePageTitle } from '@/hooks/usePageTitle'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { SkeletonStats } from '@/components/ui/Skeleton'
+import { IconEstadisticas } from '@/components/layout/NavIcons'
 import type { AppointmentStatus } from '@/types/database.types'
 
 const STATUS_ORDER: AppointmentStatus[] = ['pending', 'confirmed', 'completed', 'cancelled', 'no_show']
@@ -22,19 +26,30 @@ const STATUS_COLOR: Record<AppointmentStatus, string> = {
   no_show: 'var(--status-critical)',
 }
 
+// toISOString() da la fecha en UTC: en España (UTC+1/+2) una cita de las
+// 00:30 caía en el día anterior y el gráfico la contaba en la barra que no
+// era. Se agrupa por día local.
+function localDayKey(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 function lastNDays(n: number) {
   const days: string[] = []
   const today = new Date()
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(today)
     d.setDate(d.getDate() - i)
-    days.push(d.toISOString().slice(0, 10))
+    days.push(localDayKey(d))
   }
   return days
 }
 
 export function Estadisticas() {
-  const { appointments } = useAppointments()
+  usePageTitle('Estadísticas')
+  const { appointments, loading } = useAppointments()
   const { conversations } = useConversations()
 
   const statusData = useMemo(
@@ -48,10 +63,14 @@ export function Estadisticas() {
   )
 
   const dailyData = useMemo(() => {
-    const days = lastNDays(14)
-    return days.map((day) => ({
+    const countByDay = new Map<string, number>()
+    for (const a of appointments) {
+      const key = localDayKey(new Date(a.starts_at))
+      countByDay.set(key, (countByDay.get(key) ?? 0) + 1)
+    }
+    return lastNDays(14).map((day) => ({
       label: day.slice(5).replace('-', '/'),
-      value: appointments.filter((a) => a.starts_at.slice(0, 10) === day).length,
+      value: countByDay.get(day) ?? 0,
       color: 'var(--series-1)',
     }))
   }, [appointments])
@@ -66,9 +85,38 @@ export function Estadisticas() {
     return Math.round((converted / conversations.length) * 100)
   }, [appointments, conversations])
 
+  if (loading) {
+    return (
+      <div className="page">
+        <h1>Estadísticas</h1>
+        <SkeletonStats />
+      </div>
+    )
+  }
+
+  if (appointments.length === 0 && conversations.length === 0) {
+    return (
+      <div className="page">
+        <h1>Estadísticas</h1>
+        <div className="card">
+          <EmptyState
+            icon={<IconEstadisticas />}
+            title="Aún no hay datos que medir"
+            description="En cuanto empiecen a entrar citas y conversaciones verás aquí cómo evolucionan, y qué parte del trabajo está haciendo el bot por ti."
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="page">
-      <h1>Estadísticas</h1>
+      <div className="page__header">
+        <div>
+          <h1>Estadísticas</h1>
+          <p>Cómo va el negocio y cuánto está aportando el bot.</p>
+        </div>
+      </div>
 
       <div className="stat-row">
         <div className="stat-card">
