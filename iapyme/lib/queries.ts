@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createPublicClient } from '@/lib/supabase/public';
 import type { Category, ProductoConRelaciones, Profile } from '@/lib/database.types';
 import { CATEGORIAS } from '@/lib/categorias';
 
@@ -23,7 +24,7 @@ export type FiltrosCatalogo = {
  * configurado se sirven las del módulo estático para que la web siga navegable.
  */
 export async function getCategorias(): Promise<Category[]> {
-  const supabase = createClient();
+  const supabase = createPublicClient();
 
   if (supabase) {
     const { data } = await supabase
@@ -55,7 +56,7 @@ export async function getProductos(
   filtros: FiltrosCatalogo = {},
   limite = 24,
 ): Promise<ProductoConRelaciones[]> {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   if (!supabase) return [];
 
   let consulta = supabase
@@ -105,7 +106,7 @@ export async function getProductos(
 }
 
 export async function getDestacados(limite = 4): Promise<ProductoConRelaciones[]> {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   if (!supabase) return [];
 
   const { data } = await supabase
@@ -119,6 +120,11 @@ export async function getDestacados(limite = 4): Promise<ProductoConRelaciones[]
   return (data ?? []) as unknown as ProductoConRelaciones[];
 }
 
+/**
+ * Ficha por slug. Usa el cliente de sesión a propósito: así el vendedor puede ver su
+ * propia ficha antes de publicarla, y el admin puede revisarla. La página que la
+ * consume es dinámica, de modo que aquí sí hay cookies.
+ */
 export async function getProducto(slug: string): Promise<ProductoConRelaciones | null> {
   const supabase = createClient();
   if (!supabase) return null;
@@ -133,7 +139,7 @@ export async function getProducto(slug: string): Promise<ProductoConRelaciones |
 }
 
 export async function getVendedor(slug: string): Promise<Profile | null> {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   if (!supabase) return null;
 
   const { data } = await supabase
@@ -148,7 +154,7 @@ export async function getVendedor(slug: string): Promise<Profile | null> {
 export async function getProductosDeVendedor(
   sellerId: string,
 ): Promise<ProductoConRelaciones[]> {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   if (!supabase) return [];
 
   const { data } = await supabase
@@ -163,7 +169,7 @@ export async function getProductosDeVendedor(
 
 /** Cuenta cuántos productos publicados tiene cada categoría. */
 export async function getConteoPorCategoria(): Promise<Record<string, number>> {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   if (!supabase) return {};
 
   const { data } = await supabase
