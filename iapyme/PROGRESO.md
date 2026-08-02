@@ -23,45 +23,49 @@
 - [x] Panel de vendedor: resumen con métricas, asistente de publicación en 4 pasos,
       subida de imágenes, bandeja de mensajes (leads).
 - [x] Cola de moderación en `/admin`: aprobar, pedir cambios con motivo, destacar.
-- [x] Todo probado de punta a punta contra una base de datos real (no solo compila:
-      se ha entrado, publicado, moderado y recibido un lead de verdad).
+- [x] Todo probado de punta a punta contra una base de datos real.
 
 Todo este código está en GitHub, en la rama `claude/revision-archivos-proyecto-bop2gl`
 del repositorio `menddxxza/menddxxza`, dentro de la carpeta `iapyme/`.
 
-## ⏳ En curso ahora mismo: poner el proyecto en marcha
+### 🚀 Puesto en marcha de verdad (esto es nuevo)
 
-### ✅ Ya hecho
-- [x] Proyecto de Supabase creado (`IAPyme`, región Ireland).
-- [x] Ejecutado el schema SQL (`0001_fase1.sql`) — tablas y categorías creadas.
-- [x] Claves copiadas: Project URL y `anon public` key.
-- [x] Git, Node.js y VS Code instalados.
-- [x] Repositorio clonado en `C:\Users\mendo\OneDrive\Desktop\menddxxza\`.
-- [x] Archivo `.env.local` creado dentro de `iapyme/` con las dos claves.
+- [x] Proyecto de Supabase creado (`IAPyme`, región Ireland) y schema ejecutado.
+- [x] Entorno local funcionando en Windows con VS Code (`npm run dev` en `localhost:3000`).
+- [x] Cuenta registrada y convertida en administrador.
+- [x] Producto de prueba (**Atiende**) publicado, aprobado y visible en el catálogo público.
+- [x] Probado el flujo completo de un comprador: ficha pública → "Pedir información" →
+      el mensaje llega a la bandeja de "Mensajes" del vendedor.
+- [x] **Desplegado en Netlify**: [https://iapyme.netlify.app](https://iapyme.netlify.app)
+      (rama `claude/revision-archivos-proyecto-bop2gl`, con el plugin oficial de Next.js).
+- [x] Login con **Google** configurado y funcionando (Google Cloud + Supabase Auth).
+- [x] Dominio **`iapyme.es`** comprado (pendiente de que termine de procesarse).
 
-### 🔧 Ahora mismo arreglando
-Se clonó el repositorio dos veces por accidente, una dentro de la otra, y `npm run
-dev` se ejecutó en la carpeta equivocada (la del proyecto Atiende en vez de IAPyme).
-Se está corrigiendo: subir a la carpeta correcta (`iapyme/`), borrar la carpeta
-duplicada, y volver a instalar y arrancar ahí.
+## ⏳ Pendiente
 
-### ⏭️ Después de esto
-1. Confirmar que `npm run dev` arranca sin errores y que `http://localhost:3000`
-   muestra la home con las 10 categorías (sin el aviso de "falta configurar Supabase").
-2. Registrar una cuenta en `/entrar`.
-3. Convertir esa cuenta en administrador: en Supabase → **Table Editor** → tabla
-   `profiles` → buscar la fila por el email → cambiar `role` de `buyer` a `admin`.
-4. Publicar un producto de prueba desde `/dashboard/productos/nuevo`.
-5. Aprobarlo desde `/admin` y comprobar que aparece en el catálogo público.
-
-## 📋 Pendiente (no urgente)
-
-- [ ] Confirmar que la subida de imágenes funciona contra el Storage real de
-      Supabase (solo se ha probado contra una base de datos simulada).
-- [ ] Publicar los 5 productos reales del catálogo de salida (Atiende y los otros 4).
-- [ ] Comprar el dominio `iapyme.es`.
-- [ ] Desplegar en Vercel con las variables de entorno configuradas.
+- [ ] Conectar `iapyme.es` a Netlify en cuanto el dominio termine de procesarse.
+- [ ] Confirmar que la subida de imágenes funciona contra el Storage real de Supabase
+      con una imagen de verdad (de momento solo se ha probado sin imagen).
+- [ ] Publicar los otros 4 productos del catálogo de salida: Agente de Citas Dental,
+      Bot de Facturación, Asistente de Contenido, Resumidor de Reuniones.
 - [ ] Invitar a los primeros vendedores externos (Fase 4 del roadmap).
+- [ ] Publicar el post de validación / empezar a compartir la web.
+
+## Notas técnicas para no repetir errores ya resueltos
+
+- **Las variables `NEXT_PUBLIC_*` se leen al arrancar `npm run dev` / al compilar.**
+  Si cambias `.env.local`, hay que reiniciar el servidor.
+- **El archivo tiene que llamarse exactamente `.env.local`** (no una carpeta, no
+  `.env.local.txt`), directamente dentro de `iapyme/`, al mismo nivel que `package.json`.
+- **En Netlify hace falta `netlify.toml`** con el plugin `@netlify/plugin-nextjs` — sin
+  él, Netlify sirve `.next` como archivos estáticos sueltos y todo da 404. Ya está
+  añadido al repo.
+- **Login con Google en producción**: en Supabase → Authentication → URL Configuration,
+  la "Site URL" y las "Redirect URLs" tienen que incluir el dominio real
+  (`https://iapyme.netlify.app/**`), si no Google devuelve a `localhost` y falla.
+- **El repositorio de IAPyme vive dentro de `menddxxza/menddxxza`**, en la subcarpeta
+  `iapyme/` — no lo clones aparte ni lo confundas con la raíz del repo (que es el
+  proyecto Atiende, con Vite en vez de Next.js).
 
 ## Archivos de referencia dentro de `iapyme/`
 
@@ -71,4 +75,5 @@ duplicada, y volver a instalar y arrancar ahí.
 | `ROADMAP.md` | Las 6 fases del proyecto, con las condiciones para pasar de una a otra |
 | `README.md` | Instrucciones técnicas de instalación y despliegue |
 | `supabase/migrations/0001_fase1.sql` | El SQL que crea toda la base de datos |
+| `netlify.toml` | Configuración de despliegue en Netlify |
 | `.env.example` | Qué variables de entorno hacen falta y para qué sirve cada una |
