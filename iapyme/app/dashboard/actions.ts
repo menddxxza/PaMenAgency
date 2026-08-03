@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { slugConSufijo, slugificar } from '@/lib/slug';
+import { avisarNuevaRevision } from '@/lib/email';
 import type { PricingModel, ProductType } from '@/lib/database.types';
 
 export type ResultadoAccion = { ok: true; slug?: string } | { ok: false; error: string };
@@ -86,6 +87,10 @@ export async function guardarProducto(
     const { error } = await supabase.from('products').update(campos).eq('id', id);
     if (error) return { ok: false, error: traducir(error.message) };
 
+    if (enviarARevision) {
+      await avisarNuevaRevision({ titulo, vendedor: user.email ?? 'un vendedor' });
+    }
+
     revalidatePath('/dashboard/productos');
     return { ok: true };
   }
@@ -111,6 +116,10 @@ export async function guardarProducto(
 
   await asegurarPerfilDeVendedor(user.id);
 
+  if (enviarARevision) {
+    await avisarNuevaRevision({ titulo, vendedor: user.email ?? 'un vendedor' });
+  }
+
   revalidatePath('/dashboard/productos');
   return { ok: true, slug: data?.slug };
 }
@@ -120,12 +129,19 @@ export async function enviarARevision(id: string): Promise<ResultadoAccion> {
   const supabase = createClient();
   if (!supabase) return { ok: false, error: 'La base de datos no está configurada.' };
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('products')
     .update({ status: 'pending_review' })
-    .eq('id', id);
+    .eq('id', id)
+    .select('titulo')
+    .single();
 
   if (error) return { ok: false, error: traducir(error.message) };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  await avisarNuevaRevision({ titulo: data.titulo, vendedor: user?.email ?? 'un vendedor' });
 
   revalidatePath('/dashboard/productos');
   return { ok: true };
