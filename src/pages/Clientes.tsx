@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
+import { useTenant } from '@/context/TenantContext'
 import { useClients } from '@/hooks/useClients'
 import { useAppointments } from '@/hooks/useAppointments'
 import { useServices } from '@/hooks/useServices'
 import { ClientDetailModal } from '@/components/clientes/ClientDetailModal'
+import { NewClientModal } from '@/components/clientes/NewClientModal'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { SkeletonRows } from '@/components/ui/Skeleton'
@@ -13,11 +15,13 @@ type Client = Database['public']['Tables']['clients']['Row']
 
 export function Clientes() {
   usePageTitle('Clientes')
+  const { activeBusinessId } = useTenant()
   const { clients, loading, refresh } = useClients()
   const { appointments } = useAppointments()
   const { services } = useServices()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Client | null>(null)
+  const [showNew, setShowNew] = useState(false)
 
   const serviceById = useMemo(() => new Map(services.map((s) => [s.id, s])), [services])
   const appointmentCountByClient = useMemo(() => {
@@ -42,6 +46,11 @@ export function Clientes() {
           <h1>Clientes</h1>
           <p>Contactos que han escrito o reservado citas.</p>
         </div>
+        {activeBusinessId && (
+          <button className="btn btn--primary" onClick={() => setShowNew(true)}>
+            + Nuevo cliente
+          </button>
+        )}
       </div>
 
       <div className="card">
@@ -70,7 +79,14 @@ export function Clientes() {
           <EmptyState
             icon={<IconClientes />}
             title="Aún no tienes clientes"
-            description="Cada persona que escriba por WhatsApp o reserve una cita se da de alta aquí sola, con su historial y sus documentos."
+            description="Cada persona que escriba por WhatsApp o reserve una cita se da de alta aquí sola, con su historial y sus documentos. Si alguien llega por teléfono o en persona, también puedes añadirlo a mano."
+            action={
+              activeBusinessId && (
+                <button className="btn btn--sm btn--primary" onClick={() => setShowNew(true)}>
+                  + Nuevo cliente
+                </button>
+              )
+            }
           />
         )}
 
@@ -129,6 +145,9 @@ export function Clientes() {
           onClose={() => setSelected(null)}
           onSaved={refresh}
         />
+      )}
+      {showNew && activeBusinessId && (
+        <NewClientModal businessId={activeBusinessId} onClose={() => setShowNew(false)} onCreated={refresh} />
       )}
     </div>
   )
