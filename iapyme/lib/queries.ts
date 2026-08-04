@@ -185,7 +185,12 @@ export async function getConteoPorCategoria(): Promise<Record<string, number>> {
   return conteo;
 }
 
-/** Registra una visita a la ficha. Nunca debe tumbar la página si falla. */
+/**
+ * Registra una visita a la ficha. Nunca debe tumbar la página si falla.
+ * La función `registrar_visita` en la base de datos ignora las visitas del propio
+ * vendedor a su ficha (cuando ha iniciado sesión), así que el contador refleja
+ * solo interés real de terceros.
+ */
 export async function registrarVisita(productId: string, referrer?: string) {
   const supabase = createClient();
   if (!supabase) return;
