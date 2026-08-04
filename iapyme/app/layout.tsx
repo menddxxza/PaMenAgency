@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import './globals.css';
 
@@ -33,6 +33,20 @@ export const metadata: Metadata = {
       'El primer marketplace vertical de soluciones de IA en español.',
   },
   alternates: { canonical: '/' },
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icons/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'IAPyme',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#1f47f5',
 };
 
 const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
