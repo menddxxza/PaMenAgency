@@ -21,6 +21,7 @@ export default function WaitlistForm({
   const [perfil, setPerfil] = useState<Perfil>(perfilInicial);
   const [email, setEmail] = useState('');
   const [mensaje, setMensaje] = useState('');
+  const [web, setWeb] = useState('');
   const [estado, setEstado] = useState<Estado>('idle');
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +34,7 @@ export default function WaitlistForm({
       const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, perfil, mensaje, origen }),
+        body: JSON.stringify({ email, perfil, mensaje, origen, web }),
       });
       const data = (await res.json()) as { error?: string };
 
@@ -67,6 +68,19 @@ export default function WaitlistForm({
 
   return (
     <form onSubmit={onSubmit} className="card p-6">
+      {/* Campo trampa anti-spam: oculto para personas, los bots lo rellenan igual que el resto. */}
+      <div className="hidden" aria-hidden="true">
+        <label htmlFor={`web-${origen}`}>No rellenar</label>
+        <input
+          id={`web-${origen}`}
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={web}
+          onChange={(event) => setWeb(event.target.value)}
+        />
+      </div>
+
       <fieldset>
         <legend className="text-sm font-semibold">¿Qué te trae por aquí?</legend>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">

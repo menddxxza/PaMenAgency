@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase';
+import { excedeLimite, obtenerIp } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,14 +15,24 @@ type Payload = {
   perfil?: unknown;
   mensaje?: unknown;
   origen?: unknown;
+  // Campo trampa: invisible para personas, los bots que rellenan todo lo detectan.
+  web?: unknown;
 };
 
 export async function POST(request: Request) {
+  if (excedeLimite(obtenerIp(request), 5, 60_000)) {
+    return NextResponse.json({ error: 'Demasiados intentos, prueba en un minuto.' }, { status: 429 });
+  }
+
   let body: Payload;
   try {
     body = (await request.json()) as Payload;
   } catch {
     return NextResponse.json({ error: 'Petición inválida.' }, { status: 400 });
+  }
+
+  if (typeof body.web === 'string' && body.web.length > 0) {
+    return NextResponse.json({ ok: true, persisted: false });
   }
 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
