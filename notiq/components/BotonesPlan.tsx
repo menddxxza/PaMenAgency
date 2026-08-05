@@ -1,13 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Plan } from '@/lib/planes';
 
 /**
  * Botones de contratación y de gestión de la suscripción.
  *
- * Ninguno cambia el plan: piden una URL de Stripe y redirigen. El plan solo lo
- * escribe el webhook cuando Stripe confirma el cobro.
+ * Ninguno escribe el plan directamente: el alta y el portal piden una URL de Stripe
+ * y redirigen; solo el webhook escribe `profiles.plan` cuando Stripe confirma el
+ * cobro. El cambio entre planes de pago es la excepción a "siempre hay URL": el
+ * servidor actualiza la suscripción existente en el sitio (con prorrateo) en vez de
+ * abrir un checkout nuevo, así que esa respuesta no trae `url` y aquí solo se
+ * refresca la página en vez de redirigir.
  */
 export default function BotonesPlan({
   planActual,
@@ -18,12 +23,15 @@ export default function BotonesPlan({
   tieneSuscripcion: boolean;
   pagosActivos: boolean;
 }) {
+  const router = useRouter();
   const [cargando, setCargando] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [cambiado, setCambiado] = useState(false);
 
   async function ir(ruta: string, cuerpo?: Record<string, unknown>) {
     setCargando(ruta);
     setError(null);
+    setCambiado(false);
 
     try {
       const respuesta = await fetch(ruta, {
@@ -33,12 +41,21 @@ export default function BotonesPlan({
       });
 
       const datos = await respuesta.json().catch(() => ({}));
-      if (!respuesta.ok || !datos.url) {
+      if (!respuesta.ok) {
         throw new Error(datos.error ?? 'No se ha podido continuar.');
       }
 
-      // Redirección completa y no router.push: el destino es stripe.com.
-      window.location.href = datos.url;
+      if (datos.url) {
+        // Redirección completa y no router.push: el destino es stripe.com.
+        window.location.href = datos.url;
+        return;
+      }
+
+      // Cambio de plan sobre una suscripción ya existente: no hay a dónde
+      // redirigir, el cambio ya es efectivo en Stripe.
+      setCambiado(true);
+      setCargando(null);
+      router.refresh();
     } catch (fallo) {
       setError(fallo instanceof Error ? fallo.message : 'Algo ha ido mal.');
       setCargando(null);
@@ -94,6 +111,12 @@ export default function BotonesPlan({
       {error && (
         <p role="alert" className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
+        </p>
+      )}
+      {cambiado && (
+        <p className="mt-3 rounded-xl bg-lima-400/15 px-3 py-2 text-sm text-lima-600">
+          Cambio de plan confirmado. El importe de lo que llevas de mes se prorratea
+          en tu próxima factura.
         </p>
       )}
     </div>

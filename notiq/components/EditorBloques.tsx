@@ -180,11 +180,22 @@ export default function EditorBloques({
     const actual = siguientes[indice];
 
     // Si el bloque donde se pega está vacío, se sustituye; si no, se inserta detrás.
-    if (!actual.texto) siguientes.splice(indice, 1, ...nuevos);
-    else siguientes.splice(indice + 1, 0, ...nuevos);
+    // Los dos casos desplazan el último bloque pegado a un índice distinto: al
+    // sustituir, ese bloque queda en indice + nuevos.length - 1 (se ha quitado 1);
+    // al insertar detrás, en indice + nuevos.length (indice se conserva). Usar la
+    // misma fórmula para los dos casos dejaba el foco un bloque más allá del que
+    // se acababa de pegar cuando se sustituía un bloque vacío que no era el último.
+    let indiceFinal: number;
+    if (!actual.texto) {
+      siguientes.splice(indice, 1, ...nuevos);
+      indiceFinal = indice + nuevos.length - 1;
+    } else {
+      siguientes.splice(indice + 1, 0, ...nuevos);
+      indiceFinal = indice + nuevos.length;
+    }
 
     onCambio(siguientes);
-    setFoco(Math.min(indice + nuevos.length, siguientes.length - 1));
+    setFoco(Math.min(indiceFinal, siguientes.length - 1));
   }
 
   function copiarMarkdown() {

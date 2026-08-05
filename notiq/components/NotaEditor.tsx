@@ -31,20 +31,41 @@ export default function NotaEditor({
   const [estado, setEstado] = useState<Estado>('guardado');
 
   const sucio = useRef(false);
+  const enVuelo = useRef(false);
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Lo último escrito, para que el guardado use el valor actual y no el de la
   // clausura con la que se programó el temporizador.
   const ultimo = useRef({ titulo: tituloInicial, bloques: bloquesIniciales });
 
+  /*
+   * Sin serializar, dos guardados que se solapan (red lenta + una tecla de más, o
+   * Ctrl+S mientras el debounce ya está en vuelo) pueden llegar en orden distinto al
+   * que salieron: si el más lento responde después, sobrescribe en la base de datos
+   * lo que el más rápido ya había guardado, y la última edición desaparece sin que
+   * la interfaz avise (queda en "Guardado"). `enVuelo` asegura que solo hay una
+   * petición de guardado activa a la vez; si llegan cambios mientras tanto, se
+   * encadena otro guardado justo al terminar en vez de esperar al siguiente debounce.
+   */
   const guardar = useCallback(async () => {
-    if (!sucio.current) return;
+    if (enVuelo.current || !sucio.current) return;
+    enVuelo.current = true;
     sucio.current = false;
     setEstado('guardando');
 
-    const resultado = await guardarNota(id, ultimo.current.titulo, ultimo.current.bloques);
-    setEstado(resultado.ok ? 'guardado' : 'error');
-    // Si ha fallado, la siguiente tecla vuelve a marcar sucio y se reintenta.
-    if (!resultado.ok) sucio.current = true;
+    const { titulo: t, bloques: b } = ultimo.current;
+    const resultado = await guardarNota(id, t, b);
+    enVuelo.current = false;
+
+    if (!resultado.ok) {
+      // La siguiente tecla también volvería a marcar sucio, pero no hay que
+      // esperar a que el usuario teclee para reintentar un guardado fallido.
+      sucio.current = true;
+      setEstado('error');
+      return;
+    }
+
+    if (sucio.current) void guardar();
+    else setEstado('guardado');
   }, [id]);
 
   const programarGuardado = useCallback(
@@ -69,8 +90,14 @@ export default function NotaEditor({
     return () => {
       window.removeEventListener('beforeunload', alSalir);
       if (temporizador.current) clearTimeout(temporizador.current);
+      // beforeunload no se dispara al navegar dentro de la app (clic en un Link):
+      // ahí lo que desmonta este componente es el router de Next, no una descarga
+      // de página. Sin este flush, cancelar el timer sin más perdía en silencio la
+      // última edición si el usuario navegaba antes de que venciera el debounce.
+      // La petición sigue su curso aunque el componente ya no esté montado.
+      void guardar();
     };
-  }, []);
+  }, [guardar]);
 
   // Ctrl/Cmd+S guarda ya, sin esperar al debounce.
   useEffect(() => {

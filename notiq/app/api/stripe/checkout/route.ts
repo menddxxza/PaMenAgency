@@ -43,6 +43,21 @@ export async function POST(request: NextRequest) {
   const sitio = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
   try {
+    const { data: perfil } = await sesion.supabase
+      .from('profiles')
+      .select('stripe_subscription_id, plan')
+      .eq('id', sesion.userId)
+      .maybeSingle();
+
+    // Si ya hay una suscripción de pago activa, NO se abre un checkout nuevo:
+    // stripe.checkout.sessions.create crearía una SEGUNDA suscripción sobre el
+    // mismo customer sin cancelar la primera (Stripe no las fusiona solo porque
+    // compartan cliente), y el usuario acabaría pagando las dos a la vez. En su
+    // lugar se cambia el precio de la suscripción existente, con prorrateo.
+    if (perfil?.stripe_subscription_id && esPlanDePago(perfil.plan) && perfil.plan !== cuerpo.plan) {
+      return await cambiarDePlan(stripe, perfil.stripe_subscription_id, precio);
+    }
+
     const clienteStripe = await customerDelUsuario(stripe, sesion);
 
     const checkout = await stripe.checkout.sessions.create({
@@ -74,6 +89,37 @@ export async function POST(request: NextRequest) {
       { status: 502 },
     );
   }
+}
+
+/**
+ * Cambia de plan a un usuario que ya tiene una suscripción de pago activa,
+ * actualizando el precio del item existente en vez de crear una suscripción nueva.
+ *
+ * No escribe `profiles.plan` aquí: como el resto del flujo de pago, eso lo hace
+ * únicamente el webhook cuando le llega `customer.subscription.updated`.
+ */
+async function cambiarDePlan(
+  stripe: NonNullable<ReturnType<typeof getStripe>>,
+  subscriptionId: string,
+  nuevoPrecio: string,
+): Promise<NextResponse> {
+  const suscripcionActual = await stripe.subscriptions.retrieve(subscriptionId);
+  const item = suscripcionActual.items.data[0];
+
+  if (!item) {
+    return NextResponse.json(
+      { error: 'No se ha podido leer tu suscripción actual. Escribe a soporte.' },
+      { status: 502 },
+    );
+  }
+
+  await stripe.subscriptions.update(subscriptionId, {
+    items: [{ id: item.id, price: nuevoPrecio }],
+    proration_behavior: 'create_prorations',
+  });
+
+  // Sin url: el cambio ya es efectivo, no hace falta redirigir a Stripe.
+  return NextResponse.json({ cambiado: true });
 }
 
 /**

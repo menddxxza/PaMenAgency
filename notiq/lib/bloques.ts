@@ -144,12 +144,26 @@ export function desdeMarkdown(markdown: string): Bloque[] {
     const texto = linea.trim();
     if (!texto) continue;
 
-    const tarea = texto.match(/^[-*]\s+\[([ xX])\]\s+(.*)$/);
+    // \s* y no \s+ tras el corchete: aMarkdown serializa una tarea sin texto como
+    // "- [x] " (espacio final), pero el trim() de arriba ya se lo ha comido, así
+    // que "- [x]" a secas tiene que seguir reconociéndose como tarea — si no, una
+    // tarea marcada como hecha sin descripción perdía su estado al pasar por aquí
+    // y aparecía como el texto crudo "[x]" en un bloque de lista.
+    const tarea = texto.match(/^[-*]\s+\[([ xX])\]\s*(.*)$/);
     if (tarea) {
       bloques.push({
         ...nuevoBloque('tarea', tarea[2]),
         hecho: tarea[1].toLowerCase() === 'x',
       });
+      continue;
+    }
+
+    // ![alt](url): la propia sintaxis que produce aMarkdown() para 'imagen'. Sin
+    // esta rama, pegar un markdown con una imagen la convertía en un bloque de
+    // texto con la sintaxis cruda visible en vez de reconstruir la imagen.
+    const imagen = texto.match(/^!\[(.*)\]\((\S*)\)$/);
+    if (imagen) {
+      bloques.push({ ...nuevoBloque('imagen', imagen[1]), url: imagen[2] || undefined });
       continue;
     }
 

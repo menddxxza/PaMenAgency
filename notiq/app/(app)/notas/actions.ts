@@ -2,12 +2,31 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { getSesion } from '@/lib/supabase/server';
+import { getSesion, type Sesion } from '@/lib/supabase/server';
 import { puedeCrearNota } from '@/lib/ia/limites';
 import { aTextoPlano, comoBloques, type Bloque } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
 
 export type Resultado = { ok: true } | { ok: false; error: string };
+
+/**
+ * Confirma que una carpeta es del usuario antes de usarla, y si no lo es, la
+ * descarta en vez de fallar. El formulario que manda `folder_id` es el propio de
+ * Notiq, pero es un campo oculto de un <form> normal: cualquiera puede mandar un id
+ * ajeno a mano. RLS ya impide leer carpetas de otros, pero no evita que un insert en
+ * `notes` apunte su `folder_id` a una carpeta que no es tuya — la FK solo exige que
+ * la fila exista, no que sea tuya.
+ */
+async function verificarCarpetaPropia(sesion: Sesion, folderId: string): Promise<string | null> {
+  const { data } = await sesion.supabase
+    .from('folders')
+    .select('id')
+    .eq('id', folderId)
+    .eq('user_id', sesion.userId)
+    .maybeSingle();
+
+  return data?.id ?? null;
+}
 
 /** Crea una nota vacía y lleva a su editor. */
 export async function crearNota(formData: FormData) {
@@ -20,6 +39,8 @@ export async function crearNota(formData: FormData) {
   }
 
   const folderId = formData.get('folder_id');
+  const folderIdPropia =
+    typeof folderId === 'string' && folderId ? await verificarCarpetaPropia(sesion, folderId) : null;
 
   const { data, error } = await sesion.supabase
     .from('notes')
@@ -28,7 +49,7 @@ export async function crearNota(formData: FormData) {
       titulo: '',
       content: [],
       texto: '',
-      folder_id: typeof folderId === 'string' && folderId ? folderId : null,
+      folder_id: folderIdPropia,
     })
     .select('id')
     .single();
@@ -144,6 +165,19 @@ export async function guardarTareasExtraidas(
 ): Promise<Resultado & { creadas?: number }> {
   const sesion = await getSesion();
   if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+
+  // El panel de IA manda el noteId que ya tenía cargado en el cliente; se
+  // reconfirma aquí que esa nota es del usuario antes de enlazar tareas a ella,
+  // por la misma razón que en verificarCarpetaPropia: un note_id ajeno no rompe
+  // RLS (nadie más ve estas tareas), pero deja una referencia incoherente.
+  const { data: notaPropia } = await sesion.supabase
+    .from('notes')
+    .select('id')
+    .eq('id', noteId)
+    .eq('user_id', sesion.userId)
+    .maybeSingle();
+
+  if (!notaPropia) return { ok: false, error: 'Esa nota ya no está disponible.' };
 
   const prioridadesValidas = ['urgente', 'alta', 'normal', 'baja'];
 

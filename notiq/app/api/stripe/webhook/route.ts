@@ -63,14 +63,14 @@ export async function POST(request: NextRequest) {
         const suscripcion = await stripe.subscriptions.retrieve(
           typeof sesion.subscription === 'string' ? sesion.subscription : sesion.subscription.id,
         );
-        await sincronizar(admin, suscripcion, sesion.client_reference_id);
+        await sincronizar(admin, suscripcion, evento.created, sesion.client_reference_id);
         break;
       }
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
-        await sincronizar(admin, evento.data.object);
+        await sincronizar(admin, evento.data.object, evento.created);
         break;
       }
 
@@ -93,12 +93,22 @@ export async function POST(request: NextRequest) {
  * Vuelca el estado de una suscripción de Stripe sobre el perfil.
  *
  * Todos los caminos acaban aquí, incluido el de la baja: si la suscripción ya no da
- * derecho a nada, el plan vuelve a 'free'. Es idempotente a propósito, porque Stripe
- * reenvía eventos y puede entregarlos desordenados.
+ * derecho a nada, el plan vuelve a 'free'.
+ *
+ * Se lee el perfil antes de escribir (en vez de un único UPDATE con condiciones) para
+ * poder distinguir "el perfil no existe" (hay que reintentar) de "el perfil existe
+ * pero este evento no toca nada" (evento desordenado, o una baja de una suscripción
+ * ya sustituida): son casos muy distintos y lanzar en el segundo dejaría a Stripe
+ * reintentando 3 días un evento que nunca va a aplicarse. Queda una ventana no
+ * atómica entre la lectura y la escritura si dos entregas del mismo evento llegan en
+ * el mismo instante; es un caso mucho más raro que el que esto arregla (un reintento
+ * tardío llegando después de un evento más nuevo) y el propio mecanismo de reintento
+ * de Stripe lo autocorrige en la siguiente entrega.
  */
 async function sincronizar(
   admin: SupabaseClient,
   suscripcion: Stripe.Subscription,
+  eventoCreado: number,
   userIdDeLaSesion?: string | null,
 ): Promise<void> {
   // El user_id viaja en la metadata que puso el checkout. Si falta (una
@@ -107,48 +117,69 @@ async function sincronizar(
   const userId = suscripcion.metadata?.user_id ?? userIdDeLaSesion ?? null;
   const customerId =
     typeof suscripcion.customer === 'string' ? suscripcion.customer : suscripcion.customer.id;
+  const columna = userId ? 'id' : 'stripe_customer_id';
+  const valor = userId ?? customerId;
 
+  const { data: perfil, error: errorLectura } = await admin
+    .from('profiles')
+    .select('stripe_evento_en, stripe_subscription_id')
+    .eq(columna, valor)
+    .maybeSingle();
+
+  if (errorLectura) throw errorLectura;
+
+  if (!perfil) {
+    // Puede ser una carrera con el alta (el checkout llega antes de que el
+    // trigger de auth.users termine de crear el perfil): se reintenta.
+    throw new Error(
+      `no se ha encontrado el perfil para la suscripción ${suscripcion.id} (user_id: ${userId ?? 'null'}, customer: ${customerId})`,
+    );
+  }
+
+  // Stripe no garantiza el orden de entrega y reintenta los fallos hasta 3 días.
+  // Si ya hay anotado un evento igual o más nuevo, este no debe pisarlo.
+  if (perfil.stripe_evento_en !== null && perfil.stripe_evento_en >= eventoCreado) return;
+
+  const activa = daDerechoAlPlan(suscripcion.status);
   const precio = suscripcion.items.data[0]?.price?.id;
   const planContratado = planDesdePrecio(precio);
 
-  if (!planContratado) {
-    // Un precio que no reconocemos casi siempre significa que STRIPE_PRICE_* está
-    // mal configurado. Bajar a Free a alguien que acaba de pagar sería peor, así
-    // que se deja el plan como está y se avisa.
+  if (activa && !planContratado) {
+    // Un precio que no reconocemos en una suscripción que sigue dando derecho a
+    // plan casi siempre significa que STRIPE_PRICE_* está mal configurado. Bajar
+    // a Free a alguien que acaba de pagar sería peor, así que se deja el plan
+    // como está y se avisa. Si la suscripción ya NO está activa (cancelada,
+    // impagada del todo…) no hace falta resolver el precio para saber que hay
+    // que bajar a Free, así que ese caso no entra aquí.
     console.error(
       `[notiq] precio desconocido ${precio} en la suscripción ${suscripcion.id}; revisa STRIPE_PRICE_PRO y STRIPE_PRICE_TEAM`,
     );
     return;
   }
 
-  const activa = daDerechoAlPlan(suscripcion.status);
-  const plan = activa ? planContratado : 'free';
+  if (!activa && perfil.stripe_subscription_id && perfil.stripe_subscription_id !== suscripcion.id) {
+    // La baja es de una suscripción distinta a la que el perfil tiene anotada
+    // ahora mismo: por ejemplo, la suscripción vieja de un cambio de plan de
+    // antes de que existiera `cambiarDePlan` en checkout/route.ts. La que sigue
+    // activa no debe tocarse porque se cierre una que ya no es la vigente.
+    return;
+  }
 
+  const plan = activa && planContratado ? planContratado : 'free';
   // `current_period_end` vive en el item de la suscripción desde la API 2025-03.
   const finDePeriodo = suscripcion.items.data[0]?.current_period_end;
 
-  const cambios = {
-    plan,
-    stripe_customer_id: customerId,
-    stripe_subscription_id: activa ? suscripcion.id : null,
-    subscription_status: suscripcion.status,
-    plan_renueva_el: finDePeriodo ? new Date(finDePeriodo * 1000).toISOString() : null,
-  };
-
-  // Por user_id cuando se sabe; si no, por customer, que es lo único que queda en
-  // los eventos de una suscripción creada fuera del checkout.
-  const actualizacion = admin.from('profiles').update(cambios, { count: 'exact' });
-  const { error, count } = await (userId
-    ? actualizacion.eq('id', userId)
-    : actualizacion.eq('stripe_customer_id', customerId));
+  const { error } = await admin
+    .from('profiles')
+    .update({
+      plan,
+      stripe_customer_id: customerId,
+      stripe_subscription_id: activa ? suscripcion.id : null,
+      subscription_status: suscripcion.status,
+      plan_renueva_el: finDePeriodo && activa ? new Date(finDePeriodo * 1000).toISOString() : null,
+      stripe_evento_en: eventoCreado,
+    })
+    .eq(columna, valor);
 
   if (error) throw error;
-
-  if (!count) {
-    // Ninguna fila actualizada: el perfil no existe o el customer no está enlazado.
-    // Se lanza para que Stripe reintente, por si es una carrera con el alta.
-    throw new Error(
-      `no se ha encontrado el perfil para la suscripción ${suscripcion.id} (user_id: ${userId ?? 'null'}, customer: ${customerId})`,
-    );
-  }
 }

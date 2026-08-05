@@ -32,7 +32,9 @@ SQL Editor de Supabase (o `supabase db push` con la CLI). Crea:
 | `ai_usage` | Contador de operaciones de IA por usuario y mes. |
 
 `0002_stripe.sql` añade `profiles.subscription_status` y vuelve a crear el trigger
-para que también lo proteja.
+para que también lo proteja. `0003_orden_webhook.sql` añade
+`profiles.stripe_evento_en` (también protegido) para descartar webhooks
+desordenados — ver más abajo.
 
 Todas tienen RLS activo: cada usuario solo ve lo suyo. Dos detalles que importan:
 
@@ -133,6 +135,17 @@ Otras decisiones:
 - **El customer se guarda al crearlo**, no al llegar el webhook: si el usuario abre el
   checkout y lo cierra no llega ningún webhook, y el siguiente intento crearía otro
   customer, partiendo su historial de facturas.
+- **Cambiar de un plan de pago a otro no abre un checkout nuevo.** Si ya hay una
+  suscripción activa, `checkout/route.ts` actualiza su precio con prorrateo
+  (`stripe.subscriptions.update`) en vez de crear una segunda. Un checkout nuevo no
+  cancela la suscripción vieja — Stripe no las fusiona solo por compartir customer —
+  así que sin esto, pasar de Pro a Team dejaba las dos activas cobrando a la vez.
+- **El webhook descarta eventos más viejos que el último aplicado.**
+  `profiles.stripe_evento_en` guarda el `evento.created` del último webhook que ha
+  tocado el plan. Stripe no garantiza el orden de entrega y reintenta los fallos
+  hasta 3 días: sin este control, un `subscription.updated` reintentado con éxito
+  después de un `subscription.deleted` más reciente podría resucitar un plan que ya
+  se había cancelado de verdad.
 
 #### Productos dados de alta
 
