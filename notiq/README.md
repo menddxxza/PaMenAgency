@@ -31,6 +31,9 @@ SQL Editor de Supabase (o `supabase db push` con la CLI). Crea:
 | `tasks` | Tareas, con estado, prioridad, vencimiento y la nota de la que salieron. |
 | `ai_usage` | Contador de operaciones de IA por usuario y mes. |
 
+`0002_stripe.sql` añade `profiles.subscription_status` y vuelve a crear el trigger
+para que también lo proteja.
+
 Todas tienen RLS activo: cada usuario solo ve lo suyo. Dos detalles que importan:
 
 - **El plan no lo puede cambiar el usuario.** Un trigger (`proteger_plan`) revierte
@@ -97,6 +100,54 @@ Coste aproximado con `gpt-4o-mini` (0,15 $ por millón de tokens de entrada): un
 de una nota larga ronda los 0,0002 $. Las 20 operaciones del plano gratuito cuestan
 menos de un céntimo al mes por usuario.
 
+### Stripe
+
+Tres rutas en `app/api/stripe/`:
+
+| Ruta | Qué hace |
+|---|---|
+| `checkout` | Abre Stripe Checkout en modo suscripción y devuelve la URL. |
+| `portal` | Abre el portal de facturación (tarjeta, facturas, cancelar). |
+| `webhook` | **Lo único que escribe `profiles.plan`.** |
+
+La regla que sostiene todo esto: **ninguna ruta que hable con el usuario cambia el
+plan**. `checkout` solo abre el pago; si lo marcara como contratado, bastaría con
+abrir el checkout y cerrarlo para tener Pro gratis. El plan lo escribe el webhook
+cuando Stripe confirma el cobro, con la service role key, que es la única que se salta
+el trigger `proteger_plan`.
+
+Otras decisiones:
+
+- **El plan se resuelve por price ID**, no por el nombre del producto ni por metadata.
+  El nombre se puede editar desde el dashboard de Stripe, y entonces alguien que paga
+  se quedaría en Free sin que nadie se entere.
+- **`past_due` mantiene el plan.** El cobro ha fallado pero Stripe reintenta durante
+  días; cortarle el acceso a alguien que probablemente solo tiene la tarjeta caducada
+  es peor negocio que regalarle una semana. Cuando Stripe se rinde manda
+  `customer.subscription.deleted` y ahí sí baja a Free.
+- **Un precio desconocido no baja a nadie a Free.** Casi siempre significa que
+  `STRIPE_PRICE_*` está mal configurado, así que se deja el plan como está y se avisa
+  en los logs.
+- **Los errores devuelven 500, no 200.** Stripe reintenta con backoff durante 3 días;
+  tragarse el error deja al usuario pagando en el plan Free sin forma de recuperarlo.
+- **El customer se guarda al crearlo**, no al llegar el webhook: si el usuario abre el
+  checkout y lo cierra no llega ningún webhook, y el siguiente intento crearía otro
+  customer, partiendo su historial de facturas.
+
+Para probarlo en local hace falta el CLI de Stripe, porque el webhook necesita una
+firma válida:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+# copia el whsec_… que imprime a STRIPE_WEBHOOK_SECRET y reinicia `npm run dev`
+stripe trigger checkout.session.completed
+```
+
+En producción hay que dar de alta el endpoint en Stripe (Developers → Webhooks) con
+los eventos `checkout.session.completed`, `customer.subscription.created`,
+`customer.subscription.updated` y `customer.subscription.deleted`.
+
 ## Planes
 
 Los límites viven en `lib/planes.ts` y son la única fuente de verdad: los aplica el
@@ -110,10 +161,12 @@ servidor y los pinta la página de precios.
 
 ## Qué falta
 
-Esto cubre las semanas 1-4 del [roadmap](ROADMAP.md). Todavía no está hecho:
+Esto cubre las semanas 1-4 y 7-8 del [roadmap](ROADMAP.md). Todavía no está hecho:
 
-- **Stripe.** Los límites se aplican, pero no hay checkout ni portal ni webhook: el
-  plan se cambia a mano en `profiles.plan`.
+- **Los productos en Stripe.** El código está listo, pero hay que crear los precios
+  de Notiq Pro y Notiq Team en la cuenta y poner sus IDs en `STRIPE_PRICE_*`.
+- **Team no cobra por asiento.** Se cobra `quantity: 1` aunque el plan se anuncia como
+  19 €/usuario. Falta contar los miembros del espacio, que tampoco existen todavía.
 - **App móvil (Expo).** `lib/` está escrito sin dependencias de Next para poder
   compartirlo, pero no hay proyecto de React Native.
 - **Recordatorios.** El esquema ya tiene `recordar_el` y su índice parcial; falta el

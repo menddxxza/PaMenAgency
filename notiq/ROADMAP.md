@@ -25,11 +25,14 @@ repositorio; el resto es el plan.
 - [ ] Notificaciones push con Expo Notifications
 - [ ] Cron de recordatorios (`tasks.recordar_el` ya está en el esquema)
 
-## Semanas 7-8 · Monetización
+## Semanas 7-8 · Monetización — hecho (falta dar de alta los productos)
 
-- [ ] Stripe Checkout para Pro y Team
-- [ ] Portal de cliente para gestionar la suscripción
-- [ ] Webhook que escribe `profiles.plan` con la service role key
+- [x] Stripe Checkout para Pro y Team
+- [x] Portal de cliente para gestionar la suscripción
+- [x] Webhook que escribe `profiles.plan` con la service role key
+- [x] Estado de la suscripción en Ajustes (prueba, cobro fallido, cancelada)
+- [ ] Crear los precios de Notiq en la cuenta de Stripe y configurar `STRIPE_PRICE_*`
+- [ ] Cobro por asiento en Team (hoy va a `quantity: 1`)
 - [ ] Avisos al acercarse al límite del plan
 
 ## Semanas 9-10 · Pulido
@@ -62,3 +65,11 @@ predecible en móvil y con lector de pantalla.
 
 **La cuota se cobra antes de llamar al modelo.** Un error del proveedor le cuesta al
 usuario una operación de su cuota; al revés, le costaría dinero al negocio.
+
+**Nada que hable con el usuario escribe el plan.** El checkout solo abre el pago; el
+plan lo escribe el webhook cuando Stripe confirma el cobro. Si lo marcara la ruta de
+checkout, bastaría con abrirlo y cerrarlo para tener Pro gratis.
+
+**`past_due` mantiene el plan.** Regalar unos días a quien tiene la tarjeta caducada
+sale más barato que perder al cliente. La baja real llega por
+`customer.subscription.deleted`.

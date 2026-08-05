@@ -51,12 +51,19 @@ export default function TablaPrecios({ actual }: { actual?: Plan }) {
               ))}
             </ul>
 
-            <Link
-              href={esActual ? '/ajustes' : `/entrar?volver=/ajustes`}
-              className={`mt-6 ${destacado ? 'btn-primary' : 'btn-secondary'} w-full`}
-            >
-              {esActual ? 'Gestionar plan' : plan.precio === 0 ? 'Empezar gratis' : 'Elegir ' + plan.nombre}
-            </Link>
+            {/*
+              Dentro de la aplicación (`actual` definido) la tabla es informativa: la
+              contratación va por los botones de arriba, que hablan con Stripe. Aquí
+              solo hace falta el CTA en la landing, para quien todavía no tiene cuenta.
+            */}
+            {actual === undefined && (
+              <Link
+                href="/entrar"
+                className={`mt-6 ${destacado ? 'btn-primary' : 'btn-secondary'} w-full`}
+              >
+                {plan.precio === 0 ? 'Empezar gratis' : `Elegir ${plan.nombre}`}
+              </Link>
+            )}
           </div>
         );
       })}
