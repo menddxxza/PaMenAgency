@@ -134,8 +134,25 @@ Otras decisiones:
   checkout y lo cierra no llega ningún webhook, y el siguiente intento crearía otro
   customer, partiendo su historial de facturas.
 
-Para probarlo en local hace falta el CLI de Stripe, porque el webhook necesita una
-firma válida:
+#### Productos dados de alta
+
+Ya existen en la cuenta, **en modo live**:
+
+| Plan | Producto | Price ID | Importe |
+|---|---|---|---|
+| Pro | `prod_V1A97pXWHwFH3G` | `price_1U17pMA0ZutwmmcPlc4qgLvE` | 9 €/mes |
+| Team | `prod_V1A9QwrBcGPWwT` | `price_1U17pWA0ZutwmmcPAth6dFrK` | 19 €/mes |
+
+Los price IDs no son secretos (viajan al navegador en el checkout), por eso están
+aquí; las claves sí, y van solo en el entorno.
+
+Ojo con la pareja clave/precio: estos IDs solo valen con una `sk_live_…`. Para
+desarrollar hay que crear los mismos productos en modo test y usar sus IDs, porque un
+price de live con una clave de test devuelve «No such price».
+
+#### Probar en local
+
+Hace falta el CLI de Stripe, porque el webhook necesita una firma válida:
 
 ```bash
 stripe login
@@ -163,8 +180,9 @@ servidor y los pinta la página de precios.
 
 Esto cubre las semanas 1-4 y 7-8 del [roadmap](ROADMAP.md). Todavía no está hecho:
 
-- **Los productos en Stripe.** El código está listo, pero hay que crear los precios
-  de Notiq Pro y Notiq Team en la cuenta y poner sus IDs en `STRIPE_PRICE_*`.
+- **Las claves de Stripe en el entorno.** Los productos ya existen (tabla de arriba),
+  pero faltan `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` y el alta del endpoint del
+  webhook en el dashboard.
 - **Team no cobra por asiento.** Se cobra `quantity: 1` aunque el plan se anuncia como
   19 €/usuario. Falta contar los miembros del espacio, que tampoco existen todavía.
 - **App móvil (Expo).** `lib/` está escrito sin dependencias de Next para poder

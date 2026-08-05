@@ -31,7 +31,8 @@ repositorio; el resto es el plan.
 - [x] Portal de cliente para gestionar la suscripción
 - [x] Webhook que escribe `profiles.plan` con la service role key
 - [x] Estado de la suscripción en Ajustes (prueba, cobro fallido, cancelada)
-- [ ] Crear los precios de Notiq en la cuenta de Stripe y configurar `STRIPE_PRICE_*`
+- [x] Productos Notiq Pro (9 €) y Notiq Team (19 €) creados en Stripe, en modo live
+- [ ] Configurar `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` y el endpoint del webhook
 - [ ] Cobro por asiento en Team (hoy va a `quantity: 1`)
 - [ ] Avisos al acercarse al límite del plan
 
