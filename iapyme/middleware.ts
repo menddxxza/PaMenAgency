@@ -5,7 +5,32 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigurado } from '@/lib/supa
 /** Rutas que exigen sesión iniciada. */
 const RUTAS_PRIVADAS = ['/dashboard', '/admin', '/mis-leads'];
 
+/**
+ * Candado temporal de sitio completo. Si SITE_LOCK_PASSWORD está configurada,
+ * toda la web pide usuario/contraseña (HTTP Basic Auth) antes de servir nada.
+ * Sin esa variable de entorno, no cambia nada respecto a antes.
+ */
+function candadoDeSitio(request: NextRequest): NextResponse | null {
+  const clave = process.env.SITE_LOCK_PASSWORD;
+  if (!clave) return null;
+
+  const cabecera = request.headers.get('authorization');
+  if (cabecera?.startsWith('Basic ')) {
+    const decodificado = atob(cabecera.slice('Basic '.length));
+    const password = decodificado.split(':').slice(1).join(':');
+    if (password === clave) return null;
+  }
+
+  return new NextResponse('Acceso restringido', {
+    status: 401,
+    headers: { 'WWW-Authenticate': 'Basic realm="IAPyme"' },
+  });
+}
+
 export async function middleware(request: NextRequest) {
+  const bloqueado = candadoDeSitio(request);
+  if (bloqueado) return bloqueado;
+
   if (!supabaseConfigurado()) return NextResponse.next();
 
   let response = NextResponse.next({ request });
