@@ -3,69 +3,92 @@
 App de productividad personal con tres pilares: **notas por bloques**, **tareas** y un
 **asistente** que tiene contexto de ambas cosas.
 
-Next.js 15 (App Router) + TypeScript + Tailwind + Supabase. La IA va contra
-`gpt-4o-mini` a través de un cliente propio sobre `fetch`.
+Next.js 15 (App Router) + TypeScript + Tailwind + Neon (Postgres) + Auth.js. La IA va
+contra `gpt-4o-mini` a través de un cliente propio sobre `fetch`.
 
 ## Puesta en marcha
 
 ```bash
 npm install
-cp .env.example .env.local   # rellena al menos las dos variables de Supabase
+cp .env.example .env.local   # rellena al menos DATABASE_URL y AUTH_SECRET
+psql "$DATABASE_URL" -f migrations/0001_neon.sql
 npm run dev
 ```
 
-Sin credenciales de Supabase la app arranca igual: la landing y la página de precios
-funcionan, y las rutas privadas enseñan un aviso de configuración en vez de reventar.
+Sin `DATABASE_URL` la app arranca igual: la landing y la página de precios funcionan,
+y las rutas privadas enseñan un aviso de configuración en vez de reventar.
 
 ## Base de datos
 
-Ejecuta [`supabase/migrations/0001_notiq.sql`](supabase/migrations/0001_notiq.sql) en el
-SQL Editor de Supabase (o `supabase db push` con la CLI). Crea:
+Un único fichero, [`migrations/0001_neon.sql`](migrations/0001_neon.sql), aplicado con
+`psql` (o cualquier cliente de Postgres) contra el `DATABASE_URL` de tu proyecto de
+[Neon](https://neon.tech). Crea:
 
 | Tabla | Para qué |
 |---|---|
-| `profiles` | Plan del usuario e identificadores de Stripe. Se crea sola al registrarse. |
+| `users` | Cuenta del usuario: contraseña (hash), plan e identificadores de Stripe. |
 | `folders` | Carpetas de notas. |
 | `notes` | Notas. `content` es el array de bloques; `busqueda` es un `tsvector` generado. |
 | `tags` / `note_tags` | Etiquetas y su relación con las notas. |
 | `tasks` | Tareas, con estado, prioridad, vencimiento y la nota de la que salieron. |
 | `ai_usage` | Contador de operaciones de IA por usuario y mes. |
 
-`0002_stripe.sql` añade `profiles.subscription_status` y vuelve a crear el trigger
-para que también lo proteja. `0003_orden_webhook.sql` añade
-`profiles.stripe_evento_en` (también protegido) para descartar webhooks
-desordenados — ver más abajo.
+### Por qué Neon y no Supabase, y qué cambia
 
-Todas tienen RLS activo: cada usuario solo ve lo suyo. Dos detalles que importan:
+La primera versión de Notiq se construyó sobre Supabase (Postgres + Auth + RLS). Se
+migró a Neon + Auth.js porque el entorno de desarrollo de este proyecto solo tiene
+salida de red hacia servicios con un conector ya configurado, y Neon es el único
+backend con base de datos disponible en esas condiciones — no por una preferencia
+técnica sobre Supabase. Vale la pena saber qué se pierde al hacer ese cambio:
 
-- **El plan no lo puede cambiar el usuario.** Un trigger (`proteger_plan`) revierte
-  cualquier intento de tocar `plan` o los campos de Stripe desde una sesión normal.
-  Solo la service role key —es decir, el webhook de Stripe— puede escribirlos.
-- **La cuota de IA se cuenta en SQL.** La función `consumir_ia` incrementa y comprueba
-  el límite en el mismo statement. Contar en JS y escribir después deja una ventana en
-  la que dos peticiones simultáneas pasan las dos por el último hueco de la cuota.
+- **No hay RLS.** Supabase hace cumplir "cada usuario solo ve lo suyo" dentro de
+  Postgres, con `auth.uid()` en cada política; ninguna consulta puede saltárselo
+  aunque el código de la aplicación tenga un bug. Aquí no hay PostgREST que traduzca
+  la sesión del usuario en una identidad de Postgres, así que **cada consulta filtra
+  por `user_id` a mano**, en el código de la aplicación. Es el modelo estándar de
+  cualquier app Next.js + Postgres fuera de Supabase, pero es una garantía menos: un
+  `where user_id = ...` que se olvide en una sola consulta ya no lo frena la base de
+  datos.
+- **La sesión es JWT, no cookies + PostgREST.** El login usa
+  [Auth.js](https://authjs.dev) con un provider de credenciales (email + contraseña,
+  hash con bcrypt) y sesión JWT. El plan del usuario se lee de la base de datos en
+  cada petición (`lib/sesion.ts`), no del propio JWT, para que un cambio de plan se
+  note sin tener que volver a entrar.
+- **Sin enlace mágico (login sin contraseña).** La versión de Supabase lo tenía; esta
+  no manda correos de ningún tipo (no hay servicio de email configurado), así que solo
+  hay login con contraseña. Añadir un provider de email a Auth.js es sencillo el día
+  que haya un proveedor de correo transaccional de por medio.
+- **La cuota de IA sigue siendo atómica en SQL.** La función `consumir_ia` incrementa
+  y comprueba el límite en el mismo statement — eso no depende de RLS, sigue igual.
 
 ## Cómo está montado
 
 ```
 app/
   page.tsx              landing + precios
-  entrar/               acceso (contraseña o magic link)
-  auth/                 callback PKCE y cierre de sesión
+  entrar/               login y registro (Auth.js, credenciales)
+  auth/salir/           cierre de sesión
+  api/auth/[...nextauth]/  handlers de Auth.js
   (app)/                todo lo que exige sesión
     notas/              lista, buscador y editor
     tareas/             lista, Kanban y calendario
     asistente/          chat con contexto
     ajustes/            plan y consumo
   api/ia/               resumen · tareas · chat
+  api/stripe/           checkout · portal · webhook
 components/             UI (los clientes llevan 'use client')
 lib/
+  db.ts                 conexión a Neon (postgres.js) + validación de UUIDs
+  sesion.ts             sesión + plan del usuario actual
   bloques.ts            modelo de bloques y conversión a/desde markdown
   planes.ts             límites de cada plan — única fuente de verdad
   tareas.ts             orden por urgencia y etiquetas de vencimiento
+  stripe.ts             mapeo de planes a precios de Stripe
   ia/                   cliente de OpenAI, prompts, cuota, preámbulo de las rutas
-  supabase/             clientes de navegador y servidor
-middleware.ts           refresco de sesión y protección de rutas
+auth.config.ts          config de Auth.js segura para el runtime Edge (sin providers)
+lib/auth.ts             config completa de Auth.js (providers, callbacks)
+middleware.ts           protección de rutas privadas
+migrations/0001_neon.sql  esquema completo
 ```
 
 ### El editor
@@ -79,7 +102,26 @@ autocompletado del móvil, el corrector, deshacer/rehacer y los lectores de pant
 funcionan sin reimplementarlos. Los atajos (`# `, `- `, `[] `, `> `, ` ``` `) se aplican
 al escribir; pegar markdown de varias líneas lo descompone en bloques.
 
-El guardado es automático con 900 ms de debounce, y `Ctrl/Cmd+S` fuerza el guardado ya.
+El guardado es automático con 900 ms de debounce (serializado: nunca hay dos
+peticiones de guardado en vuelo a la vez, para que una respuesta lenta no pise a una
+más rápida), y `Ctrl/Cmd+S` fuerza el guardado ya. Navegar dentro de la app antes de
+que venza el debounce fuerza igualmente un guardado al desmontar el editor.
+
+### Autenticación
+
+`auth.config.ts` (sin providers, apto para el runtime Edge) + `lib/auth.ts` (con el
+provider de credenciales, que sí toca la base de datos) es el patrón que documenta
+Auth.js para Next.js middleware con un provider que depende de la base de datos: el
+provider de credenciales usa `postgres.js`, que abre sockets TCP — no soportado en
+Edge. `middleware.ts` importa solo `auth.config.ts`, y además fuerza
+`runtime: 'nodejs'` (estable desde Next.js 15.5): Auth.js usa `jose` para el JWT de
+sesión, que a su vez usa `DecompressionStream`, tampoco disponible en Edge. Sin esto
+el build avisa de una API no soportada; con esto, ese aviso desaparece porque el
+middleware ya no corre ahí.
+
+El registro (`app/entrar/actions.ts`) hashea la contraseña con bcrypt (coste 12) e
+inserta directamente en `users` — no hay tablas de Auth.js de por medio, porque la
+sesión es JWT y no hay provider de email que necesite guardar tokens de verificación.
 
 ### La IA
 
@@ -99,7 +141,7 @@ IA configurada y cuota del plan. Un par de decisiones a la vista:
   pregunta genérica tipo «resume mi semana»), cae a las notas recientes.
 
 Coste aproximado con `gpt-4o-mini` (0,15 $ por millón de tokens de entrada): un resumen
-de una nota larga ronda los 0,0002 $. Las 20 operaciones del plano gratuito cuestan
+de una nota larga ronda los 0,0002 $. Las 20 operaciones del plan gratuito cuestan
 menos de un céntimo al mes por usuario.
 
 ### Stripe
@@ -110,13 +152,14 @@ Tres rutas en `app/api/stripe/`:
 |---|---|
 | `checkout` | Abre Stripe Checkout en modo suscripción y devuelve la URL. |
 | `portal` | Abre el portal de facturación (tarjeta, facturas, cancelar). |
-| `webhook` | **Lo único que escribe `profiles.plan`.** |
+| `webhook` | **Lo único que escribe `users.plan`.** |
 
 La regla que sostiene todo esto: **ninguna ruta que hable con el usuario cambia el
 plan**. `checkout` solo abre el pago; si lo marcara como contratado, bastaría con
 abrir el checkout y cerrarlo para tener Pro gratis. El plan lo escribe el webhook
-cuando Stripe confirma el cobro, con la service role key, que es la única que se salta
-el trigger `proteger_plan`.
+cuando Stripe confirma el cobro. Sin RLS de por medio, esto ya no lo hace cumplir
+Postgres (como el trigger `proteger_plan` de la versión con Supabase) — es una
+disciplina del código: ninguna otra ruta debe tocar `users.plan` nunca.
 
 Otras decisiones:
 
@@ -141,7 +184,7 @@ Otras decisiones:
   cancela la suscripción vieja — Stripe no las fusiona solo por compartir customer —
   así que sin esto, pasar de Pro a Team dejaba las dos activas cobrando a la vez.
 - **El webhook descarta eventos más viejos que el último aplicado.**
-  `profiles.stripe_evento_en` guarda el `evento.created` del último webhook que ha
+  `users.stripe_evento_en` guarda el `evento.created` del último webhook que ha
   tocado el plan. Stripe no garantiza el orden de entrega y reintenta los fallos
   hasta 3 días: sin este control, un `subscription.updated` reintentado con éxito
   después de un `subscription.deleted` más reciente podría resucitar un plan que ya
@@ -189,18 +232,46 @@ servidor y los pinta la página de precios.
 | Pro | 9 €/mes | Ilimitadas | 500 | — |
 | Team | 19 €/usuario | Ilimitadas | 2.000 | Sí |
 
+## Verificación pendiente
+
+Todo el código de este README pasa `tsc --noEmit` y `npm run build` sin errores, pero
+**no se ha probado contra una base de datos de Neon real ni contra el navegador**: el
+entorno donde se escribió no tiene salida de red hacia Neon (ver el porqué más arriba).
+Antes de darlo por bueno hace falta, en un entorno con acceso normal a internet:
+
+1. Aplicar `migrations/0001_neon.sql` contra un Neon real y confirmar que no da
+   errores.
+2. Registrar una cuenta, cerrar sesión y volver a entrar.
+3. Crear una nota, escribir, comprobar que el indicador pasa por
+   "Sin guardar" → "Guardando…" → "Guardado", y que sigue ahí tras recargar.
+4. Crear una carpeta y filtrar notas por ella.
+5. Buscar notas por texto (`websearch_to_tsquery`, admite `"frase exacta"` y
+   `-excluir`).
+6. Crear tareas, cambiar su estado y prioridad en las tres vistas (lista, Kanban,
+   calendario).
+7. Con `OPENAI_API_KEY` configurada: resumir una nota, extraer tareas de una nota, y
+   preguntar algo al asistente.
+8. Con Stripe en modo test (`stripe listen`): contratar Pro, cambiar a Team (comprobar
+   en el dashboard de Stripe que la suscripción vieja se actualiza en vez de
+   duplicarse), y cancelar desde el portal.
+9. Que un segundo usuario registrado no vea ni pueda tocar los datos del primero
+   (crear dos cuentas y comprobarlo a mano) — es el punto que más ha cambiado al no
+   haber RLS, y el que más conviene probar con cuidado.
+
 ## Qué falta
 
-Esto cubre las semanas 1-4 y 7-8 del [roadmap](ROADMAP.md). Todavía no está hecho:
+Esto cubre las semanas 1-4 y 7-8 del [roadmap](ROADMAP.md), más la migración de
+Supabase a Neon. Todavía no está hecho:
 
-- **Las claves de Stripe en el entorno.** Los productos ya existen (tabla de arriba),
-  pero faltan `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` y el alta del endpoint del
-  webhook en el dashboard.
+- **Verificación real**, la lista de arriba.
 - **Team no cobra por asiento.** Se cobra `quantity: 1` aunque el plan se anuncia como
   19 €/usuario. Falta contar los miembros del espacio, que tampoco existen todavía.
 - **App móvil (Expo).** `lib/` está escrito sin dependencias de Next para poder
   compartirlo, pero no hay proyecto de React Native.
 - **Recordatorios.** El esquema ya tiene `recordar_el` y su índice parcial; falta el
   cron que los envía.
-- **Imágenes en las notas.** El tipo de bloque existe; falta la subida a Storage.
+- **Imágenes en las notas.** El tipo de bloque existe; falta dónde subirlas (Neon no
+  tiene un Storage propio; haría falta S3, R2 o similar).
 - **Colaboración en tiempo real** del plan Team.
+- **Enlace mágico (login sin contraseña).** Se quitó al migrar a Neon por no tener
+  servicio de email configurado.

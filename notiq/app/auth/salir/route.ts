@@ -1,9 +1,7 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { signOut } from '@/lib/auth';
 
-export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  if (supabase) await supabase.auth.signOut();
-
-  return NextResponse.redirect(new URL('/', request.nextUrl.origin), { status: 303 });
+export async function POST() {
+  // signOut() con redirectTo hace el redirect por su cuenta (lanza el
+  // NEXT_REDIRECT que Next.js reconoce), igual que signIn() en entrar/actions.ts.
+  await signOut({ redirectTo: '/' });
 }

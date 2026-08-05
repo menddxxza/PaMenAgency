@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSesion, type Sesion } from '@/lib/supabase/server';
+import { getSesion, type Sesion } from '@/lib/sesion';
 import { consumirOperacionIa } from '@/lib/ia/limites';
 import { ErrorIA, iaConfigurada } from '@/lib/ia/openai';
 import { limitesDe } from '@/lib/planes';
@@ -33,7 +33,7 @@ export async function prepararIa(): Promise<
     };
   }
 
-  const cuota = await consumirOperacionIa(sesion.supabase, sesion.userId, sesion.plan);
+  const cuota = await consumirOperacionIa(sesion.userId, sesion.plan);
   if (!cuota.permitido) {
     const limites = limitesDe(sesion.plan);
     return {

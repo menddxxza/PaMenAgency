@@ -1,4 +1,5 @@
-import { getSesion } from '@/lib/supabase/server';
+import { getSesion } from '@/lib/sesion';
+import { db } from '@/lib/db';
 import { consumoIa, puedeCrearNota } from '@/lib/ia/limites';
 import { limitesDe } from '@/lib/planes';
 import { stripeConfigurado } from '@/lib/stripe';
@@ -29,15 +30,23 @@ export default async function AjustesPage({
   const sesion = await getSesion();
   if (!sesion) return null;
 
-  const [consumo, cupoNotas, { data: perfil }] = await Promise.all([
-    consumoIa(sesion.supabase, sesion.userId, sesion.plan),
-    puedeCrearNota(sesion.supabase, sesion.userId, sesion.plan),
-    sesion.supabase
-      .from('profiles')
-      .select('stripe_customer_id, stripe_subscription_id, subscription_status, plan_renueva_el')
-      .eq('id', sesion.userId)
-      .maybeSingle(),
+  const sql = db();
+  const [consumo, cupoNotas, filas] = await Promise.all([
+    consumoIa(sesion.userId, sesion.plan),
+    puedeCrearNota(sesion.userId, sesion.plan),
+    sql<
+      {
+        stripe_customer_id: string | null;
+        stripe_subscription_id: string | null;
+        subscription_status: string | null;
+        plan_renueva_el: string | null;
+      }[]
+    >`
+      select stripe_customer_id, stripe_subscription_id, subscription_status, plan_renueva_el
+      from users where id = ${sesion.userId}::uuid
+    `,
   ]);
+  const perfil = filas[0];
 
   const limites = limitesDe(sesion.plan);
   const pagosActivos = stripeConfigurado();

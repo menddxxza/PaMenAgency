@@ -5,7 +5,7 @@ repositorio; el resto es el plan.
 
 ## Semanas 1-2 · MVP base — hecho
 
-- [x] Auth con Supabase (contraseña y magic link, PKCE, middleware de sesión)
+- [x] Auth con Auth.js sobre Neon (email + contraseña, sesión JWT, middleware)
 - [x] CRUD de notas con editor por bloques, carpetas y borrado suave
 - [x] CRUD de tareas con estado, prioridad y vencimiento
 - [x] UI responsive con navegación lateral
@@ -21,7 +21,7 @@ repositorio; el resto es el plan.
 ## Semanas 5-6 · App móvil
 
 - [ ] Proyecto Expo + React Native reutilizando `lib/`
-- [ ] Sesión compartida con Supabase Auth
+- [ ] Sesión compartida con Auth.js
 - [ ] Notificaciones push con Expo Notifications
 - [ ] Cron de recordatorios (`tasks.recordar_el` ya está en el esquema)
 
@@ -29,20 +29,33 @@ repositorio; el resto es el plan.
 
 - [x] Stripe Checkout para Pro y Team
 - [x] Portal de cliente para gestionar la suscripción
-- [x] Webhook que escribe `profiles.plan` con la service role key
+- [x] Webhook que escribe `users.plan`
 - [x] Estado de la suscripción en Ajustes (prueba, cobro fallido, cancelada)
 - [x] Productos Notiq Pro (9 €) y Notiq Team (19 €) creados en Stripe, en modo live
 - [ ] Configurar `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` y el endpoint del webhook
 - [ ] Cobro por asiento en Team (hoy va a `quantity: 1`)
 - [ ] Avisos al acercarse al límite del plan
 
+## Migración de Supabase a Neon — hecho, sin verificar contra una base real
+
+- [x] Esquema en `migrations/0001_neon.sql`: `users` sustituye a `auth.users` +
+      `profiles`, sin RLS
+- [x] Auth.js con provider de credenciales (bcrypt) y sesión JWT
+- [x] Toda la capa de datos reescrita sobre `postgres.js`, con comprobación de
+      propiedad explícita en cada consulta (ya no la hace Postgres por RLS)
+- [x] `stripe_evento_en` protegido igual que antes; sin trigger porque ya no hay
+      distinción de roles de Postgres que proteger
+- [ ] **Probar contra un Neon real**: el entorno donde se escribió no tenía salida de
+      red hacia Neon. Ver la lista de verificación del README.
+
 ## Semanas 9-10 · Pulido
 
 - [ ] Onboarding con una nota de ejemplo ya escrita
 - [ ] Etiquetas en la interfaz (el esquema ya las soporta)
-- [ ] Imágenes en las notas, sobre Supabase Storage
+- [ ] Imágenes en las notas (Neon no tiene Storage propio; haría falta S3, R2 o similar)
 - [ ] Paleta de comandos y atajos de teclado
 - [ ] Papelera para recuperar notas borradas
+- [ ] Enlace mágico (login sin contraseña), si aparece un proveedor de email
 
 ## Semanas 11-12 · Lanzamiento
 
@@ -74,3 +87,9 @@ checkout, bastaría con abrirlo y cerrarlo para tener Pro gratis.
 **`past_due` mantiene el plan.** Regalar unos días a quien tiene la tarjeta caducada
 sale más barato que perder al cliente. La baja real llega por
 `customer.subscription.deleted`.
+
+**Neon sin RLS, con comprobación de propiedad en cada consulta.** Se migró por una
+limitación del entorno de desarrollo (sin salida de red hacia otros backends), no
+porque Supabase se hubiera quedado corto. La renuncia es real: sin RLS, la seguridad
+depende de que el código de cada consulta no se olvide del `where user_id = ...`, y
+Postgres ya no lo respalda si algo se escapa.

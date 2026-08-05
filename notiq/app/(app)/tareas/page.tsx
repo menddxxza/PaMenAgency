@@ -1,4 +1,5 @@
-import { getSesion } from '@/lib/supabase/server';
+import { getSesion } from '@/lib/sesion';
+import { db } from '@/lib/db';
 import VistasTareas from '@/components/VistasTareas';
 import { PRIORIDADES, type Tarea } from '@/lib/tareas';
 import { crearTarea } from './actions';
@@ -9,14 +10,13 @@ export default async function TareasPage() {
   const sesion = await getSesion();
   if (!sesion) return null;
 
-  const { data } = await sesion.supabase
-    .from('tasks')
-    .select('id, titulo, estado, prioridad, vence, note_id, origen')
-    .eq('user_id', sesion.userId)
-    .order('created_at', { ascending: false })
-    .limit(500);
+  const sql = db();
+  const tareas = await sql<Tarea[]>`
+    select id, titulo, estado, prioridad, vence::text, note_id, origen from tasks
+    where user_id = ${sesion.userId}::uuid
+    order by created_at desc limit 500
+  `;
 
-  const tareas = (data ?? []) as Tarea[];
   const abiertas = tareas.filter((t) => t.estado !== 'hecha').length;
 
   return (

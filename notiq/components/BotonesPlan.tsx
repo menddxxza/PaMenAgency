@@ -8,7 +8,7 @@ import type { Plan } from '@/lib/planes';
  * Botones de contratación y de gestión de la suscripción.
  *
  * Ninguno escribe el plan directamente: el alta y el portal piden una URL de Stripe
- * y redirigen; solo el webhook escribe `profiles.plan` cuando Stripe confirma el
+ * y redirigen; solo el webhook escribe `users.plan` cuando Stripe confirma el
  * cobro. El cambio entre planes de pago es la excepción a "siempre hay URL": el
  * servidor actualiza la suscripción existente en el sitio (con prorrateo) en vez de
  * abrir un checkout nuevo, así que esa respuesta no trae `url` y aquí solo se

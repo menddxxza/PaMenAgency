@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { getSesion } from '@/lib/supabase/server';
+import { getSesion } from '@/lib/sesion';
+import { db, esUuid } from '@/lib/db';
 import { comoBloques, extracto } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
 import { crearNota, crearCarpeta } from './actions';
@@ -25,15 +26,16 @@ export default async function NotasPage({
   const sesion = await getSesion();
   if (!sesion) return null;
 
-  const { supabase, userId, plan } = sesion;
+  const sql = db();
+  const { userId, plan } = sesion;
 
-  const [{ data: carpetas }, { count: totalNotas }] = await Promise.all([
-    supabase.from('folders').select('id, nombre').eq('user_id', userId).order('nombre'),
-    supabase
-      .from('notes')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .is('deleted_at', null),
+  const [carpetas, [{ total: totalNotas }]] = await Promise.all([
+    sql<{ id: string; nombre: string }[]>`
+      select id, nombre from folders where user_id = ${userId}::uuid order by nombre
+    `,
+    sql<{ total: number }[]>`
+      select count(*)::int as total from notes where user_id = ${userId}::uuid and deleted_at is null
+    `,
   ]);
 
   let notas: Nota[] = [];
@@ -41,40 +43,39 @@ export default async function NotasPage({
   if (q) {
     // La búsqueda va por la función SQL: ts_rank ordena por relevancia y el índice
     // GIN hace el trabajo, en lugar de traerse todas las notas y filtrar en JS.
-    const { data } = await supabase.rpc('buscar_notas', { p_consulta: q, p_limite: 50 });
-    const ids = (data ?? []).map((f: { id: string }) => f.id);
+    const relevantes = await sql<{ id: string }[]>`
+      select id from buscar_notas(${userId}::uuid, ${q}, 50)
+    `;
+    const ids = relevantes.map((f) => f.id);
 
     if (ids.length > 0) {
-      const { data: completas } = await supabase
-        .from('notes')
-        .select('id, titulo, content, favorita, folder_id, updated_at')
-        .in('id', ids);
-
-      // El .in() pierde el orden por relevancia, así que se reordena por los ids.
-      const porId = new Map((completas ?? []).map((n) => [n.id, n as Nota]));
-      notas = ids.flatMap((id: string) => {
+      const completas = await sql<Nota[]>`
+        select id, titulo, content, favorita, folder_id, updated_at
+        from notes where id = any(${ids}::uuid[]) and user_id = ${userId}::uuid
+      `;
+      // any(...) no conserva el orden por relevancia, así que se reordena por los ids.
+      const porId = new Map(completas.map((n) => [n.id, n]));
+      notas = ids.flatMap((id) => {
         const nota = porId.get(id);
         return nota ? [nota] : [];
       });
     }
+  } else if (carpeta && esUuid(carpeta)) {
+    notas = await sql<Nota[]>`
+      select id, titulo, content, favorita, folder_id, updated_at from notes
+      where user_id = ${userId}::uuid and deleted_at is null and folder_id = ${carpeta}::uuid
+      order by favorita desc, updated_at desc limit 100
+    `;
   } else {
-    let consulta = supabase
-      .from('notes')
-      .select('id, titulo, content, favorita, folder_id, updated_at')
-      .eq('user_id', userId)
-      .is('deleted_at', null)
-      .order('favorita', { ascending: false })
-      .order('updated_at', { ascending: false })
-      .limit(100);
-
-    if (carpeta) consulta = consulta.eq('folder_id', carpeta);
-
-    const { data } = await consulta;
-    notas = (data ?? []) as Nota[];
+    notas = await sql<Nota[]>`
+      select id, titulo, content, favorita, folder_id, updated_at from notes
+      where user_id = ${userId}::uuid and deleted_at is null
+      order by favorita desc, updated_at desc limit 100
+    `;
   }
 
   const limites = limitesDe(plan);
-  const cupoLleno = limites.notas !== null && (totalNotas ?? 0) >= limites.notas;
+  const cupoLleno = limites.notas !== null && totalNotas >= limites.notas;
 
   return (
     <div className="px-5 py-6 sm:px-8">
@@ -82,7 +83,7 @@ export default async function NotasPage({
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Notas</h1>
           <p className="mt-1 text-sm text-ink/55">
-            {totalNotas ?? 0}
+            {totalNotas}
             {limites.notas !== null ? ` de ${limites.notas}` : ''} notas
           </p>
         </div>
@@ -116,7 +117,7 @@ export default async function NotasPage({
         >
           Todas
         </Link>
-        {(carpetas ?? []).map((c) => (
+        {carpetas.map((c) => (
           <Link
             key={c.id}
             href={`/notas?carpeta=${c.id}`}

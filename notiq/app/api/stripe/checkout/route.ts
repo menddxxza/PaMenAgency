@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSesion } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { getSesion, type Sesion } from '@/lib/sesion';
+import { db } from '@/lib/db';
 import { esPlanDePago, getStripe, precioDe } from '@/lib/stripe';
 
 export const runtime = 'nodejs';
@@ -9,7 +9,7 @@ export const runtime = 'nodejs';
  * Abre una sesión de Stripe Checkout para contratar Pro o Team.
  *
  * Devuelve la URL a la que redirige el cliente; el formulario de pago lo sirve
- * Stripe. Esta ruta NO toca `profiles.plan`: el plan solo lo escribe el webhook,
+ * Stripe. Esta ruta NO toca `users.plan`: el plan solo lo escribe el webhook,
  * cuando Stripe confirma que el cobro ha salido. Si se marcara aquí, bastaría con
  * abrir el checkout y cerrarlo para tener Pro gratis.
  */
@@ -43,11 +43,10 @@ export async function POST(request: NextRequest) {
   const sitio = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
   try {
-    const { data: perfil } = await sesion.supabase
-      .from('profiles')
-      .select('stripe_subscription_id, plan')
-      .eq('id', sesion.userId)
-      .maybeSingle();
+    const sql = db();
+    const [perfil] = await sql<{ stripe_subscription_id: string | null; plan: string }[]>`
+      select stripe_subscription_id, plan from users where id = ${sesion.userId}::uuid
+    `;
 
     // Si ya hay una suscripción de pago activa, NO se abre un checkout nuevo:
     // stripe.checkout.sessions.create crearía una SEGUNDA suscripción sobre el
@@ -95,7 +94,7 @@ export async function POST(request: NextRequest) {
  * Cambia de plan a un usuario que ya tiene una suscripción de pago activa,
  * actualizando el precio del item existente en vez de crear una suscripción nueva.
  *
- * No escribe `profiles.plan` aquí: como el resto del flujo de pago, eso lo hace
+ * No escribe `users.plan` aquí: como el resto del flujo de pago, eso lo hace
  * únicamente el webhook cuando le llega `customer.subscription.updated`.
  */
 async function cambiarDePlan(
@@ -131,13 +130,12 @@ async function cambiarDePlan(
  */
 async function customerDelUsuario(
   stripe: NonNullable<ReturnType<typeof getStripe>>,
-  sesion: NonNullable<Awaited<ReturnType<typeof getSesion>>>,
+  sesion: Sesion,
 ): Promise<string> {
-  const { data: perfil } = await sesion.supabase
-    .from('profiles')
-    .select('stripe_customer_id')
-    .eq('id', sesion.userId)
-    .maybeSingle();
+  const sql = db();
+  const [perfil] = await sql<{ stripe_customer_id: string | null }[]>`
+    select stripe_customer_id from users where id = ${sesion.userId}::uuid
+  `;
 
   if (perfil?.stripe_customer_id) return perfil.stripe_customer_id;
 
@@ -148,20 +146,7 @@ async function customerDelUsuario(
 
   // Se guarda ya, y no al llegar el webhook: si el usuario abre el checkout y lo
   // cierra, no llega ningún webhook, y el siguiente intento crearía otro customer.
-  // Hace falta la service role key porque `stripe_customer_id` está protegido
-  // contra escrituras desde una sesión de usuario — y el id que se escribe es el
-  // de la sesión ya verificada, no algo que venga de la petición.
-  const admin = createAdminClient();
-  if (admin) {
-    await admin
-      .from('profiles')
-      .update({ stripe_customer_id: creado.id })
-      .eq('id', sesion.userId);
-  } else {
-    // Sin service role key el checkout sigue funcionando; solo se acumulan
-    // customers huérfanos en Stripe si el usuario abandona el pago varias veces.
-    console.warn('[notiq] sin SUPABASE_SERVICE_ROLE_KEY: no se guarda el customer de Stripe');
-  }
+  await sql`update users set stripe_customer_id = ${creado.id} where id = ${sesion.userId}::uuid`;
 
   return creado.id;
 }

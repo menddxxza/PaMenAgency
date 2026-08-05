@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSesion } from '@/lib/supabase/server';
+import { getSesion } from '@/lib/sesion';
+import { db, esUuid } from '@/lib/db';
 import { comoBloques } from '@/lib/bloques';
 import NotaEditor from '@/components/NotaEditor';
 import { borrarNota } from '../actions';
@@ -11,24 +12,25 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const sesion = await getSesion();
   if (!sesion) return null;
+  if (!esUuid(id)) notFound();
 
-  const { data: nota } = await sesion.supabase
-    .from('notes')
-    .select('id, titulo, content, favorita, resumen_ia, deleted_at')
-    .eq('id', id)
-    .eq('user_id', sesion.userId)
-    .maybeSingle();
+  const sql = db();
+
+  const [nota] = await sql<
+    { id: string; titulo: string; content: unknown; favorita: boolean; resumen_ia: string | null; deleted_at: string | null }[]
+  >`
+    select id, titulo, content, favorita, resumen_ia, deleted_at
+    from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+  `;
 
   if (!nota || nota.deleted_at) notFound();
 
   // Las tareas que salieron de esta nota, para poder volver a ellas desde aquí.
-  const { data: tareas } = await sesion.supabase
-    .from('tasks')
-    .select('id, titulo, estado')
-    .eq('note_id', id)
-    .eq('user_id', sesion.userId)
-    .order('created_at', { ascending: false })
-    .limit(10);
+  const tareas = await sql<{ id: string; titulo: string; estado: string }[]>`
+    select id, titulo, estado from tasks
+    where note_id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+    order by created_at desc limit 10
+  `;
 
   return (
     <div className="px-5 py-6 sm:px-8">
@@ -52,7 +54,7 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
         resumenInicial={nota.resumen_ia}
       />
 
-      {tareas && tareas.length > 0 && (
+      {tareas.length > 0 && (
         <section className="mt-10 max-w-2xl border-t border-ink/10 pt-6">
           <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink/60">
             Tareas de esta nota

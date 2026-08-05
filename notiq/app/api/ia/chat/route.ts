@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { db } from '@/lib/db';
 import { completar, type Mensaje } from '@/lib/ia/openai';
 import { SISTEMA_ASISTENTE, bloqueDeContexto, hoyISO } from '@/lib/ia/prompts';
 import { prepararIa, respuestaDeError } from '@/lib/ia/handler';
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   const preparado = await prepararIa();
   if (!preparado.ok) return preparado.respuesta;
 
-  const { supabase, userId } = preparado.sesion;
+  const { userId } = preparado.sesion;
 
   try {
     const cuerpo = (await request.json()) as CuerpoPeticion;
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Escribe una pregunta.' }, { status: 400 });
     }
 
-    const contexto = await reunirContexto(supabase, userId, pregunta);
+    const contexto = await reunirContexto(userId, pregunta);
 
     const historial: Mensaje[] = (cuerpo.historial ?? [])
       .filter(
@@ -73,36 +73,26 @@ export async function POST(request: NextRequest) {
  * cada tecla del editor. Si la búsqueda no devuelve nada (pregunta genérica del tipo
  * "resume mi semana"), se cae a las notas recientes, que es justo lo que se pide.
  */
-async function reunirContexto(
-  supabase: SupabaseClient,
-  userId: string,
-  pregunta: string,
-): Promise<string> {
-  const { data: relevantes } = await supabase.rpc('buscar_notas', {
-    p_consulta: pregunta,
-    p_limite: MAX_NOTAS,
-  });
+async function reunirContexto(userId: string, pregunta: string): Promise<string> {
+  const sql = db();
 
-  let notas = (relevantes ?? []) as { titulo: string; texto: string; updated_at: string }[];
+  let notas = await sql<{ titulo: string; texto: string; updated_at: string }[]>`
+    select titulo, texto, updated_at from buscar_notas(${userId}::uuid, ${pregunta}, ${MAX_NOTAS})
+  `;
 
   if (notas.length === 0) {
-    const { data: recientes } = await supabase
-      .from('notes')
-      .select('titulo, texto, updated_at')
-      .eq('user_id', userId)
-      .is('deleted_at', null)
-      .order('updated_at', { ascending: false })
-      .limit(MAX_NOTAS);
-    notas = recientes ?? [];
+    notas = await sql<{ titulo: string; texto: string; updated_at: string }[]>`
+      select titulo, texto, updated_at from notes
+      where user_id = ${userId}::uuid and deleted_at is null
+      order by updated_at desc limit ${MAX_NOTAS}
+    `;
   }
 
-  const { data: tareas } = await supabase
-    .from('tasks')
-    .select('titulo, estado, prioridad, vence')
-    .eq('user_id', userId)
-    .neq('estado', 'hecha')
-    .order('vence', { ascending: true, nullsFirst: false })
-    .limit(40);
+  const tareas = await sql<{ titulo: string; estado: string; prioridad: string; vence: string | null }[]>`
+    select titulo, estado, prioridad, vence::text from tasks
+    where user_id = ${userId}::uuid and estado <> 'hecha'
+    order by vence asc nulls last limit 40
+  `;
 
   const bloqueNotas = notas.length
     ? notas
@@ -114,7 +104,7 @@ async function reunirContexto(
         .join('\n\n')
     : 'El usuario todavía no tiene notas.';
 
-  const bloqueTareas = tareas?.length
+  const bloqueTareas = tareas.length
     ? tareas
         .map(
           (t) =>

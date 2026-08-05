@@ -1,25 +1,20 @@
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 import FormularioAcceso from '@/components/FormularioAcceso';
-import AvisoSinSupabase from '@/components/AvisoSinSupabase';
-import { supabaseConfigurado } from '@/lib/supabase/config';
+import AvisoSinBaseDeDatos from '@/components/AvisoSinBaseDeDatos';
+import { baseDeDatosConfigurada } from '@/lib/db';
 
 export const metadata = {
   title: 'Entrar · Notiq',
   description: 'Accede a tus notas y tareas de Notiq.',
 };
 
-const ERRORES: Record<string, string> = {
-  enlace: 'El enlace ha caducado o ya se ha usado. Pide otro.',
-  configuracion: 'Este despliegue todavía no tiene Supabase configurado.',
-};
-
 export default async function EntrarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ volver?: string; error?: string }>;
+  searchParams: Promise<{ volver?: string; registro?: string }>;
 }) {
-  const { volver, error } = await searchParams;
+  const { volver, registro } = await searchParams;
   const destino = volver?.startsWith('/') ? volver : '/notas';
 
   return (
@@ -30,22 +25,18 @@ export default async function EntrarPage({
             <Logo />
           </Link>
 
-          <h1 className="mt-10 text-2xl font-extrabold tracking-tight">Entra en Notiq</h1>
+          <h1 className="mt-10 text-2xl font-extrabold tracking-tight">
+            {registro ? 'Crea tu cuenta' : 'Entra en Notiq'}
+          </h1>
           <p className="mt-2 text-sm text-ink/65">
             Tus notas, tus tareas y un asistente que las ha leído todas.
           </p>
 
-          {error && ERRORES[error] && (
-            <p className="mt-6 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
-              {ERRORES[error]}
-            </p>
-          )}
-
           <div className="mt-8">
-            {supabaseConfigurado() ? (
-              <FormularioAcceso volver={destino} />
+            {baseDeDatosConfigurada() ? (
+              <FormularioAcceso volver={destino} registroInicial={Boolean(registro)} />
             ) : (
-              <AvisoSinSupabase />
+              <AvisoSinBaseDeDatos />
             )}
           </div>
         </div>

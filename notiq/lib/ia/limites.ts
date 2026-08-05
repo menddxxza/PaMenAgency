@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { db } from '@/lib/db';
 import { limitesDe, type Plan } from '@/lib/planes';
 
 /**
@@ -22,49 +22,39 @@ export function periodoActual(fecha = new Date()): string {
  * Reserva una operación de IA. Devuelve `permitido: false` si el plan ya no da más,
  * sin consumir nada.
  */
-export async function consumirOperacionIa(
-  supabase: SupabaseClient,
-  userId: string,
-  plan: Plan,
-): Promise<ResultadoCuota> {
+export async function consumirOperacionIa(userId: string, plan: Plan): Promise<ResultadoCuota> {
   const limite = limitesDe(plan).operacionesIaMes;
+  const sql = db();
 
-  const { data, error } = await supabase.rpc('consumir_ia', {
-    p_usuario: userId,
-    p_periodo: periodoActual(),
-    p_limite: limite,
-  });
-
-  if (error) {
+  let usadas: number;
+  try {
+    const [{ consumir_ia: total }] = await sql<{ consumir_ia: number }[]>`
+      select consumir_ia(${userId}::uuid, ${periodoActual()}, ${limite})
+    `;
+    usadas = total;
+  } catch (fallo) {
     // Si el contador falla no se puede saber si queda cuota. Se deja pasar la
     // operación: cobrar de más a un usuario legítimo es peor que regalar una
-    // llamada de 0,0002 $, y el error queda en los logs de Supabase.
-    console.error('[notiq] no se ha podido consumir cuota de IA', error);
+    // llamada de 0,0002 $, y el error queda en los logs.
+    console.error('[notiq] no se ha podido consumir cuota de IA', fallo);
     return { permitido: true, usadas: 0, limite };
   }
 
-  const usadas = typeof data === 'number' ? data : 0;
   return usadas > limite
     ? { permitido: false, usadas: limite, limite }
     : { permitido: true, usadas, limite };
 }
 
 /** Lectura del consumo, para pintarlo en la interfaz. */
-export async function consumoIa(
-  supabase: SupabaseClient,
-  userId: string,
-  plan: Plan,
-): Promise<{ usadas: number; limite: number }> {
+export async function consumoIa(userId: string, plan: Plan): Promise<{ usadas: number; limite: number }> {
   const limite = limitesDe(plan).operacionesIaMes;
+  const sql = db();
 
-  const { data } = await supabase
-    .from('ai_usage')
-    .select('operaciones')
-    .eq('user_id', userId)
-    .eq('periodo', periodoActual())
-    .maybeSingle();
+  const [fila] = await sql<{ operaciones: number }[]>`
+    select operaciones from ai_usage where user_id = ${userId}::uuid and periodo = ${periodoActual()}
+  `;
 
-  return { usadas: data?.operaciones ?? 0, limite };
+  return { usadas: fila?.operaciones ?? 0, limite };
 }
 
 /**
@@ -72,19 +62,17 @@ export async function consumoIa(
  * por una nota en una carrera no cuesta dinero.
  */
 export async function puedeCrearNota(
-  supabase: SupabaseClient,
   userId: string,
   plan: Plan,
 ): Promise<{ permitido: boolean; usadas: number; limite: number | null }> {
   const limite = limitesDe(plan).notas;
   if (limite === null) return { permitido: true, usadas: 0, limite: null };
 
-  const { count } = await supabase
-    .from('notes')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .is('deleted_at', null);
+  const sql = db();
+  const [{ total }] = await sql<{ total: number }[]>`
+    select count(*)::int as total from notes
+    where user_id = ${userId}::uuid and deleted_at is null
+  `;
 
-  const usadas = count ?? 0;
-  return { permitido: usadas < limite, usadas, limite };
+  return { permitido: total < limite, usadas: total, limite };
 }

@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import type Stripe from 'stripe';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { createAdminClient } from '@/lib/supabase/admin';
+import { db, esUuid } from '@/lib/db';
 import { daDerechoAlPlan, getStripe, planDesdePrecio } from '@/lib/stripe';
 
 export const runtime = 'nodejs';
@@ -12,9 +11,9 @@ export const dynamic = 'force-dynamic';
 /**
  * Única fuente de verdad del plan de un usuario.
  *
- * Nada más en la aplicación escribe `profiles.plan`: el resto solo lo lee. El
- * trigger `proteger_plan` de la migración se encarga de que así sea incluso si
- * alguien se equivoca, porque solo la service role key puede saltárselo.
+ * Nada más en la aplicación escribe `users.plan`: el resto solo lo lee. Sin RLS
+ * que lo garantice, es una disciplina del código, no algo que aplique Postgres —
+ * por eso importa que sea la única ruta que lo toca.
  *
  * Configurar en Stripe (Developers → Webhooks → Add endpoint):
  *   URL: https://<dominio>/api/stripe/webhook
@@ -44,14 +43,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Firma inválida.' }, { status: 400 });
   }
 
-  const admin = createAdminClient();
-  if (!admin) {
-    // 500 y no 200: así Stripe reintenta cuando se arregle la configuración, en
-    // lugar de dar el evento por procesado y perder el alta.
-    console.error('[notiq] falta SUPABASE_SERVICE_ROLE_KEY para procesar el webhook');
-    return NextResponse.json({ error: 'Servidor mal configurado.' }, { status: 500 });
-  }
-
   try {
     switch (evento.type) {
       case 'checkout.session.completed': {
@@ -63,14 +54,14 @@ export async function POST(request: NextRequest) {
         const suscripcion = await stripe.subscriptions.retrieve(
           typeof sesion.subscription === 'string' ? sesion.subscription : sesion.subscription.id,
         );
-        await sincronizar(admin, suscripcion, evento.created, sesion.client_reference_id);
+        await sincronizar(suscripcion, evento.created, sesion.client_reference_id);
         break;
       }
 
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
-        await sincronizar(admin, evento.data.object, evento.created);
+        await sincronizar(evento.data.object, evento.created);
         break;
       }
 
@@ -89,6 +80,8 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ recibido: true });
 }
 
+type FilaPerfil = { stripe_evento_en: number | null; stripe_subscription_id: string | null };
+
 /**
  * Vuelca el estado de una suscripción de Stripe sobre el perfil.
  *
@@ -106,31 +99,27 @@ export async function POST(request: NextRequest) {
  * de Stripe lo autocorrige en la siguiente entrega.
  */
 async function sincronizar(
-  admin: SupabaseClient,
   suscripcion: Stripe.Subscription,
   eventoCreado: number,
   userIdDeLaSesion?: string | null,
 ): Promise<void> {
+  const sql = db();
+
   // El user_id viaja en la metadata que puso el checkout. Si falta (una
   // suscripción creada a mano desde el dashboard, por ejemplo), se cae al
   // client_reference_id y por último al customer.
-  const userId = suscripcion.metadata?.user_id ?? userIdDeLaSesion ?? null;
+  const userIdCrudo = suscripcion.metadata?.user_id ?? userIdDeLaSesion ?? null;
+  const userId = esUuid(userIdCrudo) ? userIdCrudo : null;
   const customerId =
     typeof suscripcion.customer === 'string' ? suscripcion.customer : suscripcion.customer.id;
-  const columna = userId ? 'id' : 'stripe_customer_id';
-  const valor = userId ?? customerId;
 
-  const { data: perfil, error: errorLectura } = await admin
-    .from('profiles')
-    .select('stripe_evento_en, stripe_subscription_id')
-    .eq(columna, valor)
-    .maybeSingle();
-
-  if (errorLectura) throw errorLectura;
+  const perfil = userId
+    ? (await sql<FilaPerfil[]>`select stripe_evento_en, stripe_subscription_id from users where id = ${userId}::uuid`)[0]
+    : (await sql<FilaPerfil[]>`select stripe_evento_en, stripe_subscription_id from users where stripe_customer_id = ${customerId}`)[0];
 
   if (!perfil) {
     // Puede ser una carrera con el alta (el checkout llega antes de que el
-    // trigger de auth.users termine de crear el perfil): se reintenta.
+    // registro haya terminado de escribirse): se reintenta.
     throw new Error(
       `no se ha encontrado el perfil para la suscripción ${suscripcion.id} (user_id: ${userId ?? 'null'}, customer: ${customerId})`,
     );
@@ -168,18 +157,30 @@ async function sincronizar(
   const plan = activa && planContratado ? planContratado : 'free';
   // `current_period_end` vive en el item de la suscripción desde la API 2025-03.
   const finDePeriodo = suscripcion.items.data[0]?.current_period_end;
+  const renuevaEl = finDePeriodo && activa ? new Date(finDePeriodo * 1000) : null;
+  const stripeSubId = activa ? suscripcion.id : null;
 
-  const { error } = await admin
-    .from('profiles')
-    .update({
-      plan,
-      stripe_customer_id: customerId,
-      stripe_subscription_id: activa ? suscripcion.id : null,
-      subscription_status: suscripcion.status,
-      plan_renueva_el: finDePeriodo && activa ? new Date(finDePeriodo * 1000).toISOString() : null,
-      stripe_evento_en: eventoCreado,
-    })
-    .eq(columna, valor);
-
-  if (error) throw error;
+  if (userId) {
+    await sql`
+      update users set
+        plan = ${plan},
+        stripe_customer_id = ${customerId},
+        stripe_subscription_id = ${stripeSubId},
+        subscription_status = ${suscripcion.status},
+        plan_renueva_el = ${renuevaEl},
+        stripe_evento_en = ${eventoCreado}
+      where id = ${userId}::uuid
+    `;
+  } else {
+    await sql`
+      update users set
+        plan = ${plan},
+        stripe_customer_id = ${customerId},
+        stripe_subscription_id = ${stripeSubId},
+        subscription_status = ${suscripcion.status},
+        plan_renueva_el = ${renuevaEl},
+        stripe_evento_en = ${eventoCreado}
+      where stripe_customer_id = ${customerId}
+    `;
+  }
 }

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSesion } from '@/lib/supabase/server';
+import { getSesion } from '@/lib/sesion';
+import { db } from '@/lib/db';
 import { getStripe } from '@/lib/stripe';
 
 export const runtime = 'nodejs';
@@ -23,11 +24,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { data: perfil } = await sesion.supabase
-    .from('profiles')
-    .select('stripe_customer_id')
-    .eq('id', sesion.userId)
-    .maybeSingle();
+  const sql = db();
+  const [perfil] = await sql<{ stripe_customer_id: string | null }[]>`
+    select stripe_customer_id from users where id = ${sesion.userId}::uuid
+  `;
 
   if (!perfil?.stripe_customer_id) {
     return NextResponse.json(
