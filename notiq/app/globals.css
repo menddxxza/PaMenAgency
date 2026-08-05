@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, sans-serif;
+  }
+
+  body {
+    @apply bg-white text-ink antialiased;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+           text-sm font-semibold transition focus:outline-none
+           focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
+
+  .btn-secondary {
+    @apply btn border border-ink/15 bg-white text-ink hover:border-ink/30 hover:bg-ink/[0.03];
+  }
+
+  .btn-fantasma {
+    @apply btn text-ink/70 hover:bg-ink/[0.05] hover:text-ink;
+  }
+
+  .card {
+    @apply rounded-2xl border border-ink/10 bg-white shadow-card;
+  }
+
+  .campo {
+    @apply w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm
+           outline-none transition placeholder:text-ink/35
+           focus:border-brand-400 focus:ring-2 focus:ring-brand-100;
+  }
+
+  .etiqueta-campo {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink/55;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-brand-600;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-ink/10 bg-ink/[0.03]
+           px-2.5 py-1 text-xs font-medium text-ink/70;
+  }
+}
+
+@layer utilities {
+  /* El editor de bloques usa contenteditable: sin esto un bloque vacío colapsa a
+     cero de alto y no hay dónde hacer clic para escribir. */
+  .bloque-vacio:empty::before {
+    content: attr(data-marcador);
+    @apply pointer-events-none text-ink/30;
+  }
+}
