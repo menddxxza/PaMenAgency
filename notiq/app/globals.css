@@ -86,7 +86,7 @@
 .notiq-trazo {
   fill: none;
   stroke: #6829e0;
-  stroke-width: 2.5;
+  stroke-width: 3.5;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 3000;
@@ -108,15 +108,15 @@
     opacity: 0;
   }
   8% {
-    opacity: 0.16;
+    opacity: 0.4;
   }
   58% {
     stroke-dashoffset: 0;
-    opacity: 0.16;
+    opacity: 0.4;
   }
   78% {
     stroke-dashoffset: 0;
-    opacity: 0.16;
+    opacity: 0.4;
   }
   92% {
     opacity: 0;
@@ -133,14 +133,14 @@
     opacity: 0;
   }
   8% {
-    opacity: 0.55;
+    opacity: 0.7;
   }
   58% {
     offset-distance: 100%;
-    opacity: 0.55;
+    opacity: 0.7;
   }
   78% {
-    opacity: 0.55;
+    opacity: 0.7;
   }
   92% {
     opacity: 0;
