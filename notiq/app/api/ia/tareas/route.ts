@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { completarJson } from '@/lib/ia/openai';
 import { SISTEMA_TAREAS, bloqueDeContexto, hoyISO } from '@/lib/ia/prompts';
 import { prepararIa, recortar, respuestaDeError } from '@/lib/ia/handler';
+import { fechaValidaONull } from '@/lib/tareas';
 
 export const runtime = 'nodejs';
 
@@ -51,8 +52,7 @@ export async function POST(request: NextRequest) {
           typeof t.prioridad === 'string' && PRIORIDADES.includes(t.prioridad)
             ? t.prioridad
             : 'normal',
-        vence:
-          typeof t.vence === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.vence) ? t.vence : null,
+        vence: typeof t.vence === 'string' ? fechaValidaONull(t.vence) : null,
       }))
       .filter((t) => t.titulo.length > 0)
       .slice(0, 12);

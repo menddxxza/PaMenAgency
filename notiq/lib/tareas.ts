@@ -8,6 +8,25 @@ export type Tarea = {
   origen: 'manual' | 'ia';
 };
 
+/**
+ * Valida una fecha 'YYYY-MM-DD' antes de que llegue a una columna `date`.
+ *
+ * Un simple `/^\d{4}-\d{2}-\d{2}$/` deja pasar fechas con la forma correcta pero
+ * inexistentes ("2024-02-30", "2024-13-01"), que Postgres rechaza al insertar. Eso
+ * importa sobre todo con fechas que pone la IA: si una de varias tareas trae una
+ * fecha así, no debe tumbar el insert de las demás.
+ */
+export function fechaValidaONull(valor: string | null | undefined): string | null {
+  if (!valor || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) return null;
+
+  const fecha = new Date(`${valor}T00:00:00Z`);
+  // Un mes o día que no existe no lanza: Date normaliza desbordando al mes
+  // siguiente. Comparar el ISO de vuelta con lo que se pidió detecta ese caso.
+  return Number.isNaN(fecha.getTime()) || fecha.toISOString().slice(0, 10) !== valor
+    ? null
+    : valor;
+}
+
 export const COLUMNAS: { estado: Tarea['estado']; etiqueta: string }[] = [
   { estado: 'pendiente', etiqueta: 'Pendiente' },
   { estado: 'en_curso', etiqueta: 'En curso' },

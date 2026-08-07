@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { getSesion } from '@/lib/sesion';
 import { db, esUuid } from '@/lib/db';
 import { puedeCrearNota } from '@/lib/ia/limites';
+import { fechaValidaONull } from '@/lib/tareas';
 import { aTextoPlano, comoBloques, type Bloque } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
 
@@ -186,19 +187,27 @@ export async function guardarTareasExtraidas(
     .map((t) => ({
       titulo: String(t.titulo ?? '').trim().slice(0, 200),
       prioridad: prioridadesValidas.includes(t.prioridad) ? t.prioridad : 'normal',
-      vence: /^\d{4}-\d{2}-\d{2}$/.test(t.vence ?? '') ? t.vence : null,
+      vence: fechaValidaONull(t.vence),
     }))
     .filter((t) => t.titulo.length > 0);
 
   if (filas.length === 0) return { ok: true, creadas: 0 };
 
   try {
-    for (const fila of filas) {
-      await sql`
-        insert into tasks (user_id, note_id, titulo, prioridad, vence, origen)
-        values (${sesion.userId}::uuid, ${noteId}::uuid, ${fila.titulo}, ${fila.prioridad}, ${fila.vence}, 'ia')
-      `;
-    }
+    // Una transacción y no un insert por fila: si una tarea fallara a mitad
+    // (aunque las fechas ya se validan arriba, más vale no depender solo de
+    // eso), un bucle sin transacción dejaría las anteriores ya guardadas
+    // mientras se informa de un fallo total — y un reintento las duplicaría.
+    await sql.begin((tx) =>
+      Promise.all(
+        filas.map(
+          (fila) => tx`
+            insert into tasks (user_id, note_id, titulo, prioridad, vence, origen)
+            values (${sesion.userId}::uuid, ${noteId}::uuid, ${fila.titulo}, ${fila.prioridad}, ${fila.vence}, 'ia')
+          `,
+        ),
+      ),
+    );
   } catch (fallo) {
     console.error('[notiq] no se han podido guardar las tareas extraídas', fallo);
     return { ok: false, error: 'No se han podido guardar las tareas.' };

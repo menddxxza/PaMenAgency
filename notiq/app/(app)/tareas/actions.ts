@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getSesion } from '@/lib/sesion';
 import { db, esUuid } from '@/lib/db';
+import { fechaValidaONull } from '@/lib/tareas';
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
@@ -25,7 +26,7 @@ export async function crearTarea(formData: FormData) {
   const prioridad = (PRIORIDADES as readonly string[]).includes(prioridadCruda)
     ? prioridadCruda
     : 'normal';
-  const venceValida = /^\d{4}-\d{2}-\d{2}$/.test(vence) ? vence : null;
+  const venceValida = fechaValidaONull(vence);
 
   const sql = db();
   await sql`

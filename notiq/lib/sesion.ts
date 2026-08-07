@@ -23,7 +23,7 @@ export async function getSesion(): Promise<Sesion | null> {
 
   const sql = db();
   const [usuario] = await sql<{ plan: string }[]>`
-    select plan from users where id = ${sesion.user.id}
+    select plan from users where id = ${sesion.user.id}::uuid
   `;
   if (!usuario) return null;
 
