@@ -82,7 +82,7 @@ export default function LandingPage() {
         <section className="container-page pb-20">
           <div className="grid gap-5 md:grid-cols-3">
             {PILARES.map((pilar) => (
-              <article key={pilar.titulo} className="card p-6">
+              <article key={pilar.titulo} className="card-flotante p-6">
                 <span aria-hidden className="text-2xl">
                   {pilar.emoji}
                 </span>
@@ -93,7 +93,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="precios" className="border-t border-ink/10 bg-white py-20">
+        <section id="precios" className="border-t border-ink/10 py-20">
           <div className="container-page">
             <div className="max-w-xl">
               <p className="eyebrow">Precios</p>
@@ -106,7 +106,7 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="mt-10">
-              <TablaPrecios />
+              <TablaPrecios flotante />
             </div>
           </div>
         </section>

@@ -41,6 +41,20 @@
     @apply rounded-2xl border border-ink/10 bg-white shadow-card;
   }
 
+  /*
+   * Variante "cristal esmerilado" de .card, solo para donde hay algo detrás que
+   * merezca la pena dejar entrever (la landing, con el fondo animado) — por eso
+   * es una clase aparte y no un cambio de .card: .card la usan también páginas de
+   * la aplicación (ajustes, notas...) sin nada de fondo detrás, donde un cristal
+   * translúcido no tendría ningún efecto que justifique perder el blanco sólido.
+   */
+  .card-flotante {
+    @apply rounded-2xl border border-white/60 shadow-card;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
   .campo {
     @apply w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm
            outline-none transition placeholder:text-ink/35

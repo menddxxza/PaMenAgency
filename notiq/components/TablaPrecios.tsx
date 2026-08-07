@@ -1,7 +1,15 @@
 import Link from 'next/link';
 import { ORDEN_PLANES, PLANES, type Plan } from '@/lib/planes';
 
-export default function TablaPrecios({ actual }: { actual?: Plan }) {
+export default function TablaPrecios({
+  actual,
+  flotante = false,
+}: {
+  actual?: Plan;
+  /** Tarjetas en cristal esmerilado en vez de blanco sólido — solo tiene sentido
+   * con algo animado detrás (la landing), no dentro de la aplicación. */
+  flotante?: boolean;
+}) {
   return (
     <div className="grid gap-5 md:grid-cols-3">
       {ORDEN_PLANES.map((id) => {
@@ -12,7 +20,7 @@ export default function TablaPrecios({ actual }: { actual?: Plan }) {
         return (
           <div
             key={id}
-            className={`card flex flex-col p-6 ${
+            className={`${flotante ? 'card-flotante' : 'card'} flex flex-col p-6 ${
               destacado ? 'ring-2 ring-brand-500' : ''
             }`}
           >
