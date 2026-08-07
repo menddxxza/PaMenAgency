@@ -69,3 +69,138 @@
     @apply pointer-events-none text-ink/30;
   }
 }
+
+/*
+ * Fondo animado de la landing (components/FondoAnimado.tsx): "Notiq" se escribe
+ * solo en bucle, con un lápiz que lo sigue.
+ *
+ * stroke-dasharray/stroke-dashoffset sobre el <text> es lo que crea el efecto de
+ * trazo: el navegador calcula el contorno de las letras como un path y se anima
+ * igual que cualquier otro trazo SVG. El valor de dasharray se deja generoso
+ * (3000) porque no se puede medir el contorno real de memoria: de sobra para
+ * cualquier tamaño de fuente razonable aquí, y un valor de más no se nota.
+ *
+ * Van fuera de @layer para que su especificidad no dependa del orden en que
+ * Tailwind purga/reordena las capas.
+ */
+.notiq-trazo {
+  fill: none;
+  stroke: #6829e0;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 3000;
+  stroke-dashoffset: 3000;
+  opacity: 0;
+  animation: notiq-trazar 6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+.notiq-lapiz {
+  opacity: 0;
+  offset-path: path('M -420 40 Q -250 -40 -80 30 T 260 20 T 430 40');
+  offset-rotate: 20deg;
+  animation: notiq-mover-lapiz 6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes notiq-trazar {
+  0% {
+    stroke-dashoffset: 3000;
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.16;
+  }
+  58% {
+    stroke-dashoffset: 0;
+    opacity: 0.16;
+  }
+  78% {
+    stroke-dashoffset: 0;
+    opacity: 0.16;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 3000;
+    opacity: 0;
+  }
+}
+
+@keyframes notiq-mover-lapiz {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.55;
+  }
+  58% {
+    offset-distance: 100%;
+    opacity: 0.55;
+  }
+  78% {
+    opacity: 0.55;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+}
+
+.notiq-acento {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0.25;
+  filter: blur(1px);
+}
+.notiq-acento-1 {
+  top: 18%;
+  left: 12%;
+  width: 10px;
+  height: 10px;
+  background: #a3e635;
+  animation: notiq-flotar 9s ease-in-out infinite;
+}
+.notiq-acento-2 {
+  bottom: 22%;
+  right: 16%;
+  width: 14px;
+  height: 14px;
+  background: #6829e0;
+  animation: notiq-flotar 11s ease-in-out infinite reverse;
+}
+.notiq-acento-3 {
+  top: 65%;
+  left: 22%;
+  width: 8px;
+  height: 8px;
+  background: #a3e635;
+  animation: notiq-flotar 7s ease-in-out infinite;
+}
+
+@keyframes notiq-flotar {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+/* Quien pide menos movimiento en el sistema operativo, lo tiene: fondo estático
+   (invisible del todo, ya que su única función es moverse) en vez de forzar la
+   animación. */
+@media (prefers-reduced-motion: reduce) {
+  .notiq-trazo,
+  .notiq-lapiz,
+  .notiq-acento-1,
+  .notiq-acento-2,
+  .notiq-acento-3 {
+    animation: none;
+  }
+}

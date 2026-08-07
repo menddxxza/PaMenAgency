@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 import TablaPrecios from '@/components/TablaPrecios';
+import FondoAnimado from '@/components/FondoAnimado';
 
 const PILARES = [
   {
@@ -26,6 +27,7 @@ const PILARES = [
 export default function LandingPage() {
   return (
     <div className="bg-paper">
+      <FondoAnimado />
       <header className="container-page flex items-center justify-between py-6">
         <Logo />
         <nav className="flex items-center gap-2">
