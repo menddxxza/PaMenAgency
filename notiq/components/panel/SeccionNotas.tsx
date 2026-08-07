@@ -1,12 +1,22 @@
 'use client';
 
 import { useEffect, useState, useTransition, type FormEvent } from 'react';
-import Link from 'next/link';
 import { comoBloques, extracto } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
-import { crearNota, crearCarpeta, obtenerNotas, type NotaResumen } from '@/app/(app)/notas/actions';
+import NotaEditor from '@/components/NotaEditor';
+import {
+  crearCarpeta,
+  crearNotaEnPanel,
+  borrarNotaEnPanel,
+  obtenerNota,
+  obtenerNotas,
+  type NotaCompleta,
+  type NotaResumen,
+  type TareaDeNota,
+} from '@/app/(app)/notas/actions';
 
 type Carpeta = { id: string; nombre: string };
+type NotaAbierta = { nota: NotaCompleta; tareas: TareaDeNota[] };
 
 export default function SeccionNotas() {
   const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
@@ -18,6 +28,13 @@ export default function SeccionNotas() {
   const [cargando, setCargando] = useState(true);
   const [nombreCarpeta, setNombreCarpeta] = useState('');
   const [, empezar] = useTransition();
+
+  // Nota abierta en el propio panel: sin esto NotaEditor no tiene nada que
+  // mostrar mientras `obtenerNota` está en vuelo, así que la sección se queda
+  // en blanco un instante en vez de mostrar la lista o un editor a medias.
+  const [notaAbierta, setNotaAbierta] = useState<NotaAbierta | null>(null);
+  const [abriendoNota, setAbriendoNota] = useState(false);
+  const [errorNota, setErrorNota] = useState<string | null>(null);
 
   async function cargar(filtro: { carpeta?: string; q?: string }) {
     const datos = await obtenerNotas(filtro);
@@ -68,8 +85,91 @@ export default function SeccionNotas() {
     });
   }
 
+  async function abrirNota(id: string) {
+    setErrorNota(null);
+    setAbriendoNota(true);
+    const datos = await obtenerNota(id);
+    setAbriendoNota(false);
+    if (!datos) {
+      setErrorNota('Esa nota ya no está disponible.');
+      return;
+    }
+    setNotaAbierta(datos);
+  }
+
+  async function nuevaNota() {
+    setErrorNota(null);
+    const resultado = await crearNotaEnPanel(carpeta);
+    if (!resultado.ok || !resultado.id) {
+      setErrorNota(!resultado.ok ? resultado.error : 'No se ha podido crear la nota.');
+      return;
+    }
+    setNotaAbierta({
+      nota: { id: resultado.id, titulo: '', content: [], favorita: false, resumen_ia: null, deleted_at: null },
+      tareas: [],
+    });
+  }
+
+  function cerrarNota() {
+    setNotaAbierta(null);
+    // El título, la carpeta o el estado de favorita pueden haber cambiado.
+    cargar({ carpeta, q: q.trim() || undefined });
+  }
+
+  async function borrar() {
+    if (!notaAbierta) return;
+    await borrarNotaEnPanel(notaAbierta.nota.id);
+    cerrarNota();
+  }
+
   const limites = limitesDe(plan);
   const cupoLleno = limites.notas !== null && totalNotas >= limites.notas;
+
+  if (notaAbierta) {
+    return (
+      <div className="px-5 py-6 sm:px-8">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <button type="button" onClick={cerrarNota} className="btn-fantasma text-sm">
+            ← Notas
+          </button>
+          <button
+            type="button"
+            onClick={borrar}
+            className="btn-fantasma text-sm text-red-600 hover:bg-red-50"
+          >
+            Eliminar
+          </button>
+        </div>
+
+        <NotaEditor
+          id={notaAbierta.nota.id}
+          tituloInicial={notaAbierta.nota.titulo ?? ''}
+          bloquesIniciales={comoBloques(notaAbierta.nota.content)}
+          favoritaInicial={notaAbierta.nota.favorita}
+          resumenInicial={notaAbierta.nota.resumen_ia}
+          onFavoritaCambiada={() => cargar({ carpeta, q: q.trim() || undefined })}
+        />
+
+        {notaAbierta.tareas.length > 0 && (
+          <section className="mt-10 max-w-2xl border-t border-ink/10 pt-6">
+            <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink/60">
+              Tareas de esta nota
+            </h2>
+            <ul className="mt-3 space-y-1.5 text-sm">
+              {notaAbierta.tareas.map((tarea) => (
+                <li key={tarea.id} className="flex items-center gap-2">
+                  <span aria-hidden>{tarea.estado === 'hecha' ? '☑' : '☐'}</span>
+                  <span className={tarea.estado === 'hecha' ? 'text-ink/40 line-through' : ''}>
+                    {tarea.titulo}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="px-5 py-6 sm:px-8">
@@ -82,13 +182,16 @@ export default function SeccionNotas() {
           </p>
         </div>
 
-        <form action={crearNota}>
-          {carpeta && <input type="hidden" name="folder_id" value={carpeta} />}
-          <button type="submit" className="btn-primary" disabled={cupoLleno}>
-            Nueva nota
-          </button>
-        </form>
+        <button type="button" onClick={nuevaNota} className="btn-primary" disabled={cupoLleno}>
+          Nueva nota
+        </button>
       </header>
+
+      {errorNota && (
+        <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorNota}
+        </p>
+      )}
 
       {cupoLleno && (
         <p className="mt-4 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">
@@ -157,9 +260,11 @@ export default function SeccionNotas() {
             const bloques = comoBloques(nota.content);
             return (
               <li key={nota.id}>
-                <Link
-                  href={`/notas/${nota.id}`}
-                  className="card block h-full p-5 transition hover:border-brand-300 hover:shadow-lg"
+                <button
+                  type="button"
+                  onClick={() => abrirNota(nota.id)}
+                  disabled={abriendoNota}
+                  className="card block h-full w-full p-5 text-left transition hover:border-brand-300 hover:shadow-lg disabled:opacity-60"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <h2 className="line-clamp-2 font-bold tracking-tight">
@@ -177,7 +282,7 @@ export default function SeccionNotas() {
                       year: 'numeric',
                     })}
                   </p>
-                </Link>
+                </button>
               </li>
             );
           })}

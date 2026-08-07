@@ -27,36 +27,86 @@ async function verificarCarpetaPropia(userId: string, folderId: string): Promise
   return filas[0]?.id ?? null;
 }
 
-/** Crea una nota vacía y lleva a su editor. */
-export async function crearNota(formData: FormData) {
+/**
+ * Igual que `crearNota`, pero para el panel único: en vez de redirigir a
+ * `/notas/{id}` (lo que sacaría de la pantalla), devuelve el id para que el
+ * panel abra el editor en el sitio.
+ */
+export async function crearNotaEnPanel(folderId?: string): Promise<Resultado & { id?: string }> {
   const sesion = await getSesion();
-  if (!sesion) redirect('/entrar');
+  if (!sesion) return { ok: false, error: 'Sesión caducada. Vuelve a entrar.' };
 
   const cupo = await puedeCrearNota(sesion.userId, sesion.plan);
   if (!cupo.permitido) {
-    redirect(`/notas?limite=${cupo.limite}`);
+    return { ok: false, error: `Límite de ${cupo.limite} notas del plan alcanzado.` };
   }
 
-  const folderId = formData.get('folder_id');
-  const folderIdPropia =
-    typeof folderId === 'string' && folderId ? await verificarCarpetaPropia(sesion.userId, folderId) : null;
+  const folderIdPropia = folderId ? await verificarCarpetaPropia(sesion.userId, folderId) : null;
 
   const sql = db();
-  let nuevaId: string;
   try {
     const [fila] = await sql<{ id: string }[]>`
       insert into notes (user_id, titulo, content, texto, folder_id)
       values (${sesion.userId}::uuid, '', '[]'::jsonb, '', ${folderIdPropia}::uuid)
       returning id
     `;
-    nuevaId = fila.id;
+    revalidatePath('/notas');
+    return { ok: true, id: fila.id };
   } catch (fallo) {
     console.error('[notiq] no se ha podido crear la nota', fallo);
-    redirect('/notas?error=crear');
+    return { ok: false, error: 'No se ha podido crear la nota.' };
   }
+}
+
+export type NotaCompleta = {
+  id: string;
+  titulo: string;
+  content: unknown;
+  favorita: boolean;
+  resumen_ia: string | null;
+  deleted_at: string | null;
+};
+
+export type TareaDeNota = { id: string; titulo: string; estado: string };
+
+/** Una nota entera más las tareas que salieron de ella, para el editor inline del panel. */
+export async function obtenerNota(
+  id: string,
+): Promise<{ nota: NotaCompleta; tareas: TareaDeNota[] } | null> {
+  const sesion = await getSesion();
+  if (!sesion) return null;
+  if (!esUuid(id)) return null;
+
+  const sql = db();
+  const [nota] = await sql<NotaCompleta[]>`
+    select id, titulo, content, favorita, resumen_ia, deleted_at
+    from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+  `;
+  if (!nota || nota.deleted_at) return null;
+
+  const tareas = await sql<TareaDeNota[]>`
+    select id, titulo, estado from tasks
+    where note_id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+    order by created_at desc limit 10
+  `;
+
+  return { nota, tareas };
+}
+
+/** Igual que `borrarNota`, pero sin redirigir: el panel ya está donde tiene que estar. */
+export async function borrarNotaEnPanel(id: string): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(id)) return { ok: false, error: 'Nota no válida.' };
+
+  const sql = db();
+  await sql`
+    update notes set deleted_at = now()
+    where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+  `;
 
   revalidatePath('/notas');
-  redirect(`/notas/${nuevaId}`);
+  return { ok: true };
 }
 
 /** Autoguardado del editor. Se llama desde el cliente con debounce. */

@@ -17,12 +17,17 @@ export default function NotaEditor({
   bloquesIniciales,
   favoritaInicial,
   resumenInicial,
+  onFavoritaCambiada,
 }: {
   id: string;
   tituloInicial: string;
   bloquesIniciales: Bloque[];
   favoritaInicial: boolean;
   resumenInicial: string | null;
+  /** Se llama al marcar/desmarcar favorita. Sin esto (uso standalone en
+   * /notas/[id]) se refresca la ruta del servidor; el panel único pasa aquí su
+   * propio refetch, porque ahí no hay ruta de servidor que refrescar. */
+  onFavoritaCambiada?: () => void;
 }) {
   const router = useRouter();
   const [titulo, setTitulo] = useState(tituloInicial);
@@ -132,6 +137,7 @@ export default function NotaEditor({
               setFavorita(siguiente);
               const resultado = await alternarFavorita(id, siguiente);
               if (!resultado.ok) setFavorita(!siguiente);
+              else if (onFavoritaCambiada) onFavoritaCambiada();
               else router.refresh();
             }}
             className="hover:text-ink"
