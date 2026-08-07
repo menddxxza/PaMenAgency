@@ -1,6 +1,7 @@
 'use client';
 
 const PESTANAS = [
+  { id: 'inicio', etiqueta: 'Inicio', emoji: '🏠' },
   { id: 'notas', etiqueta: 'Notas', emoji: '📝' },
   { id: 'tareas', etiqueta: 'Tareas', emoji: '✅' },
   { id: 'asistente', etiqueta: 'Asistente', emoji: '🤖' },

@@ -6,6 +6,7 @@ export type Tarea = {
   vence: string | null;
   note_id: string | null;
   origen: 'manual' | 'ia';
+  folder_id: string | null;
 };
 
 /**

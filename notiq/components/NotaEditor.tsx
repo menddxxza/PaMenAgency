@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import EditorBloques from '@/components/EditorBloques';
 import PanelIa from '@/components/PanelIa';
+import Adjuntos from '@/components/panel/Adjuntos';
 import { aMarkdown, type Bloque } from '@/lib/bloques';
 import { alternarFavorita, guardarNota } from '@/app/(app)/notas/actions';
 
@@ -168,12 +169,17 @@ export default function NotaEditor({
         />
       </div>
 
-      <PanelIa
-        noteId={id}
-        titulo={titulo}
-        markdown={aMarkdown(bloques)}
-        resumenInicial={resumenInicial}
-      />
+      <div className="flex flex-col gap-5">
+        <PanelIa
+          noteId={id}
+          titulo={titulo}
+          markdown={aMarkdown(bloques)}
+          resumenInicial={resumenInicial}
+        />
+        <div className="card p-5">
+          <Adjuntos noteId={id} />
+        </div>
+      </div>
     </div>
   );
 }

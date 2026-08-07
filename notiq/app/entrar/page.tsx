@@ -15,7 +15,7 @@ export default async function EntrarPage({
   searchParams: Promise<{ volver?: string; registro?: string }>;
 }) {
   const { volver, registro } = await searchParams;
-  const destino = volver?.startsWith('/') ? volver : '/notas';
+  const destino = volver?.startsWith('/') ? volver : '/inicio';
 
   return (
     <main className="grid min-h-screen lg:grid-cols-2">

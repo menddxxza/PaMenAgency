@@ -12,6 +12,7 @@ contra `gpt-4o-mini` a través de un cliente propio sobre `fetch`.
 npm install
 cp .env.example .env.local   # rellena al menos DATABASE_URL y AUTH_SECRET
 psql "$DATABASE_URL" -f migrations/0001_neon.sql
+psql "$DATABASE_URL" -f migrations/0002_carpetas_compartidas_y_adjuntos.sql
 npm run dev
 ```
 
@@ -20,17 +21,20 @@ y las rutas privadas enseñan un aviso de configuración en vez de reventar.
 
 ## Base de datos
 
-Un único fichero, [`migrations/0001_neon.sql`](migrations/0001_neon.sql), aplicado con
-`psql` (o cualquier cliente de Postgres) contra el `DATABASE_URL` de tu proyecto de
-[Neon](https://neon.tech). Crea:
+Dos ficheros, aplicados en orden con `psql` (o cualquier cliente de Postgres) contra el
+`DATABASE_URL` de tu proyecto de [Neon](https://neon.tech):
+[`migrations/0001_neon.sql`](migrations/0001_neon.sql) (esquema base) y
+[`migrations/0002_carpetas_compartidas_y_adjuntos.sql`](migrations/0002_carpetas_compartidas_y_adjuntos.sql)
+(carpetas también para tareas, y adjuntos). Crean:
 
 | Tabla | Para qué |
 |---|---|
 | `users` | Cuenta del usuario: contraseña (hash), plan e identificadores de Stripe. |
-| `folders` | Carpetas de notas. |
+| `folders` | Carpetas — el mismo espacio para notas y tareas de un tema. |
 | `notes` | Notas. `content` es el array de bloques; `busqueda` es un `tsvector` generado. |
 | `tags` / `note_tags` | Etiquetas y su relación con las notas. |
-| `tasks` | Tareas, con estado, prioridad, vencimiento y la nota de la que salieron. |
+| `tasks` | Tareas, con estado, prioridad, vencimiento, carpeta y la nota de la que salieron. |
+| `attachments` | PDFs y fotos adjuntos a una nota o a una tarea, guardados como `bytea`. |
 | `ai_usage` | Contador de operaciones de IA por usuario y mes. |
 
 ### Por qué Neon y no Supabase, y qué cambia

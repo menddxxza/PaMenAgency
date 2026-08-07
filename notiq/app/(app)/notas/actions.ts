@@ -8,24 +8,9 @@ import { puedeCrearNota } from '@/lib/ia/limites';
 import { fechaValidaONull } from '@/lib/tareas';
 import { aTextoPlano, comoBloques, type Bloque } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
+import { verificarCarpetaPropia } from '@/lib/carpetas';
 
 export type Resultado = { ok: true } | { ok: false; error: string };
-
-/**
- * Confirma que una carpeta es del usuario antes de usarla, y si no lo es, la
- * descarta en vez de fallar. El formulario que manda `folder_id` es el propio de
- * Notiq, pero es un campo oculto de un <form> normal: cualquiera puede mandar un id
- * ajeno a mano. Sin RLS, nada más lo impide — hay que comprobarlo aquí.
- */
-async function verificarCarpetaPropia(userId: string, folderId: string): Promise<string | null> {
-  if (!esUuid(folderId)) return null;
-
-  const sql = db();
-  const filas = await sql<{ id: string }[]>`
-    select id from folders where id = ${folderId}::uuid and user_id = ${userId}::uuid
-  `;
-  return filas[0]?.id ?? null;
-}
 
 /**
  * Igual que `crearNota`, pero para el panel único: en vez de redirigir a

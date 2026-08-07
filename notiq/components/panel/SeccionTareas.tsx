@@ -5,14 +5,20 @@ import VistasTareas from '@/components/VistasTareas';
 import { PRIORIDADES, type Tarea } from '@/lib/tareas';
 import { crearTarea, obtenerTareas } from '@/app/(app)/tareas/actions';
 
+type Carpeta = { id: string; nombre: string };
+
 export default function SeccionTareas() {
   const [tareas, setTareas] = useState<Tarea[]>([]);
+  const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
   const [cargando, setCargando] = useState(true);
   const [pendiente, empezar] = useTransition();
 
   const cargar = useCallback(async () => {
     const datos = await obtenerTareas();
-    if (datos) setTareas(datos);
+    if (datos) {
+      setTareas(datos.tareas);
+      setCarpetas(datos.carpetas);
+    }
     setCargando(false);
   }, []);
 
@@ -63,13 +69,27 @@ export default function SeccionTareas() {
             </option>
           ))}
         </select>
+        {carpetas.length > 0 && (
+          <select name="folder_id" defaultValue="" aria-label="Carpeta" className="campo w-36">
+            <option value="">Sin carpeta</option>
+            {carpetas.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nombre}
+              </option>
+            ))}
+          </select>
+        )}
         <input type="date" name="vence" aria-label="Fecha de vencimiento" className="campo w-40" />
         <button type="submit" className="btn-primary" disabled={pendiente}>
           Añadir
         </button>
       </form>
 
-      <div className="mt-8">{!cargando && <VistasTareas tareas={tareas} onCambio={cargar} />}</div>
+      <div className="mt-8">
+        {!cargando && (
+          <VistasTareas tareas={tareas} carpetas={carpetas} onCambio={cargar} />
+        )}
+      </div>
     </div>
   );
 }

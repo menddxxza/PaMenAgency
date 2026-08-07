@@ -5,6 +5,7 @@ import Logo from '@/components/Logo';
 import Asistente from '@/components/Asistente';
 import type { Plan } from '@/lib/planes';
 import NavPestanas, { type Pestana } from './NavPestanas';
+import SeccionInicio from './SeccionInicio';
 import SeccionNotas from './SeccionNotas';
 import SeccionTareas from './SeccionTareas';
 import SeccionAjustes from './SeccionAjustes';
@@ -85,6 +86,12 @@ export default function PanelApp({
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto bg-white">
+        {abiertas.has('inicio') && (
+          <div className={activa === 'inicio' ? '' : 'hidden'}>
+            <SeccionInicio email={email} />
+          </div>
+        )}
+
         {abiertas.has('notas') && (
           <div className={activa === 'notas' ? '' : 'hidden'}>
             <SeccionNotas />

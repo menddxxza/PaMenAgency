@@ -11,9 +11,11 @@ import {
   ordenarPorUrgencia,
   type Tarea,
 } from '@/lib/tareas';
-import { borrarTarea, cambiarEstado, cambiarPrioridad } from '@/app/(app)/tareas/actions';
+import { borrarTarea, cambiarCarpetaTarea, cambiarEstado, cambiarPrioridad } from '@/app/(app)/tareas/actions';
+import Adjuntos from '@/components/panel/Adjuntos';
 
 type Vista = 'lista' | 'kanban' | 'calendario';
+type Carpeta = { id: string; nombre: string };
 
 const VISTAS: { id: Vista; etiqueta: string }[] = [
   { id: 'lista', etiqueta: 'Lista' },
@@ -23,9 +25,11 @@ const VISTAS: { id: Vista; etiqueta: string }[] = [
 
 export default function VistasTareas({
   tareas,
+  carpetas,
   onCambio,
 }: {
   tareas: Tarea[];
+  carpetas: Carpeta[];
   /** Se llama tras cada cambio para que quien tenga las tareas cargadas las recargue. */
   onCambio: () => void;
 }) {
@@ -54,15 +58,25 @@ export default function VistasTareas({
       </div>
 
       <div className="mt-5">
-        {vista === 'lista' && <VistaLista tareas={tareas} onCambio={onCambio} />}
+        {vista === 'lista' && <VistaLista tareas={tareas} carpetas={carpetas} onCambio={onCambio} />}
         {vista === 'kanban' && <VistaKanban tareas={tareas} onCambio={onCambio} />}
-        {vista === 'calendario' && <VistaCalendario tareas={tareas} onCambio={onCambio} />}
+        {vista === 'calendario' && (
+          <VistaCalendario tareas={tareas} carpetas={carpetas} onCambio={onCambio} />
+        )}
       </div>
     </div>
   );
 }
 
-function VistaLista({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => void }) {
+function VistaLista({
+  tareas,
+  carpetas,
+  onCambio,
+}: {
+  tareas: Tarea[];
+  carpetas: Carpeta[];
+  onCambio: () => void;
+}) {
   const abiertas = ordenarPorUrgencia(tareas.filter((t) => t.estado !== 'hecha'));
   const hechas = tareas.filter((t) => t.estado === 'hecha');
 
@@ -72,7 +86,7 @@ function VistaLista({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => voi
     <div className="max-w-3xl space-y-6">
       <ul className="space-y-2">
         {abiertas.map((tarea) => (
-          <FilaTarea key={tarea.id} tarea={tarea} onCambio={onCambio} />
+          <FilaTarea key={tarea.id} tarea={tarea} carpetas={carpetas} onCambio={onCambio} />
         ))}
       </ul>
 
@@ -83,7 +97,7 @@ function VistaLista({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => voi
           </summary>
           <ul className="mt-3 space-y-2">
             {hechas.map((tarea) => (
-              <FilaTarea key={tarea.id} tarea={tarea} onCambio={onCambio} />
+              <FilaTarea key={tarea.id} tarea={tarea} carpetas={carpetas} onCambio={onCambio} />
             ))}
           </ul>
         </details>
@@ -92,79 +106,125 @@ function VistaLista({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => voi
   );
 }
 
-function FilaTarea({ tarea, onCambio }: { tarea: Tarea; onCambio: () => void }) {
+function FilaTarea({
+  tarea,
+  carpetas,
+  onCambio,
+}: {
+  tarea: Tarea;
+  carpetas: Carpeta[];
+  onCambio: () => void;
+}) {
   const [pendiente, empezar] = useTransition();
+  const [expandida, setExpandida] = useState(false);
   const hecha = tarea.estado === 'hecha';
   const vencimiento = etiquetaVencimiento(tarea.vence);
+  const carpeta = carpetas.find((c) => c.id === tarea.folder_id);
 
   return (
-    <li className={`card flex items-center gap-3 px-4 py-3 ${pendiente ? 'opacity-60' : ''}`}>
-      <input
-        type="checkbox"
-        checked={hecha}
-        aria-label={`Marcar "${tarea.titulo}" como hecha`}
-        onChange={() =>
-          empezar(async () => {
-            await cambiarEstado(tarea.id, hecha ? 'pendiente' : 'hecha');
-            onCambio();
-          })
-        }
-        className="h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
-      />
+    <li className={`card px-4 py-3 ${pendiente ? 'opacity-60' : ''}`}>
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          checked={hecha}
+          aria-label={`Marcar "${tarea.titulo}" como hecha`}
+          onChange={() =>
+            empezar(async () => {
+              await cambiarEstado(tarea.id, hecha ? 'pendiente' : 'hecha');
+              onCambio();
+            })
+          }
+          className="h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
+        />
 
-      <div className="min-w-0 flex-1">
-        <p className={`truncate text-sm font-medium ${hecha ? 'text-ink/40 line-through' : ''}`}>
-          {tarea.titulo}
-        </p>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
-          {vencimiento && (
-            <span className={vencimiento.vencida ? 'font-semibold text-red-600' : 'text-ink/50'}>
-              {vencimiento.texto}
-            </span>
-          )}
-          {tarea.note_id && (
-            <Link
-              href={`/notas/${tarea.note_id}`}
-              className="text-ink/45 underline underline-offset-2 hover:text-ink"
-            >
-              ver nota
-            </Link>
-          )}
-          {tarea.origen === 'ia' && <span className="text-brand-500">✨ IA</span>}
-        </div>
+        <button
+          type="button"
+          onClick={() => setExpandida((v) => !v)}
+          className="min-w-0 flex-1 text-left"
+          aria-expanded={expandida}
+        >
+          <p className={`truncate text-sm font-medium ${hecha ? 'text-ink/40 line-through' : ''}`}>
+            {tarea.titulo}
+          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+            {vencimiento && (
+              <span className={vencimiento.vencida ? 'font-semibold text-red-600' : 'text-ink/50'}>
+                {vencimiento.texto}
+              </span>
+            )}
+            {carpeta && <span className="text-ink/45">📁 {carpeta.nombre}</span>}
+            {tarea.note_id && (
+              <Link
+                href={`/notas/${tarea.note_id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-ink/45 underline underline-offset-2 hover:text-ink"
+              >
+                ver nota
+              </Link>
+            )}
+            {tarea.origen === 'ia' && <span className="text-brand-500">✨ IA</span>}
+          </div>
+        </button>
+
+        <select
+          value={tarea.prioridad}
+          aria-label={`Prioridad de "${tarea.titulo}"`}
+          onChange={(e) =>
+            empezar(async () => {
+              await cambiarPrioridad(tarea.id, e.target.value as Tarea['prioridad']);
+              onCambio();
+            })
+          }
+          className={`rounded-full border px-2 py-1 text-xs font-medium ${clasePrioridad(tarea.prioridad)}`}
+        >
+          {PRIORIDADES.map((p) => (
+            <option key={p.valor} value={p.valor}>
+              {p.etiqueta}
+            </option>
+          ))}
+        </select>
+
+        <button
+          type="button"
+          aria-label={`Eliminar "${tarea.titulo}"`}
+          onClick={() =>
+            empezar(async () => {
+              await borrarTarea(tarea.id);
+              onCambio();
+            })
+          }
+          className="text-ink/30 transition hover:text-red-600"
+        >
+          ✕
+        </button>
       </div>
 
-      <select
-        value={tarea.prioridad}
-        aria-label={`Prioridad de "${tarea.titulo}"`}
-        onChange={(e) =>
-          empezar(async () => {
-            await cambiarPrioridad(tarea.id, e.target.value as Tarea['prioridad']);
-            onCambio();
-          })
-        }
-        className={`rounded-full border px-2 py-1 text-xs font-medium ${clasePrioridad(tarea.prioridad)}`}
-      >
-        {PRIORIDADES.map((p) => (
-          <option key={p.valor} value={p.valor}>
-            {p.etiqueta}
-          </option>
-        ))}
-      </select>
+      {expandida && (
+        <div className="mt-3 space-y-3 border-t border-ink/10 pt-3">
+          <label className="flex items-center gap-2 text-xs text-ink/55">
+            Carpeta
+            <select
+              value={tarea.folder_id ?? ''}
+              onChange={(e) =>
+                empezar(async () => {
+                  await cambiarCarpetaTarea(tarea.id, e.target.value || null);
+                  onCambio();
+                })
+              }
+              className="campo w-auto py-1 text-xs"
+            >
+              <option value="">Sin carpeta</option>
+              {carpetas.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
+          </label>
 
-      <button
-        type="button"
-        aria-label={`Eliminar "${tarea.titulo}"`}
-        onClick={() =>
-          empezar(async () => {
-            await borrarTarea(tarea.id);
-            onCambio();
-          })
-        }
-        className="text-ink/30 transition hover:text-red-600"
-      >
-        ✕
-      </button>
+          <Adjuntos taskId={tarea.id} />
+        </div>
+      )}
     </li>
   );
 }
@@ -237,7 +297,15 @@ function VistaKanban({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => vo
   );
 }
 
-function VistaCalendario({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => void }) {
+function VistaCalendario({
+  tareas,
+  carpetas,
+  onCambio,
+}: {
+  tareas: Tarea[];
+  carpetas: Carpeta[];
+  onCambio: () => void;
+}) {
   const conFecha = tareas.filter((t) => t.vence);
   const sinFecha = tareas.filter((t) => !t.vence && t.estado !== 'hecha');
 
@@ -279,7 +347,7 @@ function VistaCalendario({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () =
               </h3>
               <ul className="mt-3 space-y-2">
                 {delDia.map((tarea) => (
-                  <FilaTarea key={tarea.id} tarea={tarea} onCambio={onCambio} />
+                  <FilaTarea key={tarea.id} tarea={tarea} carpetas={carpetas} onCambio={onCambio} />
                 ))}
               </ul>
             </section>
@@ -294,7 +362,7 @@ function VistaCalendario({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () =
           </h3>
           <ul className="mt-3 space-y-2">
             {ordenarPorUrgencia(sinFecha).map((tarea) => (
-              <FilaTarea key={tarea.id} tarea={tarea} onCambio={onCambio} />
+              <FilaTarea key={tarea.id} tarea={tarea} carpetas={carpetas} onCambio={onCambio} />
             ))}
           </ul>
         </section>

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { getSesion } from '@/lib/sesion';
 import { db, esUuid } from '@/lib/db';
 import { fechaValidaONull, type Tarea } from '@/lib/tareas';
+import { verificarCarpetaPropia } from '@/lib/carpetas';
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
@@ -28,13 +29,39 @@ export async function crearTarea(formData: FormData) {
     : 'normal';
   const venceValida = fechaValidaONull(vence);
 
+  const folderId = String(formData.get('folder_id') ?? '');
+  const folderIdPropia = folderId ? await verificarCarpetaPropia(sesion.userId, folderId) : null;
+
   const sql = db();
   await sql`
-    insert into tasks (user_id, titulo, prioridad, vence)
-    values (${sesion.userId}::uuid, ${titulo.slice(0, 200)}, ${prioridad}, ${venceValida})
+    insert into tasks (user_id, titulo, prioridad, vence, folder_id)
+    values (${sesion.userId}::uuid, ${titulo.slice(0, 200)}, ${prioridad}, ${venceValida}, ${folderIdPropia}::uuid)
   `;
 
   revalidatePath('/tareas');
+}
+
+/** Mueve una tarea a otra carpeta (o la saca de todas con `folderId: null`). */
+export async function cambiarCarpetaTarea(id: string, folderId: string | null): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(id)) return { ok: false, error: 'Tarea no válida.' };
+
+  const folderIdPropia = folderId ? await verificarCarpetaPropia(sesion.userId, folderId) : null;
+
+  const sql = db();
+  try {
+    await sql`
+      update tasks set folder_id = ${folderIdPropia}::uuid
+      where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+    `;
+  } catch (fallo) {
+    console.error('[notiq] no se ha podido mover la tarea de carpeta', fallo);
+    return { ok: false, error: 'No se ha podido mover la tarea.' };
+  }
+
+  revalidatePath('/tareas');
+  return { ok: true };
 }
 
 export async function cambiarEstado(id: string, estado: Estado): Promise<Resultado> {
@@ -88,17 +115,32 @@ export async function cambiarPrioridad(id: string, prioridad: Prioridad): Promis
   return { ok: true };
 }
 
-/** Listado completo, para que el panel único lo cargue por su cuenta al abrir la pestaña. */
-export async function obtenerTareas(): Promise<Tarea[] | null> {
+/**
+ * Listado completo más las carpetas del usuario, para que el panel único lo
+ * cargue por su cuenta al abrir la pestaña. Las carpetas van aquí y no en una
+ * llamada aparte: hacen falta para el selector de carpeta del formulario y de
+ * cada tarea, y son el mismo espacio que usan las notas.
+ */
+export async function obtenerTareas(): Promise<{
+  tareas: Tarea[];
+  carpetas: { id: string; nombre: string }[];
+} | null> {
   const sesion = await getSesion();
   if (!sesion) return null;
 
   const sql = db();
-  return sql<Tarea[]>`
-    select id, titulo, estado, prioridad, vence::text, note_id, origen from tasks
-    where user_id = ${sesion.userId}::uuid
-    order by created_at desc limit 500
-  `;
+  const [tareas, carpetas] = await Promise.all([
+    sql<Tarea[]>`
+      select id, titulo, estado, prioridad, vence::text, note_id, origen, folder_id from tasks
+      where user_id = ${sesion.userId}::uuid
+      order by created_at desc limit 500
+    `,
+    sql<{ id: string; nombre: string }[]>`
+      select id, nombre from folders where user_id = ${sesion.userId}::uuid order by nombre
+    `,
+  ]);
+
+  return { tareas, carpetas };
 }
 
 export async function borrarTarea(id: string): Promise<Resultado> {
