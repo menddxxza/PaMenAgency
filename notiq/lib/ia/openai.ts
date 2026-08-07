@@ -1,14 +1,22 @@
 /**
- * Cliente mínimo de OpenAI sobre fetch.
+ * Cliente mínimo de OpenAI (o de cualquier servidor compatible) sobre fetch.
  *
  * No se instala el SDK a propósito: Notiq hace dos llamadas (chat completions con y
  * sin JSON forzado) y el SDK son ~4 MB en el bundle del servidor que hay que mantener
  * al día. Si algún día hacen falta streaming de audio o assistants, se cambia.
+ *
+ * OPENAI_BASE_URL permite apuntar a un servidor de IA en local (Ollama, LM Studio,
+ * llama.cpp, vLLM...) en vez de a OpenAI: casi todos exponen una API compatible con
+ * la de OpenAI en /v1/chat/completions, solo cambia la dirección. La clave sigue
+ * haciendo falta como cabecera (Authorization: Bearer ...) aunque el servidor local
+ * no la valide de verdad — basta con poner cualquier texto no vacío.
  */
+const BASE_URL = (process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1').replace(/\/+$/, '');
+const ENDPOINT = `${BASE_URL}/chat/completions`;
 
-const ENDPOINT = 'https://api.openai.com/v1/chat/completions';
-
-/** Barato y suficiente para resumir y extraer tareas. Ver README para los costes. */
+/** Barato y suficiente para resumir y extraer tareas. Ver README para los costes.
+ * Con un servidor en local, aquí va el nombre del modelo que sirva ese servidor
+ * (p. ej. "llama3.1" en Ollama), no un modelo de OpenAI. */
 export const MODELO = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
 
 export type Mensaje = {
@@ -66,7 +74,9 @@ export async function completar({
       }),
       // Sin esto una petición colgada bloquea el route handler hasta el timeout
       // de la plataforma, que es mucho más largo que la paciencia del usuario.
-      signal: AbortSignal.timeout(45_000),
+      // Más margen que con la API de OpenAI porque un modelo en local (sobre todo
+      // sin GPU) puede tardar bastante más en generar la misma respuesta.
+      signal: AbortSignal.timeout(90_000),
     });
   } catch {
     throw new ErrorIA('No se ha podido contactar con el proveedor de IA.', 504);

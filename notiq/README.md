@@ -144,6 +144,17 @@ Coste aproximado con `gpt-4o-mini` (0,15 $ por millón de tokens de entrada): un
 de una nota larga ronda los 0,0002 $. Las 20 operaciones del plan gratuito cuestan
 menos de un céntimo al mes por usuario.
 
+**Servidor de IA en local.** `OPENAI_BASE_URL` apunta el cliente a cualquier servidor
+compatible con la API de OpenAI (Ollama, LM Studio, llama.cpp, vLLM…) en vez de a
+OpenAI de verdad — casi todos exponen `/v1/chat/completions` con el mismo formato.
+`OPENAI_MODEL` pasa a ser el nombre del modelo que sirva ese servidor, y
+`OPENAI_API_KEY` puede ser cualquier texto no vacío si el servidor no valida claves.
+Ver `.env.example` para los puertos por defecto de Ollama y LM Studio. Con esto no
+hay coste por token, pero conviene saber que `response_format: json_object` (lo que
+usa la extracción de tareas) no lo soportan todos los modelos/servidores locales por
+igual — si falla ahí mientras el resumen normal funciona, es la explicación más
+probable.
+
 ### Stripe
 
 Tres rutas en `app/api/stripe/`:
