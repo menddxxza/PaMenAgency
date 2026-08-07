@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getSesion } from '@/lib/sesion';
 import { db, esUuid } from '@/lib/db';
-import { fechaValidaONull } from '@/lib/tareas';
+import { fechaValidaONull, type Tarea } from '@/lib/tareas';
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
@@ -86,6 +86,19 @@ export async function cambiarPrioridad(id: string, prioridad: Prioridad): Promis
 
   revalidatePath('/tareas');
   return { ok: true };
+}
+
+/** Listado completo, para que el panel único lo cargue por su cuenta al abrir la pestaña. */
+export async function obtenerTareas(): Promise<Tarea[] | null> {
+  const sesion = await getSesion();
+  if (!sesion) return null;
+
+  const sql = db();
+  return sql<Tarea[]>`
+    select id, titulo, estado, prioridad, vence::text, note_id, origen from tasks
+    where user_id = ${sesion.userId}::uuid
+    order by created_at desc limit 500
+  `;
 }
 
 export async function borrarTarea(id: string): Promise<Resultado> {

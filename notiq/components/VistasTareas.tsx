@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   COLUMNAS,
   PRIORIDADES,
@@ -22,7 +21,14 @@ const VISTAS: { id: Vista; etiqueta: string }[] = [
   { id: 'calendario', etiqueta: 'Calendario' },
 ];
 
-export default function VistasTareas({ tareas }: { tareas: Tarea[] }) {
+export default function VistasTareas({
+  tareas,
+  onCambio,
+}: {
+  tareas: Tarea[];
+  /** Se llama tras cada cambio para que quien tenga las tareas cargadas las recargue. */
+  onCambio: () => void;
+}) {
   const [vista, setVista] = useState<Vista>('lista');
 
   return (
@@ -48,15 +54,15 @@ export default function VistasTareas({ tareas }: { tareas: Tarea[] }) {
       </div>
 
       <div className="mt-5">
-        {vista === 'lista' && <VistaLista tareas={tareas} />}
-        {vista === 'kanban' && <VistaKanban tareas={tareas} />}
-        {vista === 'calendario' && <VistaCalendario tareas={tareas} />}
+        {vista === 'lista' && <VistaLista tareas={tareas} onCambio={onCambio} />}
+        {vista === 'kanban' && <VistaKanban tareas={tareas} onCambio={onCambio} />}
+        {vista === 'calendario' && <VistaCalendario tareas={tareas} onCambio={onCambio} />}
       </div>
     </div>
   );
 }
 
-function VistaLista({ tareas }: { tareas: Tarea[] }) {
+function VistaLista({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => void }) {
   const abiertas = ordenarPorUrgencia(tareas.filter((t) => t.estado !== 'hecha'));
   const hechas = tareas.filter((t) => t.estado === 'hecha');
 
@@ -66,7 +72,7 @@ function VistaLista({ tareas }: { tareas: Tarea[] }) {
     <div className="max-w-3xl space-y-6">
       <ul className="space-y-2">
         {abiertas.map((tarea) => (
-          <FilaTarea key={tarea.id} tarea={tarea} />
+          <FilaTarea key={tarea.id} tarea={tarea} onCambio={onCambio} />
         ))}
       </ul>
 
@@ -77,7 +83,7 @@ function VistaLista({ tareas }: { tareas: Tarea[] }) {
           </summary>
           <ul className="mt-3 space-y-2">
             {hechas.map((tarea) => (
-              <FilaTarea key={tarea.id} tarea={tarea} />
+              <FilaTarea key={tarea.id} tarea={tarea} onCambio={onCambio} />
             ))}
           </ul>
         </details>
@@ -86,8 +92,7 @@ function VistaLista({ tareas }: { tareas: Tarea[] }) {
   );
 }
 
-function FilaTarea({ tarea }: { tarea: Tarea }) {
-  const router = useRouter();
+function FilaTarea({ tarea, onCambio }: { tarea: Tarea; onCambio: () => void }) {
   const [pendiente, empezar] = useTransition();
   const hecha = tarea.estado === 'hecha';
   const vencimiento = etiquetaVencimiento(tarea.vence);
@@ -101,7 +106,7 @@ function FilaTarea({ tarea }: { tarea: Tarea }) {
         onChange={() =>
           empezar(async () => {
             await cambiarEstado(tarea.id, hecha ? 'pendiente' : 'hecha');
-            router.refresh();
+            onCambio();
           })
         }
         className="h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
@@ -135,7 +140,7 @@ function FilaTarea({ tarea }: { tarea: Tarea }) {
         onChange={(e) =>
           empezar(async () => {
             await cambiarPrioridad(tarea.id, e.target.value as Tarea['prioridad']);
-            router.refresh();
+            onCambio();
           })
         }
         className={`rounded-full border px-2 py-1 text-xs font-medium ${clasePrioridad(tarea.prioridad)}`}
@@ -153,7 +158,7 @@ function FilaTarea({ tarea }: { tarea: Tarea }) {
         onClick={() =>
           empezar(async () => {
             await borrarTarea(tarea.id);
-            router.refresh();
+            onCambio();
           })
         }
         className="text-ink/30 transition hover:text-red-600"
@@ -164,8 +169,7 @@ function FilaTarea({ tarea }: { tarea: Tarea }) {
   );
 }
 
-function VistaKanban({ tareas }: { tareas: Tarea[] }) {
-  const router = useRouter();
+function VistaKanban({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => void }) {
   const [pendiente, empezar] = useTransition();
 
   if (tareas.length === 0) return <Vacio />;
@@ -213,7 +217,7 @@ function VistaKanban({ tareas }: { tareas: Tarea[] }) {
                           onClick={() =>
                             empezar(async () => {
                               await cambiarEstado(tarea.id, destino.estado);
-                              router.refresh();
+                              onCambio();
                             })
                           }
                           className="rounded-lg px-2 py-1 text-[11px] font-semibold text-ink/45 transition hover:bg-ink/[0.05] hover:text-ink"
@@ -233,7 +237,7 @@ function VistaKanban({ tareas }: { tareas: Tarea[] }) {
   );
 }
 
-function VistaCalendario({ tareas }: { tareas: Tarea[] }) {
+function VistaCalendario({ tareas, onCambio }: { tareas: Tarea[]; onCambio: () => void }) {
   const conFecha = tareas.filter((t) => t.vence);
   const sinFecha = tareas.filter((t) => !t.vence && t.estado !== 'hecha');
 
@@ -275,7 +279,7 @@ function VistaCalendario({ tareas }: { tareas: Tarea[] }) {
               </h3>
               <ul className="mt-3 space-y-2">
                 {delDia.map((tarea) => (
-                  <FilaTarea key={tarea.id} tarea={tarea} />
+                  <FilaTarea key={tarea.id} tarea={tarea} onCambio={onCambio} />
                 ))}
               </ul>
             </section>
@@ -290,7 +294,7 @@ function VistaCalendario({ tareas }: { tareas: Tarea[] }) {
           </h3>
           <ul className="mt-3 space-y-2">
             {ordenarPorUrgencia(sinFecha).map((tarea) => (
-              <FilaTarea key={tarea.id} tarea={tarea} />
+              <FilaTarea key={tarea.id} tarea={tarea} onCambio={onCambio} />
             ))}
           </ul>
         </section>

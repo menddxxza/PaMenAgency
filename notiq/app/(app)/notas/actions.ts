@@ -225,3 +225,70 @@ export async function estadoCupoNotas() {
   const cupo = await puedeCrearNota(sesion.userId, sesion.plan);
   return { ...cupo, plan: sesion.plan, limites: limitesDe(sesion.plan) };
 }
+
+export type NotaResumen = {
+  id: string;
+  titulo: string;
+  content: unknown;
+  favorita: boolean;
+  folder_id: string | null;
+  updated_at: string;
+};
+
+/**
+ * La misma búsqueda/listado que antes vivía en `notas/page.tsx`, pero como acción
+ * llamable desde el cliente: el panel único carga y filtra sin navegar, así que ya
+ * no hay searchParams de los que leer `carpeta` y `q`.
+ */
+export async function obtenerNotas(filtro: { carpeta?: string; q?: string }) {
+  const sesion = await getSesion();
+  if (!sesion) return null;
+
+  const sql = db();
+  const { userId, plan } = sesion;
+  const { carpeta, q } = filtro;
+
+  const [carpetas, [{ total: totalNotas }]] = await Promise.all([
+    sql<{ id: string; nombre: string }[]>`
+      select id, nombre from folders where user_id = ${userId}::uuid order by nombre
+    `,
+    sql<{ total: number }[]>`
+      select count(*)::int as total from notes where user_id = ${userId}::uuid and deleted_at is null
+    `,
+  ]);
+
+  let notas: NotaResumen[] = [];
+
+  if (q) {
+    const relevantes = await sql<{ id: string }[]>`
+      select id from buscar_notas(${userId}::uuid, ${q}, 50)
+    `;
+    const ids = relevantes.map((f) => f.id);
+
+    if (ids.length > 0) {
+      const completas = await sql<NotaResumen[]>`
+        select id, titulo, content, favorita, folder_id, updated_at
+        from notes where id = any(${ids}::uuid[]) and user_id = ${userId}::uuid
+      `;
+      const porId = new Map(completas.map((n) => [n.id, n]));
+      notas = ids.flatMap((id) => {
+        const nota = porId.get(id);
+        return nota ? [nota] : [];
+      });
+    }
+  } else if (carpeta && esUuid(carpeta)) {
+    notas = await sql<NotaResumen[]>`
+      select id, titulo, content, favorita, folder_id, updated_at from notes
+      where user_id = ${userId}::uuid and deleted_at is null and folder_id = ${carpeta}::uuid
+      order by favorita desc, updated_at desc limit 100
+    `;
+  } else {
+    notas = await sql<NotaResumen[]>`
+      select id, titulo, content, favorita, folder_id, updated_at from notes
+      where user_id = ${userId}::uuid and deleted_at is null
+      order by favorita desc, updated_at desc limit 100
+    `;
+  }
+
+  return { carpetas, totalNotas, notas, plan };
+}

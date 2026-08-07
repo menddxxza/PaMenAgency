@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { Plan } from '@/lib/planes';
 
 /**
@@ -18,12 +17,16 @@ export default function BotonesPlan({
   planActual,
   tieneSuscripcion,
   pagosActivos,
+  onCambio,
 }: {
   planActual: Plan;
   tieneSuscripcion: boolean;
   pagosActivos: boolean;
+  /** Se llama tras un cambio de plan sobre una suscripción ya existente, para que
+   * quien tenga los datos del plan cargados los recargue. Opcional: si no se pasa,
+   * el usuario ve la confirmación igualmente, solo que sin refrescar la cuota. */
+  onCambio?: () => void;
 }) {
-  const router = useRouter();
   const [cargando, setCargando] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cambiado, setCambiado] = useState(false);
@@ -55,7 +58,7 @@ export default function BotonesPlan({
       // redirigir, el cambio ya es efectivo en Stripe.
       setCambiado(true);
       setCargando(null);
-      router.refresh();
+      onCambio?.();
     } catch (fallo) {
       setError(fallo instanceof Error ? fallo.message : 'Algo ha ido mal.');
       setCargando(null);
