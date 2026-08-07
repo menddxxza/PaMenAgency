@@ -54,7 +54,7 @@ export default function Asistente() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] max-w-3xl flex-col">
+    <div className="flex min-h-0 flex-1 flex-col max-w-3xl">
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
         {turnos.length === 0 && (
           <div className="card p-6">

@@ -27,9 +27,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const consumo = await consumoIa(sesion.userId, sesion.plan);
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
+    /*
+     * h-dvh (no min-h-screen) + overflow-hidden aquí, y overflow-y-auto en
+     * <main>: así el alto disponible para el contenido lo calcula el propio
+     * flexbox (viewport completo menos lo que ocupe NavLateral, sea cual sea su
+     * alto real en cada pantalla), y no un número fijo adivinado a mano. Una
+     * página como /asistente que necesita ocupar exactamente el hueco restante
+     * solo tiene que poner h-full en su interior — sin eso, un cálculo del tipo
+     * "100vh menos tantos píxeles" se descuadra en cualquier pantalla donde el
+     * menú de arriba no mida justo esos píxeles (como pasaba antes en cualquier
+     * ventana más alta de lo esperado, dejando el campo del asistente fuera de
+     * la vista).
+     */
+    <div className="flex h-dvh flex-col overflow-hidden md:flex-row">
       <NavLateral email={sesion.email} plan={sesion.plan} consumoIa={consumo} />
-      <main className="min-w-0 flex-1 bg-white">{children}</main>
+      <main className="min-w-0 flex-1 overflow-y-auto bg-white">{children}</main>
     </div>
   );
 }
