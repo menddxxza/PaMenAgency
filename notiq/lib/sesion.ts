@@ -9,6 +9,24 @@ export type Sesion = {
 };
 
 /**
+ * Correos con acceso Team gratis, sin pasar por Stripe — pensado para el propio
+ * dueño de la app. Va por variable de entorno (lista separada por comas) y no
+ * hardcodeado en el código a propósito: un email de una persona real no debería
+ * quedar escrito en el historial de git de un repositorio, y así se puede
+ * cambiar sin tocar código ni desplegar de nuevo. Se configura en `.env.local`
+ * (no se sube) y, para que funcione en producción, en las variables de entorno
+ * del despliegue.
+ */
+function esCorreoAdmin(email: string | null): boolean {
+  if (!email) return false;
+  const admins = (process.env.ADMIN_EMAILS ?? '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return admins.includes(email.toLowerCase());
+}
+
+/**
  * Sesión + plan del usuario actual, o null si no ha iniciado sesión.
  *
  * El plan se lee de la base de datos en cada llamada, no del JWT de la sesión: el
@@ -27,9 +45,14 @@ export async function getSesion(): Promise<Sesion | null> {
   `;
   if (!usuario) return null;
 
+  const email = sesion.user.email ?? null;
+
   return {
     userId: sesion.user.id,
-    email: sesion.user.email ?? null,
-    plan: comoPlan(usuario.plan),
+    email,
+    // Se resuelve aquí y no en cada sitio que usa sesion.plan: así la cuota de
+    // IA, el límite de notas y los botones de Stripe respetan el acceso admin
+    // sin tener que acordarse de comprobarlo en cada uno por separado.
+    plan: esCorreoAdmin(email) ? 'team' : comoPlan(usuario.plan),
   };
 }
