@@ -26,8 +26,16 @@ const PILARES = [
 
 export default function LandingPage() {
   return (
-    <div className="bg-paper">
+    <div>
       <FondoAnimado />
+      {/*
+        Todo el contenido visible va en un envoltorio `relative z-10`: el fondo es
+        `fixed` con z-index 0, y sin esto un elemento normal (sin position) pinta
+        por detrás de cualquier elemento posicionado con z-index — aunque sea 0 —
+        en vez de encima, que es justo el problema que tenía el propio fondo antes
+        de tener z-index explícito.
+      */}
+      <div className="relative z-10">
       <header className="container-page flex items-center justify-between py-6">
         <Logo />
         <nav className="flex items-center gap-2">
@@ -110,6 +118,7 @@ export default function LandingPage() {
           <p>© {new Date().getFullYear()} Notiq</p>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
