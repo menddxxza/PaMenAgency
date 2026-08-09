@@ -247,46 +247,52 @@ servidor y los pinta la página de precios.
 | Pro | 9 €/mes | Ilimitadas | 500 | — |
 | Team | 19 €/usuario | Ilimitadas | 2.000 | Sí |
 
-## Verificación pendiente
+## Verificación
 
-Todo el código de este README pasa `tsc --noEmit` y `npm run build` sin errores, pero
-**no se ha probado contra una base de datos de Neon real ni contra el navegador**: el
-entorno donde se escribió no tiene salida de red hacia Neon (ver el porqué más arriba).
-Antes de darlo por bueno hace falta, en un entorno con acceso normal a internet:
+Todo el código de este README pasa `tsc --noEmit` y `npm run build` sin errores. El
+entorno donde se escribió no tiene salida de red hacia Neon (ver el porqué más arriba),
+así que la verificación contra una base de datos real y un navegador de verdad la ha
+hecho el propio autor del proyecto, no el agente que escribió el código. Confirmado
+contra Neon real:
 
-1. Aplicar `migrations/0001_neon.sql` contra un Neon real y confirmar que no da
-   errores.
-2. Registrar una cuenta, cerrar sesión y volver a entrar.
-3. Crear una nota, escribir, comprobar que el indicador pasa por
-   "Sin guardar" → "Guardando…" → "Guardado", y que sigue ahí tras recargar.
-4. Crear una carpeta y filtrar notas por ella.
-5. Buscar notas por texto (`websearch_to_tsquery`, admite `"frase exacta"` y
+- [x] Aplicar `migrations/0001_neon.sql` y `migrations/0002_carpetas_compartidas_y_adjuntos.sql`.
+- [x] Registrar una cuenta, cerrar sesión y volver a entrar.
+- [x] Crear una nota y confirmar el autoguardado ("Sin guardar" → "Guardando…" →
+      "Guardado", persiste tras recargar). Marcarla favorita.
+- [x] Carpetas compartidas: crear una tarea con carpeta y verla junto a sus notas
+      desde Inicio → "Tus temas".
+- [x] Adjuntos: subir un PDF/foto desde una nota y desde una tarea, descargarlo.
+- [x] El asistente responde con IA real (Groq).
+- [x] El correo en `ADMIN_EMAILS` entra con plan Team sin pasar por Stripe.
+
+Todavía sin probar contra datos reales:
+
+1. Búsqueda de notas por texto (`websearch_to_tsquery`, admite `"frase exacta"` y
    `-excluir`).
-6. Crear tareas, cambiar su estado y prioridad en las tres vistas (lista, Kanban,
-   calendario).
-7. Con `OPENAI_API_KEY` configurada: resumir una nota, extraer tareas de una nota, y
-   preguntar algo al asistente.
-8. Con Stripe en modo test (`stripe listen`): contratar Pro, cambiar a Team (comprobar
-   en el dashboard de Stripe que la suscripción vieja se actualiza en vez de
-   duplicarse), y cancelar desde el portal.
-9. Que un segundo usuario registrado no vea ni pueda tocar los datos del primero
+2. Las tres vistas de tareas (lista, Kanban, calendario) cambiando de una a otra.
+3. Stripe en modo test (`stripe listen`): contratar Pro, cambiar a Team (que la
+   suscripción vieja se actualice en vez de duplicarse), y cancelar desde el portal.
+4. Que un segundo usuario registrado no vea ni pueda tocar los datos del primero
    (crear dos cuentas y comprobarlo a mano) — es el punto que más ha cambiado al no
    haber RLS, y el que más conviene probar con cuidado.
 
 ## Qué falta
 
 Esto cubre las semanas 1-4 y 7-8 del [roadmap](ROADMAP.md), más la migración de
-Supabase a Neon. Todavía no está hecho:
+Supabase a Neon, el panel único, la pestaña Inicio, las carpetas compartidas y los
+adjuntos. Todavía no está hecho:
 
-- **Verificación real**, la lista de arriba.
+- **Verificación real restante**, la lista de arriba.
 - **Team no cobra por asiento.** Se cobra `quantity: 1` aunque el plan se anuncia como
   19 €/usuario. Falta contar los miembros del espacio, que tampoco existen todavía.
 - **App móvil (Expo).** `lib/` está escrito sin dependencias de Next para poder
   compartirlo, pero no hay proyecto de React Native.
 - **Recordatorios.** El esquema ya tiene `recordar_el` y su índice parcial; falta el
   cron que los envía.
-- **Imágenes en las notas.** El tipo de bloque existe; falta dónde subirlas (Neon no
-  tiene un Storage propio; haría falta S3, R2 o similar).
+- **Imagen como bloque dentro de una nota.** El tipo de bloque existe en el editor,
+  pero solo inserta una URL — no sube el archivo. Esto ya no depende de tener un
+  Storage externo (los adjuntos ya guardan PDFs y fotos en la propia base de datos);
+  falta conectar ese mismo mecanismo al editor de bloques.
 - **Colaboración en tiempo real** del plan Team.
 - **Enlace mágico (login sin contraseña).** Se quitó al migrar a Neon por no tener
   servicio de email configurado.
