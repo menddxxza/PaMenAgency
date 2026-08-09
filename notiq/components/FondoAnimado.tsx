@@ -22,9 +22,15 @@ const caveat = Caveat({ subsets: ['latin'], weight: ['700'] });
 export default function FondoAnimado() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-paper">
+      {/*
+        top-[62%] y no top-1/2: centrado en vertical exacto queda justo a la
+        altura de los chips de confianza del hero ("Sin tarjeta"...), y el trazo
+        se les monta encima. Un poco más abajo cae en el hueco entre el hero y
+        "Cómo funciona", que es donde tiene sitio de sobra para respirar.
+      */}
       <svg
         viewBox="0 0 1000 320"
-        className="absolute left-1/2 top-1/2 w-[150vw] max-w-none -translate-x-1/2 -translate-y-1/2 sm:w-[95vw] lg:w-[70vw]"
+        className="absolute left-1/2 top-[62%] w-[150vw] max-w-none -translate-x-1/2 -translate-y-1/2 sm:w-[95vw] lg:w-[70vw]"
         fill="none"
       >
         <text
@@ -37,7 +43,7 @@ export default function FondoAnimado() {
         </text>
       </svg>
 
-      <div className="notiq-lapiz absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-5xl">
+      <div className="notiq-lapiz absolute left-1/2 top-[62%] -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-5xl">
         ✏️
       </div>
 

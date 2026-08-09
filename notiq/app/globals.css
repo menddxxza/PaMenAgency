@@ -11,6 +11,14 @@
   body {
     @apply bg-white text-ink antialiased;
   }
+
+  /* Salvaguarda de ancho: sin esto, un elemento que se pase de 100vw por poco
+     (el fondo animado, una sombra difuminada) añade una barra de scroll
+     horizontal en vez de recortarse. */
+  html,
+  body {
+    overflow-x: clip;
+  }
 }
 
 @layer components {
@@ -49,10 +57,21 @@
    * translúcido no tendría ningún efecto que justifique perder el blanco sólido.
    */
   .card-flotante {
-    @apply rounded-2xl border border-white/60 shadow-card;
+    @apply rounded-2xl border border-white/60 shadow-card transition duration-200;
     background: rgba(255, 255, 255, 0.55);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Solo donde la tarjeta flotante es además un enlace/botón: un levantamiento
+     sutil confirma que hay algo interactivo debajo. En una tarjeta puramente
+     informativa (el mockup del hero, el del asistente) no se aplica. */
+  a.card-flotante:hover,
+  .card-flotante-interactiva:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 2px rgba(20, 19, 25, 0.06),
+      0 20px 40px -16px rgba(104, 41, 224, 0.28);
   }
 
   .campo {
@@ -72,6 +91,20 @@
   .chip {
     @apply inline-flex items-center gap-1 rounded-full border border-ink/10 bg-ink/[0.03]
            px-2.5 py-1 text-xs font-medium text-ink/70;
+  }
+
+  /* Círculo de icono para las tarjetas de la landing (sección "Cómo funciona"):
+     un tinte violeta muy suave, no el violeta sólido de los botones — así el
+     acento queda para las llamadas a la acción de verdad. */
+  .icono-funcion {
+    @apply grid h-11 w-11 place-items-center rounded-2xl bg-brand-50 text-xl;
+  }
+
+  /* Acento de texto en degradado, para una sola frase por página como mucho —
+     perder el efecto por sobreusarlo es peor que no tenerlo. */
+  .texto-degradado {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(90deg, theme('colors.brand.600'), theme('colors.brand.400'));
   }
 }
 
