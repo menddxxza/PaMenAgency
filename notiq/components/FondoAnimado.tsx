@@ -33,9 +33,20 @@ export default function FondoAnimado() {
         className="absolute left-1/2 top-[62%] w-[150vw] max-w-none -translate-x-1/2 -translate-y-1/2 sm:w-[95vw] lg:w-[70vw]"
         fill="none"
       >
+        {/*
+          x="500" (centro exacto del viewBox de 1000 de ancho) + textAnchor="middle":
+          el texto se centra dentro de su propio viewBox pase lo que pase con el
+          ancho real de "Notiq" en Caveat. Antes empezaba en x="30" (cerca del borde
+          izquierdo) y se extendía hacia la derecha sin llegar al centro — al
+          centrar luego el SVG entero en la pantalla, ese desequilibrio interno se
+          traducía en texto desplazado a la izquierda, que en móvil (donde el
+          elemento mide 150vw pero solo se ve la ventana central de 100vw) se salía
+          directamente por el borde.
+        */}
         <text
-          x="30"
+          x="500"
           y="210"
+          textAnchor="middle"
           className={`${caveat.className} notiq-trazo`}
           style={{ fontSize: '210px' }}
         >
