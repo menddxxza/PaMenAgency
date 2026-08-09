@@ -19,6 +19,15 @@ export const metadata: Metadata = {
       'Escribe, organiza y pregunta. Notiq resume tus notas, extrae las tareas y te dice qué tienes pendiente.',
   },
   alternates: { canonical: '/' },
+  // Safari ignora buena parte del manifest de PWA para el modo "standalone" (sin
+  // barra de navegador) al añadir a la pantalla de inicio en iOS; estas etiquetas
+  // clásicas son las que de verdad lee. Android sí se fía del manifest (ver
+  // app/manifest.ts), pero no está de más que las dos coincidan.
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Notiq',
+  },
 };
 
 export const viewport: Viewport = {
