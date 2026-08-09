@@ -289,10 +289,6 @@ adjuntos. Todavía no está hecho:
   compartirlo, pero no hay proyecto de React Native.
 - **Recordatorios.** El esquema ya tiene `recordar_el` y su índice parcial; falta el
   cron que los envía.
-- **Imagen como bloque dentro de una nota.** El tipo de bloque existe en el editor,
-  pero solo inserta una URL — no sube el archivo. Esto ya no depende de tener un
-  Storage externo (los adjuntos ya guardan PDFs y fotos en la propia base de datos);
-  falta conectar ese mismo mecanismo al editor de bloques.
 - **Colaboración en tiempo real** del plan Team.
 - **Enlace mágico (login sin contraseña).** Se quitó al migrar a Neon por no tener
   servicio de email configurado.

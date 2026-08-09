@@ -25,7 +25,7 @@ export type Bloque = {
   hecho?: boolean;
   /** Solo para 'codigo'. */
   lenguaje?: string;
-  /** Solo para 'imagen': ruta dentro del bucket de Storage. */
+  /** Solo para 'imagen': ruta de descarga del adjunto (/api/adjuntos/[id]). */
   url?: string;
 };
 

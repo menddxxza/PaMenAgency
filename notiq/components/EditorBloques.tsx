@@ -8,6 +8,7 @@ import {
   type Bloque,
   type TipoBloque,
 } from '@/lib/bloques';
+import { borrarAdjunto, subirAdjunto } from '@/app/(app)/adjuntos/actions';
 
 /**
  * Editor por bloques.
@@ -55,13 +56,19 @@ const MARCADORES: Record<TipoBloque, string> = {
 export default function EditorBloques({
   bloques,
   onCambio,
+  noteId,
 }: {
   bloques: Bloque[];
   onCambio: (bloques: Bloque[]) => void;
+  /** Para subir imágenes como adjuntos de esta nota. */
+  noteId: string;
 }) {
   // Índice del bloque que debe recibir el foco tras el próximo render, o null.
   const [foco, setFoco] = useState<number | null>(null);
   const refs = useRef<(HTMLTextAreaElement | null)[]>([]);
+  const inputImagenRef = useRef<HTMLInputElement | null>(null);
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
+  const [errorImagen, setErrorImagen] = useState<string | null>(null);
 
   useEffect(() => {
     if (foco === null) return;
@@ -202,6 +209,43 @@ export default function EditorBloques({
     navigator.clipboard?.writeText(aMarkdown(bloques));
   }
 
+  /**
+   * El bloque 'imagen' existe en el modelo desde siempre, pero hasta ahora solo se
+   * podía rellenar pegando markdown con una imagen ya subida a otro sitio — nada en
+   * el editor sabía subir un archivo. Reutiliza el mismo mecanismo de los adjuntos
+   * (subirAdjunto guarda el archivo en la base de datos y confirma que la nota es
+   * del usuario) en vez de inventar una ruta de subida aparte.
+   */
+  async function subirImagen(archivo: File) {
+    setErrorImagen(null);
+    setSubiendoImagen(true);
+
+    const fd = new FormData();
+    fd.set('archivo', archivo);
+    fd.set('noteId', noteId);
+    const resultado = await subirAdjunto(fd);
+
+    setSubiendoImagen(false);
+
+    if (!resultado.ok || !resultado.adjunto) {
+      setErrorImagen(!resultado.ok ? resultado.error : 'No se ha podido subir la imagen.');
+      return;
+    }
+
+    const bloque = { ...nuevoBloque('imagen', ''), url: `/api/adjuntos/${resultado.adjunto.id}` };
+    onCambio([...bloques, bloque]);
+    setFoco(bloques.length);
+  }
+
+  // Borra también el adjunto de verdad: sin esto, quitar una imagen del editor deja
+  // el archivo huérfano en la base de datos para siempre.
+  function quitarImagen(indice: number) {
+    const url = bloques[indice].url;
+    const id = url?.split('/').pop();
+    if (id) void borrarAdjunto(id);
+    onCambio(bloques.filter((_, i) => i !== indice));
+  }
+
   return (
     <div className="space-y-1">
       {bloques.map((bloque, indice) => (
@@ -225,28 +269,57 @@ export default function EditorBloques({
             />
           )}
 
-          <textarea
-            ref={(el) => {
-              refs.current[indice] = el;
-            }}
-            value={bloque.texto}
-            rows={1}
-            onChange={(e) => {
-              escribir(indice, e.target.value);
-              autoAlto(e.target);
-            }}
-            onKeyDown={(e) => pulsar(e, indice)}
-            onPaste={(e) => pegar(e, indice)}
-            onFocus={(e) => autoAlto(e.target)}
-            placeholder={MARCADORES[bloque.tipo]}
-            className={`w-full resize-none bg-transparent outline-none placeholder:text-ink/25 ${
-              ESTILOS[bloque.tipo]
-            } ${bloque.tipo === 'cita' ? 'border-l-2 border-brand-300 pl-3' : ''} ${
-              bloque.tipo === 'codigo' ? 'rounded-lg bg-ink/[0.04] p-3' : ''
-            } ${bloque.tipo === 'tarea' && bloque.hecho ? 'text-ink/40 line-through' : ''}`}
-          />
+          <div className="min-w-0 flex-1">
+            {bloque.tipo === 'imagen' && bloque.url && (
+              <div className="group/imagen relative mb-1.5 inline-block max-w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element -- imagen de un
+                    adjunto propio, servida por /api/adjuntos/[id]: no es una URL
+                    externa que valga la pena optimizar con next/image. */}
+                <img
+                  src={bloque.url}
+                  alt={bloque.texto || 'Imagen de la nota'}
+                  className="max-h-96 rounded-xl border border-ink/10 object-contain"
+                />
+                <button
+                  type="button"
+                  onClick={() => quitarImagen(indice)}
+                  aria-label="Quitar imagen"
+                  className="absolute right-2 top-2 rounded-full bg-ink/70 px-2 py-1 text-xs text-white opacity-0 transition group-hover/imagen:opacity-100"
+                >
+                  Quitar
+                </button>
+              </div>
+            )}
+
+            <textarea
+              ref={(el) => {
+                refs.current[indice] = el;
+              }}
+              value={bloque.texto}
+              rows={1}
+              onChange={(e) => {
+                escribir(indice, e.target.value);
+                autoAlto(e.target);
+              }}
+              onKeyDown={(e) => pulsar(e, indice)}
+              onPaste={(e) => pegar(e, indice)}
+              onFocus={(e) => autoAlto(e.target)}
+              placeholder={MARCADORES[bloque.tipo]}
+              className={`w-full resize-none bg-transparent outline-none placeholder:text-ink/25 ${
+                ESTILOS[bloque.tipo]
+              } ${bloque.tipo === 'cita' ? 'border-l-2 border-brand-300 pl-3' : ''} ${
+                bloque.tipo === 'codigo' ? 'rounded-lg bg-ink/[0.04] p-3' : ''
+              } ${bloque.tipo === 'tarea' && bloque.hecho ? 'text-ink/40 line-through' : ''}`}
+            />
+          </div>
         </div>
       ))}
+
+      {errorImagen && (
+        <p role="alert" className="pt-4 text-xs text-red-700">
+          {errorImagen}
+        </p>
+      )}
 
       <div className="flex items-center gap-2 pt-6">
         <button
@@ -259,6 +332,25 @@ export default function EditorBloques({
         >
           + Bloque
         </button>
+        <button
+          type="button"
+          onClick={() => inputImagenRef.current?.click()}
+          disabled={subiendoImagen}
+          className="btn-fantasma text-xs"
+        >
+          {subiendoImagen ? 'Subiendo imagen…' : '+ Imagen'}
+        </button>
+        <input
+          ref={inputImagenRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            const archivo = e.target.files?.[0];
+            e.target.value = '';
+            if (archivo) void subirImagen(archivo);
+          }}
+        />
         <button type="button" onClick={copiarMarkdown} className="btn-fantasma text-xs">
           Copiar como markdown
         </button>

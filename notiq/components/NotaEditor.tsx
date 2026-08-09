@@ -162,6 +162,7 @@ export default function NotaEditor({
 
         <EditorBloques
           bloques={bloques}
+          noteId={id}
           onCambio={(siguientes) => {
             setBloques(siguientes);
             programarGuardado(titulo, siguientes);
