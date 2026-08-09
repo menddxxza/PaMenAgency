@@ -47,7 +47,9 @@ export default function PanelApp({
   return (
     <div className="flex h-full flex-col">
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-4 border-b border-ink/10 bg-paper px-5 py-3 sm:px-8">
-        <div className="flex items-center gap-6">
+        {/* min-w-0 también aquí: el <nav> de dentro solo puede encoger y scrollear
+            si su cadena de contenedores flex se lo permite hasta arriba. */}
+        <div className="flex min-w-0 flex-1 items-center gap-6">
           <Logo />
           <NavPestanas activa={activa} onCambiar={cambiar} />
         </div>
