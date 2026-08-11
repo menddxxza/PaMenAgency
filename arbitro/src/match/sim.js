@@ -283,7 +283,7 @@ export function stepBall(match, dt, hooks) {
       ball.prevTouch = ball.lastTouch; ball.prevTouchSide = ball.lastTouchSide;
       ball.lastTouch = e.id; ball.lastTouchSide = e.side;
       e.blockCd = 4;
-      hooks.onDeflection && hooks.onDeflection(e, speed, { blocked, inOwnBox });
+      hooks.onDeflection && hooks.onDeflection(e, speed, { blocked, inOwnBox, behind });
       break;
     }
   }
@@ -334,16 +334,30 @@ function tryHeader(match, ctx, hooks) {
     match.stats[best.side].shots++;
     hooks.onShot && hooks.onShot(best, { x: gx, y: ty }, dd);
   } else {
-    // Despeje: lejos de la portería propia y hacia fuera
+    // Despeje. Bajo presión y cerca de la propia línea, lo normal es mandarlo
+    // fuera: de ahí sale una buena parte de los córners.
     const ownGoal = ownGoalX(match, best.side);
-    const away = Math.atan2(
-      (best.pos.y - W / 2) + match.rng.float(-8, 8),
-      (best.pos.x - ownGoal) || 1,
-    );
-    const sp = clamp(10 + best.player.strength / 8, 8, 20);
-    ball.vel.x = Math.cos(away) * sp;
-    ball.vel.y = Math.sin(away) * sp;
-    ball.height = 1.6; ball.vz = 3.2;
+    const distOwnGoal = Math.abs(best.pos.x - ownGoal);
+    const pressed = pressureOn(match, best) > 0.8;
+    const panic = distOwnGoal < 13 && (pressed || match.rng.bool(0.25));
+
+    if (panic && match.rng.bool(0.5)) {
+      // Fuera por la línea de fondo, lejos del portero: hacia el banderín
+      const sp = clamp(9 + best.player.strength / 10, 7, 16);
+      const toFlag = best.pos.y < W / 2 ? -1 : 1;
+      ball.vel.x = (ownGoal === 0 ? -1 : 1) * sp;
+      ball.vel.y = toFlag * match.rng.float(5, 11);
+      ball.height = 1.4; ball.vz = 2.4;
+    } else {
+      const away = Math.atan2(
+        (best.pos.y - W / 2) + match.rng.float(-8, 8),
+        (best.pos.x - ownGoal) || 1,
+      );
+      const sp = clamp(10 + best.player.strength / 8, 8, 20);
+      ball.vel.x = Math.cos(away) * sp;
+      ball.vel.y = Math.sin(away) * sp;
+      ball.height = 1.6; ball.vz = 3.2;
+    }
     hooks.onClearance && hooks.onClearance(best);
   }
   best.actionCd = 0.6;

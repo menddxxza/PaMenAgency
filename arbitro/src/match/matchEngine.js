@@ -41,6 +41,8 @@ export class MatchEngine {
     this.deadballUntil = 0;
     this.lastEventCheck = 0;
     this.protocolStep = 0;
+    this.pendingClips = [];
+    match.clips = {};
     resetIncidentIds();
     this._bindHooks();
   }
@@ -96,6 +98,7 @@ export class MatchEngine {
     m.clock += matchDt;
 
     if (m.phase === 'deadball') {
+      this._considerSubstitution();
       this._checkTimeWasting(matchDt);
       if (m.clock >= this.deadballUntil) this._executeRestart();
       this._recordReplayFrame();
@@ -114,6 +117,7 @@ export class MatchEngine {
     }
 
     simulate(m, dt, this.hooks);
+    this._flushClips();
     if (this.pendingDelivery) this._deliverSetPiece();
     this._advantageWatch(dt);
     this._moodUpdate(dt);
@@ -231,6 +235,19 @@ export class MatchEngine {
   /** Un rechace puede haber sido con el brazo. */
   _onDeflection(entity, speed, info = {}) {
     const m = this.match;
+
+    // Un disparo bloqueado que sale desviado hacia el fondo acaba en córner
+    // algo más de la mitad de las veces: el portero no llega a todo.
+    if (info.behind && speed > 15 && m.rng.bool(0.5)) {
+      const ownGoal = ownGoalX(m, entity.side);
+      const pos = { x: ownGoal, y: clamp(m.ball.pos.y + m.rng.float(-4, 4), 0.5, W - 0.5) };
+      m.ball.vel.x = 0; m.ball.vel.y = 0; m.ball.owner = null;
+      m.ball.pos = { ...pos };
+      m.ball.height = 0; m.ball.vz = 0;
+      this._raiseOrAuto(makeOutOfPlayIncident(m, 'goalline', pos, m.ball));
+      return;
+    }
+
     if (entity.role === 'GK') return;
     // Un bloqueo dentro del área es donde de verdad aparecen las manos
     const p = info.blocked ? 0.03 : info.inOwnBox ? 0.02 : 0.01;
@@ -471,32 +488,131 @@ export class MatchEngine {
     }
 
     // Cambios
-    if (minute > 45 && m.rng.next() < 0.0006 * dt * 6) this._trySubstitution();
+
   }
 
-  _trySubstitution() {
+  /**
+   * Sustituciones con lectura del partido: se cambia por lesión, por
+   * desgaste, para proteger a un amonestado y para atacar o cerrar el
+   * resultado según el marcador y el minuto.
+   */
+  _considerSubstitution(force = null) {
     const m = this.match;
-    const side = m.rng.bool(0.5) ? SIDE.HOME : SIDE.AWAY;
-    if (m.subsUsed[side] >= SIM.maxSubsPerTeam) return;
+    const minute = m.clock / 60;
+    if (!force && minute < 25) return null;
+    if (!force && m.clock < (this.lastSubCheck || 0) + 90) return null;
+    this.lastSubCheck = m.clock;
+
+    for (const side of m.rng.shuffle([SIDE.HOME, SIDE.AWAY])) {
+      if (m.subsUsed[side] >= SIM.maxSubsPerTeam) continue;
+      if (!m.bench[side] || !m.bench[side].length) continue;
+
+      const plan = this._substitutionPlan(side, minute, force);
+      if (!plan) continue;
+      const done = this._makeSubstitution(side, plan);
+      if (done) return done;
+    }
+    return null;
+  }
+
+  /** Decide a quién quitar y qué perfil pedir al banquillo. */
+  _substitutionPlan(side, minute, force) {
+    const m = this.match;
+    const squad = onPitch(m, side).filter((e) => e.role !== 'GK');
+    if (!squad.length) return null;
+
+    const diff = m.score[side] - m.score[1 - side];
+    const losing = diff < 0;
+    const winning = diff > 0;
+
+    // 1. Lesionado: sale sí o sí
+    const hurt = squad.find((e) => e.id === force || (e.injured && e.injuryLevel >= 2));
+    if (hurt) return { out: hurt, want: hurt.role, reason: 'injury' };
+
+    // 2. Amonestado que sigue jugando al límite: se le protege
+    if (minute > 55) {
+      const risky = squad
+        .filter((e) => e.yellow >= 1 && (e.player.aggression > 62 || e.fouls >= 2))
+        .sort((a, b) => b.player.aggression - a.player.aggression)[0];
+      if (risky && m.rng.bool(0.5)) return { out: risky, want: risky.role, reason: 'protect' };
+    }
+
+    // 3. Marcador: perder obliga a arriesgar, ganar a cerrar
+    if (losing && minute > 58) {
+      const defender = squad.filter((e) => e.role === 'DF')
+        .sort((a, b) => a.player.shooting - b.player.shooting)[0];
+      if (defender && m.rng.bool(0.6)) return { out: defender, want: 'FW', reason: 'chase' };
+      const mid = squad.filter((e) => e.role === 'MF')
+        .sort((a, b) => a.stamina - b.stamina)[0];
+      if (mid) return { out: mid, want: 'FW', reason: 'chase' };
+    }
+    if (winning && minute > 72) {
+      const forward = squad.filter((e) => e.role === 'FW')
+        .sort((a, b) => a.stamina - b.stamina)[0];
+      if (forward && m.rng.bool(0.65)) return { out: forward, want: 'DF', reason: 'protect_lead' };
+    }
+
+    // 4. Desgaste puro
+    const tired = squad.sort((a, b) => a.stamina - b.stamina)[0];
+    if (tired && tired.stamina < 58 && minute > 55) {
+      return { out: tired, want: tired.role, reason: 'tired' };
+    }
+    return null;
+  }
+
+  /** Ejecuta el cambio buscando en el banquillo el perfil pedido. */
+  _makeSubstitution(side, plan) {
+    const m = this.match;
     const bench = m.bench[side];
-    if (!bench || !bench.length) return;
-    const candidates = onPitch(m, side).filter((e) => e.role !== 'GK')
-      .sort((a, b) => a.stamina - b.stamina);
-    const out = candidates[0];
-    if (!out || out.stamina > 62) return;
-    const inPlayer = bench.shift();
+    let idx = bench.findIndex((p) => p.role === plan.want);
+    if (idx < 0) idx = bench.findIndex((p) => p.role !== 'GK');
+    if (idx < 0) return null;
+
+    const inPlayer = bench.splice(idx, 1)[0];
+    const out = plan.out;
     out.onPitch = false;
+
+    // El entrante hereda el hueco táctico del que sale, salvo que el cambio
+    // busque otro perfil: entonces ocupa una posición propia de su rol.
+    const slot = plan.want === out.role ? out.slot : this._slotForRole(side, plan.want, out.slot);
     const ent = {
-      ...out, id: inPlayer.id, player: inPlayer, stamina: 100, onPitch: true,
-      yellow: 0, red: false, fouls: 0, injured: false, mood: 'calm', frustration: 20,
+      ...out,
+      id: inPlayer.id,
+      player: inPlayer,
+      role: inPlayer.role,
+      slot: { ...slot },
+      stamina: 100,
+      onPitch: true,
+      yellow: 0, red: false, fouls: 0,
+      injured: false, injuryLevel: 0, downUntil: 0,
+      mood: 'calm', frustration: 20,
+      actionCd: 0, tackleCd: 0, blockCd: 0, protestCd: 0,
+      warnedForDelay: false,
       pos: { ...out.pos }, vel: { x: 0, y: 0 },
+      minutesPlayed: 0,
     };
     m.entities.push(ent);
     m.subsUsed[side]++;
     m.stats[side].subs++;
     m.stoppage += 25 + m.rng.float(0, 20);
-    this.logEvent('substitution', { side, out: out.player.name, in: inPlayer.name });
-    this.emit('substitution', { side, out, in: ent });
+
+    this.logEvent('substitution', {
+      side, out: out.player.name, in: inPlayer.name, reason: plan.reason,
+    });
+    this.emit('substitution', { side, out, in: ent, reason: plan.reason });
+    return { side, out, in: ent, reason: plan.reason };
+  }
+
+  /** Posición base razonable para un rol dentro de la formación. */
+  _slotForRole(side, role, fallback) {
+    const m = this.match;
+    const sameRole = m.lineups[side].lineup.filter((l) => l.slot.role === role);
+    if (sameRole.length) {
+      const ref = sameRole[m.rng.int(0, sameRole.length - 1)].slot;
+      return { role, x: ref.x, y: ref.y };
+    }
+    const x = role === 'FW' ? 0.72 : role === 'MF' ? 0.45 : 0.2;
+    return { role, x, y: fallback ? fallback.y : 0.5 };
   }
 
   // ---------------------------------------------------------- ventaja
@@ -713,6 +829,12 @@ export class MatchEngine {
 
     const grade = RuleEngine.gradeDecision(incident, payload);
     incident.grade = grade;
+
+    // Las jugadas con peso se guardan para poder revisarlas al final
+    const worthKeeping = payload.card || ['goal', 'penaltyShout', 'violence'].includes(incident.type)
+      || payload.action === 'penalty' || incident.impact === 'critical' || incident.impact === 'high'
+      || !!incident.varUsed;
+    if (worthKeeping && !payload.auto) this._requestClip(incident);
 
     const record = {
       incidentId: incident.id,
@@ -967,7 +1089,7 @@ export class MatchEngine {
     if (incident && incident.type === 'injury') {
       const inj = entityById(m, incident.victimId);
       if (inj) {
-        if (incident.level >= 3) { inj.onPitch = false; this._trySubstitution(); }
+        if (incident.level >= 3) this._considerSubstitution(inj.id);
         else { inj.injured = false; inj.downUntil = 0; }
       }
     }
@@ -1429,6 +1551,7 @@ export class MatchEngine {
         var: this.var.rate(),
       },
       supervisor: this.rating.supervisorNotes(m),
+      clips: m.clips,
     };
   }
 
@@ -1440,6 +1563,39 @@ export class MatchEngine {
   }
 
   // ------------------------------------------------------------ replays
+
+  /**
+   * Guarda la jugada de un incidente para poder revisarla después. El clip
+   * se cierra unos segundos más tarde, cuando ya se ha visto el desenlace.
+   */
+  _requestClip(incident) {
+    const m = this.match;
+    this.pendingClips.push({
+      id: incident.id,
+      from: incident.clock - 9,
+      until: m.clock + 3,
+      minute: incident.minute,
+      type: incident.type,
+    });
+    if (this.pendingClips.length > 40) this.pendingClips.shift();
+  }
+
+  _flushClips() {
+    const m = this.match;
+    if (!this.pendingClips.length) return;
+    for (let i = this.pendingClips.length - 1; i >= 0; i--) {
+      const req = this.pendingClips[i];
+      if (m.clock < req.until) continue;
+      const frames = m.replayBuffer.filter((f) => f.t >= req.from && f.t <= req.until);
+      if (frames.length > 4) {
+        m.clips[req.id] = { id: req.id, minute: req.minute, type: req.type, frames };
+      }
+      this.pendingClips.splice(i, 1);
+    }
+    // No se guardan clips sin límite: el partido no debe crecer sin control
+    const ids = Object.keys(m.clips);
+    if (ids.length > 30) delete m.clips[ids[0]];
+  }
 
   _recordReplayFrame() {
     const m = this.match;

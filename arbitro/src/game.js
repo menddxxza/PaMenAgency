@@ -3,7 +3,7 @@
 
 import { GAME, DIFFICULTY, WEATHER } from './core/config.js';
 import { setLocale, getLocale, t } from './core/i18n.js';
-import { RNG } from './core/rng.js';
+import { RNG, clamp } from './core/rng.js';
 import { loadSettings, saveSettings, saveGame, loadGame, deleteSave, lastSaveSlot } from './core/save.js';
 import { generateWorld, clubsOfDivision, divisionById, generateCrew } from './data/generators.js';
 import { findSpecial } from './data/scenarios.js';
@@ -62,6 +62,9 @@ export class Game {
     window.addEventListener('blur', () => this.keys.clear());
     window.addEventListener('resize', () => this.renderer.resize());
     this.dom.canvas.addEventListener('pointerdown', () => this.audio.ensure());
+    window.addEventListener('gamepadconnected', (e) => {
+      this.hud.toast(`🎮 ${e.gamepad.id.slice(0, 28)}`, 'good', 3000);
+    });
   }
 
   _hotkeyDecision(i) {
@@ -71,9 +74,60 @@ export class Game {
 
   _readInput() {
     const k = this.keys;
-    const dx = (k.has('d') || k.has('arrowright') ? 1 : 0) - (k.has('a') || k.has('arrowleft') ? 1 : 0);
-    const dy = (k.has('s') || k.has('arrowdown') ? 1 : 0) - (k.has('w') || k.has('arrowup') ? 1 : 0);
-    return { dx, dy, sprint: k.has('shift') };
+    let dx = (k.has('d') || k.has('arrowright') ? 1 : 0) - (k.has('a') || k.has('arrowleft') ? 1 : 0);
+    let dy = (k.has('s') || k.has('arrowdown') ? 1 : 0) - (k.has('w') || k.has('arrowup') ? 1 : 0);
+    let sprint = k.has('shift');
+
+    // Palanca táctil
+    const tp = this.hud.touch;
+    if (tp && tp.active) { dx = tp.dx; dy = tp.dy; }
+    if (tp && tp.sprint) sprint = true;
+
+    // Mando físico
+    const gp = this._readGamepad();
+    if (gp) {
+      if (Math.abs(gp.dx) > 0.18 || Math.abs(gp.dy) > 0.18) { dx = gp.dx; dy = gp.dy; }
+      if (gp.sprint) sprint = true;
+    }
+    return { dx, dy, sprint };
+  }
+
+  /**
+   * Mando: palanca izquierda para moverse, gatillo/A para esprintar y los
+   * cuatro botones frontales para las cuatro primeras opciones de decisión.
+   */
+  _readGamepad() {
+    if (typeof navigator === 'undefined' || !navigator.getGamepads) return null;
+    const pads = navigator.getGamepads();
+    let pad = null;
+    for (const p of pads) { if (p && p.connected) { pad = p; break; } }
+    if (!pad) return null;
+
+    const dead = (v) => (Math.abs(v) < 0.16 ? 0 : v);
+    const dx = dead(pad.axes[0] || 0);
+    const dy = dead(pad.axes[1] || 0);
+    const pressed = (i) => !!(pad.buttons[i] && pad.buttons[i].pressed);
+
+    // Flanco de subida: un botón sostenido no repite la decisión
+    this._padPrev = this._padPrev || {};
+    const edge = (i) => {
+      const now = pressed(i);
+      const was = this._padPrev[i];
+      this._padPrev[i] = now;
+      return now && !was;
+    };
+
+    if (this.engine && this.engine.pending) {
+      for (let i = 0; i < 4; i++) if (edge(i)) this._hotkeyDecision(i);
+      if (edge(4)) this._hotkeyDecision(4);   // L1 -> quinta opción
+      if (edge(5)) this._hotkeyDecision(5);   // R1 -> sexta opción
+    } else {
+      for (let i = 0; i < 6; i++) edge(i);    // mantiene el estado al día
+    }
+    if (edge(9)) this.togglePause();          // Start
+    if (edge(8)) this.renderer.follow = !this.renderer.follow; // Select
+
+    return { dx, dy, sprint: pressed(7) || pressed(0) };
   }
 
   togglePause() {
@@ -598,6 +652,17 @@ export class Game {
     this.dom.canvas.classList.add('dim');
     const mode = this._activeMode || 'match';
 
+    // Instantánea mínima para poder revisar las jugadas cuando el partido
+    // ya no existe: colores, estadio y clima, nada más.
+    this.reviewMatch = this.match ? {
+      teams: this.match.teams,
+      kits: this.match.kits,
+      stadium: this.match.stadium,
+      weather: this.match.weather,
+      atmosphere: { noise: 35 },
+    } : null;
+    this.reviewReport = report;
+
     if (mode === 'special' && this.special) {
       const passed = report.rating.overall >= this.special.targetRating && !report.abandoned;
       this.screens.scenarioResult(this.special, report, passed);
@@ -605,10 +670,11 @@ export class Game {
       return;
     }
     if (mode === 'classic' || !this.career) {
-      this.screens.matchReport(report, {
+      this.lastReportExtra = {
         buttons: `<button class="primary" data-act="classic">${t('ui.anotherMatch')}</button>
                   <button data-act="menu">${t('menu.quit')}</button>`,
-      });
+      };
+      this.screens.matchReport(report, this.lastReportExtra);
       this._teardownMatch();
       return;
     }
@@ -636,13 +702,13 @@ export class Game {
           ${res.news.map((n) => `<li class="muted">📰 ${n.headline}</li>`).join('')}
         </ul></div>`;
 
-    this.screens.matchReport(report, {
+    this.lastReportExtra = {
       gainsHtml,
       buttons: `<button class="primary big" data-act="postMatchNext">${t('ui.continue')}</button>`,
-    });
+    };
+    this.screens.matchReport(report, this.lastReportExtra);
     // El botón de continuar encadena rueda de prensa / ética / trama
-    const btn = this.dom.screens.querySelector('[data-act="postMatchNext"]');
-    if (btn) btn.onclick = () => { this.audio.ui('click'); this._postMatchNext(); };
+    this._rewirePostMatchButton();
     this._teardownMatch();
   }
 
@@ -668,6 +734,106 @@ export class Game {
     this.paused = false;
     this._flagUp = null;
     this.audio.stopCrowd();
+  }
+
+  // -------------------------------------------------- revisión de jugadas
+
+  openReview(clipId) {
+    const report = this.reviewReport;
+    if (!report || !report.clips) return;
+    const clip = report.clips[clipId];
+    if (!clip) return;
+    const incident = (report.incidents || []).find((i) => i.id === clipId) || null;
+
+    this.screens.matchReview(clip, incident);
+    const canvas = this.dom.screens.querySelector('#review-canvas');
+    if (!canvas) return;
+
+    const renderer = new Renderer(canvas);
+    const session = {
+      frames: clip.frames, index: 0, playing: true, speed: 1,
+      camera: 'side', zoom: 1, offsideLine: false, incident,
+    };
+    this.review = { renderer, session, clip, raf: null, last: performance.now() };
+
+    const range = this.dom.screens.querySelector('#review-range');
+    const btn = (name) => this.dom.screens.querySelector(`[data-rv="${name}"]`);
+    const step = (n) => {
+      session.index = clamp(session.index + n, 0, session.frames.length - 1);
+      session.playing = false;
+      if (playBtn) playBtn.textContent = '▶';
+    };
+    const playBtn = btn('play');
+
+    btn('start').onclick = () => step(-session.frames.length);
+    btn('back10').onclick = () => step(-10);
+    btn('back1').onclick = () => step(-1);
+    btn('fwd1').onclick = () => step(1);
+    btn('fwd10').onclick = () => step(10);
+    playBtn.onclick = () => {
+      session.playing = !session.playing;
+      if (session.playing && session.index >= session.frames.length - 1) session.index = 0;
+      playBtn.textContent = session.playing ? '⏸' : '▶';
+    };
+    const speeds = [0.25, 0.5, 1, 2];
+    let si = 2;
+    btn('speed').onclick = () => {
+      si = (si + 1) % speeds.length;
+      session.speed = speeds[si];
+      btn('speed').textContent = `${speeds[si]}×`;
+    };
+    const cams = ['main', 'side', 'behindGoal', 'tactical'];
+    let ci = 1;
+    btn('cam').onclick = () => {
+      ci = (ci + 1) % cams.length;
+      session.camera = cams[ci];
+      btn('cam').textContent = t(`var.cam.${cams[ci]}`);
+    };
+    btn('line').onclick = () => {
+      session.offsideLine = !session.offsideLine;
+      btn('line').classList.toggle('on', session.offsideLine);
+    };
+    if (range) {
+      range.oninput = () => { session.index = Number(range.value); session.playing = false; playBtn.textContent = '▶'; };
+    }
+    playBtn.textContent = '⏸';
+
+    const loop = (now) => {
+      if (!this.review) return;
+      const dt = Math.min(0.05, (now - this.review.last) / 1000);
+      this.review.last = now;
+      if (session.playing) {
+        session.acc = (session.acc || 0) + dt * 30 * session.speed;
+        while (session.acc >= 1) {
+          session.acc -= 1;
+          session.index++;
+          if (session.index >= session.frames.length - 1) {
+            session.index = session.frames.length - 1;
+            session.playing = false;
+            playBtn.textContent = '▶';
+            break;
+          }
+        }
+        if (range) range.value = String(session.index);
+      }
+      renderer.drawReplay(session.frames[session.index], this.reviewMatch, session);
+      this.review.raf = requestAnimationFrame(loop);
+    };
+    this.review.raf = requestAnimationFrame(loop);
+  }
+
+  closeReview() {
+    if (this.review) {
+      cancelAnimationFrame(this.review.raf);
+      this.review = null;
+    }
+    this.screens.matchReport(this.reviewReport, this.lastReportExtra || {});
+    this._rewirePostMatchButton();
+  }
+
+  _rewirePostMatchButton() {
+    const btn = this.dom.screens.querySelector('[data-act="postMatchNext"]');
+    if (btn) btn.onclick = () => { this.audio.ui('click'); this._postMatchNext(); };
   }
 
   // ------------------------------------------------------------ tutorial

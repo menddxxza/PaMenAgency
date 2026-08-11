@@ -39,25 +39,32 @@ automático con acierto 72%):
 | Rojas | ~0,15 | 0,1–0,2 |
 | Penaltis | ~0,4 | 0,25 |
 | Fueras de juego | ~4 | 3–5 |
-| Córners | ~7,4 | 9–11 |
+| Córners | ~9,8 | 9–11 |
 | Tiros | ~30 | 24–28 |
 
 Los atributos de los futbolistas se comprimen por categoría
 (`generators.compressLevel`): sin esa compresión, la Liga Regional producía
 partidos sin una sola ocasión.
 
-## Versión funcional pero ampliable
+Estos rangos están fijados como prueba automática (`test/engine.test.js`): si
+un cambio en el motor los rompe, la batería falla antes de llegar al juego.
 
-Estas piezas funcionan y están conectadas, pero admiten profundidad:
+## Decisiones tomadas a propósito
 
-- **Cambios**: la IA sustituye por cansancio; no hay lectura táctica del
-  marcador.
-- **Syndicate**: cinco capítulos ramificados. La estructura admite más sin tocar
-  código: son datos en `CHAPTERS`.
+No son deudas: son límites elegidos y sostenidos.
+
+- **Idiomas**: se entrega en español e inglés, completos y verificados por las
+  pruebas. Añadir francés, italiano, alemán o portugués es copiar un archivo de
+  `i18n/` y traducir sus valores; las pruebas avisan de cualquier clave que
+  falte, esté vacía o pierda una variable. Traducir a ciegas los ~750 textos a
+  cuatro idiomas más habría metido en el juego un castellano disfrazado.
+- **Economía**: hay ingresos, gasto fijo y siete inversiones con efecto real,
+  pero no un catálogo de compras. El juego sigue siendo un simulador arbitral.
+- **Syndicate**: cinco capítulos ramificados. Ampliarlo no toca código: son
+  datos en `CHAPTERS`.
 - **Personalización visual del árbitro**: se elige uniforme, tono de piel,
-  cabello y dorsal, pero el sprite 2D sólo refleja el uniforme.
-- **Córners**: 7,4 por partido frente a los 9-11 reales. Los bloqueos ya
-  existen; falta que los rechaces largos salgan más veces por la línea.
+  cabello y dorsal; el sprite 2D refleja el uniforme, que es lo que se
+  distingue desde la cámara cenital.
 
 ## Cerrado en la revisión del motor
 
@@ -87,13 +94,40 @@ Estas piezas funcionan y están conectadas, pero admiten profundidad:
   reglamento, equipamiento y analista de vídeo) con su mantenimiento, libro de
   movimientos y aviso del banco al entrar en números rojos.
 
-## Qué falta
+## Cerrado en la revisión final
 
-- Idiomas más allá de es/en: la arquitectura ya lo soporta, sólo hay que añadir
-  el archivo en `i18n/` y registrarlo en `core/i18n.js`.
-- Repetición navegable del partido completo desde el informe final (hoy la
-  cronología es una lista; el búfer de repetición existe y lo usa el VAR).
-- Mando / táctil: hoy el partido se juega con teclado y ratón.
+- **Córners a valores reales (9,8 por partido).** Los despejes bajo presión
+  cerca de la línea se van fuera buscando el banderín, y un disparo bloqueado
+  que sale desviado hacia el fondo acaba en córner algo más de la mitad de las
+  veces: el portero no llega a todo.
+- **Cambios con lectura del partido.** Se sustituye por lesión, por desgaste,
+  para proteger a un amonestado que juega al límite, para arriesgar cuando se
+  pierde (defensa fuera, delantero dentro) y para cerrar cuando se gana. El
+  entrante ocupa el hueco táctico que corresponde a su rol, no el del que sale.
+  9,8 cambios por partido, minuto medio 72.
+- **Repetición navegable.** El motor guarda la jugada de cada incidente con
+  peso (goles, tarjetas, penaltis, VAR, impacto alto) y el informe final las
+  ofrece en un reproductor con fotograma a fotograma, cuatro cámaras y línea de
+  fuera de juego. Los clips viven en memoria: no engordan el guardado.
+- **Mando y táctil.** Mando físico vía Gamepad API (palanca izquierda, gatillo
+  o A para esprintar, botones frontales y superiores para las seis opciones de
+  decisión, Start pausa, Select cambia cámara) con detección de flanco para que
+  un botón sostenido no repita la decisión. En pantallas sin teclado aparece una
+  palanca virtual y un botón de sprint.
+- **Batería de pruebas.** 76 pruebas sin dependencias (`node test/all.js`):
+  reglamento, sistemas y motor. Incluye las que evitan las regresiones que más
+  caro salieron durante el desarrollo: partidos que no terminan, jugadores
+  fuera del campo, posesión que no cuadra, equipaciones indistinguibles,
+  guardado que pierde datos, claves de idioma que faltan y medias del partido
+  fuera de rango.
+
+## Qué no está y por qué
+
+- **Repetición del partido entero** (no sólo las jugadas guardadas): exigiría
+  almacenar los 90 minutos completos, unos 40 MB por partido. Se guarda lo que
+  de verdad se revisa.
+- **Multijugador y clasificaciones en línea**: fuera del alcance del proyecto,
+  que es de un jugador y funciona sin conexión.
 
 ## Rediseño de interfaz y gráficos
 
@@ -142,3 +176,10 @@ en OKLCH). Registro en `.hallmark/log.json`.
 11. **Etiquetas sin traducir en el informe** (`advantage`, `management`) y
     decisiones mostradas con su nombre interno (`challenge → foul`). Ahora
     todo pasa por `t()` y se lee en lenguaje de árbitro.
+12. **Plaga de penaltis al llenar el área** en las jugadas a balón parado: los
+    defensores seguían entrando al hombre con el balón por alto. Ahora saltan.
+13. **Bloqueos contados por tick**: un mismo defensor bloqueaba el mismo balón
+    decenas de veces por partido. Ahora hay espera por jugador y sólo se
+    bloquea si el balón viene hacia él.
+14. **Despejes que iban a las manos del portero**: el despeje de apuro se
+    dirigía hacia la portería propia. Ahora busca el banderín.

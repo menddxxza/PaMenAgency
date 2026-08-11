@@ -576,4 +576,12 @@ export const en = {
   "hint.leading": "His team is ahead",
   "hint.persistent": "He has already committed several fouls",
   'econ.investments': "Investments",
+
+  // --- repetición del partido ---
+  "review.title": "Match review",
+  "review.open": "Watch",
+  "review.none": "No notable incidents to review.",
+  "review.back": "Back to report",
+  "review.speed": "Speed",
+  "review.frame": "Frame",
 };

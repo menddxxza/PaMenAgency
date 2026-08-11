@@ -600,4 +600,12 @@ export const es = {
   "hint.leading": "Va ganando",
   "hint.persistent": "Ya ha cometido varias faltas",
   'econ.investments': "Inversiones",
+
+  // --- repetición del partido ---
+  "review.title": "Revisar jugadas",
+  "review.open": "Ver jugada",
+  "review.none": "No hubo jugadas destacadas que revisar.",
+  "review.back": "Volver al informe",
+  "review.speed": "Velocidad",
+  "review.frame": "Fotograma",
 };

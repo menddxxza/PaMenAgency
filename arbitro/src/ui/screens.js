@@ -66,6 +66,8 @@ export class Screens {
     if (act === 'finishExam') return this.academy();
     if (act === 'train') return g.doTraining(data.id);
     if (act === 'buy') return g.buyAsset(data.id);
+    if (act === 'review') return g.openReview(data.id);
+    if (act === 'closeReview') return g.closeReview();
     if (act === 'kickoff') return g.beginMatch();
     if (act === 'resumeHalf') return g.resumeSecondHalf();
     if (act === 'ethics') return g.resolveEthics(data.choice);
@@ -378,6 +380,8 @@ export class Screens {
 
       <div class="card"><h4>${t('report.supervisor')}</h4><ul class="list">${sup}</ul></div>
 
+      <div class="card"><h4>${t('review.title')}</h4>${this.clipList(report)}</div>
+
       ${extra.gainsHtml || ''}
       <div class="row-btns">${extra.buttons || `<button class="primary big" data-act="menu">${t('ui.continue')}</button>`}</div>`);
   }
@@ -395,6 +399,49 @@ export class Screens {
     const base = t(map[decision.action] || decision.action);
     const card = decision.card ? ` + ${t(`card.${decision.card}`)}` : decision.warning ? ` + ${t('act.warningShort')}` : '';
     return `${base}${card}`;
+  }
+
+  /** Botones de repetición de las jugadas guardadas. */
+  clipList(report) {
+    const clips = Object.values(report.clips || {});
+    if (!clips.length) return `<p class="muted small">${t('review.none')}</p>`;
+    const byId = new Map((report.incidents || []).map((i) => [i.id, i]));
+    return `<div class="chips">${clips
+      .sort((a, b) => a.minute - b.minute)
+      .map((c) => {
+        const inc = byId.get(c.id);
+        const grade = inc && inc.grade ? ` <span class="g-${inc.grade}">●</span>` : '';
+        return `<button class="chip-btn" data-act="review" data-id="${c.id}">
+          ▶ ${c.minute}' ${t(`dec.${c.type}`) !== `dec.${c.type}` ? t(`dec.${c.type}`) : c.type}${grade}
+        </button>`;
+      }).join('')}</div>`;
+  }
+
+  /** Reproductor de una jugada guardada. */
+  matchReview(clip, incident) {
+    const label = t(`dec.${clip.type}`) !== `dec.${clip.type}` ? t(`dec.${clip.type}`) : clip.type;
+    const decision = incident && incident.decision ? this.actionLabel(incident.decision) : null;
+    this.render(`
+      <div class="review-head">
+        <h2>${clip.minute}' · ${esc(label)}</h2>
+        ${incident && incident.grade
+    ? `<span class="pill g-${incident.grade}">${t(`eval.${incident.grade}`)}</span>` : ''}
+      </div>
+      ${decision ? `<p class="muted">${t('eval.decisionTaken')}: ${esc(decision)}</p>` : ''}
+      <div class="review-stage"><canvas id="review-canvas"></canvas></div>
+      <div class="review-transport">
+        <button class="chip-btn" data-rv="start">⏮</button>
+        <button class="chip-btn" data-rv="back10">◀◀</button>
+        <button class="chip-btn" data-rv="back1">◀|</button>
+        <button class="chip-btn" data-rv="play">▶</button>
+        <button class="chip-btn" data-rv="fwd1">|▶</button>
+        <button class="chip-btn" data-rv="fwd10">▶▶</button>
+        <button class="chip-btn" data-rv="speed">1×</button>
+        <button class="chip-btn" data-rv="cam">${t('var.cam.main')}</button>
+        <button class="chip-btn" data-rv="line">${t('var.offsideLine')}</button>
+      </div>
+      <div class="review-scrub"><input type="range" id="review-range" min="0" max="${clip.frames.length - 1}" value="0"></div>
+      <div class="row-btns"><button data-act="closeReview">${t('review.back')}</button></div>`);
   }
 
   eventLabel(e) {
