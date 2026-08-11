@@ -155,9 +155,9 @@ export class Screens {
           <select id="f-hair">${HAIRS.map((s, i) => `<option value="${s}" ${p.hair === s ? 'selected' : ''}>Color ${i + 1}</option>`).join('')}</select></label>
         <label>${t('settings.difficulty')}
           <select id="f-diff">${Object.values(DIFFICULTY).map((d) => `<option value="${d.id}" ${p.difficulty === d.id ? 'selected' : ''}>${t(d.label)}</option>`).join('')}</select></label>
-        <label>Modo
+        <label>${t('ui.mode')}
           <select id="f-mode">
-            <option value="career" ${p.mode === 'career' ? 'selected' : ''}>Carrera oficial</option>
+            <option value="career" ${p.mode === 'career' ? 'selected' : ''}>${t('ui.officialCareer')}</option>
             <option value="syndicate" ${p.mode === 'syndicate' ? 'selected' : ''}>${t('syndicate.title')}</option>
           </select></label>
       </div>
@@ -226,8 +226,8 @@ export class Screens {
       </div>
 
       ${sy ? `<div class="card story"><b>${t('syndicate.title')} — ${t('syndicate.chapter', { n: sy.id })}</b>
-        <p>Tienes un asunto pendiente fuera del campo.</p>
-        <button class="accent" data-act="syndicate">Ver</button></div>` : ''}
+        <p>${t('ui.pendingOffPitch')}</p>
+        <button class="accent" data-act="syndicate">${t('ui.view')}</button></div>` : ''}
 
       <h3>${t('career.assignments')}</h3>
       <div class="assignments">${assignments}</div>
@@ -268,7 +268,7 @@ export class Screens {
             · Entrenador: ${esc(cfg.away.coach.name)} (${cfg.away.coach.trait})</p>
           <ol class="list small">${lineup(1)}</ol></div>
       </div>
-      <div class="card"><h4>Equipo arbitral</h4>
+      <div class="card"><h4>${t('ui.crew')}</h4>
         <ul class="list small">
           <li>${t('assistant.ar1')}: ${esc(crew.ar1.name)} (precisión ${crew.ar1.accuracy})</li>
           <li>${t('assistant.ar2')}: ${esc(crew.ar2.name)} (precisión ${crew.ar2.accuracy})</li>
@@ -277,11 +277,10 @@ export class Screens {
         : '<li class="muted">Sin VAR en esta categoría</li>'}
         </ul></div>
       <div class="card help">
-        <b>Controles:</b> WASD / flechas para moverte · SHIFT para esprintar · ESPACIO pausa ·
-        C cambia cámara · 1-6 elige opción durante una decisión.
+        ${t('ui.controls')}
       </div>
       <div class="row-btns">
-        <button class="primary big" data-act="kickoff">Saque inicial</button>
+        <button class="primary big" data-act="kickoff">${t('ui.kickoff')}</button>
         <button data-act="hub">${t('ui.back')}</button>
       </div>`);
   }
@@ -292,9 +291,9 @@ export class Screens {
     const s = report.stats;
     const controversies = report.controversies.map((d) =>
       `<li>${d.minute}' — ${d.type} · <span class="g-${d.grade}">${t(`eval.${d.grade === 'mostly' ? 'mostly' : d.grade}`)}</span></li>`).join('')
-      || '<li class="muted">Ninguna</li>';
+      || `<li class="muted">${t('ui.nothing')}</li>`;
     const notes = report.notes.map((n) => `<li>${esc(n.name)}: ${n.calls} intervenciones, ${n.accuracy}% de acierto</li>`).join('')
-      || '<li class="muted">Sin intervenciones</li>';
+      || `<li class="muted">${t('ui.noCalls')}</li>`;
     this.render(`
       <h2>${t('half.title')}</h2>
       <div class="scoreline">${esc(match.teams[0].name)} <b>${report.score[0]} - ${report.score[1]}</b> ${esc(match.teams[1].name)}</div>
@@ -364,7 +363,7 @@ export class Screens {
           <ul class="list small">
             <li>${esc(report.crew.ar1.name)}: ${report.crew.ar1.rating} (${report.crew.ar1.accuracy ?? '—'}%)</li>
             <li>${esc(report.crew.ar2.name)}: ${report.crew.ar2.rating} (${report.crew.ar2.accuracy ?? '—'}%)</li>
-            <li>${t('report.varTeam')}: ${report.crew.var.rating ? `${esc(report.crew.var.name)} — ${report.crew.var.rating} (${report.crew.var.reviews} revisiones)` : 'Sin VAR en esta categoría'}</li>
+            <li>${t('report.varTeam')}: ${report.crew.var.rating ? `${esc(report.crew.var.name)} — ${report.crew.var.rating} (${report.crew.var.reviews} revisiones)` : t('ui.noVar')}</li>
           </ul></div>
       </div>
 
@@ -445,15 +444,15 @@ export class Screens {
       || '<li class="muted">—</li>';
     this.render(`
       <h2>${t('academy.title')}</h2>
-      <p class="muted">Titulación actual: nivel ${ac.examLevel}${c ? ` · Exigido para ascender: ${ac.requiredFor(c.divisionId)}` : ''}</p>
+      <p class="muted">${t('ui.qualification')}: ${ac.examLevel}${c ? ` · ${t('ui.requiredToRise')}: ${ac.requiredFor(c.divisionId)}` : ''}</p>
       <div class="card">
         <h4>${t('academy.exam')}</h4>
         <div class="chips">
-          <button class="chip-btn" data-act="startExam">General</button>
+          <button class="chip-btn" data-act="startExam">${t('ui.general')}</button>
           ${ac.topics().map((tp) => `<button class="chip-btn" data-act="startExam" data-topic="${tp}">${t(`rulebook.${tp}`) !== `rulebook.${tp}` ? t(`rulebook.${tp}`) : tp}</button>`).join('')}
         </div>
       </div>
-      <div class="card"><h4>Histórico</h4><ul class="list small">${results}</ul></div>
+      <div class="card"><h4>${t('ui.history')}</h4><ul class="list small">${results}</ul></div>
       <div class="row-btns"><button data-act="${c ? 'hub' : 'menu'}">${t('ui.back')}</button></div>`);
   }
 
@@ -477,9 +476,9 @@ export class Screens {
       <h2>${res.passed ? t('academy.passed') : t('academy.failed')}</h2>
       <div class="final-rating"><div class="fr-value ${res.passed ? 'good' : 'bad'}">${Math.round(res.score * 100)}%</div>
         <div class="fr-label">${t('academy.score')} — ${res.right}/${res.total}</div></div>
-      ${Object.keys(res.gains).length ? `<div class="card"><h4>Mejoras</h4>
+      ${Object.keys(res.gains).length ? `<div class="card"><h4>${t('ui.gains')}</h4>
         <ul class="list small">${Object.entries(res.gains).map(([k, v]) => `<li>${t(`stat.${k}`)} +${v}</li>`).join('')}</ul></div>` : ''}
-      <p class="muted">Titulación: nivel ${res.examLevel}</p>
+      <p class="muted">${t('ui.qualification')}: ${res.examLevel}</p>
       <div class="row-btns"><button class="primary" data-act="academy">${t('ui.continue')}</button></div>`);
   }
 
@@ -508,12 +507,12 @@ export class Screens {
     const arts = c.press.articles.slice(0, 12).map((a) =>
       `<li class="news ${a.tone}">${esc(a.headline)} <span class="muted">T${a.season} J${a.round}</span></li>`).join('') || '<li class="muted">—</li>';
     const posts = c.press.posts.slice(0, 8).map((p) =>
-      `<li>${p.topic} · ${p.tone} — alcance ${p.reach}, ${p.followersGained >= 0 ? '+' : ''}${p.followersGained} seguidores, reputación ${p.repDelta}</li>`).join('') || '<li class="muted">—</li>';
+      `<li>${p.topic} · ${p.tone} — ${t('ui.reach')} ${p.reach}, ${p.followersGained >= 0 ? '+' : ''}${p.followersGained} ${t('ui.followersGained')}, ${t('stat.reputation')} ${p.repDelta}</li>`).join('') || '<li class="muted">—</li>';
     this.render(`
       <h2>${t('press.title')}</h2>
       ${msg ? `<div class="banner good">${msg}</div>` : ''}
       <div class="two-col">
-        <div class="card"><h4>Titulares</h4><ul class="list small scroll">${arts}</ul></div>
+        <div class="card"><h4>${t('ui.headlines')}</h4><ul class="list small scroll">${arts}</ul></div>
         <div class="card"><h4>${t('press.blog')} · ${t('press.followers')}: ${c.referee.followers.toLocaleString('es')}</h4>
           <div class="chips">
             <button class="chip-btn" data-act="publish" data-tone="analysis">Análisis técnico</button>
@@ -539,22 +538,22 @@ export class Screens {
         <span class="muted">T${h.season} J${h.round}</span></li>`).join('') || '<li class="muted">—</li>';
     this.render(`
       <h2>${esc(ref.firstName)} ${esc(ref.lastName)}</h2>
-      <p class="muted">${ref.age} años · ${NATIONS.find((n) => n.id === ref.nationId)?.name} · ${esc(c.division.name)}
-        · Media global ${overall(ref)}</p>
+      <p class="muted">${ref.age} ${t('ui.years')} · ${NATIONS.find((n) => n.id === ref.nationId)?.name} · ${esc(c.division.name)}
+        · ${t('ui.globalAvg')} ${overall(ref)}</p>
       <div class="two-col">
-        <div class="card"><h4>Atributos</h4>${stats}</div>
-        <div class="card"><h4>Trayectoria</h4>
+        <div class="card"><h4>${t('ui.attributes')}</h4>${stats}</div>
+        <div class="card"><h4>${t('ui.record')}</h4>
           <ul class="list small">
             <li>${t('career.matches')}: ${r.matches}</li>
             <li>${t('career.avgRating')}: ${avgRating(ref) ?? '—'}</li>
             <li>${t('report.yellows')}: ${r.yellows} · ${t('report.reds')}: ${r.reds}</li>
             <li>${t('report.penalties')}: ${r.penalties} · ${t('report.goals')}: ${r.goals}</li>
-            <li>Decisiones correctas: ${r.correct} · discutibles: ${r.debatable} · incorrectas: ${r.incorrect}</li>
-            <li>${t('report.varReviews')}: ${r.varReviews} · Ascensos: ${r.promotions}</li>
+            <li>${t('ui.correctDec')}: ${r.correct} · ${t('ui.debatableDec')}: ${r.debatable} · ${t('ui.incorrectDec')}: ${r.incorrect}</li>
+            <li>${t('report.varReviews')}: ${r.varReviews} · ${t('ui.promotions')}: ${r.promotions}</li>
             <li>${t('stat.reputation')}: ${Math.round(ref.reputation)} · ${t('stat.ethics')}: ${Math.round(ref.ethics)}</li>
             <li>${t('press.followers')}: ${ref.followers.toLocaleString('es')}</li>
           </ul>
-          <h4>Últimos partidos</h4><ul class="list small">${hist}</ul></div>
+          <h4>${t('ui.lastMatches')}</h4><ul class="list small">${hist}</ul></div>
       </div>
       <div class="row-btns">
         <button data-act="hub">${t('ui.back')}</button>
@@ -588,7 +587,7 @@ export class Screens {
         <h4>${t('settings.difficulty')}</h4>
         <div class="chips">${Object.values(DIFFICULTY).map((d) =>
       `<button class="chip-btn ${s.difficulty === d.id ? 'on' : ''}" data-act="setDifficulty" data-id="${d.id}">${t(d.label)}</button>`).join('')}</div>
-        <h4>Opciones</h4>
+        <h4>${t('ui.options')}</h4>
         <div class="chips">
           <button class="chip-btn ${s.sound ? 'on' : ''}" data-act="toggleSetting" data-key="sound">${t('settings.sound')}</button>
           <button class="chip-btn ${s.showEvaluation ? 'on' : ''}" data-act="toggleSetting" data-key="showEvaluation">${t('settings.showTruth')}</button>
@@ -604,11 +603,11 @@ export class Screens {
       <h2>${t('menu.saves')}</h2>
       <div class="menu-grid saves">
         ${list.map((s) => `<div class="card save-slot">
-          <b>Ranura ${s.slot}</b>
-          ${s.empty ? '<p class="muted">Vacía</p>' : `<p>${esc(s.name)}<br><span class="muted small">${divisionById(s.division).name} · T${s.season} · ${s.matches} partidos · nota ${s.rating ?? '—'}</span></p>`}
+          <b>${t('ui.slot')} ${s.slot}</b>
+          ${s.empty ? `<p class="muted">${t('ui.empty')}</p>` : `<p>${esc(s.name)}<br><span class="muted small">${divisionById(s.division).name} · T${s.season} · ${s.matches} ${t('ui.matchesShort')} · nota ${s.rating ?? '—'}</span></p>`}
           <div class="chips">
-            ${s.empty ? '' : `<button class="chip-btn" data-act="loadSlot" data-slot="${s.slot}">Cargar</button>`}
-            ${this.game.career ? `<button class="chip-btn" data-act="saveSlot" data-slot="${s.slot}">Guardar</button>` : ''}
+            ${s.empty ? '' : `<button class="chip-btn" data-act="loadSlot" data-slot="${s.slot}">${t('ui.load')}</button>`}
+            ${this.game.career ? `<button class="chip-btn" data-act="saveSlot" data-slot="${s.slot}">${t('ui.save')}</button>` : ''}
             ${s.empty ? '' : `<button class="chip-btn danger" data-act="deleteSlot" data-slot="${s.slot}">${t('ui.delete')}</button>`}
           </div>
         </div>`).join('')}
@@ -626,17 +625,17 @@ export class Screens {
       <h2>${t('menu.classic')}</h2>
       <div class="form-grid">
         <label>${t('career.division')}<select id="c-div">${divs.map((d) => `<option value="${d.id}">${d.name}</option>`).join('')}</select></label>
-        <label>Local<select id="c-home">${clubs.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>
-        <label>Visitante<select id="c-away">${clubs.map((c, i) => `<option value="${c.id}" ${i === 1 ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
-        <label>Clima<select id="c-weather">
+        <label>${t('ui.home')}<select id="c-home">${clubs.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>
+        <label>${t('ui.away')}<select id="c-away">${clubs.map((c, i) => `<option value="${c.id}" ${i === 1 ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
+        <label>${t('ui.weather')}<select id="c-weather">
           <option value="clear">Sol</option><option value="rain">Lluvia</option>
           <option value="storm">Tormenta</option><option value="wind">Viento</option>
           <option value="snow">Nieve</option><option value="heat">Calor</option></select></label>
         <label>${t('settings.difficulty')}<select id="c-diff">${Object.values(DIFFICULTY).map((d) => `<option value="${d.id}" ${d.id === this.game.settings.difficulty ? 'selected' : ''}>${t(d.label)}</option>`).join('')}</select></label>
-        <label>Importancia<input id="c-imp" type="number" min="0" max="100" value="60"></label>
+        <label>${t('ui.importance')}<input id="c-imp" type="number" min="0" max="100" value="60"></label>
       </div>
       <div class="row-btns">
-        <button class="primary" data-act="startClassic">Jugar</button>
+        <button class="primary" data-act="startClassic">${t('ui.play')}</button>
         <button data-act="menu">${t('ui.back')}</button>
       </div>`);
     const divSel = this.root.querySelector('#c-div');
@@ -658,7 +657,7 @@ export class Screens {
           <b>${esc(s.name)}</b>
           <p class="muted small">${esc(s.desc)}</p>
           <p class="small">🎯 ${esc(s.goal)}</p>
-          <button class="primary" data-act="startSpecial" data-id="${s.id}">Jugar</button>
+          <button class="primary" data-act="startSpecial" data-id="${s.id}">${t('ui.play')}</button>
         </div>`).join('')}
       </div>
       <div class="row-btns"><button data-act="menu">${t('ui.back')}</button></div>`);
@@ -667,66 +666,28 @@ export class Screens {
   // ------------------------------------------------------------ reglamento
 
   rulebook() {
-    const sections = [
-      ['rulebook.fouls', [
-        'Una falta exige contacto imprudente, temerario o con fuerza excesiva contra un adversario.',
-        'Jugar el balón primero NO exime de falta si después se arrolla al rival.',
-        'La carga hombro con hombro dentro de la distancia de juego es legal.',
-      ]],
-      ['rulebook.cards', [
-        'Imprudente (careless): falta, sin tarjeta.',
-        'Temeraria (reckless): amarilla.',
-        'Con fuerza excesiva: roja.',
-        'Ocasión manifiesta de gol: roja, salvo penalti con intento de jugar el balón (amarilla).',
-        'Interrumpir un ataque prometedor: amarilla.',
-      ]],
-      ['rulebook.handball', [
-        'Es infracción si el brazo hace el cuerpo antinaturalmente más grande o está por encima del hombro.',
-        'No lo es si el balón viene del propio cuerpo o de muy cerca sin tiempo de reacción.',
-        'Un gol marcado con mano o brazo se anula siempre, sea o no deliberado.',
-      ]],
-      ['rulebook.offside', [
-        'Se juzga en el momento del pase, no de la recepción.',
-        'No hay fuera de juego desde saque de banda, de puerta o de esquina, ni en campo propio.',
-        'Hace falta participación activa: jugar el balón, interferir a un adversario u obtener ventaja.',
-      ]],
-      ['rulebook.advantage', [
-        'Se aplica cuando el equipo agredido conserva una ventaja clara.',
-        'Si no se materializa en unos segundos, se vuelve a la falta original.',
-        'Nunca se da ventaja ante una acción violenta o con fuerza excesiva.',
-        'La tarjeta pendiente se muestra en la siguiente interrupción.',
-      ]],
-      ['rulebook.penalty', [
-        'Cualquier falta directa dentro del área es penalti.',
-        'La simulación se sanciona con libre indirecto y amarilla.',
-      ]],
-      ['rulebook.var', [
-        'Sólo revisa gol, penalti, tarjeta roja directa e identidad equivocada.',
-        'Sólo interviene ante un error claro y manifiesto.',
-        'La decisión final es siempre del árbitro principal.',
-      ]],
-      ['rulebook.restarts', [
-        'Saque de banda para el rival del último que tocó el balón.',
-        'Último toque de un defensor por línea de meta: córner. De un atacante: saque de puerta.',
-      ]],
-    ];
+    const sections = ['fouls', 'cards', 'handball', 'offside', 'advantage', 'penalty', 'var', 'restarts'];
     this.render(`
       <h2>${t('rulebook.title')}</h2>
-      ${sections.map(([k, items]) => `<div class="card"><h4>${t(k)}</h4>
-        <ul class="list small">${items.map((i) => `<li>${i}</li>`).join('')}</ul></div>`).join('')}
+      ${sections.map((k) => {
+      const items = t(`law.${k}`);
+      const list = Array.isArray(items) ? items : [items];
+      return `<div class="card"><h4>${t(`rulebook.${k}`)}</h4>
+        <ul class="list small">${list.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></div>`;
+    }).join('')}
       <div class="row-btns"><button data-act="${this.game.career ? 'hub' : 'menu'}">${t('ui.back')}</button></div>`);
   }
 
   ending(end, career) {
     this.render(`
-      <h2>Fin de carrera</h2>
+      <h2>${t('ui.careerEnd')}</h2>
       <div class="final-rating"><div class="fr-value good">${t(end.key)}</div>
-        <div class="fr-label">${career.referee.firstName} ${career.referee.lastName} · ${career.referee.record.matches} partidos · nota media ${avgRating(career.referee) ?? '—'}</div></div>
+        <div class="fr-label">${career.referee.firstName} ${career.referee.lastName} · ${career.referee.record.matches} ${t('ui.matchesShort')} · nota media ${avgRating(career.referee) ?? '—'}</div></div>
       <div class="card"><ul class="list small">
-        <li>Categoría alcanzada: ${career.division.name}</li>
+        <li>${t('ui.divisionReached')}: ${career.division.name}</li>
         <li>${t('stat.reputation')}: ${Math.round(career.referee.reputation)}</li>
         <li>${t('stat.ethics')}: ${Math.round(career.referee.ethics)} · Corrupción: ${Math.round(career.referee.corruption)}</li>
-        <li>Ascensos: ${career.referee.record.promotions}</li>
+        <li>${t('ui.promotions')}: ${career.referee.record.promotions}</li>
       </ul></div>
       <div class="row-btns"><button class="primary" data-act="menu">${t('ui.continue')}</button></div>`);
   }
@@ -734,11 +695,11 @@ export class Screens {
   scenarioResult(special, report, passed) {
     this.render(`
       <h2>${esc(special.name)}</h2>
-      <div class="banner ${passed ? 'good' : 'bad'}">${passed ? 'OBJETIVO CONSEGUIDO' : 'OBJETIVO NO CONSEGUIDO'}</div>
+      <div class="banner ${passed ? 'good' : 'bad'}">${passed ? t('ui.goalAchieved') : t('ui.goalFailed')}</div>
       <div class="final-rating"><div class="fr-value ${passed ? 'good' : 'bad'}">${report.rating.overall}</div>
-        <div class="fr-label">${esc(special.goal)} (mínimo ${special.targetRating})</div></div>
+        <div class="fr-label">${esc(special.goal)} (${t('ui.minimum')} ${special.targetRating})</div></div>
       <div class="row-btns">
-        <button class="primary" data-act="startSpecial" data-id="${special.id}">Reintentar</button>
+        <button class="primary" data-act="startSpecial" data-id="${special.id}">${t('ui.retry')}</button>
         <button data-act="${special.kind === 'historic' ? 'historic' : 'scenarios'}">${t('ui.back')}</button>
         <button data-act="menu">${t('menu.quit')}</button>
       </div>`);
