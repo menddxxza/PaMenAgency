@@ -56,6 +56,7 @@ function makeEntity(player, slot, sideIdx, teamRef) {
     downUntil: 0,
     actionCd: 0,
     tackleCd: 0,
+    blockCd: 0,
     protestCd: 0,
     hasBall: false,
     minutesPlayed: 0,

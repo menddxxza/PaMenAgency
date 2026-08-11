@@ -480,6 +480,10 @@ input:hover, select:hover { border-color: oklch(100% 0 0 / 0.24); }
 .ach-grid { display: grid; gap: var(--space-xs); grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); }
 .ach.off { opacity: 0.42; }
 .ach.on  { border-color: oklch(80% 0.15 78 / 0.45); }
+.asset { display: flex; flex-direction: column; }
+.asset button, .asset .tag { margin-top: auto; align-self: flex-start; }
+.asset button { width: 100%; text-align: center; }
+.asset.owned { border-color: oklch(80% 0.15 78 / 0.4); }
 .scenario { display: flex; flex-direction: column; }
 .scenario button { margin-top: auto; width: 100%; text-align: center; }
 .help { border-color: oklch(68% 0.15 248 / 0.4); }

@@ -126,9 +126,12 @@ export function makeChallengeIncident(match, defender, attacker, duel) {
   const spa = !dogso && distToGoal < 45 && contactRaw > 0.55 && defendersBehind <= 1
     && attacker.id === match.ball.owner;
 
+  // Reiteración: a partir de la tercera falta del mismo jugador
+  const persistent = defender.fouls >= 2 && defender.yellow === 0;
+
   const truth = RuleEngine.evaluateFoul({
     contact: contactRaw, playedBall, fromBehind, speed: duel.speedDiff,
-    studsUp, armUse, dive, inBox, dogso, spa, brutality,
+    studsUp, armUse, dive, inBox, dogso, spa, brutality, persistent,
     victimFell: contactRaw > 0.3,
   });
 
@@ -140,7 +143,7 @@ export function makeChallengeIncident(match, defender, attacker, duel) {
   const inc = baseIncident(match, inBox ? 'penaltyShout' : 'challenge', attacker.pos, {
     offenderId: defender.id, offenderSide: defender.side,
     victimId: attacker.id, victimSide: attacker.side,
-    inBox, dogso, spa, truth,
+    inBox, dogso, spa, persistent, truth,
     facts: { contact: contactRaw, playedBall, fromBehind, studsUp, armUse, brutality, dive, speed: duel.speedDiff },
     advantageFacts: {
       possessionRetained: false, promisingAttack: spa, clearOpportunity: dogso,
@@ -315,6 +318,22 @@ export function makeInjuryIncident(match, player, level) {
   return inc;
 }
 
+/** Pérdida de tiempo en una reanudación. */
+export function makeTimeWastingIncident(match, player, delaySeconds) {
+  const minute = Math.floor(match.clock / 60);
+  const leading = match.score[player.side] > match.score[1 - player.side];
+  const truth = RuleEngine.evaluateTimeWasting({
+    delaySeconds, minute, leading, alreadyWarned: !!player.warnedForDelay,
+  });
+  const inc = baseIncident(match, 'timewasting', player.pos, {
+    offenderId: player.id, offenderSide: player.side,
+    delaySeconds, leading, truth, inherentAmbiguity: 0.25,
+  });
+  inc.clarity = clamp(0.9 - (delaySeconds < 8 ? 0.2 : 0), 0, 1);
+  inc.impact = impactOf(match, { minute, card: truth.card });
+  return inc;
+}
+
 export function makeCrowdIncident(match, kind) {
   const protocolMap = {
     objectThrown: 'protocol', pitchInvasion: 'protocol', discrimination: 'protocol',
@@ -378,6 +397,11 @@ export function optionsFor(match, inc) {
     case 'goal':
       push('goal', 'act.goal', { action: 'goal' }, 'primary');
       push('noGoal', 'act.noGoal', { action: 'noGoal' }, 'warn');
+      break;
+    case 'timewasting':
+      push('warning', 'act.warning', { action: 'warning' }, 'ghost');
+      push('yellow', 'act.yellow', { action: 'card', card: 'yellow' }, 'warn');
+      push('play', 'act.letPlay', { action: 'playon' }, 'ghost');
       break;
     case 'dissent':
       push('warning', 'act.warning', { action: 'warning' }, 'ghost');

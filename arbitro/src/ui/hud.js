@@ -192,6 +192,7 @@ export class HUD {
       dissent: t('foul.dissent'),
       violence: t('foul.violent'),
       injury: t('event.injury'),
+      timewasting: t('inc.timewasting'),
       crowd: t('event.security'),
     };
     return map[inc.type] || inc.type;
@@ -217,6 +218,11 @@ export class HUD {
     } else if (inc.type === 'offside' && inc.assistantFlag !== undefined) {
       out.push(`🚩 ${inc.assistantFlag ? t('hint.flagUp') : t('hint.flagDown')}`);
     }
+    if (inc.type === 'timewasting') {
+      out.push(`⏱ ${t('hint.delay', { n: Math.round(inc.delaySeconds || 0) })}`);
+      if (inc.leading) out.push(t('hint.leading'));
+    }
+    if (inc.persistent && level >= 1) out.push(t('hint.persistent'));
     if (inc.impact === 'critical') out.push(`⚠ ${t('hint.decisive')}`);
     return out;
   }

@@ -252,6 +252,20 @@ export class Game {
     this.screens.training(msg);
   }
 
+  buyAsset(id) {
+    const res = this.career.buy(id);
+    if (!res.ok) {
+      const msg = res.reason === 'money' ? t('econ.cantAfford', { n: res.missing.toLocaleString('es') }) : '';
+      this.audio.ui('error');
+      this.screens.economy(msg || undefined);
+      return;
+    }
+    this.autosave();
+    const gains = Object.entries(res.gains)
+      .map(([k, v]) => `${t(`stat.${k}`)} +${v}`).join(' · ');
+    this.screens.economy(`${t('econ.bought', { name: t(`econ.${id}`) })}${gains ? ` — ${gains}` : ''}`);
+  }
+
   startExam(topic) {
     const ac = this.career ? this.career.academy : this.freeAcademy;
     this.activeAcademy = ac;

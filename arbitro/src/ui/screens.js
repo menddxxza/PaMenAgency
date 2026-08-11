@@ -4,7 +4,7 @@ import { t, availableLocales, getLocale } from '../core/i18n.js';
 import { GAME, DIFFICULTY, REF_STATS } from '../core/config.js';
 import { DIVISIONS, divisionById, clubsOfDivision } from '../data/generators.js';
 import { KITS, SKINS, HAIRS, overall, avgRating, XP_PER_LEVEL } from '../career/referee.js';
-import { TRAINING } from '../career/career.js';
+import { TRAINING, ASSETS } from '../career/career.js';
 import { NATIONS } from '../data/names.js';
 import { SCENARIOS, HISTORIC } from '../data/scenarios.js';
 import { listSaves } from '../core/save.js';
@@ -44,6 +44,7 @@ export class Screens {
       scenarios: () => this.specials('scenario'),
       academy: () => this.academy(),
       training: () => this.training(),
+      economy: () => this.economy(),
       stats: () => this.profile(),
       achievements: () => this.achievements(),
       settings: () => this.settings(),
@@ -64,6 +65,7 @@ export class Screens {
     if (act === 'answerExam') return g.answerExam(Number(data.i));
     if (act === 'finishExam') return this.academy();
     if (act === 'train') return g.doTraining(data.id);
+    if (act === 'buy') return g.buyAsset(data.id);
     if (act === 'kickoff') return g.beginMatch();
     if (act === 'resumeHalf') return g.resumeSecondHalf();
     if (act === 'ethics') return g.resolveEthics(data.choice);
@@ -205,6 +207,7 @@ export class Screens {
       if (i.type === 'promotion') return `<li class="good">⬆ ${t('career.promoted', { div: divisionById(i.divisionId).name })}</li>`;
       if (i.type === 'relegation') return `<li class="bad">⬇ ${t('career.relegated', { div: divisionById(i.divisionId).name })}</li>`;
       if (i.type === 'federationWarning') return `<li class="bad">✉ La federación te recuerda que debes medir tus declaraciones.</li>`;
+      if (i.type === 'debt') return `<li class="bad">✉ ${t('inbox.debt')}</li>`;
       if (i.type === 'seasonEnd') return `<li>✓ Fin de la temporada ${i.season}. Nota media: ${i.avg ?? '—'}</li>`;
       return `<li>${esc(JSON.stringify(i))}</li>`;
     }).join('') || `<li class="muted">—</li>`;
@@ -235,6 +238,7 @@ export class Screens {
         <button data-act="rest">${t('career.rest')}</button>
         <button data-act="training">${t('training.title')}</button>
         <button data-act="academy">${t('academy.title')}</button>
+        <button data-act="economy">${t('econ.title')}</button>
         <button data-act="press">${t('press.title')}</button>
         <button data-act="stats">${t('menu.stats')}</button>
         <button data-act="achievements">${t('menu.achievements')}</button>
@@ -511,6 +515,50 @@ export class Screens {
           ${t(`training.${s.id}`)}<br><span class="muted small">${s.stat ? `+${t(`stat.${s.stat}`)}` : 'Recupera'} · ${s.fatigue > 0 ? `+${s.fatigue}% fatiga` : `${s.fatigue}% fatiga`}</span>
         </button>`).join('')}
       </div>
+      <div class="row-btns"><button data-act="hub">${t('ui.back')}</button></div>`);
+  }
+
+  // ------------------------------------------------------------ economía
+
+  economy(msg) {
+    const c = this.game.career;
+    if (!c) return this.mainMenu();
+    const money = Math.round(c.referee.money);
+
+    const cards = ASSETS.map((a) => {
+      const owned = c.owns(a.id);
+      const afford = money >= a.cost;
+      return `<div class="card asset ${owned ? 'owned' : ''}">
+        <h4>${t(`econ.${a.id}`)}</h4>
+        <p class="muted small">${t(`econ.${a.id}.desc`)}</p>
+        <p class="small">${a.cost.toLocaleString('es')} €${a.upkeep ? ` · ${a.upkeep} €/jornada de ${t('econ.upkeep')}` : ''}</p>
+        ${owned
+    ? `<span class="tag gold">${t('econ.owned')}</span>`
+    : `<button class="${afford ? 'primary' : 'disabled'}" ${afford ? `data-act="buy" data-id="${a.id}"` : ''}>${t('econ.buy')}</button>`}
+      </div>`;
+    }).join('');
+
+    const conceptLabel = (concept) => {
+      if (concept.startsWith('buy:')) return `${t('ledger.buy')}: ${t(`econ.${concept.slice(4)}`)}`;
+      return t(`ledger.${concept}`) !== `ledger.${concept}` ? t(`ledger.${concept}`) : concept;
+    };
+    const ledger = c.ledger.slice(0, 10).map((l) =>
+      `<li><span class="${l.amount >= 0 ? 'good' : 'bad'}">${l.amount >= 0 ? '+' : ''}${l.amount.toLocaleString('es')} €</span>
+        · ${conceptLabel(l.concept)} <span class="muted">T${l.season} J${l.round}</span></li>`).join('')
+      || `<li class="muted">—</li>`;
+
+    this.render(`
+      <h2>${t('econ.title')}</h2>
+      <div class="hub-kpis">
+        <div class="kpi"><span>${t('econ.balance')}</span><b class="${money < 0 ? 'bad' : ''}">${money.toLocaleString('es')} €</b></div>
+        <div class="kpi"><span>${t('econ.perRound')}</span><b>${c.livingCost().toLocaleString('es')} €</b></div>
+        <div class="kpi"><span>${t('training.fatigue')}</span><b>${Math.round(c.fatigue)}%</b></div>
+      </div>
+      ${money < 0 ? `<div class="banner bad">${t('econ.inDebt')}</div>` : ''}
+      ${msg ? `<div class="banner good">${msg}</div>` : ''}
+      <h3>${t('econ.investments')}</h3>
+      <div class="assignments">${cards}</div>
+      <div class="card"><h4>${t('econ.ledger')}</h4><ul class="list small scroll">${ledger}</ul></div>
       <div class="row-btns"><button data-act="hub">${t('ui.back')}</button></div>`);
   }
 
