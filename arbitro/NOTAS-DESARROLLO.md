@@ -114,6 +114,9 @@ No son deudas: son límites elegidos y sostenidos.
   decisión, Start pausa, Select cambia cámara) con detección de flanco para que
   un botón sostenido no repita la decisión. En pantallas sin teclado aparece una
   palanca virtual y un botón de sprint.
+- **Vertical en el móvil.** En pantallas altas el campo se gira un cuarto de
+  vuelta y llena el teléfono, en lugar de quedarse en una franja central. La
+  dirección de la palanca y del mando gira con él.
 - **Batería de pruebas.** 76 pruebas sin dependencias (`node test/all.js`):
   reglamento, sistemas y motor. Incluye las que evitan las regresiones que más
   caro salieron durante el desarrollo: partidos que no terminan, jugadores
@@ -183,3 +186,13 @@ en OKLCH). Registro en `.hallmark/log.json`.
     bloquea si el balón viene hacia él.
 14. **Despejes que iban a las manos del portero**: el despeje de apuro se
     dirigía hacia la portería propia. Ahora busca el banderín.
+15. **Los escenarios no empezaban donde decían.** «Minuto 90, empate 1-1»
+    arrancaba en el minuto 0 porque `engine.start()` reseteaba el reloj y la
+    parte. Lo destapó una prueba en navegador que esperaba un partido corto y
+    se quedaba esperando noventa minutos. Ahora el motor respeta el punto de
+    partida del escenario y hay una prueba que lo comprueba.
+16. **La última jugada del partido se quedaba sin repetición**: los clips se
+    cerraban unos segundos después del incidente y el partido terminaba antes.
+    Ahora se vuelcan al pitido final.
+17. **Cámaras de repetición que enfocaban la grada**: los planos cerrados se
+    salían del campo. La cámara se mantiene dentro de los límites.

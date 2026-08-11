@@ -31,8 +31,10 @@ python3 -m http.server 8099     # o cualquier servidor estático
 
 También se juega con **mando** (palanca izquierda para moverte, gatillo o A para
 esprintar, los cuatro botones frontales y los gatillos superiores para las seis
-opciones de decisión, Start pausa) y con **pantalla táctil** (palanca virtual y
-botón de sprint, que sólo aparecen en dispositivos sin teclado).
+opciones de decisión, Start pausa, Select cambia la cámara) y con **pantalla
+táctil** (palanca virtual y botón de sprint, que sólo aparecen en dispositivos
+sin teclado). En un teléfono en vertical el campo se gira para llenar la
+pantalla, y la dirección de la palanca gira con él.
 
 Tu **posición importa**: la distancia, el ángulo y los cuerpos interpuestos
 determinan lo que realmente ves, y por tanto tu probabilidad de acertar.
