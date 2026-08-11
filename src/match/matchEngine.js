@@ -56,8 +56,8 @@ export class MatchEngine {
     const m = this.match;
     m.phase = 'kickoff';
     m.running = true;
-    m.half = 1;
-    m.clock = 0;
+    m.half = m.startHalf || 1;
+    m.clock = m.startClock || 0;
     m.halfLength = 45 * 60;
     const first = m.rng.bool(0.5) ? SIDE.HOME : SIDE.AWAY;
     m.kickoffSide = first;
@@ -1488,6 +1488,9 @@ export class MatchEngine {
 
   _finish(abandoned = false) {
     const m = this.match;
+    // La última jugada del partido es justo la que más se quiere revisar:
+    // se cierran los clips pendientes aunque no haya dado tiempo al epílogo.
+    this._flushClips(true);
     this.finished = true;
     m.phase = abandoned ? 'abandoned' : 'fulltime';
     m.running = false;
@@ -1580,12 +1583,12 @@ export class MatchEngine {
     if (this.pendingClips.length > 40) this.pendingClips.shift();
   }
 
-  _flushClips() {
+  _flushClips(force = false) {
     const m = this.match;
     if (!this.pendingClips.length) return;
     for (let i = this.pendingClips.length - 1; i >= 0; i--) {
       const req = this.pendingClips[i];
-      if (m.clock < req.until) continue;
+      if (!force && m.clock < req.until) continue;
       const frames = m.replayBuffer.filter((f) => f.t >= req.from && f.t <= req.until);
       if (frames.length > 4) {
         m.clips[req.id] = { id: req.id, minute: req.minute, type: req.type, frames };

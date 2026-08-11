@@ -51,17 +51,22 @@ export class Renderer {
     c.width = Math.round(w * this.dpr);
     c.height = Math.round(h * this.dpr);
     this.w = w; this.h = h;
+    // En pantallas verticales el campo se gira: un teléfono en vertical
+    // aprovecha así toda la pantalla en lugar de dejar dos franjas negras.
+    this.rotated = h > w * 1.15;
+    this.vw = this.rotated ? h : w;
+    this.vh = this.rotated ? w : h;
   }
 
   baseScale() {
     // Se encuadra el campo + un anillo de grada: el estadio forma parte del
     // plano, no es un borde recortado.
     const ring = 9;
-    return Math.min(this.w / (L + (MARGIN + ring) * 2), this.h / (W + (MARGIN + ring) * 2));
+    return Math.min(this.vw / (L + (MARGIN + ring) * 2), this.vh / (W + (MARGIN + ring) * 2));
   }
 
   worldToScreen(x, y, s, cam) {
-    return [(x - cam.x) * s + this.w / 2, (y - cam.y) * s + this.h / 2];
+    return [(x - cam.x) * s + this.vw / 2, (y - cam.y) * s + this.vh / 2];
   }
 
   addFloater(text, x, y, color = '#fff', life = 2.2) {
@@ -84,6 +89,7 @@ export class Renderer {
     ctx.save();
     ctx.scale(this.dpr, this.dpr);
     ctx.clearRect(0, 0, this.w, this.h);
+    this._applyRotation(ctx);
 
     // Cámara: acompaña al balón, y se acerca cuando hay una jugada que juzgar
     const wantZoom = opts.incident ? 1.32 : this.follow ? 1.12 : 1;
@@ -120,11 +126,19 @@ export class Renderer {
     if (this.flash > 0.01) {
       ctx.globalAlpha = this.flash * 0.5;
       ctx.fillStyle = this.flashColor;
-      ctx.fillRect(0, 0, this.w, this.h);
+      ctx.fillRect(-this.vw, -this.vh, this.vw * 3, this.vh * 3);
       ctx.globalAlpha = 1;
       this.flash *= 0.9;
     }
     ctx.restore();
+  }
+
+  /** Gira el lienzo un cuarto de vuelta cuando la pantalla es vertical. */
+  _applyRotation(ctx) {
+    if (!this.rotated) return;
+    ctx.translate(this.w / 2, this.h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.translate(-this.vw / 2, -this.vh / 2);
   }
 
   // ── Estadio ─────────────────────────────────────────────────────────
@@ -132,7 +146,7 @@ export class Renderer {
   drawStadium(ctx, s, cam, match) {
     const p = this.palette;
     ctx.fillStyle = p.night;
-    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.fillRect(0, 0, this.vw, this.vh);
 
     const [ix0, iy0] = this.worldToScreen(-MARGIN, -MARGIN, s, cam);
     const [ix1, iy1] = this.worldToScreen(L + MARGIN, W + MARGIN, s, cam);
@@ -584,7 +598,7 @@ export class Renderer {
     g.addColorStop(0, 'rgba(6, 9, 13, 0)');
     g.addColorStop(1, 'rgba(6, 9, 13, 0.5)');
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.fillRect(0, 0, this.vw, this.vh);
     ctx.restore();
 
     const pulse = 1 + Math.sin(this.time * 5) * 0.06;
@@ -598,13 +612,13 @@ export class Renderer {
 
   drawVignette(ctx) {
     const g = ctx.createRadialGradient(
-      this.w / 2, this.h / 2, Math.min(this.w, this.h) * 0.32,
-      this.w / 2, this.h / 2, Math.max(this.w, this.h) * 0.78,
+      this.vw / 2, this.vh / 2, Math.min(this.vw, this.vh) * 0.32,
+      this.vw / 2, this.vh / 2, Math.max(this.vw, this.vh) * 0.78,
     );
     g.addColorStop(0, 'rgba(0,0,0,0)');
     g.addColorStop(1, 'rgba(0,0,0,0.42)');
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.fillRect(0, 0, this.vw, this.vh);
   }
 
   drawWeather(ctx, dt, match) {
@@ -613,7 +627,7 @@ export class Renderer {
     const want = wid === 'storm' ? 300 : wid === 'rain' ? 170 : wid === 'snow' ? 140 : 50;
     while (this.particles.length < want) {
       this.particles.push({
-        x: Math.random() * this.w, y: Math.random() * this.h,
+        x: Math.random() * this.vw, y: Math.random() * this.vh,
         v: wid === 'snow' ? 40 + Math.random() * 45 : 460 + Math.random() * 340,
         d: wid === 'wind' ? 2.4 : wid === 'storm' ? 1 : 0.35,
         w: 0.4 + Math.random() * 0.8,
@@ -625,8 +639,8 @@ export class Renderer {
     for (const p of this.particles) {
       p.y += p.v * dt;
       p.x += p.v * dt * p.d * 0.35;
-      if (p.y > this.h) { p.y = -10; p.x = Math.random() * this.w; }
-      if (p.x > this.w) p.x = 0;
+      if (p.y > this.vh) { p.y = -10; p.x = Math.random() * this.vw; }
+      if (p.x > this.vw) p.x = 0;
       if (wid === 'snow') {
         ctx.fillStyle = `rgba(240, 248, 255, ${0.5 + p.w * 0.4})`;
         ctx.beginPath();
@@ -671,6 +685,7 @@ export class Renderer {
     ctx.save();
     ctx.scale(this.dpr, this.dpr);
     ctx.clearRect(0, 0, this.w, this.h);
+    this._applyRotation(ctx);
     if (!frame) { ctx.restore(); return; }
 
     const cams = {
@@ -681,7 +696,13 @@ export class Renderer {
     };
     const c = cams[session.camera] || cams.main;
     const s = this.baseScale() * c.zoom * (session.zoom || 1);
-    const cam = { x: c.cx, y: c.cy };
+    // La cámara se queda dentro del campo: sin esto, los planos cerrados
+    // enseñaban medio encuadre de grada vacía.
+    const halfW = this.vw / (2 * s), halfH = this.vh / (2 * s);
+    const cam = {
+      x: clamp(c.cx, Math.min(L / 2, halfW - MARGIN), Math.max(L / 2, L - halfW + MARGIN)),
+      y: clamp(c.cy, Math.min(W / 2, halfH - MARGIN), Math.max(W / 2, W - halfH + MARGIN)),
+    };
 
     this.drawStadium(ctx, s, cam, match);
     this.drawPitch(ctx, s, cam, match);
@@ -742,7 +763,7 @@ export class Renderer {
     // Marco de monitor
     ctx.strokeStyle = 'rgba(53, 196, 176, 0.28)';
     ctx.lineWidth = 4;
-    ctx.strokeRect(2, 2, this.w - 4, this.h - 4);
+    ctx.strokeRect(2, 2, this.vw - 4, this.vh - 4);
     ctx.restore();
   }
 }

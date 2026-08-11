@@ -146,6 +146,17 @@ export default suite('Motor de partido', (t) => {
     }
   });
 
+  t('no quedan repeticiones sin cerrar al acabar', () => {
+    const { engine, report } = playMatch({ seed: 91 });
+    check(engine.pendingClips.length === 0, 'quedaron clips sin volcar');
+    const ultima = [...(report.decisions || [])].reverse()
+      .find((d) => d.decision.card || d.impact === 'critical' || d.impact === 'high');
+    if (ultima) {
+      check(!!report.clips[ultima.incidentId],
+        'la última jugada destacada debería tener repetición');
+    }
+  });
+
   t('las medias de un partido son creíbles', () => {
     const agg = { goles: 0, faltas: 0, amarillas: 0, rojas: 0, corners: 0, tiros: 0, penaltis: 0 };
     const N = 6;
@@ -189,6 +200,29 @@ export default suite('Motor de partido', (t) => {
     }
     check(total > 0, 'no hubo cambios en cuatro partidos');
     check(motivos.size >= 2, `los cambios deberían responder a varios motivos: ${[...motivos]}`);
+  });
+
+  t('un escenario arranca en el minuto que dice', () => {
+    const rng = new RNG(909);
+    const match = createMatch({
+      home: clubs[2], away: clubs[7], competition: div, seed: 909,
+      difficulty: DIFFICULTY.normal, referee: createReferee({ seed: 'e', baseLevel: 70 }),
+      crew: generateCrew(rng, div.level, true), varEnabled: true,
+      startMinute: 88, half: 2, kickoffScore: [1, 1],
+    });
+    const engine = new MatchEngine(match, { autoReferee: makeAutoReferee({ skill: 75, rng: match.rng }) });
+    engine.start();
+    check(match.half === 2, `debería arrancar en la segunda parte, no en la ${match.half}`);
+    between(match.clock / 60, 87.9, 89, 'debería arrancar cerca del minuto 88');
+    check(match.score[0] === 1 && match.score[1] === 1, 'debería respetar el marcador de partida');
+
+    let guard = 0;
+    while (!engine.finished && guard++ < 400000) {
+      if (match.phase === 'halftime') engine.resumeFromHalfTime();
+      engine.update(SIM.dt);
+    }
+    check(!!match.report, 'el escenario debería terminar y dar informe');
+    between(match.clock / 60, 89, 105, 'un escenario de últimos minutos no puede durar un partido entero');
   });
 
   t('el clima cambia el juego', () => {

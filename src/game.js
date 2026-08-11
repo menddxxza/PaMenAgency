@@ -78,15 +78,21 @@ export class Game {
     let dy = (k.has('s') || k.has('arrowdown') ? 1 : 0) - (k.has('w') || k.has('arrowup') ? 1 : 0);
     let sprint = k.has('shift');
 
-    // Palanca táctil
+    // Palanca táctil. Si el campo está girado, la dirección también.
     const tp = this.hud.touch;
-    if (tp && tp.active) { dx = tp.dx; dy = tp.dy; }
+    if (tp && tp.active) {
+      if (this.renderer.rotated) { dx = -tp.dy; dy = tp.dx; }
+      else { dx = tp.dx; dy = tp.dy; }
+    }
     if (tp && tp.sprint) sprint = true;
 
     // Mando físico
     const gp = this._readGamepad();
     if (gp) {
-      if (Math.abs(gp.dx) > 0.18 || Math.abs(gp.dy) > 0.18) { dx = gp.dx; dy = gp.dy; }
+      if (Math.abs(gp.dx) > 0.18 || Math.abs(gp.dy) > 0.18) {
+        if (this.renderer.rotated) { dx = -gp.dy; dy = gp.dx; }
+        else { dx = gp.dx; dy = gp.dy; }
+      }
       if (gp.sprint) sprint = true;
     }
     return { dx, dy, sprint };
@@ -447,13 +453,12 @@ export class Game {
       difficulty: sp.diveBoost ? { ...difficulty, simulationRate: difficulty.simulationRate * sp.diveBoost } : difficulty,
       referee, crew: generateCrew(rng, div.level, !!div.var), varEnabled: !!div.var,
       knockout: !!sp.knockout, stadium: home.stadium, title: sp.name,
-      kickoffScore: sp.score, startMinute: sp.startMinute,
+      kickoffScore: sp.score, startMinute: sp.startMinute, half: sp.half,
     };
     this.mode = 'special';
     this.special = sp;
     this.pendingMatchCfg = cfg;
     this.match = createMatch(cfg);
-    if (sp.half === 2 || sp.startMinute >= 45) this.match.half = 2;
     if (sp.preCards) this._preloadCards(this.match, sp.preCards);
     this.screens.preMatch({ ...cfg, lineups: this.match.lineups, weatherId: this.match.weatherId, crew: this.match.crew }, null);
   }

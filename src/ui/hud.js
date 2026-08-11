@@ -117,7 +117,9 @@ export class HUD {
     };
     pad.addEventListener('pointerdown', (ev) => {
       originId = ev.pointerId;
-      pad.setPointerCapture(ev.pointerId);
+      // La captura falla si el puntero no está activo (algunos navegadores
+      // y entornos de prueba): el mando debe seguir funcionando igual.
+      try { pad.setPointerCapture(ev.pointerId); } catch (e) { /* sin captura */ }
       setVector(ev);
     });
     pad.addEventListener('pointermove', (ev) => { if (originId === ev.pointerId) setVector(ev); });
