@@ -179,12 +179,35 @@ export function createMatch(opts) {
     };
   });
 
+  // Equipaciones: si los colores chocan, el visitante cambia a su segunda.
+  match.kits = [
+    { primary: home.colors.primary, secondary: home.colors.secondary },
+    { primary: away.colors.primary, secondary: away.colors.secondary },
+  ];
+  if (colorDistance(home.colors.primary, away.colors.primary) < 150) {
+    const alt = away.colors.away && colorDistance(home.colors.primary, away.colors.away) > 150
+      ? away.colors.away
+      : (colorDistance(home.colors.primary, '#ffffff') > 150 ? '#f4f6f8' : '#1b1f24');
+    match.kits[1] = { primary: alt, secondary: away.colors.primary };
+  }
+
   match.atmosphere.support = [
     50 + (neutralVenue ? 0 : 22) + home.fanIntensity * 0.1,
     50 - (neutralVenue ? 0 : 12) + away.fanIntensity * 0.06,
   ];
 
   return match;
+}
+
+/** Distancia perceptual sencilla entre dos colores hex. */
+export function colorDistance(a, b) {
+  const hex = (c) => {
+    const m = String(c).replace('#', '');
+    const v = m.length === 3 ? m.split('').map((x) => x + x).join('') : m;
+    return [parseInt(v.slice(0, 2), 16), parseInt(v.slice(2, 4), 16), parseInt(v.slice(4, 6), 16)];
+  };
+  const [r1, g1, b1] = hex(a), [r2, g2, b2] = hex(b);
+  return Math.abs(r1 - r2) * 0.9 + Math.abs(g1 - g2) * 1.2 + Math.abs(b1 - b2) * 0.7;
 }
 
 export function emptyStats() {

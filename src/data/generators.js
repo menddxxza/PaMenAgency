@@ -79,6 +79,15 @@ export function generatePlayer(rng, { role, level, teamId, number, nationId }) {
   };
 }
 
+/**
+ * El nivel de división se comprime antes de generar atributos: un futbolista
+ * regional es peor que uno de élite, pero sigue sabiendo jugar. Sin esta
+ * compresión las categorías bajas producían partidos sin ocasiones.
+ */
+export function compressLevel(level) {
+  return clamp(34 + level * 0.56, 30, 92);
+}
+
 export function generateSquad(rng, team, level) {
   const squad = [];
   const plan = [
@@ -89,7 +98,7 @@ export function generateSquad(rng, team, level) {
   for (const [role, count] of plan) {
     for (let i = 0; i < count; i++) {
       squad.push(generatePlayer(rng, {
-        role, level: level + rng.int(-6, 6), teamId: team.id,
+        role, level: compressLevel(level) + rng.int(-6, 6), teamId: team.id,
         number: numbers[n++], nationId: team.nationId,
       }));
     }

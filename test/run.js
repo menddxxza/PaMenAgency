@@ -70,6 +70,8 @@ for (let i = 0; i < N; i++) {
   agg.offsides += r.stats[0].offsides + r.stats[1].offsides;
   agg.corners += r.stats[0].corners + r.stats[1].corners;
   agg.shots += r.stats[0].shots + r.stats[1].shots;
+  agg.shotsOn = (agg.shotsOn||0) + r.stats[0].shotsOn + r.stats[1].shotsOn;
+  agg.saves = (agg.saves||0) + r.stats[0].saves + r.stats[1].saves;
   agg.penalties += r.stats[0].penalties + r.stats[1].penalties;
   agg.decisions += r.counts.total;
   agg.incidents += r.incidents.length;
@@ -101,7 +103,7 @@ console.log(`rojas      ${(agg.reds / n).toFixed(2)}`);
 console.log(`penaltis   ${(agg.penalties / n).toFixed(2)}`);
 console.log(`fuera j.   ${(agg.offsides / n).toFixed(1)}`);
 console.log(`córners    ${(agg.corners / n).toFixed(1)}`);
-console.log(`tiros      ${(agg.shots / n).toFixed(1)}`);
+console.log(`tiros      ${(agg.shots / n).toFixed(1)} (a puerta ${(agg.shotsOn / n).toFixed(1)}, paradas ${(agg.saves/n).toFixed(1)})`);
 console.log(`decisiones ${(agg.decisions / n).toFixed(1)}`);
 console.log(`incidentes ${(agg.incidents / n).toFixed(1)}`);
 console.log(`nota media ${(agg.ratings.reduce((a, b) => a + b, 0) / n).toFixed(2)}`);
