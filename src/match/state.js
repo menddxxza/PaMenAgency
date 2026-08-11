@@ -184,10 +184,10 @@ export function createMatch(opts) {
     { primary: home.colors.primary, secondary: home.colors.secondary },
     { primary: away.colors.primary, secondary: away.colors.secondary },
   ];
-  if (colorDistance(home.colors.primary, away.colors.primary) < 150) {
-    const alt = away.colors.away && colorDistance(home.colors.primary, away.colors.away) > 150
+  if (colorDistance(home.colors.primary, away.colors.primary) < 200) {
+    const alt = away.colors.away && colorDistance(home.colors.primary, away.colors.away) > 200
       ? away.colors.away
-      : (colorDistance(home.colors.primary, '#ffffff') > 150 ? '#f4f6f8' : '#1b1f24');
+      : (colorDistance(home.colors.primary, '#f4f6f8') > 200 ? '#f4f6f8' : '#15181d');
     match.kits[1] = { primary: alt, secondary: away.colors.primary };
   }
 

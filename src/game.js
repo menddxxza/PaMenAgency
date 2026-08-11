@@ -107,9 +107,13 @@ export class Game {
           this.engine.setInput(this._readInput());
           this.engine.update(dt);
         }
+        const pendingIncident = this.engine.pending ? this.engine.pending.incident : null;
+        // El campo se atenúa mientras hay algo que juzgar: la vista acompaña
+        // a la decisión en lugar de competir con ella.
+        this.dom.canvas.classList.toggle('deciding', !!pendingIncident);
         this.renderer.draw(this.match, {
           dt,
-          incident: this.engine.pending ? this.engine.pending.incident : null,
+          incident: pendingIncident,
           kit: KITS.find((x) => x.id === (this.currentKit || 'black')),
           flagUp: this._flagUp,
         });
@@ -210,7 +214,7 @@ export class Game {
     this.career = Career.deserialize(data);
     this.currentKit = this.career.referee.appearance.kit;
     this.saveSlotIdx = slot;
-    this.hud.toast('Partida cargada', 'good');
+    this.hud.toast(t('ui.loaded'), 'good');
     this.screens.careerHub();
   }
 
@@ -218,7 +222,7 @@ export class Game {
     if (!this.career) return;
     saveGame(slot, this.career);
     this.saveSlotIdx = slot;
-    this.hud.toast('Partida guardada', 'good');
+    this.hud.toast(t('ui.saved'), 'good');
     this.screens.saves();
   }
 
@@ -241,8 +245,8 @@ export class Game {
   doTraining(id) {
     const res = this.career.train(id);
     let msg = '';
-    if (res && res.blocked) msg = 'Estás demasiado cansado para entrenar. Descansa.';
-    else if (res && res.rest) msg = `Has descansado. Fatiga: ${Math.round(res.fatigue)}%`;
+    if (res && res.blocked) msg = t('ui.tooTired');
+    else if (res && res.rest) msg = t('ui.rested', { n: Math.round(res.fatigue) });
     else if (res) msg = t('training.doneGain', { stat: t(`stat.${res.stat}`), n: res.gain });
     this.autosave();
     this.screens.training(msg);
@@ -272,7 +276,7 @@ export class Game {
   publishPost(tone) {
     const p = this.career.press.publish('partido', tone);
     this.autosave();
-    this.screens.pressScreen(`Publicado. Alcance ${p.reach}, ${p.followersGained >= 0 ? '+' : ''}${p.followersGained} seguidores, reputación ${p.repDelta}.`);
+    this.screens.pressScreen(`${t('ui.published')}: ${t('ui.reach')} ${p.reach}, ${p.followersGained >= 0 ? '+' : ''}${p.followersGained} ${t('ui.followersGained')}, ${t('stat.reputation')} ${p.repDelta}.`);
   }
 
   syndicateChoose(chapter, option) {
@@ -286,10 +290,8 @@ export class Game {
     const res = this.career.resolveEthics(choice);
     this.autosave();
     const msgs = {
-      accepted: 'Has aceptado el dinero. Alguien más lo sabe.',
-      refused: 'Has rechazado la oferta.',
-      reported: 'Has denunciado el intento. Se abre una investigación.',
-      ignored: 'Has mirado hacia otro lado.',
+      accepted: t('ui.bribeAccepted'), refused: t('ui.bribeRefused'),
+      reported: t('ui.bribeReported'), ignored: t('ui.bribeIgnored'),
     };
     this.hud.toast(msgs[res.type] || '', res.type === 'accepted' ? 'bad' : 'good', 4000);
     this._postMatchNext();
@@ -338,7 +340,7 @@ export class Game {
     const all = clubsOfDivision(world, divId);
     const home = all.find((c) => c.id === q('#c-home').value) || all[0];
     const away = all.find((c) => c.id === q('#c-away').value) || all[1];
-    if (home.id === away.id) { this.hud.toast('Elige equipos distintos', 'bad'); return; }
+    if (home.id === away.id) { this.hud.toast(t('ui.pickDifferent'), 'bad'); return; }
     const difficulty = DIFFICULTY[q('#c-diff').value] || DIFFICULTY.normal;
     const referee = this.career ? this.career.referee : createReferee({ seed: 'classic', baseLevel: 62 });
     const rng = new RNG(Date.now());
@@ -417,7 +419,7 @@ export class Game {
     engine.start();
     this.audio.whistle('short');
     this.hud.renderIdleActions(engine);
-    this.hud.toast('Comienza el partido', 'info');
+    this.hud.toast(t('ui.matchStarts'), 'info');
     // El modo partido usa el bucle general; `mode` marca que hay simulación viva
     this._activeMode = this.mode;
     this.mode = 'match';
@@ -452,7 +454,7 @@ export class Game {
 
     engine.on('decision:timeout', () => {
       hud.hideDecision();
-      hud.toast('Sin decisión: el juego sigue', 'bad');
+      hud.toast(t('ui.noDecision'), 'bad');
     });
 
     engine.on('decision:resolved', ({ incident, payload, grade }) => {
@@ -527,13 +529,13 @@ export class Game {
     });
 
     engine.on('advantage:end', ({ materialized }) => {
-      hud.toast(materialized ? 'Ventaja aprovechada' : 'Vuelta a la falta', materialized ? 'good' : 'warn');
+      hud.toast(t(materialized ? 'ui.advantageUsed' : 'ui.backToFoul'), materialized ? 'good' : 'warn');
       hud.renderIdleActions(engine);
     });
 
-    engine.on('match:stopped', () => hud.toast('⏸ Juego detenido', 'warn'));
-    engine.on('match:resumed', () => hud.toast('▶ Se reanuda', 'info'));
-    engine.on('match:abandoned', () => hud.toast('⛔ Partido suspendido', 'bad', 5000));
+    engine.on('match:stopped', () => hud.toast(`⏸ ${t('ui.playStopped')}`, 'warn'));
+    engine.on('match:resumed', () => hud.toast(`▶ ${t('ui.playResumed')}`, 'info'));
+    engine.on('match:abandoned', () => hud.toast(`⛔ ${t('ui.matchAbandoned')}`, 'bad', 5000));
 
     engine.on('halftime', ({ report }) => {
       this.audio.whistle('double');
@@ -572,7 +574,7 @@ export class Game {
     const a = this.engine.askAssistantAbout(null);
     if (a) { this.hud.showAssistantAnswer(a); return; }
     const f = this.engine.askFourthOfficial();
-    this.hud.toast(`💬 ${f.name}: descuento estimado +${Math.max(f.addedTime, f.pendingStoppage)}′`, 'assistant', 3200);
+    this.hud.toast(`💬 ${f.name}: ${t('ui.addedEstimate')} +${Math.max(f.addedTime, f.pendingStoppage)}′`, 'assistant', 3200);
   }
 
   // ------------------------------------------------------- fin de partido
@@ -590,7 +592,7 @@ export class Game {
     }
     if (mode === 'classic' || !this.career) {
       this.screens.matchReport(report, {
-        buttons: `<button class="primary" data-act="classic">Otro partido</button>
+        buttons: `<button class="primary" data-act="classic">${t('ui.anotherMatch')}</button>
                   <button data-act="menu">${t('menu.quit')}</button>`,
       });
       this._teardownMatch();
@@ -608,7 +610,7 @@ export class Game {
     this.autosave();
 
     const gainsHtml = `
-      <div class="card"><h4>Progresión</h4>
+      <div class="card"><h4>${t('ui.progress')}</h4>
         <ul class="list small">
           <li>${t('report.xp')}: +${res.entry.xp} XP${res.entry.levels.length ? ` · ¡Nivel ${res.entry.levels[res.entry.levels.length - 1]}!` : ''}</li>
           <li>${t('report.fee')}: +${res.entry.fee} €</li>
@@ -646,6 +648,7 @@ export class Game {
   }
 
   _teardownMatch() {
+    this.dom.canvas.classList.remove('deciding');
     this.engine = null;
     this.match = null;
     this.paused = false;

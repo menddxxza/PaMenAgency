@@ -115,7 +115,7 @@ export class HUD {
       <div class="row"><span class="rc">${s0.reds}</span><span>${t('report.reds')}</span><span class="rc">${s1.reds}</span></div>
       <div class="row"><span>${s0.corners}</span><span>${t('report.corners')}</span><span>${s1.corners}</span></div>
       <div class="row"><span>${s0.offsides}</span><span>${t('report.offsides')}</span><span>${s1.offsides}</span></div>
-      <div class="row"><span>${s0.subs}</span><span>Camb.</span><span>${s1.subs}</span></div>`;
+      <div class="row"><span>${s0.subs}</span><span>${t('ui.subsShort')}</span><span>${s1.subs}</span></div>`;
   }
 
   /** Botonera permanente (fuera de incidentes). */
@@ -168,21 +168,23 @@ export class HUD {
     }
 
     const btns = el('div', 'dp-actions');
-    for (const o of options) {
+    options.forEach((o, i) => {
       const label = o.id === 'throwHome' ? t('act.throwA', { team: match.teams[0].shortName })
         : o.id === 'throwAway' ? t('act.throwA', { team: match.teams[1].shortName })
           : t(o.labelKey);
       const b = el('button', `act ${o.style || 'ghost'}`, label);
+      // Atajo visible: el partido se puede arbitrar sin soltar el teclado
+      if (i < 6) b.appendChild(el('span', 'key', String(i + 1)));
       b.onclick = () => onChoose(o);
       btns.appendChild(b);
-    }
+    });
     this.decision.appendChild(btns);
   }
 
   incidentTitle(inc) {
     const map = {
-      challenge: 'Entrada / contacto',
-      penaltyShout: 'Reclaman penalti',
+      challenge: t('inc.challenge'),
+      penaltyShout: t('inc.penaltyShout'),
       handball: t('foul.handball'),
       offside: t('rulebook.offside'),
       outOfPlay: t('rulebook.restarts'),
@@ -201,22 +203,21 @@ export class HUD {
     if (level <= 0) return [];
     const out = [];
     const clarity = inc.clarity ?? 0.5;
-    out.push(clarity > 0.75 ? '👁 Lo has visto bien'
-      : clarity > 0.45 ? '👁 Visión parcial' : '👁 Mala visión: estabas lejos o tapado');
-    if (inc.inBox) out.push('📍 Dentro del área');
+    out.push(`👁 ${clarity > 0.75 ? t('hint.sawWell') : clarity > 0.45 ? t('hint.partial') : t('hint.poor')}`);
+    if (inc.inBox) out.push(`📍 ${t('hint.inBox')}`);
     if (level >= 2) {
       if (inc.facts && inc.facts.contact !== undefined) {
-        out.push(inc.facts.contact > 0.7 ? 'Contacto fuerte'
-          : inc.facts.contact > 0.4 ? 'Contacto apreciable' : 'Contacto mínimo');
+        out.push(inc.facts.contact > 0.7 ? t('hint.contactHigh')
+          : inc.facts.contact > 0.4 ? t('hint.contactMed') : t('hint.contactLow'));
       }
       if (inc.type === 'offside' && inc.assistantFlag !== undefined) {
-        out.push(inc.assistantFlag ? '🚩 El asistente levanta el banderín' : '🚩 El asistente no señala');
+        out.push(`🚩 ${inc.assistantFlag ? t('hint.flagUp') : t('hint.flagDown')}`);
       }
-      if (inc.dogso) out.push('Ocasión manifiesta de gol');
+      if (inc.dogso) out.push(t('hint.dogso'));
     } else if (inc.type === 'offside' && inc.assistantFlag !== undefined) {
-      out.push(inc.assistantFlag ? '🚩 Banderín arriba' : '🚩 Sin señal');
+      out.push(`🚩 ${inc.assistantFlag ? t('hint.flagUp') : t('hint.flagDown')}`);
     }
-    if (inc.impact === 'critical') out.push('⚠ Jugada decisiva');
+    if (inc.impact === 'critical') out.push(`⚠ ${t('hint.decisive')}`);
     return out;
   }
 
@@ -240,11 +241,11 @@ export class HUD {
 
   showAssistantAnswer(answer) {
     const texts = {
-      offside: answer.value ? 'Sí, estaba en fuera de juego.' : 'No, estaba habilitado.',
-      handball: answer.value ? 'Sí, le dio en el brazo.' : 'No he visto mano.',
-      lastTouch: `El último toque fue del equipo ${answer.value === 0 ? 'local' : 'visitante'}.`,
-      violence: answer.value ? 'Sí, ha habido agresión.' : 'No he visto nada punible.',
-      foul: answer.value ? 'Para mí es falta.' : 'Para mí no es falta.',
+      offside: t(answer.value ? 'ar.offsideYes' : 'ar.offsideNo'),
+      handball: t(answer.value ? 'ar.handYes' : 'ar.handNo'),
+      lastTouch: t(answer.value === 0 ? 'ar.lastTouchHome' : 'ar.lastTouchAway'),
+      violence: t(answer.value ? 'ar.violenceYes' : 'ar.violenceNo'),
+      foul: t(answer.value ? 'ar.foulYes' : 'ar.foulNo'),
     };
     const body = answer.unsure ? t('assistant.unsure') : (texts[answer.kind] || '—');
     this.toast(`💬 ${answer.name}: ${body}`, 'assistant', 4200);
