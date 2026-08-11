@@ -69,9 +69,28 @@ export default async function Footer() {
           </nav>
         </div>
 
-        <p className="mt-12 border-t border-white/10 pt-6 text-xs text-white/45">
-          © {new Date().getFullYear()} IAPyme
-        </p>
+        <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-white/45">© {new Date().getFullYear()} IAPyme</p>
+          <nav aria-label="Legal">
+            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/45">
+              <li>
+                <Link href="/legal/privacidad" className="hover:text-white">
+                  Política de privacidad
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/cookies" className="hover:text-white">
+                  Política de cookies
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/terminos" className="hover:text-white">
+                  Términos y condiciones
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
     </footer>
   );
