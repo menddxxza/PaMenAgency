@@ -29,7 +29,7 @@ export class AssistantSystem {
     const skill = this._skill(key);
     const margin = Math.abs(inc.truth.margin || 0);
     // Cuanto más ajustado, más difícil
-    const certainty = clamp(skill * (0.35 + clamp(margin / 1.5, 0, 1) * 0.65), 0.05, 0.99);
+    const certainty = clamp(skill * (0.62 + clamp(margin / 0.8, 0, 1) * 0.38), 0.05, 0.99);
     const correct = this.match.rng.next() < certainty;
     const flag = correct ? inc.truth.offside : !inc.truth.offside;
     this.calls[key].total++;

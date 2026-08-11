@@ -535,6 +535,46 @@ export class MatchEngine {
     }
   }
 
+  // ------------------------------------------------ acciones del jugador
+
+  /** El árbitro corta la ventaja y vuelve a la falta. */
+  cancelAdvantage() {
+    if (!this.match.advantage) return false;
+    this._closeAdvantage(false);
+    return true;
+  }
+
+  /** Detiene el juego por decisión propia (incidente grave, agua, etc.). */
+  manualStop(seconds = 60) {
+    const m = this.match;
+    if (m.phase !== 'play' && m.phase !== 'deadball') return false;
+    m.phase = 'stopped';
+    this.resumeAt = m.clock + seconds;
+    this.resumeIncident = null;
+    this.emit('match:stopped', { manual: true });
+    return true;
+  }
+
+  /** Consulta rápida al cuarto árbitro. */
+  askFourthOfficial() {
+    const m = this.match;
+    return {
+      name: m.crew.fourth.name,
+      addedTime: Math.round(m.addedTime / 60),
+      pendingStoppage: Math.round(m.stoppage / 60),
+      subs: m.subsUsed.slice(),
+      cards: [m.stats[0].yellows + m.stats[0].reds, m.stats[1].yellows + m.stats[1].reds],
+    };
+  }
+
+  /** Consulta al asistente sobre el último incidente relevante. */
+  askAssistantAbout(incident) {
+    const inc = incident || [...this.match.incidents].reverse()
+      .find((i) => ['challenge', 'penaltyShout', 'handball', 'offside', 'outOfPlay'].includes(i.type));
+    if (!inc) return null;
+    return this.assistants.ask(inc, null);
+  }
+
   // -------------------------------------------------------- decisiones
 
   _raise(inc) {
