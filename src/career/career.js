@@ -22,6 +22,42 @@ export const TRAINING = [
   { id: 'rest', stat: null, fatigue: -40, gain: 0 },
 ];
 
+/**
+ * Gastos. La economía existe para que el dinero pese en las decisiones, no
+ * para convertir el juego en una tienda: son pocas compras, todas con un
+ * efecto real y comprobable sobre la carrera.
+ */
+export const ASSETS = [
+  {
+    id: 'gym', cost: 900, upkeep: 40,
+    effects: { recoveryPerRound: 8 },
+  },
+  {
+    id: 'physio', cost: 2200, upkeep: 120,
+    effects: { matchFatigue: -5, stats: { fitness: 1.5 } },
+  },
+  {
+    id: 'car', cost: 6500, upkeep: 90,
+    effects: { matchFatigue: -4 },
+  },
+  {
+    id: 'home', cost: 24000, upkeep: 260,
+    effects: { recoveryPerRound: 6, moralePerRound: 2 },
+  },
+  {
+    id: 'course', cost: 1600, upkeep: 0,
+    effects: { stats: { rules: 3, accuracy: 0.8 } },
+  },
+  {
+    id: 'kit', cost: 700, upkeep: 0,
+    effects: { stats: { communication: 2, concentration: 1 } },
+  },
+  {
+    id: 'analyst', cost: 4800, upkeep: 180,
+    effects: { stats: { var: 2.5, positioning: 1 } },
+  },
+];
+
 const PROMOTION = { minMatches: 6, minAvg: 7.2, minReputation: 30 };
 const RELEGATION = { minMatches: 8, maxAvg: 5.1 };
 
@@ -49,6 +85,8 @@ export class Career {
     this.pendingEthics = null;
     this.pendingPressConference = null;
     this.fatigue = 0;
+    this.assets = {};        // bienes comprados: id -> true
+    this.ledger = [];        // últimos movimientos de dinero
     this.ended = null;
     this.generateAssignments();
   }
@@ -57,6 +95,62 @@ export class Career {
   get division() { return this.world.divisions.find((d) => d.id === this.divisionId) || this.world.divisions[0]; }
 
   avgRating() { return avgRating(this.referee); }
+
+  // ------------------------------------------------------------ economía
+
+  owns(id) { return !!this.assets[id]; }
+
+  /** Suma de un efecto entre todo lo que el árbitro posee. */
+  assetBonus(key) {
+    let total = 0;
+    for (const a of ASSETS) {
+      if (!this.assets[a.id]) continue;
+      const v = a.effects[key];
+      if (typeof v === 'number') total += v;
+    }
+    return total;
+  }
+
+  /** Coste fijo por jornada: vivir cuesta más cuanto más alto arbitras. */
+  livingCost() {
+    const base = Math.round(20 + this.division.level * 1.4);
+    const upkeep = ASSETS.reduce((sum, a) => sum + (this.assets[a.id] ? a.upkeep : 0), 0);
+    return base + upkeep;
+  }
+
+  spend(amount, concept) {
+    this.referee.money -= amount;
+    this.ledger.unshift({ concept, amount: -amount, season: this.season, round: this.round });
+    this.ledger = this.ledger.slice(0, 40);
+    return this.referee.money;
+  }
+
+  earn(amount, concept) {
+    this.referee.money += amount;
+    this.ledger.unshift({ concept, amount, season: this.season, round: this.round });
+    this.ledger = this.ledger.slice(0, 40);
+    return this.referee.money;
+  }
+
+  /** Compra un bien. Devuelve el resultado para que la interfaz lo explique. */
+  buy(id) {
+    const asset = ASSETS.find((a) => a.id === id);
+    if (!asset) return { ok: false, reason: 'unknown' };
+    if (this.assets[id]) return { ok: false, reason: 'owned' };
+    if (this.referee.money < asset.cost) return { ok: false, reason: 'money', missing: asset.cost - this.referee.money };
+
+    this.spend(asset.cost, `buy:${id}`);
+    this.assets[id] = true;
+
+    const gains = {};
+    if (asset.effects.stats) {
+      for (const [stat, amount] of Object.entries(asset.effects.stats)) {
+        const g = trainStat(this.referee, stat, amount);
+        if (g > 0) gains[stat] = g;
+      }
+    }
+    return { ok: true, asset, gains, money: this.referee.money };
+  }
 
   // ------------------------------------------------------ designaciones
 
@@ -182,7 +276,7 @@ export class Career {
     const xp = Math.round((a ? a.xp : 60) * xpMult);
     const levels = addExperience(ref, xp);
     const fee = Math.round((a ? a.fee : 100) * clamp(0.7 + rating / 15, 0.6, 1.5));
-    ref.money += fee;
+    this.earn(fee, 'fee');
 
     // Reputación
     const repDelta = (rating - 6.5) * (a && a.importance > 70 ? 2.6 : 1.6);
@@ -198,8 +292,10 @@ export class Career {
     learn('concentration', 0.2);
     if (report.rating.varCalls.used) learn('var', 0.5);
 
-    // Condición física
-    this.fatigue = clamp(this.fatigue + 22, 0, 100);
+    // Condición física: el desplazamiento y la recuperación dependen de en
+    // qué se haya gastado el dinero.
+    const matchFatigue = clamp(22 + this.assetBonus('matchFatigue'), 8, 30);
+    this.fatigue = clamp(this.fatigue + matchFatigue, 0, 100);
     ref.condition = clamp(100 - this.fatigue, 10, 100);
 
     const entry = {
@@ -332,7 +428,18 @@ export class Career {
 
   advanceRound() {
     this.round++;
-    this.fatigue = clamp(this.fatigue - 12, 0, 100);
+    // Gastos fijos de la jornada
+    const cost = this.livingCost();
+    this.spend(cost, 'living');
+    if (this.referee.money < 0) {
+      // Vivir por encima de tus posibilidades pasa factura fuera del campo
+      this.referee.morale = clamp(this.referee.morale - 6, 0, 100);
+      if (!this.inbox.some((i) => i.type === 'debt' && i.season === this.season)) {
+        this.inbox.push({ type: 'debt', season: this.season, round: this.round });
+      }
+    }
+    this.referee.morale = clamp(this.referee.morale + this.assetBonus('moralePerRound'), 0, 100);
+    this.fatigue = clamp(this.fatigue - (12 + this.assetBonus('recoveryPerRound')), 0, 100);
     this.referee.condition = clamp(100 - this.fatigue, 10, 100);
     if (this.round > 24) { this.round = 1; this.season++; this.referee.age++; this._seasonEnd(); }
     this.generateAssignments();
@@ -379,6 +486,8 @@ export class Career {
       divisionMatches: this.divisionMatches,
       divisionRatings: this.divisionRatings,
       fatigue: this.fatigue,
+      assets: this.assets,
+      ledger: this.ledger.slice(0, 20),
       rngState: this.rng.state(),
       referee: {
         firstName: ref.firstName, lastName: ref.lastName, gender: ref.gender,
@@ -412,6 +521,8 @@ export class Career {
     c.divisionMatches = data.divisionMatches;
     c.divisionRatings = data.divisionRatings || [];
     c.fatigue = data.fatigue || 0;
+    c.assets = data.assets || {};
+    c.ledger = data.ledger || [];
     if (data.rngState) c.rng.setState(data.rngState);
     c.assignments = data.assignments || [];
     c.history = data.history || [];

@@ -33,13 +33,13 @@ automático con acierto 72%):
 
 | Métrica | Silbato Cero | Fútbol real (referencia) |
 |---|---|---|
-| Goles | ~2,5 | 2,7 |
-| Faltas | ~25 | 22–26 |
-| Amarillas | ~1–3 | 3–5 |
+| Goles | ~2,4 | 2,7 |
+| Faltas | ~21 | 22–26 |
+| Amarillas | ~2,8 | 3–5 |
 | Rojas | ~0,15 | 0,1–0,2 |
-| Penaltis | ~0,3 | 0,25 |
+| Penaltis | ~0,4 | 0,25 |
 | Fueras de juego | ~4 | 3–5 |
-| Córners | ~5 | 9–11 |
+| Córners | ~7,4 | 9–11 |
 | Tiros | ~30 | 24–28 |
 
 Los atributos de los futbolistas se comprimen por categoría
@@ -50,28 +50,45 @@ partidos sin una sola ocasión.
 
 Estas piezas funcionan y están conectadas, pero admiten profundidad:
 
-- **Córners**: sólo se generan por parada del portero o desvío. Faltan bloqueos
-  de defensores en el área, que subirían la cifra a valores reales.
-- **Amarillas**: algo por debajo de lo real porque el motor sólo eleva a
-  *temeraria* por intensidad del contacto. Falta la **reiteración de faltas**
-  (amonestar al jugador que acumula infracciones) y la pérdida de tiempo.
-- **Balón parado**: las faltas y córners se ejecutan con un saque simple; no hay
-  barrera, ni jugadas ensayadas, ni remates de cabeza en el área.
 - **Cambios**: la IA sustituye por cansancio; no hay lectura táctica del
   marcador.
-- **Economía**: hay ingresos y saldo, pero no gastos (vivienda, coche,
-  equipamiento). Se dejó fuera a propósito para que el juego siga siendo un
-  simulador arbitral y no un juego de compras.
 - **Syndicate**: cinco capítulos ramificados. La estructura admite más sin tocar
   código: son datos en `CHAPTERS`.
 - **Personalización visual del árbitro**: se elige uniforme, tono de piel,
   cabello y dorsal, pero el sprite 2D sólo refleja el uniforme.
+- **Córners**: 7,4 por partido frente a los 9-11 reales. Los bloqueos ya
+  existen; falta que los rechaces largos salgan más veces por la línea.
+
+## Cerrado en la revisión del motor
+
+- **Bloqueos y rechaces en el área.** Los defensores tapan el disparo con más
+  alcance dentro de su área; un bloqueo puede irse por la línea de fondo
+  (córner) o quedar como rechace. De ahí salen también las manos dentro del
+  área. Cada jugador tiene un tiempo de espera para no bloquear dos veces el
+  mismo balón.
+- **Remates de cabeza.** Un balón alto que cae en el área lo disputa quien
+  mejor juega de cabeza: dentro, remate a puerta; fuera, despeje. Sin esto los
+  córners no producían nada.
+- **Barrera y colocación en el balón parado.** Las faltas a menos de 32 m
+  forman barrera de 2 a 4 jugadores a 9,15 m, con rematadores y marcadores
+  dentro del área; los córners llenan el área. El servicio se ejecuta de
+  verdad: centro al área o disparo directo por encima de la barrera.
+  Con el balón por alto los defensores saltan en lugar de entrar, que era la
+  causa de una plaga de penaltis en los córners.
+- **Reiteración de faltas.** El motor cuenta las faltas de cada jugador y a
+  partir de la tercera la infracción pasa a ser amonestable, aunque ninguna
+  por separado lo fuera (`evaluateDisciplinaryAction`, hecho `persistent`).
+- **Pérdida de tiempo.** A partir del minuto 60, el equipo que va ganando
+  estira las reanudaciones. Si el retraso se hace descarado llega al árbitro
+  como situación propia, con advertencia verbal previa: una segunda demora
+  del mismo jugador ya es amarilla (`evaluateTimeWasting`).
+- **Economía con gastos.** Coste fijo por jornada que sube con la categoría,
+  siete inversiones con efecto real (gimnasio, fisio, coche, piso, curso de
+  reglamento, equipamiento y analista de vídeo) con su mantenimiento, libro de
+  movimientos y aviso del banco al entrar en números rojos.
 
 ## Qué falta
 
-- Reiteración de faltas y pérdida de tiempo como motivos de amonestación
-  automáticos del motor.
-- Rechaces y bloqueos en el área (mejorarían córners y manos dentro del área).
 - Idiomas más allá de es/en: la arquitectura ya lo soporta, sólo hay que añadir
   el archivo en `i18n/` y registrarlo en `core/i18n.js`.
 - Repetición navegable del partido completo desde el informe final (hoy la

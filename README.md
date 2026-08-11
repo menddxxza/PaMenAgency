@@ -105,6 +105,9 @@ advertencia verbal previa · manos evaluadas por posición del brazo, distancia 
 naturalidad · fuera de juego con asistentes falibles que pueden dudar · VAR con
 cuatro cámaras, control de reproducción fotograma a fotograma, línea de fuera de
 juego y protocolo de error claro y manifiesto · tecnología de línea de gol ·
+bloqueos y rechaces dentro del área · remates de cabeza · barrera a 9,15 m en
+las faltas y área llena en los córners · reiteración de faltas · pérdida de
+tiempo del equipo que va ganando ·
 lesiones y equipo médico · sustituciones · descuento calculado dinámicamente
 (sin cortar una ocasión clara) · prórroga y tanda de penaltis · protestas de
 jugadores y entrenadores según personalidad · eventos de estadio (tangana,
@@ -117,7 +120,10 @@ Nueve categorías, de la Liga Regional Iberania al Campeonato Mundial, con más 
 100 clubes y 16 selecciones. Cada jornada eliges entre designaciones con su
 presión, dificultad, rivalidad, honorarios y experiencia.
 
-Nota, reputación, experiencia, dinero, condición física y diez atributos que
+Economía con dos caras: honorarios por partido frente a un coste fijo por
+jornada que crece con la categoría, y siete inversiones con efecto real
+(gimnasio, fisio, coche, piso, curso de reglamento, equipamiento y analista de
+vídeo). Nota, reputación, experiencia, condición física y diez atributos que
 suben entrenando y arbitrando. Ascensos y descensos por rendimiento sostenido,
 condicionados a aprobar los exámenes de la academia. Prensa que titula según lo
 que pasó de verdad, ruedas de prensa, blog con audiencia, supervisor arbitral,
