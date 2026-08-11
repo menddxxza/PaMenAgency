@@ -325,7 +325,7 @@ export class Screens {
     const timeline = report.events.filter((e) => ['goal', 'yellow', 'red', 'secondYellow', 'penaltyScored', 'penaltyMissed', 'substitution', 'abandoned'].includes(e.kind))
       .map((e) => `<li><b>${e.minute}'</b> ${this.eventLabel(e)}</li>`).join('') || '<li class="muted">—</li>';
     const decisions = report.decisions.map((d) =>
-      `<li><b>${d.minute}'</b> ${d.type} → ${d.decision.action}${d.decision.card ? ` (${d.decision.card})` : ''}
+      `<li><b>${d.minute}'</b> ${t(`dec.${d.type}`)} → ${this.actionLabel(d.decision)}
         <span class="g-${d.grade}">${t(`eval.${d.grade}`)}</span>
         <span class="muted">${t('eval.confidence')} ${Math.round((d.confidence || 0) * 100)}%</span></li>`).join('')
       || '<li class="muted">—</li>';
@@ -376,6 +376,21 @@ export class Screens {
 
       ${extra.gainsHtml || ''}
       <div class="row-btns">${extra.buttons || `<button class="primary big" data-act="menu">${t('ui.continue')}</button>`}</div>`);
+  }
+
+  /** Traduce una decisión registrada a lenguaje de árbitro. */
+  actionLabel(decision) {
+    const map = {
+      foul: 'act.freeKick', penalty: 'act.penalty', handball: 'act.handball',
+      offside: 'act.offside', goal: 'act.goal', noGoal: 'act.noGoal',
+      dive: 'act.dive', advantage: 'act.advantage', playon: 'act.playonShort',
+      restart: 'act.restartShort', stop: 'act.stopShort', medics: 'act.medicsShort',
+      protocol: 'act.protocolShort', abandon: 'act.abandon', card: 'card.reason',
+      warning: 'act.warningShort',
+    };
+    const base = t(map[decision.action] || decision.action);
+    const card = decision.card ? ` + ${t(`card.${decision.card}`)}` : decision.warning ? ` + ${t('act.warningShort')}` : '';
+    return `${base}${card}`;
   }
 
   eventLabel(e) {

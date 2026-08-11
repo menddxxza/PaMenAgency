@@ -179,16 +179,28 @@ export function createMatch(opts) {
     };
   });
 
-  // Equipaciones: si los colores chocan, el visitante cambia a su segunda.
+  // Equipaciones: el visitante cambia hasta que los dos equipos se
+  // distinguen de un vistazo. Si su segunda tampoco sirve, se recurre a un
+  // contraste garantizado (blanco o negro).
   match.kits = [
     { primary: home.colors.primary, secondary: home.colors.secondary },
     { primary: away.colors.primary, secondary: away.colors.secondary },
   ];
-  if (colorDistance(home.colors.primary, away.colors.primary) < 200) {
-    const alt = away.colors.away && colorDistance(home.colors.primary, away.colors.away) > 200
-      ? away.colors.away
-      : (colorDistance(home.colors.primary, '#f4f6f8') > 200 ? '#f4f6f8' : '#15181d');
-    match.kits[1] = { primary: alt, secondary: away.colors.primary };
+  const MIN_KIT_CONTRAST = 210;
+  if (colorDistance(home.colors.primary, away.colors.primary) < MIN_KIT_CONTRAST) {
+    const candidates = [away.colors.away, '#f4f6f8', '#15181d', '#1f4fd8', '#e11d48'];
+    let best = candidates[0], bestD = -1;
+    for (const c of candidates) {
+      if (!c) continue;
+      const d = colorDistance(home.colors.primary, c);
+      if (d >= MIN_KIT_CONTRAST) { best = c; bestD = d; break; }
+      if (d > bestD) { best = c; bestD = d; }
+    }
+    match.kits[1] = { primary: best, secondary: away.colors.primary };
+  }
+  // El vivo tampoco puede confundirse con la camiseta del rival
+  if (colorDistance(match.kits[1].secondary, match.kits[0].primary) < 120) {
+    match.kits[1].secondary = colorDistance(match.kits[1].primary, '#0f1216') > 200 ? '#0f1216' : '#f4f6f8';
   }
 
   match.atmosphere.support = [
