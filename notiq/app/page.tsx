@@ -191,8 +191,19 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
-          <div className="container-page mt-8 border-t border-ink/10 pt-6 text-xs text-ink/40">
-            © {new Date().getFullYear()} Notiq
+          <div className="container-page mt-8 flex flex-col gap-4 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-ink/40">© {new Date().getFullYear()} Notiq</p>
+            <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-ink/40">
+              <Link href="/privacidad" className="hover:text-ink/70">
+                Política de privacidad
+              </Link>
+              <Link href="/cookies" className="hover:text-ink/70">
+                Política de cookies
+              </Link>
+              <Link href="/terminos" className="hover:text-ink/70">
+                Términos y condiciones
+              </Link>
+            </div>
           </div>
         </footer>
       </div>
