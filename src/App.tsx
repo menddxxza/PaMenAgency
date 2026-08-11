@@ -15,6 +15,9 @@ import { Login } from '@/pages/Login'
 import { Signup } from '@/pages/Signup'
 import { ForgotPassword } from '@/pages/ForgotPassword'
 import { NotFound } from '@/pages/NotFound'
+import { Privacidad } from '@/pages/legal/Privacidad'
+import { Cookies } from '@/pages/legal/Cookies'
+import { Terminos } from '@/pages/legal/Terminos'
 
 // Las pantallas del panel son la mayor parte del bundle y solo las necesita
 // quien ya ha iniciado sesión. Cargarlas aparte deja la landing —que es lo
@@ -46,6 +49,9 @@ export function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/privacidad" element={<Privacidad />} />
+                  <Route path="/cookies" element={<Cookies />} />
+                  <Route path="/terminos" element={<Terminos />} />
 
                   <Route
                     path="/suscripcion"

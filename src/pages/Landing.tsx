@@ -288,6 +288,9 @@ export function Landing() {
       <footer className="landing__footer">
         <span>© {new Date().getFullYear()} Atiende</span>
         <a href="mailto:soporte.Atiende@gmail.com">soporte.Atiende@gmail.com</a>
+        <Link to="/privacidad">Política de privacidad</Link>
+        <Link to="/cookies">Política de cookies</Link>
+        <Link to="/terminos">Términos y condiciones</Link>
       </footer>
     </div>
   )

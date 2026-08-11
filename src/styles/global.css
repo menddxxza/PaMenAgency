@@ -1240,6 +1240,76 @@ label {
   color: var(--text-secondary);
 }
 
+/* ---------- páginas legales (privacidad, cookies, términos) ---------- */
+
+.legal-page {
+  min-height: 100vh;
+  background: var(--surface-2);
+  color: var(--text-primary);
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.legal-page__inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legal-page__back {
+  align-self: flex-start;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.legal-page__back:hover {
+  color: var(--brand);
+}
+
+.legal-page h1 {
+  font-size: 1.9rem;
+  letter-spacing: -0.01em;
+}
+
+.legal-page__updated {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.legal-page__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  line-height: 1.6;
+}
+
+.legal-page__body h2 {
+  font-size: 1.15rem;
+  margin-top: 0.75rem;
+}
+
+.legal-page__body p,
+.legal-page__body li {
+  color: var(--text-secondary);
+}
+
+.legal-page__body ul {
+  margin: 0;
+  padding-left: 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.legal-page__body a {
+  color: var(--brand);
+}
+
 /* ---------- pricing ---------- */
 
 .pricing-grid {
