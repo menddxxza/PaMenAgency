@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import LegalLayout from '@/components/legal/LegalLayout';
+import EmailContacto from '@/components/legal/EmailContacto';
 
 export const metadata: Metadata = {
   title: 'Política de cookies — Notiq',
   description: 'Qué cookies usa Notiq y por qué son las mínimas imprescindibles.',
 };
-
-const CONTACTO = 'pabloangelmendoza82@gmail.com';
 
 export default function CookiesPage() {
   return (
@@ -69,10 +68,7 @@ export default function CookiesPage() {
         <h2 className="text-lg font-bold tracking-tight text-ink">Contacto</h2>
         <p className="mt-3">
           Si tienes dudas sobre esta política, escríbenos a{' '}
-          <a href={`mailto:${CONTACTO}`} className="font-semibold text-brand-600 hover:underline">
-            {CONTACTO}
-          </a>
-          .
+          <EmailContacto className="font-semibold text-brand-600 hover:underline" />.
         </p>
       </section>
     </LegalLayout>

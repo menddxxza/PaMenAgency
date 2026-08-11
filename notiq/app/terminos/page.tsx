@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import LegalLayout from '@/components/legal/LegalLayout';
+import EmailContacto from '@/components/legal/EmailContacto';
 
 export const metadata: Metadata = {
   title: 'Términos y condiciones — Notiq',
   description: 'Las condiciones de uso de Notiq: cuenta, planes, pagos y responsabilidad.',
 };
-
-const CONTACTO = 'pabloangelmendoza82@gmail.com';
 
 export default function TerminosPage() {
   return (
@@ -98,10 +97,8 @@ export default function TerminosPage() {
         <p className="mt-3">
           Puedes cambiar o cancelar tu plan de pago cuando quieras desde Ajustes. Si quieres que
           eliminemos tu cuenta y todo tu contenido de forma permanente, escríbenos a{' '}
-          <a href={`mailto:${CONTACTO}`} className="font-semibold text-brand-600 hover:underline">
-            {CONTACTO}
-          </a>
-          . Nos reservamos el derecho a suspender o cerrar cuentas que incumplan estos términos.
+          <EmailContacto className="font-semibold text-brand-600 hover:underline" />. Nos
+          reservamos el derecho a suspender o cerrar cuentas que incumplan estos términos.
         </p>
       </section>
 
@@ -117,10 +114,7 @@ export default function TerminosPage() {
         <h2 className="text-lg font-bold tracking-tight text-ink">9. Contacto</h2>
         <p className="mt-3">
           Para cualquier duda sobre estos términos, escríbenos a{' '}
-          <a href={`mailto:${CONTACTO}`} className="font-semibold text-brand-600 hover:underline">
-            {CONTACTO}
-          </a>
-          .
+          <EmailContacto className="font-semibold text-brand-600 hover:underline" />.
         </p>
       </section>
     </LegalLayout>

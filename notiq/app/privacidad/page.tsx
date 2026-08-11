@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import LegalLayout from '@/components/legal/LegalLayout';
+import EmailContacto from '@/components/legal/EmailContacto';
 
 export const metadata: Metadata = {
   title: 'Política de privacidad — Notiq',
   description: 'Qué datos recoge Notiq, para qué los usa y cómo ejercer tus derechos.',
 };
-
-const CONTACTO = 'pabloangelmendoza82@gmail.com';
 
 export default function PrivacidadPage() {
   return (
@@ -15,10 +14,7 @@ export default function PrivacidadPage() {
         Notiq es un servicio de notas, tareas y asistente de IA operado por Pablo Angel
         Piñeiro Mendoza, como persona física, con domicilio en España. Para cualquier
         cuestión sobre tus datos personales puedes escribir a{' '}
-        <a href={`mailto:${CONTACTO}`} className="font-semibold text-brand-600 hover:underline">
-          {CONTACTO}
-        </a>
-        .
+        <EmailContacto className="font-semibold text-brand-600 hover:underline" />.
       </p>
 
       <section>
@@ -101,10 +97,8 @@ export default function PrivacidadPage() {
         <p className="mt-3">
           Puedes cambiar o cancelar tu plan en cualquier momento desde Ajustes. Para acceder,
           rectificar, exportar o borrar tus datos personales, escríbenos a{' '}
-          <a href={`mailto:${CONTACTO}`} className="font-semibold text-brand-600 hover:underline">
-            {CONTACTO}
-          </a>
-          . También tienes derecho a limitar u oponerte al tratamiento, y a presentar una
+          <EmailContacto className="font-semibold text-brand-600 hover:underline" />. También
+          tienes derecho a limitar u oponerte al tratamiento, y a presentar una
           reclamación ante la Agencia Española de Protección de Datos (aepd.es) si consideras
           que no hemos atendido tu solicitud correctamente.
         </p>

@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 
@@ -6,6 +8,10 @@ import Logo from '@/components/Logo';
  * términos): mismas piezas que la landing (Logo, footer con los mismos enlaces),
  * pero sin el fondo animado ni el header con blur — aquí no hace falta, es texto
  * para leer, no una portada.
+ *
+ * El cuerpo del texto bloquea selección y menú contextual para poner fricción a
+ * un copiado masivo del contenido — no es una barrera real (el HTML sigue estando
+ * ahí para quien lo busque), solo evita el "seleccionar todo y pegar" casual.
  */
 export default function LegalLayout({
   titulo,
@@ -27,7 +33,11 @@ export default function LegalLayout({
         </div>
       </header>
 
-      <main className="container-page py-14 sm:py-20">
+      <main
+        className="container-page select-none py-14 sm:py-20"
+        onContextMenu={(evento) => evento.preventDefault()}
+        onCopy={(evento) => evento.preventDefault()}
+      >
         <div className="mx-auto max-w-2xl">
           <p className="eyebrow">Legal</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{titulo}</h1>
