@@ -78,6 +78,25 @@ Estas piezas funcionan y están conectadas, pero admiten profundidad:
   cronología es una lista; el búfer de repetición existe y lo usa el VAR).
 - Mando / táctil: hoy el partido se juega con teclado y ratón.
 
+## Rediseño de interfaz y gráficos
+
+Ejecutado con la disciplina de Hallmark (género *atmospheric*, macroestructura
+*Workbench* para la carrera y *Broadcast overlay* para el partido, tema propio
+en OKLCH). Registro en `.hallmark/log.json`.
+
+- Todo el color y toda la tipografía salen de `styles/tokens.css`; ni la
+  interfaz ni el canvas escriben un valor a mano.
+- Tipografía 2+1 con stacks del sistema: display condensada (rótulos),
+  sans del sistema (lectura) y mono tabular (reloj, marcador, notas). Sin
+  fuentes remotas: el juego funciona sin conexión.
+- Estadio dibujado a mano: cuenco de gradas con aforo proporcional, público
+  que vibra con el ruido, focos, banquillos, banderines y redes.
+- Durante una decisión la cámara se acerca, un foco aísla la jugada y el
+  resto del campo se atenúa.
+- Atajos `1`–`6` visibles sobre los propios botones de decisión.
+- Verificado a 375 px sin scroll horizontal; `prefers-reduced-motion`
+  colapsa todas las animaciones.
+
 ## Errores corregidos durante el desarrollo
 
 1. **Partidos colgados**: el reanudado tras una interrupción usaba `setTimeout`,
@@ -99,3 +118,10 @@ Estas piezas funcionan y están conectadas, pero admiten profundidad:
 8. **Examen predecible**: la respuesta correcta caía casi siempre en la misma
    posición. Ahora las opciones se barajan.
 9. **HUD visible en el menú**: `HUD.build()` borraba la clase `hidden`.
+10. **Equipaciones que seguían confundiéndose**: el umbral de contraste era
+    demasiado bajo y la alternativa podía ser otro tono cercano. Ahora se
+    recorre una lista de candidatos hasta garantizar separación; verificado
+    sobre los 380 emparejamientos de Primera.
+11. **Etiquetas sin traducir en el informe** (`advantage`, `management`) y
+    decisiones mostradas con su nombre interno (`challenge → foul`). Ahora
+    todo pasa por `t()` y se lee en lenguaje de árbitro.
