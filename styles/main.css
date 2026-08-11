@@ -489,6 +489,30 @@ input:hover, select:hover { border-color: oklch(100% 0 0 / 0.24); }
 .help { border-color: oklch(68% 0.15 248 / 0.4); }
 .save-slot .chips { margin-bottom: 0; }
 
+/* ── Reproductor de jugadas ──────────────────────────────────────────── */
+
+.review-head { display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap; margin-bottom: var(--space-xs); }
+.review-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: var(--rule-hair);
+  background: var(--color-paper);
+  box-shadow: var(--shadow-panel);
+}
+.review-stage canvas { width: 100%; height: 100%; display: block; }
+.review-transport { display: flex; flex-wrap: wrap; gap: var(--space-2xs); margin: var(--space-xs) 0; }
+.review-transport .chip-btn { font-family: var(--font-num); min-width: 44px; text-align: center; }
+.review-scrub input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-accent);
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
 /* ═══════════════════════════════════════════════ HUD DE PARTIDO ══════ */
 
 .hud {
@@ -848,6 +872,50 @@ input:hover, select:hover { border-color: oklch(100% 0 0 / 0.24); }
 .eval-box.incorrect { border-left-color: var(--color-incorrect); }
 .eval-box.incorrect .eg { color: var(--color-incorrect); }
 
+/* ── Mando táctil ────────────────────────────────────────────────────── */
+
+.touch-pad {
+  position: absolute;
+  left: var(--space-md);
+  bottom: 96px;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: oklch(20% 0.02 250 / 0.55);
+  border: var(--rule-soft);
+  pointer-events: auto;
+  touch-action: none;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(3px);
+}
+.touch-pad .stick {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: var(--glow-accent);
+  transition: transform 60ms linear;
+}
+.touch-sprint {
+  position: absolute;
+  right: var(--space-md);
+  bottom: 108px;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  pointer-events: auto;
+  touch-action: none;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  background: oklch(20% 0.02 250 / 0.6);
+  border: var(--rule-soft);
+}
+.touch-sprint.on { background: var(--color-accent); color: var(--color-accent-ink); }
+
 /* ═══════════════════════════════════════════════════ RESPONSIVE ══════ */
 
 @media (max-width: 900px) {
@@ -868,8 +936,11 @@ input:hover, select:hover { border-color: oklch(100% 0 0 / 0.24); }
   .act .key { display: none; }
   .decision-panel { bottom: 62px; padding: var(--space-xs) var(--space-sm) var(--space-sm); }
   .dp-title { font-size: var(--text-md); }
-  .eval-box { top: auto; bottom: 132px; right: var(--space-xs); transform: none; min-width: 0; }
+  .eval-box { top: auto; bottom: 210px; right: var(--space-xs); transform: none; min-width: 0; }
   .toasts { top: 62px; }
+  .decision-panel { bottom: 210px; }
+  .touch-pad { width: 112px; height: 112px; bottom: 76px; }
+  .touch-sprint { width: 80px; height: 80px; bottom: 88px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

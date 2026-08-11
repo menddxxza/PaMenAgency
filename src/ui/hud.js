@@ -77,6 +77,61 @@ export class HUD {
     // ---- evaluación
     this.evalBox = el('div', 'eval-box hidden');
     this.root.appendChild(this.evalBox);
+
+    // ---- mando táctil (sólo en pantallas sin teclado)
+    this.touch = { dx: 0, dy: 0, sprint: false, active: false };
+    this.buildTouchControls();
+  }
+
+  /**
+   * Palanca virtual + botón de sprint. Sólo aparece en dispositivos de
+   * puntero grueso: en escritorio no estorba.
+   */
+  buildTouchControls() {
+    const coarse = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
+    if (!coarse) return;
+
+    const pad = el('div', 'touch-pad');
+    pad.innerHTML = '<span class="stick"></span>';
+    const stick = pad.querySelector('.stick');
+    this.root.appendChild(pad);
+
+    const radius = 52;
+    let originId = null;
+    const setVector = (ev) => {
+      const r = pad.getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      let dx = ev.clientX - cx, dy = ev.clientY - cy;
+      const mag = Math.hypot(dx, dy) || 1;
+      const capped = Math.min(mag, radius);
+      dx = (dx / mag) * capped; dy = (dy / mag) * capped;
+      stick.style.transform = `translate(${dx}px, ${dy}px)`;
+      this.touch.dx = dx / radius;
+      this.touch.dy = dy / radius;
+      this.touch.active = true;
+    };
+    const release = () => {
+      originId = null;
+      stick.style.transform = 'translate(0, 0)';
+      this.touch.dx = 0; this.touch.dy = 0; this.touch.active = false;
+    };
+    pad.addEventListener('pointerdown', (ev) => {
+      originId = ev.pointerId;
+      pad.setPointerCapture(ev.pointerId);
+      setVector(ev);
+    });
+    pad.addEventListener('pointermove', (ev) => { if (originId === ev.pointerId) setVector(ev); });
+    pad.addEventListener('pointerup', release);
+    pad.addEventListener('pointercancel', release);
+
+    const sprint = el('button', 'touch-sprint', t('hud.sprint'));
+    sprint.addEventListener('pointerdown', (ev) => { ev.preventDefault(); this.touch.sprint = true; sprint.classList.add('on'); });
+    const stopSprint = () => { this.touch.sprint = false; sprint.classList.remove('on'); };
+    sprint.addEventListener('pointerup', stopSprint);
+    sprint.addEventListener('pointercancel', stopSprint);
+    sprint.addEventListener('pointerleave', stopSprint);
+    this.root.appendChild(sprint);
+    this.touchControls = { pad, sprint };
   }
 
   // ------------------------------------------------------------ marcador

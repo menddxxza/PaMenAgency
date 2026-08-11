@@ -29,17 +29,30 @@ python3 -m http.server 8099     # o cualquier servidor estático
 | `C` | cámara fija / cámara que sigue el balón |
 | `1`–`6` | elegir opción durante una decisión |
 
+También se juega con **mando** (palanca izquierda para moverte, gatillo o A para
+esprintar, los cuatro botones frontales y los gatillos superiores para las seis
+opciones de decisión, Start pausa) y con **pantalla táctil** (palanca virtual y
+botón de sprint, que sólo aparecen en dispositivos sin teclado).
+
 Tu **posición importa**: la distancia, el ángulo y los cuerpos interpuestos
 determinan lo que realmente ves, y por tanto tu probabilidad de acertar.
 
 ## Pruebas
 
 ```bash
-node test/run.js 8     # simula 8 partidos completos sin interfaz y valida medias
+node test/all.js       # 76 pruebas: reglamento, sistemas y motor
+node test/all.js -v    # con el detalle de cada prueba
+node test/run.js 8     # simula 8 partidos y saca las medias por pantalla
 ```
 
-Comprueba que los partidos terminan, que las medias (goles, faltas, tarjetas,
-córners, fueras de juego) están en rangos creíbles y que las notas son coherentes.
+- **Reglamento** (38): casos de las reglas del juego. Si una falla, el juego
+  estaría enseñando una regla equivocada.
+- **Sistemas** (24): generación del mundo, equipaciones distinguibles, guardado
+  y carga, economía, academia y —lo más útil al añadir texto— que los dos
+  idiomas tengan las mismas claves y que la interfaz no use ninguna inexistente.
+- **Motor** (14): invariantes del partido (nadie sale del campo, la posesión
+  cuadra, nunca quedan menos de siete jugadores, el mismo partido con la misma
+  semilla da el mismo resultado) y que las medias caen en rangos creíbles.
 
 ## Arquitectura
 
@@ -129,6 +142,13 @@ condicionados a aprobar los exámenes de la academia. Prensa que titula según l
 que pasó de verdad, ruedas de prensa, blog con audiencia, supervisor arbitral,
 decisiones éticas, modo Syndicate ramificado y ocho finales distintos.
 
+### Repetición
+
+Las jugadas con peso (goles, tarjetas, penaltis, revisiones VAR y todo lo
+calificado como de impacto alto) se guardan mientras dura el partido. Desde el
+informe final se abren en un reproductor con control fotograma a fotograma,
+cuatro cámaras y línea de fuera de juego.
+
 ### Modos
 
 Carrera oficial · Syndicate · Classic (partido suelto configurable) · Escenarios
@@ -157,7 +177,20 @@ que los paneles, así que nunca se desincronizan.
 - Durante una decisión el campo se atenúa y un foco cae sobre la jugada: la
   vista acompaña a la decisión en lugar de competir con ella.
 
+## Añadir un idioma
+
+La arquitectura está preparada: los textos viven en `i18n/`, nunca en la lógica.
+
+1. Copia `i18n/es.js` a `i18n/fr.js` (por ejemplo) y traduce los valores.
+2. Regístralo en `src/core/i18n.js` (`BUNDLES`).
+3. Ejecuta `node test/all.js`: las pruebas de idiomas comprueban que no falte
+   ninguna clave, que ninguna esté vacía y que las variables (`{n}`, `{ref}`)
+   coincidan entre idiomas.
+
+El juego se entrega en español e inglés, completos y verificados.
+
 ## Estado
 
-Jugable de principio a fin. Lo que falta por pulir está anotado en
+Terminado y jugable de principio a fin, con 76 pruebas automáticas en verde.
+El detalle de lo que quedó dentro y lo que se decidió dejar fuera está en
 `NOTAS-DESARROLLO.md`.
