@@ -24,6 +24,8 @@ export class Screens {
   render(html, opts = {}) {
     this.show();
     this.root.innerHTML = `<div class="screen ${opts.cls || ''}">${html}</div>`;
+    // En el menú el velo se aclara para dejar ver el partido de fondo
+    this.root.classList.toggle('airy', opts.cls === 'menu');
     this.root.scrollTop = 0;
     this.root.querySelectorAll('[data-act]').forEach((b) => {
       b.addEventListener('click', () => {

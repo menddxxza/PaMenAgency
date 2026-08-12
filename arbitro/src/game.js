@@ -185,6 +185,8 @@ export class Game {
         this.audio.updateCrowd(this.match.atmosphere.noise,
           (this.match.atmosphere.anger[0] + this.match.atmosphere.anger[1]) / 2);
       }
+    } else if (!this.match) {
+      this._tickAmbient(dt);
     }
     requestAnimationFrame(this._loop);
   }
@@ -194,6 +196,56 @@ export class Game {
   boot() {
     this.dom.canvas.classList.add('dim');
     this.screens.mainMenu();
+    this.startAmbient();
+  }
+
+  /**
+   * Partido de fondo: mientras el jugador está en los menús, el campo no se
+   * queda vacío. Se juega solo, con árbitro automático, y cuando termina
+   * empieza otro. No toca la carrera ni el guardado: es sólo ambiente.
+   */
+  startAmbient() {
+    try {
+      const world = this.classicWorld();
+      const rng = new RNG(`ambient-${Date.now()}`);
+      const div = world.divisions[0];
+      const pool = clubsOfDivision(world, div.id);
+      const home = rng.pick(pool);
+      let away = rng.pick(pool);
+      while (away.id === home.id) away = rng.pick(pool);
+      const match = createMatch({
+        home, away, competition: div, seed: rng.int(1, 1e9),
+        weather: rng.pick(['clear', 'clear', 'rain', 'wind']),
+        importance: 50,
+        difficulty: DIFFICULTY.normal,
+        referee: createReferee({ seed: 'ambient', baseLevel: 70 }),
+        crew: generateCrew(rng, div.level, false),
+        varEnabled: false,
+        stadium: home.stadium,
+        startMinute: rng.int(2, 70),
+      });
+      const engine = new MatchEngine(match, { autoReferee: makeAutoReferee({ skill: 78, rng: match.rng }) });
+      engine.start();
+      this.ambient = { match, engine };
+    } catch {
+      this.ambient = null;      // el ambiente nunca puede tumbar el menú
+    }
+  }
+
+  _tickAmbient(dt) {
+    const amb = this.ambient;
+    if (!amb) return;
+    // Sólo se juega cuando de verdad se ve: en el resto de pantallas el velo
+    // es opaco y simularlo sería gastar batería para nada.
+    if (!this.dom.screens.classList.contains('airy')) return;
+    if (amb.engine.finished) { this.startAmbient(); return; }
+    if (amb.match.phase === 'halftime') amb.engine.resumeFromHalfTime();
+    amb.engine.update(dt);
+    // La cámara sigue al balón sólo aquí: no se toca la preferencia del jugador
+    const userFollow = this.renderer.follow;
+    this.renderer.follow = true;
+    this.renderer.draw(amb.match, { dt, incident: null, kit: KITS[0], flagUp: null });
+    this.renderer.follow = userFollow;
   }
 
   quitToMenu() {
@@ -532,6 +584,8 @@ export class Game {
 
     engine.on('decision:resolved', ({ incident, payload, grade }) => {
       hud.hideDecision();
+      // Cada decisión sale del silbato del árbitro, y se ve salir
+      if (payload.action !== 'play') this.renderer.whistle(this.match.ref.pos, 0.9);
       if (this.settings.showEvaluation && !this.match.difficulty.showTruthBefore) {
         hud.showEvaluation(incident, payload, grade);
       }
@@ -560,16 +614,21 @@ export class Game {
     engine.on('goal', ({ side }) => {
       this.renderer.triggerFlash('#ffffff', 0.35);
       this.renderer.triggerShake(8);
-      this.renderer.addFloater('¡GOL!', this.match.ball.pos.x, this.match.ball.pos.y, '#ffd60a', 2.6);
+      this.renderer.addFloater(`¡${t('act.goal')}!`, this.match.ball.pos.x, this.match.ball.pos.y, '#ffd60a', 2.6);
+      this.renderer.burst(side);
       this.audio.cheer(1);
+      hud.goalBurst(this.match.teams[side].name);
       hud.toast(`⚽ ${this.match.teams[side].name}`, 'good');
     });
 
     engine.on('card', ({ entity, card }) => {
-      this.renderer.addFloater(card === 'red' ? '🟥' : '🟨', entity.pos.x, entity.pos.y, card === 'red' ? '#ff453a' : '#ffd60a', 2);
+      this.renderer.showCard(entity.pos, card);
+      this.renderer.whistle(this.match.ref.pos, 1);
+      hud.cardFlash(card);
     });
 
     engine.on('protest', ({ entity, intensity }) => {
+      this.renderer.gesture(entity.id, 'protest', 2.4);
       const lines = ['protest.ref', 'protest.out', 'protest.noTouch', 'protest.red', 'protest.penalty',
         'protest.always', 'protest.dive', 'protest.handball', 'protest.homer'];
       const key = lines[Math.floor(Math.random() * lines.length)];

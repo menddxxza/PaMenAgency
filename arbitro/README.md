@@ -42,17 +42,18 @@ determinan lo que realmente ves, y por tanto tu probabilidad de acertar.
 ## Pruebas
 
 ```bash
-node test/all.js       # 76 pruebas: reglamento, sistemas y motor
+node test/all.js       # 81 pruebas: reglamento, sistemas y motor
 node test/all.js -v    # con el detalle de cada prueba
 node test/run.js 8     # simula 8 partidos y saca las medias por pantalla
 ```
 
 - **Reglamento** (38): casos de las reglas del juego. Si una falla, el juego
   estaría enseñando una regla equivocada.
-- **Sistemas** (24): generación del mundo, equipaciones distinguibles, guardado
+- **Sistemas** (27): generación del mundo, equipaciones distinguibles, guardado
   y carga, economía, academia y —lo más útil al añadir texto— que los dos
-  idiomas tengan las mismas claves y que la interfaz no use ninguna inexistente.
-- **Motor** (14): invariantes del partido (nadie sale del campo, la posesión
+  idiomas tengan las mismas claves y que la interfaz no use ninguna inexistente. También que los efectos del
+  campo caduquen y que el movimiento se apague con `prefers-reduced-motion`.
+- **Motor** (16): invariantes del partido (nadie sale del campo, la posesión
   cuadra, nunca quedan menos de siete jugadores, el mismo partido con la misma
   semilla da el mismo resultado) y que las medias caen en rangos creíbles.
 
@@ -175,9 +176,38 @@ que los paneles, así que nunca se desincronizan.
   sans del sistema para lectura y monoespaciada tabular para reloj, marcador y
   notas. Todo son stacks del sistema: el juego funciona sin conexión.
 - **Movimiento**: tres curvas nombradas, sólo `transform` y `opacity`, y
-  colapso completo bajo `prefers-reduced-motion`.
+  colapso completo bajo `prefers-reduced-motion` —también en el canvas, donde
+  los sprites siguen dibujándose pero dejan de agitarse.
 - Durante una decisión el campo se atenúa y un foco cae sobre la jugada: la
   vista acompaña a la decisión en lugar de competir con ella.
+
+## Animación
+
+Nada se dibuja quieto.
+
+- **Jugadores y árbitros** tienen cuerpo: torso con el color del equipo,
+  cabeza asomando hacia donde miran, y piernas y brazos que se alternan con la
+  zancada. La cadencia la marca la velocidad real de cada uno, y cada jugador
+  arranca con su propia fase para que veintidós piernas no marchen al unísono.
+  El cuerpo bota al correr y la sombra se encoge con el bote. Un lesionado se
+  dibuja tumbado; quien protesta o celebra levanta los brazos.
+- **El balón** rueda en proporción a lo que recorre y se aplasta un instante
+  al caer con fuerza. Cuando va rápido deja estela.
+- **El partido** responde: el marcador rueda al cambiar, la nota se desplaza
+  hacia su valor en vez de saltar, un gol lanza el rótulo de retransmisión y
+  papelillos en la grada del equipo que marcó, cada tarjeta tiñe el borde de
+  la pantalla y se levanta sobre el infractor, y cada decisión sale del
+  silbato como una onda. El banderín del asistente sube y ondea.
+- **En los menús hay partido.** El campo del fondo no es una imagen: es un
+  encuentro real jugándose con árbitro automático, desenfocado bajo el velo.
+  Se detiene en cuanto entras en cualquier otra pantalla.
+- Las repeticiones animan igual: la zancada sale de lo que se movió cada
+  jugador entre fotogramas, así que al rebobinar las piernas rebobinan.
+
+Para que todo eso quepa en 60 FPS, el público, el halo de los focos y la
+viñeta se dibujan una vez en capas aparte y luego se estampan: antes eran
+decenas de miles de rectángulos y cuatro degradados por fotograma. El coste
+de dibujo bajó de 68 ms a 14 ms por fotograma en el mismo banco de pruebas.
 
 ## Añadir un idioma
 
@@ -193,6 +223,6 @@ El juego se entrega en español e inglés, completos y verificados.
 
 ## Estado
 
-Terminado y jugable de principio a fin, con 76 pruebas automáticas en verde.
+Terminado y jugable de principio a fin, con 81 pruebas automáticas en verde.
 El detalle de lo que quedó dentro y lo que se decidió dejar fuera está en
 `NOTAS-DESARROLLO.md`.

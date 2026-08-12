@@ -78,6 +78,12 @@ export class HUD {
     this.evalBox = el('div', 'eval-box hidden');
     this.root.appendChild(this.evalBox);
 
+    // ---- capa de efectos (gol, tarjeta): no recibe clics
+    this.fx = el('div', 'hud-fx');
+    this.root.appendChild(this.fx);
+    this._lastScore = null;
+    this._lastRating = null;
+
     // ---- mando táctil (sólo en pantallas sin teclado)
     this.touch = { dx: 0, dy: 0, sprint: false, active: false };
     this.buildTouchControls();
@@ -145,8 +151,19 @@ export class HUD {
     q('.team.away .chip').style.background = (match.kits ? match.kits[1].primary : a.colors.primary);
     q('.team.home .name').textContent = h.shortName || h.name;
     q('.team.away .name').textContent = a.shortName || a.name;
-    q('.sh').textContent = match.score[0];
-    q('.sa').textContent = match.score[1];
+    // El marcador gira al cambiar: un número que salta sin más pasa
+    // desapercibido justo cuando más importa.
+    const prev = this._lastScore;
+    for (const [i, sel] of [[0, '.sh'], [1, '.sa']]) {
+      const node = q(sel);
+      if (prev && prev[i] !== match.score[i]) {
+        node.classList.remove('roll');
+        void node.offsetWidth;          // fuerza el reinicio de la animación
+        node.classList.add('roll');
+      }
+      node.textContent = match.score[i];
+    }
+    this._lastScore = [match.score[0], match.score[1]];
     q('.clock').textContent = fmtClock(match.clock);
     q('.added').textContent = match.addedTime ? `+${Math.round(match.addedTime / 60)}` : '';
     const periods = { 1: 'hud.half1', 2: 'hud.half2', 3: 'hud.et1', 4: 'hud.et2', 5: 'hud.shootout' };
@@ -154,7 +171,10 @@ export class HUD {
 
     const r = engine.rating.current();
     const rv = this.left.querySelector('.rating-value');
-    rv.textContent = r.toFixed(1);
+    // La nota se desplaza hacia su valor en lugar de dar un salto seco
+    const shown = this._lastRating === null ? r : this._lastRating + (r - this._lastRating) * 0.12;
+    this._lastRating = Math.abs(r - shown) < 0.005 ? r : shown;
+    rv.textContent = this._lastRating.toFixed(1);
     rv.className = `rating-value ${r >= 8 ? 'good' : r >= 6.5 ? 'ok' : r >= 5 ? 'warn' : 'bad'}`;
     this.left.querySelector('.bar > i').style.width = `${r * 10}%`;
     const st = this.left.querySelector('.bar.stamina > i');
@@ -435,6 +455,25 @@ export class HUD {
       <div class="ei">${t('eval.impact')}: ${t(`eval.impact.${incident.impact}`)}</div>`;
     clearTimeout(this._evalTimer);
     this._evalTimer = setTimeout(() => this.evalBox.classList.add('hidden'), 3200);
+  }
+
+  // ------------------------------------------------------------ efectos
+
+  /** Rótulo de gol a toda pantalla, como el de una retransmisión. */
+  goalBurst(teamName) {
+    const e = el('div', 'fx-goal');
+    e.innerHTML = `<span class="fx-goal-word">${t('act.goal')}</span>`
+      + `<span class="fx-goal-team"></span>`;
+    e.querySelector('.fx-goal-team').textContent = teamName;
+    this.fx.appendChild(e);
+    setTimeout(() => e.remove(), 2600);
+  }
+
+  /** Barrido del color de la tarjeta por el borde de la pantalla. */
+  cardFlash(card) {
+    const e = el('div', `fx-card ${card}`);
+    this.fx.appendChild(e);
+    setTimeout(() => e.remove(), 1200);
   }
 
   // ------------------------------------------------------------ avisos
