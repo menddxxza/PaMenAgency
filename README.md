@@ -7,12 +7,14 @@ Todo el contenido —clubes, jugadores, entrenadores, estadios, competiciones y
 narrativa— es **ficticio y original**. No se usan marcas, escudos, nombres ni
 assets de terceros.
 
+El juego va aparte del resto del monorepo: esta rama tiene su propia historia,
+sin un solo commit de los demás proyectos, y el juego vive en la raíz.
+
 ## Cómo jugarlo
 
 No hay compilación ni dependencias: son módulos ES nativos.
 
 ```bash
-cd arbitro
 python3 -m http.server 8099     # o cualquier servidor estático
 # abrir http://localhost:8099
 ```
@@ -60,7 +62,7 @@ node test/run.js 8     # simula 8 partidos y saca las medias por pantalla
 ## Arquitectura
 
 ```
-arbitro/
+.
 ├── index.html            punto de entrada
 ├── styles/tokens.css     sistema de diseño (color OKLCH, tipografía, espacio)
 ├── styles/main.css       estilo propio, construido sólo sobre tokens

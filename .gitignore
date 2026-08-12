@@ -1,0 +1,4 @@
+# El juego no tiene compilación ni dependencias: aquí sólo entra ruido
+node_modules
+.DS_Store
+*.local
