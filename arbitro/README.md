@@ -29,17 +29,33 @@ python3 -m http.server 8099     # o cualquier servidor estático
 | `C` | cámara fija / cámara que sigue el balón |
 | `1`–`6` | elegir opción durante una decisión |
 
+También se juega con **mando** (palanca izquierda para moverte, gatillo o A para
+esprintar, los cuatro botones frontales y los gatillos superiores para las seis
+opciones de decisión, Start pausa, Select cambia la cámara) y con **pantalla
+táctil** (palanca virtual y botón de sprint, que sólo aparecen en dispositivos
+sin teclado). En un teléfono en vertical el campo se gira para llenar la
+pantalla, y la dirección de la palanca gira con él.
+
 Tu **posición importa**: la distancia, el ángulo y los cuerpos interpuestos
 determinan lo que realmente ves, y por tanto tu probabilidad de acertar.
 
 ## Pruebas
 
 ```bash
-node test/run.js 8     # simula 8 partidos completos sin interfaz y valida medias
+node test/all.js       # 81 pruebas: reglamento, sistemas y motor
+node test/all.js -v    # con el detalle de cada prueba
+node test/run.js 8     # simula 8 partidos y saca las medias por pantalla
 ```
 
-Comprueba que los partidos terminan, que las medias (goles, faltas, tarjetas,
-córners, fueras de juego) están en rangos creíbles y que las notas son coherentes.
+- **Reglamento** (38): casos de las reglas del juego. Si una falla, el juego
+  estaría enseñando una regla equivocada.
+- **Sistemas** (27): generación del mundo, equipaciones distinguibles, guardado
+  y carga, economía, academia y —lo más útil al añadir texto— que los dos
+  idiomas tengan las mismas claves y que la interfaz no use ninguna inexistente. También que los efectos del
+  campo caduquen y que el movimiento se apague con `prefers-reduced-motion`.
+- **Motor** (16): invariantes del partido (nadie sale del campo, la posesión
+  cuadra, nunca quedan menos de siete jugadores, el mismo partido con la misma
+  semilla da el mismo resultado) y que las medias caen en rangos creíbles.
 
 ## Arquitectura
 
@@ -105,6 +121,9 @@ advertencia verbal previa · manos evaluadas por posición del brazo, distancia 
 naturalidad · fuera de juego con asistentes falibles que pueden dudar · VAR con
 cuatro cámaras, control de reproducción fotograma a fotograma, línea de fuera de
 juego y protocolo de error claro y manifiesto · tecnología de línea de gol ·
+bloqueos y rechaces dentro del área · remates de cabeza · barrera a 9,15 m en
+las faltas y área llena en los córners · reiteración de faltas · pérdida de
+tiempo del equipo que va ganando ·
 lesiones y equipo médico · sustituciones · descuento calculado dinámicamente
 (sin cortar una ocasión clara) · prórroga y tanda de penaltis · protestas de
 jugadores y entrenadores según personalidad · eventos de estadio (tangana,
@@ -117,11 +136,21 @@ Nueve categorías, de la Liga Regional Iberania al Campeonato Mundial, con más 
 100 clubes y 16 selecciones. Cada jornada eliges entre designaciones con su
 presión, dificultad, rivalidad, honorarios y experiencia.
 
-Nota, reputación, experiencia, dinero, condición física y diez atributos que
+Economía con dos caras: honorarios por partido frente a un coste fijo por
+jornada que crece con la categoría, y siete inversiones con efecto real
+(gimnasio, fisio, coche, piso, curso de reglamento, equipamiento y analista de
+vídeo). Nota, reputación, experiencia, condición física y diez atributos que
 suben entrenando y arbitrando. Ascensos y descensos por rendimiento sostenido,
 condicionados a aprobar los exámenes de la academia. Prensa que titula según lo
 que pasó de verdad, ruedas de prensa, blog con audiencia, supervisor arbitral,
 decisiones éticas, modo Syndicate ramificado y ocho finales distintos.
+
+### Repetición
+
+Las jugadas con peso (goles, tarjetas, penaltis, revisiones VAR y todo lo
+calificado como de impacto alto) se guardan mientras dura el partido. Desde el
+informe final se abren en un reproductor con control fotograma a fotograma,
+cuatro cámaras y línea de fuera de juego.
 
 ### Modos
 
@@ -147,11 +176,53 @@ que los paneles, así que nunca se desincronizan.
   sans del sistema para lectura y monoespaciada tabular para reloj, marcador y
   notas. Todo son stacks del sistema: el juego funciona sin conexión.
 - **Movimiento**: tres curvas nombradas, sólo `transform` y `opacity`, y
-  colapso completo bajo `prefers-reduced-motion`.
+  colapso completo bajo `prefers-reduced-motion` —también en el canvas, donde
+  los sprites siguen dibujándose pero dejan de agitarse.
 - Durante una decisión el campo se atenúa y un foco cae sobre la jugada: la
   vista acompaña a la decisión en lugar de competir con ella.
 
+## Animación
+
+Nada se dibuja quieto.
+
+- **Jugadores y árbitros** tienen cuerpo: torso con el color del equipo,
+  cabeza asomando hacia donde miran, y piernas y brazos que se alternan con la
+  zancada. La cadencia la marca la velocidad real de cada uno, y cada jugador
+  arranca con su propia fase para que veintidós piernas no marchen al unísono.
+  El cuerpo bota al correr y la sombra se encoge con el bote. Un lesionado se
+  dibuja tumbado; quien protesta o celebra levanta los brazos.
+- **El balón** rueda en proporción a lo que recorre y se aplasta un instante
+  al caer con fuerza. Cuando va rápido deja estela.
+- **El partido** responde: el marcador rueda al cambiar, la nota se desplaza
+  hacia su valor en vez de saltar, un gol lanza el rótulo de retransmisión y
+  papelillos en la grada del equipo que marcó, cada tarjeta tiñe el borde de
+  la pantalla y se levanta sobre el infractor, y cada decisión sale del
+  silbato como una onda. El banderín del asistente sube y ondea.
+- **En los menús hay partido.** El campo del fondo no es una imagen: es un
+  encuentro real jugándose con árbitro automático, desenfocado bajo el velo.
+  Se detiene en cuanto entras en cualquier otra pantalla.
+- Las repeticiones animan igual: la zancada sale de lo que se movió cada
+  jugador entre fotogramas, así que al rebobinar las piernas rebobinan.
+
+Para que todo eso quepa en 60 FPS, el público, el halo de los focos y la
+viñeta se dibujan una vez en capas aparte y luego se estampan: antes eran
+decenas de miles de rectángulos y cuatro degradados por fotograma. El coste
+de dibujo bajó de 68 ms a 14 ms por fotograma en el mismo banco de pruebas.
+
+## Añadir un idioma
+
+La arquitectura está preparada: los textos viven en `i18n/`, nunca en la lógica.
+
+1. Copia `i18n/es.js` a `i18n/fr.js` (por ejemplo) y traduce los valores.
+2. Regístralo en `src/core/i18n.js` (`BUNDLES`).
+3. Ejecuta `node test/all.js`: las pruebas de idiomas comprueban que no falte
+   ninguna clave, que ninguna esté vacía y que las variables (`{n}`, `{ref}`)
+   coincidan entre idiomas.
+
+El juego se entrega en español e inglés, completos y verificados.
+
 ## Estado
 
-Jugable de principio a fin. Lo que falta por pulir está anotado en
+Terminado y jugable de principio a fin, con 81 pruebas automáticas en verde.
+El detalle de lo que quedó dentro y lo que se decidió dejar fuera está en
 `NOTAS-DESARROLLO.md`.

@@ -33,50 +33,127 @@ automático con acierto 72%):
 
 | Métrica | Silbato Cero | Fútbol real (referencia) |
 |---|---|---|
-| Goles | ~2,5 | 2,7 |
-| Faltas | ~25 | 22–26 |
-| Amarillas | ~1–3 | 3–5 |
+| Goles | ~2,4 | 2,7 |
+| Faltas | ~21 | 22–26 |
+| Amarillas | ~2,8 | 3–5 |
 | Rojas | ~0,15 | 0,1–0,2 |
-| Penaltis | ~0,3 | 0,25 |
+| Penaltis | ~0,4 | 0,25 |
 | Fueras de juego | ~4 | 3–5 |
-| Córners | ~5 | 9–11 |
+| Córners | ~9,8 | 9–11 |
 | Tiros | ~30 | 24–28 |
 
 Los atributos de los futbolistas se comprimen por categoría
 (`generators.compressLevel`): sin esa compresión, la Liga Regional producía
 partidos sin una sola ocasión.
 
-## Versión funcional pero ampliable
+Estos rangos están fijados como prueba automática (`test/engine.test.js`): si
+un cambio en el motor los rompe, la batería falla antes de llegar al juego.
 
-Estas piezas funcionan y están conectadas, pero admiten profundidad:
+## Decisiones tomadas a propósito
 
-- **Córners**: sólo se generan por parada del portero o desvío. Faltan bloqueos
-  de defensores en el área, que subirían la cifra a valores reales.
-- **Amarillas**: algo por debajo de lo real porque el motor sólo eleva a
-  *temeraria* por intensidad del contacto. Falta la **reiteración de faltas**
-  (amonestar al jugador que acumula infracciones) y la pérdida de tiempo.
-- **Balón parado**: las faltas y córners se ejecutan con un saque simple; no hay
-  barrera, ni jugadas ensayadas, ni remates de cabeza en el área.
-- **Cambios**: la IA sustituye por cansancio; no hay lectura táctica del
-  marcador.
-- **Economía**: hay ingresos y saldo, pero no gastos (vivienda, coche,
-  equipamiento). Se dejó fuera a propósito para que el juego siga siendo un
-  simulador arbitral y no un juego de compras.
-- **Syndicate**: cinco capítulos ramificados. La estructura admite más sin tocar
-  código: son datos en `CHAPTERS`.
+No son deudas: son límites elegidos y sostenidos.
+
+- **Idiomas**: se entrega en español e inglés, completos y verificados por las
+  pruebas. Añadir francés, italiano, alemán o portugués es copiar un archivo de
+  `i18n/` y traducir sus valores; las pruebas avisan de cualquier clave que
+  falte, esté vacía o pierda una variable. Traducir a ciegas los ~750 textos a
+  cuatro idiomas más habría metido en el juego un castellano disfrazado.
+- **Economía**: hay ingresos, gasto fijo y siete inversiones con efecto real,
+  pero no un catálogo de compras. El juego sigue siendo un simulador arbitral.
+- **Syndicate**: cinco capítulos ramificados. Ampliarlo no toca código: son
+  datos en `CHAPTERS`.
 - **Personalización visual del árbitro**: se elige uniforme, tono de piel,
-  cabello y dorsal, pero el sprite 2D sólo refleja el uniforme.
+  cabello y dorsal; el sprite 2D refleja el uniforme, que es lo que se
+  distingue desde la cámara cenital.
 
-## Qué falta
+## Cerrado en la revisión del motor
 
-- Reiteración de faltas y pérdida de tiempo como motivos de amonestación
-  automáticos del motor.
-- Rechaces y bloqueos en el área (mejorarían córners y manos dentro del área).
-- Idiomas más allá de es/en: la arquitectura ya lo soporta, sólo hay que añadir
-  el archivo en `i18n/` y registrarlo en `core/i18n.js`.
-- Repetición navegable del partido completo desde el informe final (hoy la
-  cronología es una lista; el búfer de repetición existe y lo usa el VAR).
-- Mando / táctil: hoy el partido se juega con teclado y ratón.
+- **Bloqueos y rechaces en el área.** Los defensores tapan el disparo con más
+  alcance dentro de su área; un bloqueo puede irse por la línea de fondo
+  (córner) o quedar como rechace. De ahí salen también las manos dentro del
+  área. Cada jugador tiene un tiempo de espera para no bloquear dos veces el
+  mismo balón.
+- **Remates de cabeza.** Un balón alto que cae en el área lo disputa quien
+  mejor juega de cabeza: dentro, remate a puerta; fuera, despeje. Sin esto los
+  córners no producían nada.
+- **Barrera y colocación en el balón parado.** Las faltas a menos de 32 m
+  forman barrera de 2 a 4 jugadores a 9,15 m, con rematadores y marcadores
+  dentro del área; los córners llenan el área. El servicio se ejecuta de
+  verdad: centro al área o disparo directo por encima de la barrera.
+  Con el balón por alto los defensores saltan en lugar de entrar, que era la
+  causa de una plaga de penaltis en los córners.
+- **Reiteración de faltas.** El motor cuenta las faltas de cada jugador y a
+  partir de la tercera la infracción pasa a ser amonestable, aunque ninguna
+  por separado lo fuera (`evaluateDisciplinaryAction`, hecho `persistent`).
+- **Pérdida de tiempo.** A partir del minuto 60, el equipo que va ganando
+  estira las reanudaciones. Si el retraso se hace descarado llega al árbitro
+  como situación propia, con advertencia verbal previa: una segunda demora
+  del mismo jugador ya es amarilla (`evaluateTimeWasting`).
+- **Economía con gastos.** Coste fijo por jornada que sube con la categoría,
+  siete inversiones con efecto real (gimnasio, fisio, coche, piso, curso de
+  reglamento, equipamiento y analista de vídeo) con su mantenimiento, libro de
+  movimientos y aviso del banco al entrar en números rojos.
+
+## Cerrado en la revisión final
+
+- **Córners a valores reales (9,8 por partido).** Los despejes bajo presión
+  cerca de la línea se van fuera buscando el banderín, y un disparo bloqueado
+  que sale desviado hacia el fondo acaba en córner algo más de la mitad de las
+  veces: el portero no llega a todo.
+- **Cambios con lectura del partido.** Se sustituye por lesión, por desgaste,
+  para proteger a un amonestado que juega al límite, para arriesgar cuando se
+  pierde (defensa fuera, delantero dentro) y para cerrar cuando se gana. El
+  entrante ocupa el hueco táctico que corresponde a su rol, no el del que sale.
+  9,8 cambios por partido, minuto medio 72.
+- **Repetición navegable.** El motor guarda la jugada de cada incidente con
+  peso (goles, tarjetas, penaltis, VAR, impacto alto) y el informe final las
+  ofrece en un reproductor con fotograma a fotograma, cuatro cámaras y línea de
+  fuera de juego. Los clips viven en memoria: no engordan el guardado.
+- **Mando y táctil.** Mando físico vía Gamepad API (palanca izquierda, gatillo
+  o A para esprintar, botones frontales y superiores para las seis opciones de
+  decisión, Start pausa, Select cambia cámara) con detección de flanco para que
+  un botón sostenido no repita la decisión. En pantallas sin teclado aparece una
+  palanca virtual y un botón de sprint.
+- **Vertical en el móvil.** En pantallas altas el campo se gira un cuarto de
+  vuelta y llena el teléfono, en lugar de quedarse en una franja central. La
+  dirección de la palanca y del mando gira con él.
+- **Batería de pruebas.** 81 pruebas sin dependencias (`node test/all.js`):
+  reglamento, sistemas y motor. Incluye las que evitan las regresiones que más
+  caro salieron durante el desarrollo: partidos que no terminan, jugadores
+  fuera del campo, posesión que no cuadra, equipaciones indistinguibles,
+  guardado que pierde datos, claves de idioma que faltan y medias del partido
+  fuera de rango.
+
+## Cerrado en la pasada de animación
+
+- **Cuerpos, no fichas.** Los jugadores dejaron de ser discos: torso con el
+  color del equipo, cabeza asomando hacia donde miran y extremidades que se
+  alternan con la zancada, a la cadencia de su velocidad real y con fase
+  propia por jugador. Botan al correr, se tumban al lesionarse y levantan los
+  brazos al protestar o celebrar. Por debajo de 7 px de radio se dibuja el
+  cuerpo simple: a ese tamaño el detalle era ruido y costaba lo mismo.
+- **Balón con rotación y aplastado** al caer, y banderín de asistente que
+  sube y ondea en vez de aparecer de golpe.
+- **Efectos de retransmisión**: rótulo de gol, papelillos en la grada del
+  equipo que marcó, tinte de tarjeta en el borde de la pantalla, tarjeta
+  levantada sobre el infractor, onda de silbato, marcador que rueda y nota
+  que se desplaza. Todos sólo con `transform` y `opacity`, y todos se apagan
+  con `prefers-reduced-motion` (también los del canvas, vía `renderer.motion`).
+- **Partido de fondo en el menú.** Un encuentro real jugándose con árbitro
+  automático detrás del menú principal, desenfocado. Se para al salir del
+  menú para no gastar batería dibujando lo que no se ve.
+- **Rendimiento.** La animación multiplicó el coste por fotograma, así que se
+  cachearon en capas el público, el halo de los focos y la viñeta: 82 ms →
+  14 ms por fotograma dibujado, por debajo incluso de los 68 ms que costaba
+  antes de animar nada (medido en el mismo navegador sin GPU).
+
+## Qué no está y por qué
+
+- **Repetición del partido entero** (no sólo las jugadas guardadas): exigiría
+  almacenar los 90 minutos completos, unos 40 MB por partido. Se guarda lo que
+  de verdad se revisa.
+- **Multijugador y clasificaciones en línea**: fuera del alcance del proyecto,
+  que es de un jugador y funciona sin conexión.
 
 ## Rediseño de interfaz y gráficos
 
@@ -125,3 +202,30 @@ en OKLCH). Registro en `.hallmark/log.json`.
 11. **Etiquetas sin traducir en el informe** (`advantage`, `management`) y
     decisiones mostradas con su nombre interno (`challenge → foul`). Ahora
     todo pasa por `t()` y se lee en lenguaje de árbitro.
+12. **Plaga de penaltis al llenar el área** en las jugadas a balón parado: los
+    defensores seguían entrando al hombre con el balón por alto. Ahora saltan.
+13. **Bloqueos contados por tick**: un mismo defensor bloqueaba el mismo balón
+    decenas de veces por partido. Ahora hay espera por jugador y sólo se
+    bloquea si el balón viene hacia él.
+14. **Despejes que iban a las manos del portero**: el despeje de apuro se
+    dirigía hacia la portería propia. Ahora busca el banderín.
+15. **Los escenarios no empezaban donde decían.** «Minuto 90, empate 1-1»
+    arrancaba en el minuto 0 porque `engine.start()` reseteaba el reloj y la
+    parte. Lo destapó una prueba en navegador que esperaba un partido corto y
+    se quedaba esperando noventa minutos. Ahora el motor respeta el punto de
+    partida del escenario y hay una prueba que lo comprueba.
+16. **La última jugada del partido se quedaba sin repetición**: los clips se
+    cerraban unos segundos después del incidente y el partido terminaba antes.
+    Ahora se vuelcan al pitido final.
+17. **Cámaras de repetición que enfocaban la grada**: los planos cerrados se
+    salían del campo. La cámara se mantiene dentro de los límites.
+18. **Sprites animados que se leían como una mancha**: la primera versión
+    ponía la cabeza en el centro del torso y el dorsal encima, así que el
+    jugador parecía una pelota de color carne. La cabeza pasó al frente, el
+    torso manda en el dibujo y el dorsal se redujo.
+19. **El público costaba 85.000 rectángulos por fotograma**: se redibujaba
+    entero cada vez. Ahora es una capa cacheada que sólo se rehace al cambiar
+    la escala o el aforo, y la vibración es un desplazamiento del conjunto.
+20. **El partido de fondo del menú no se veía**: el velo de las pantallas es
+    casi opaco. Ahora el menú usa un velo más claro (`#screens.airy`) y el
+    resto de pantallas detiene la simulación de fondo.

@@ -74,7 +74,7 @@ export function evaluateFoul(facts) {
   else if (!victimFell) foulType = 'foul.hold';
   else if (speed > 14) foulType = 'foul.charge';
 
-  const disc = evaluateDisciplinaryAction({ severity, dogso, spa, foulType, inBox });
+  const disc = evaluateDisciplinaryAction({ severity, dogso, spa, foulType, inBox, persistent: facts.persistent });
 
   return {
     isFoul: true,
@@ -98,7 +98,10 @@ export function evaluateFoul(facts) {
  * intentaba jugar el balón dentro del área, la roja por DOGSO baja a amarilla.
  */
 export function evaluateDisciplinaryAction(facts) {
-  const { severity, dogso = false, spa = false, inBox = false, attemptedBall = true, violent = false } = facts;
+  const {
+    severity, dogso = false, spa = false, inBox = false, attemptedBall = true,
+    violent = false, persistent = false,
+  } = facts;
 
   if (violent) return { card: 'red', reason: 'foul.violent', rule: 'rulebook.cards' };
   if (severity === SEVERITY.EXCESSIVE) {
@@ -112,7 +115,27 @@ export function evaluateDisciplinaryAction(facts) {
     return { card: 'yellow', reason: 'foul.recklessTackle', rule: 'rulebook.cards' };
   }
   if (spa) return { card: 'yellow', reason: 'foul.spa', rule: 'rulebook.cards' };
+  // Reiteración: el jugador que acumula infracciones acaba amonestado aunque
+  // ninguna de ellas, por separado, mereciera tarjeta.
+  if (persistent) return { card: 'yellow', reason: 'foul.persistent', rule: 'rulebook.cards' };
   return { card: null, reason: null, rule: 'rulebook.cards' };
+}
+
+/**
+ * Pérdida de tiempo / impedir la reanudación.
+ * facts: { delaySeconds, minute, leading, alreadyWarned }
+ */
+export function evaluateTimeWasting(facts) {
+  const { delaySeconds = 0, minute = 45, leading = false, alreadyWarned = false } = facts;
+  const blatant = delaySeconds > 12 || (delaySeconds > 8 && leading && minute > 75);
+  if (blatant || (alreadyWarned && delaySeconds > 6)) {
+    return {
+      card: 'yellow',
+      reason: alreadyWarned ? 'foul.delayRestart' : 'foul.timewasting',
+      rule: 'rulebook.cards', delaySeconds, blatant: true,
+    };
+  }
+  return { card: null, reason: 'foul.timewasting', rule: 'rulebook.cards', delaySeconds, blatant: false };
 }
 
 // -------------------------------------------------------------------- mano
@@ -402,6 +425,7 @@ export function gradeDecision(incident, decision) {
       return out(GRADE.INCORRECT, 0, should ? 'eval.disallowedValidGoal' : 'eval.allowedInvalidGoal');
     }
 
+    case 'timewasting':
     case 'dissent':
     case 'violence': {
       const need = truth.card;
@@ -443,6 +467,7 @@ export const GRADE_WEIGHT = {
 
 export default {
   evaluateFoul, evaluateHandball, evaluateOffside, evaluatePenalty,
-  evaluateAdvantage, evaluateDisciplinaryAction, evaluateRestart, evaluateGoal,
+  evaluateAdvantage, evaluateDisciplinaryAction, evaluateTimeWasting,
+  evaluateRestart, evaluateGoal,
   gradeDecision, isVarReviewable, varShouldIntervene, inPenaltyArea,
 };

@@ -3,7 +3,7 @@
 
 import { GAME, DIFFICULTY, WEATHER } from './core/config.js';
 import { setLocale, getLocale, t } from './core/i18n.js';
-import { RNG } from './core/rng.js';
+import { RNG, clamp } from './core/rng.js';
 import { loadSettings, saveSettings, saveGame, loadGame, deleteSave, lastSaveSlot } from './core/save.js';
 import { generateWorld, clubsOfDivision, divisionById, generateCrew } from './data/generators.js';
 import { findSpecial } from './data/scenarios.js';
@@ -62,6 +62,9 @@ export class Game {
     window.addEventListener('blur', () => this.keys.clear());
     window.addEventListener('resize', () => this.renderer.resize());
     this.dom.canvas.addEventListener('pointerdown', () => this.audio.ensure());
+    window.addEventListener('gamepadconnected', (e) => {
+      this.hud.toast(`🎮 ${e.gamepad.id.slice(0, 28)}`, 'good', 3000);
+    });
   }
 
   _hotkeyDecision(i) {
@@ -71,9 +74,66 @@ export class Game {
 
   _readInput() {
     const k = this.keys;
-    const dx = (k.has('d') || k.has('arrowright') ? 1 : 0) - (k.has('a') || k.has('arrowleft') ? 1 : 0);
-    const dy = (k.has('s') || k.has('arrowdown') ? 1 : 0) - (k.has('w') || k.has('arrowup') ? 1 : 0);
-    return { dx, dy, sprint: k.has('shift') };
+    let dx = (k.has('d') || k.has('arrowright') ? 1 : 0) - (k.has('a') || k.has('arrowleft') ? 1 : 0);
+    let dy = (k.has('s') || k.has('arrowdown') ? 1 : 0) - (k.has('w') || k.has('arrowup') ? 1 : 0);
+    let sprint = k.has('shift');
+
+    // Palanca táctil. Si el campo está girado, la dirección también.
+    const tp = this.hud.touch;
+    if (tp && tp.active) {
+      if (this.renderer.rotated) { dx = -tp.dy; dy = tp.dx; }
+      else { dx = tp.dx; dy = tp.dy; }
+    }
+    if (tp && tp.sprint) sprint = true;
+
+    // Mando físico
+    const gp = this._readGamepad();
+    if (gp) {
+      if (Math.abs(gp.dx) > 0.18 || Math.abs(gp.dy) > 0.18) {
+        if (this.renderer.rotated) { dx = -gp.dy; dy = gp.dx; }
+        else { dx = gp.dx; dy = gp.dy; }
+      }
+      if (gp.sprint) sprint = true;
+    }
+    return { dx, dy, sprint };
+  }
+
+  /**
+   * Mando: palanca izquierda para moverse, gatillo/A para esprintar y los
+   * cuatro botones frontales para las cuatro primeras opciones de decisión.
+   */
+  _readGamepad() {
+    if (typeof navigator === 'undefined' || !navigator.getGamepads) return null;
+    const pads = navigator.getGamepads();
+    let pad = null;
+    for (const p of pads) { if (p && p.connected) { pad = p; break; } }
+    if (!pad) return null;
+
+    const dead = (v) => (Math.abs(v) < 0.16 ? 0 : v);
+    const dx = dead(pad.axes[0] || 0);
+    const dy = dead(pad.axes[1] || 0);
+    const pressed = (i) => !!(pad.buttons[i] && pad.buttons[i].pressed);
+
+    // Flanco de subida: un botón sostenido no repite la decisión
+    this._padPrev = this._padPrev || {};
+    const edge = (i) => {
+      const now = pressed(i);
+      const was = this._padPrev[i];
+      this._padPrev[i] = now;
+      return now && !was;
+    };
+
+    if (this.engine && this.engine.pending) {
+      for (let i = 0; i < 4; i++) if (edge(i)) this._hotkeyDecision(i);
+      if (edge(4)) this._hotkeyDecision(4);   // L1 -> quinta opción
+      if (edge(5)) this._hotkeyDecision(5);   // R1 -> sexta opción
+    } else {
+      for (let i = 0; i < 6; i++) edge(i);    // mantiene el estado al día
+    }
+    if (edge(9)) this.togglePause();          // Start
+    if (edge(8)) this.renderer.follow = !this.renderer.follow; // Select
+
+    return { dx, dy, sprint: pressed(7) || pressed(0) };
   }
 
   togglePause() {
@@ -125,6 +185,8 @@ export class Game {
         this.audio.updateCrowd(this.match.atmosphere.noise,
           (this.match.atmosphere.anger[0] + this.match.atmosphere.anger[1]) / 2);
       }
+    } else if (!this.match) {
+      this._tickAmbient(dt);
     }
     requestAnimationFrame(this._loop);
   }
@@ -134,6 +196,56 @@ export class Game {
   boot() {
     this.dom.canvas.classList.add('dim');
     this.screens.mainMenu();
+    this.startAmbient();
+  }
+
+  /**
+   * Partido de fondo: mientras el jugador está en los menús, el campo no se
+   * queda vacío. Se juega solo, con árbitro automático, y cuando termina
+   * empieza otro. No toca la carrera ni el guardado: es sólo ambiente.
+   */
+  startAmbient() {
+    try {
+      const world = this.classicWorld();
+      const rng = new RNG(`ambient-${Date.now()}`);
+      const div = world.divisions[0];
+      const pool = clubsOfDivision(world, div.id);
+      const home = rng.pick(pool);
+      let away = rng.pick(pool);
+      while (away.id === home.id) away = rng.pick(pool);
+      const match = createMatch({
+        home, away, competition: div, seed: rng.int(1, 1e9),
+        weather: rng.pick(['clear', 'clear', 'rain', 'wind']),
+        importance: 50,
+        difficulty: DIFFICULTY.normal,
+        referee: createReferee({ seed: 'ambient', baseLevel: 70 }),
+        crew: generateCrew(rng, div.level, false),
+        varEnabled: false,
+        stadium: home.stadium,
+        startMinute: rng.int(2, 70),
+      });
+      const engine = new MatchEngine(match, { autoReferee: makeAutoReferee({ skill: 78, rng: match.rng }) });
+      engine.start();
+      this.ambient = { match, engine };
+    } catch {
+      this.ambient = null;      // el ambiente nunca puede tumbar el menú
+    }
+  }
+
+  _tickAmbient(dt) {
+    const amb = this.ambient;
+    if (!amb) return;
+    // Sólo se juega cuando de verdad se ve: en el resto de pantallas el velo
+    // es opaco y simularlo sería gastar batería para nada.
+    if (!this.dom.screens.classList.contains('airy')) return;
+    if (amb.engine.finished) { this.startAmbient(); return; }
+    if (amb.match.phase === 'halftime') amb.engine.resumeFromHalfTime();
+    amb.engine.update(dt);
+    // La cámara sigue al balón sólo aquí: no se toca la preferencia del jugador
+    const userFollow = this.renderer.follow;
+    this.renderer.follow = true;
+    this.renderer.draw(amb.match, { dt, incident: null, kit: KITS[0], flagUp: null });
+    this.renderer.follow = userFollow;
   }
 
   quitToMenu() {
@@ -250,6 +362,20 @@ export class Game {
     else if (res) msg = t('training.doneGain', { stat: t(`stat.${res.stat}`), n: res.gain });
     this.autosave();
     this.screens.training(msg);
+  }
+
+  buyAsset(id) {
+    const res = this.career.buy(id);
+    if (!res.ok) {
+      const msg = res.reason === 'money' ? t('econ.cantAfford', { n: res.missing.toLocaleString('es') }) : '';
+      this.audio.ui('error');
+      this.screens.economy(msg || undefined);
+      return;
+    }
+    this.autosave();
+    const gains = Object.entries(res.gains)
+      .map(([k, v]) => `${t(`stat.${k}`)} +${v}`).join(' · ');
+    this.screens.economy(`${t('econ.bought', { name: t(`econ.${id}`) })}${gains ? ` — ${gains}` : ''}`);
   }
 
   startExam(topic) {
@@ -379,13 +505,12 @@ export class Game {
       difficulty: sp.diveBoost ? { ...difficulty, simulationRate: difficulty.simulationRate * sp.diveBoost } : difficulty,
       referee, crew: generateCrew(rng, div.level, !!div.var), varEnabled: !!div.var,
       knockout: !!sp.knockout, stadium: home.stadium, title: sp.name,
-      kickoffScore: sp.score, startMinute: sp.startMinute,
+      kickoffScore: sp.score, startMinute: sp.startMinute, half: sp.half,
     };
     this.mode = 'special';
     this.special = sp;
     this.pendingMatchCfg = cfg;
     this.match = createMatch(cfg);
-    if (sp.half === 2 || sp.startMinute >= 45) this.match.half = 2;
     if (sp.preCards) this._preloadCards(this.match, sp.preCards);
     this.screens.preMatch({ ...cfg, lineups: this.match.lineups, weatherId: this.match.weatherId, crew: this.match.crew }, null);
   }
@@ -459,6 +584,8 @@ export class Game {
 
     engine.on('decision:resolved', ({ incident, payload, grade }) => {
       hud.hideDecision();
+      // Cada decisión sale del silbato del árbitro, y se ve salir
+      if (payload.action !== 'play') this.renderer.whistle(this.match.ref.pos, 0.9);
       if (this.settings.showEvaluation && !this.match.difficulty.showTruthBefore) {
         hud.showEvaluation(incident, payload, grade);
       }
@@ -487,16 +614,21 @@ export class Game {
     engine.on('goal', ({ side }) => {
       this.renderer.triggerFlash('#ffffff', 0.35);
       this.renderer.triggerShake(8);
-      this.renderer.addFloater('¡GOL!', this.match.ball.pos.x, this.match.ball.pos.y, '#ffd60a', 2.6);
+      this.renderer.addFloater(`¡${t('act.goal')}!`, this.match.ball.pos.x, this.match.ball.pos.y, '#ffd60a', 2.6);
+      this.renderer.burst(side);
       this.audio.cheer(1);
+      hud.goalBurst(this.match.teams[side].name);
       hud.toast(`⚽ ${this.match.teams[side].name}`, 'good');
     });
 
     engine.on('card', ({ entity, card }) => {
-      this.renderer.addFloater(card === 'red' ? '🟥' : '🟨', entity.pos.x, entity.pos.y, card === 'red' ? '#ff453a' : '#ffd60a', 2);
+      this.renderer.showCard(entity.pos, card);
+      this.renderer.whistle(this.match.ref.pos, 1);
+      hud.cardFlash(card);
     });
 
     engine.on('protest', ({ entity, intensity }) => {
+      this.renderer.gesture(entity.id, 'protest', 2.4);
       const lines = ['protest.ref', 'protest.out', 'protest.noTouch', 'protest.red', 'protest.penalty',
         'protest.always', 'protest.dive', 'protest.handball', 'protest.homer'];
       const key = lines[Math.floor(Math.random() * lines.length)];
@@ -584,6 +716,17 @@ export class Game {
     this.dom.canvas.classList.add('dim');
     const mode = this._activeMode || 'match';
 
+    // Instantánea mínima para poder revisar las jugadas cuando el partido
+    // ya no existe: colores, estadio y clima, nada más.
+    this.reviewMatch = this.match ? {
+      teams: this.match.teams,
+      kits: this.match.kits,
+      stadium: this.match.stadium,
+      weather: this.match.weather,
+      atmosphere: { noise: 35 },
+    } : null;
+    this.reviewReport = report;
+
     if (mode === 'special' && this.special) {
       const passed = report.rating.overall >= this.special.targetRating && !report.abandoned;
       this.screens.scenarioResult(this.special, report, passed);
@@ -591,10 +734,11 @@ export class Game {
       return;
     }
     if (mode === 'classic' || !this.career) {
-      this.screens.matchReport(report, {
+      this.lastReportExtra = {
         buttons: `<button class="primary" data-act="classic">${t('ui.anotherMatch')}</button>
                   <button data-act="menu">${t('menu.quit')}</button>`,
-      });
+      };
+      this.screens.matchReport(report, this.lastReportExtra);
       this._teardownMatch();
       return;
     }
@@ -622,13 +766,13 @@ export class Game {
           ${res.news.map((n) => `<li class="muted">📰 ${n.headline}</li>`).join('')}
         </ul></div>`;
 
-    this.screens.matchReport(report, {
+    this.lastReportExtra = {
       gainsHtml,
       buttons: `<button class="primary big" data-act="postMatchNext">${t('ui.continue')}</button>`,
-    });
+    };
+    this.screens.matchReport(report, this.lastReportExtra);
     // El botón de continuar encadena rueda de prensa / ética / trama
-    const btn = this.dom.screens.querySelector('[data-act="postMatchNext"]');
-    if (btn) btn.onclick = () => { this.audio.ui('click'); this._postMatchNext(); };
+    this._rewirePostMatchButton();
     this._teardownMatch();
   }
 
@@ -654,6 +798,106 @@ export class Game {
     this.paused = false;
     this._flagUp = null;
     this.audio.stopCrowd();
+  }
+
+  // -------------------------------------------------- revisión de jugadas
+
+  openReview(clipId) {
+    const report = this.reviewReport;
+    if (!report || !report.clips) return;
+    const clip = report.clips[clipId];
+    if (!clip) return;
+    const incident = (report.incidents || []).find((i) => i.id === clipId) || null;
+
+    this.screens.matchReview(clip, incident);
+    const canvas = this.dom.screens.querySelector('#review-canvas');
+    if (!canvas) return;
+
+    const renderer = new Renderer(canvas);
+    const session = {
+      frames: clip.frames, index: 0, playing: true, speed: 1,
+      camera: 'side', zoom: 1, offsideLine: false, incident,
+    };
+    this.review = { renderer, session, clip, raf: null, last: performance.now() };
+
+    const range = this.dom.screens.querySelector('#review-range');
+    const btn = (name) => this.dom.screens.querySelector(`[data-rv="${name}"]`);
+    const step = (n) => {
+      session.index = clamp(session.index + n, 0, session.frames.length - 1);
+      session.playing = false;
+      if (playBtn) playBtn.textContent = '▶';
+    };
+    const playBtn = btn('play');
+
+    btn('start').onclick = () => step(-session.frames.length);
+    btn('back10').onclick = () => step(-10);
+    btn('back1').onclick = () => step(-1);
+    btn('fwd1').onclick = () => step(1);
+    btn('fwd10').onclick = () => step(10);
+    playBtn.onclick = () => {
+      session.playing = !session.playing;
+      if (session.playing && session.index >= session.frames.length - 1) session.index = 0;
+      playBtn.textContent = session.playing ? '⏸' : '▶';
+    };
+    const speeds = [0.25, 0.5, 1, 2];
+    let si = 2;
+    btn('speed').onclick = () => {
+      si = (si + 1) % speeds.length;
+      session.speed = speeds[si];
+      btn('speed').textContent = `${speeds[si]}×`;
+    };
+    const cams = ['main', 'side', 'behindGoal', 'tactical'];
+    let ci = 1;
+    btn('cam').onclick = () => {
+      ci = (ci + 1) % cams.length;
+      session.camera = cams[ci];
+      btn('cam').textContent = t(`var.cam.${cams[ci]}`);
+    };
+    btn('line').onclick = () => {
+      session.offsideLine = !session.offsideLine;
+      btn('line').classList.toggle('on', session.offsideLine);
+    };
+    if (range) {
+      range.oninput = () => { session.index = Number(range.value); session.playing = false; playBtn.textContent = '▶'; };
+    }
+    playBtn.textContent = '⏸';
+
+    const loop = (now) => {
+      if (!this.review) return;
+      const dt = Math.min(0.05, (now - this.review.last) / 1000);
+      this.review.last = now;
+      if (session.playing) {
+        session.acc = (session.acc || 0) + dt * 30 * session.speed;
+        while (session.acc >= 1) {
+          session.acc -= 1;
+          session.index++;
+          if (session.index >= session.frames.length - 1) {
+            session.index = session.frames.length - 1;
+            session.playing = false;
+            playBtn.textContent = '▶';
+            break;
+          }
+        }
+        if (range) range.value = String(session.index);
+      }
+      renderer.drawReplay(session.frames[session.index], this.reviewMatch, session);
+      this.review.raf = requestAnimationFrame(loop);
+    };
+    this.review.raf = requestAnimationFrame(loop);
+  }
+
+  closeReview() {
+    if (this.review) {
+      cancelAnimationFrame(this.review.raf);
+      this.review = null;
+    }
+    this.screens.matchReport(this.reviewReport, this.lastReportExtra || {});
+    this._rewirePostMatchButton();
+  }
+
+  _rewirePostMatchButton() {
+    const btn = this.dom.screens.querySelector('[data-act="postMatchNext"]');
+    if (btn) btn.onclick = () => { this.audio.ui('click'); this._postMatchNext(); };
   }
 
   // ------------------------------------------------------------ tutorial

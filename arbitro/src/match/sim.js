@@ -174,6 +174,7 @@ function buildContext(match) {
 
 function stepEntity(match, e, target, dt) {
   if (!e.onPitch || e.red) return;
+  if (e.blockCd > 0) e.blockCd -= dt;
   if (e.injured && e.downUntil > match.clock) { e.vel.x = 0; e.vel.y = 0; return; }
   if (!target) return;
 
@@ -234,27 +235,133 @@ export function stepBall(match, dt, hooks) {
     if (ball.height <= 0) { ball.height = 0; ball.vz = Math.abs(ball.vz) * 0.35; if (ball.vz < 1) ball.vz = 0; }
   }
 
-  // Desvíos: un balón fuerte que pasa junto a un rival puede rebotar en él.
-  // De aquí salen córners, rechaces y manos involuntarias.
+  // Desvíos y bloqueos: un balón fuerte que pasa junto a un rival rebota en
+  // él. Dentro del área los defensores se tiran a taparlo, y de ahí salen
+  // los córners, los rechaces y buena parte de las manos.
   const speed = Math.hypot(ball.vel.x, ball.vel.y);
-  if (speed > 11 && ball.height < 1.9) {
+  if (speed > 9 && ball.height < 1.9) {
     for (const e of match.entities) {
       if (!e.onPitch || e.red || e.id === ball.lastTouch) continue;
       if (e.side === ball.lastTouchSide) continue;
-      if (dist(e.pos, ball.pos) > 0.95) continue;
-      if (match.rng.next() > 0.45) continue;
-      const ang = Math.atan2(ball.vel.y, ball.vel.x) + match.rng.float(-1.5, 1.5);
-      const ns = speed * match.rng.float(0.25, 0.6);
+      if (e.injured && e.downUntil > match.clock) continue;
+      // Un jugador no bloquea dos veces seguidas el mismo balón
+      if (e.blockCd > 0) continue;
+      // Sólo se intenta el bloqueo si el balón viene hacia él
+      const approaching = (ball.pos.x - e.pos.x) * ball.vel.x + (ball.pos.y - e.pos.y) * ball.vel.y < 0;
+      if (!approaching) continue;
+
+      // Un defensor en su propia área alarga la pierna: más alcance
+      const ownGoal = attackDir(match, e.side) > 0 ? 0 : L;
+      const inOwnBox = Math.abs(e.pos.x - ownGoal) < FIELD.penaltyAreaLength
+        && Math.abs(e.pos.y - W / 2) < FIELD.penaltyAreaWidth / 2;
+      const reach = inOwnBox ? 1.15 : 0.95;
+      if (dist(e.pos, ball.pos) > reach) continue;
+
+      const p = inOwnBox
+        ? clamp(0.5 + e.player.positioning / 300 + e.player.tackling / 400, 0.3, 0.88)
+        : 0.42;
+      if (match.rng.next() > p) continue;
+
+      // ¿Iba el balón hacia su portería? Entonces es un bloqueo, no un roce
+      const towardGoal = (ownGoal === 0 ? ball.vel.x < 0 : ball.vel.x > 0)
+        && Math.abs(ball.pos.y - W / 2) < 22;
+      const blocked = inOwnBox && towardGoal;
+
+      // Un bloqueo puede irse por la línea de fondo (córner) o quedar como
+      // rechace dentro del campo; un roce cualquiera sólo desvía la trayectoria.
+      const behind = blocked && match.rng.bool(clamp(0.35 + speed / 40, 0.35, 0.85));
+      const base = Math.atan2(ball.vel.y, ball.vel.x);
+      const ang = behind
+        ? base + match.rng.float(-0.5, 0.5)            // sigue hacia el fondo
+        : blocked
+          ? base + Math.PI + match.rng.float(-1.1, 1.1) // rechace hacia fuera
+          : base + match.rng.float(-1.5, 1.5);
+      const ns = speed * (behind ? match.rng.float(0.5, 0.9)
+        : blocked ? match.rng.float(0.3, 0.7) : match.rng.float(0.25, 0.6));
       ball.vel.x = Math.cos(ang) * ns;
       ball.vel.y = Math.sin(ang) * ns;
       ball.prevTouch = ball.lastTouch; ball.prevTouchSide = ball.lastTouchSide;
       ball.lastTouch = e.id; ball.lastTouchSide = e.side;
-      hooks.onDeflection && hooks.onDeflection(e, speed);
+      e.blockCd = 4;
+      hooks.onDeflection && hooks.onDeflection(e, speed, { blocked, inOwnBox, behind });
       break;
     }
   }
 
   hooks.checkBoundaries(prev, ball);
+}
+
+/**
+ * Duelo aéreo: un balón alto que cae en el área lo remata o lo despeja
+ * quien mejor juegue de cabeza. Sin esto, los córners no producen nada.
+ */
+function tryHeader(match, ctx, hooks) {
+  const ball = match.ball;
+  if (ball.owner) return false;
+  if (ball.height < 1.1 || ball.height > 3.0) return false;
+  if (ball.vz > 0) return false;                 // sólo cuando ya cae
+
+  let best = null, bestScore = -1;
+  for (const e of match.entities) {
+    if (!e.onPitch || e.red || e.role === 'GK') continue;
+    if (e.injured && e.downUntil > match.clock) continue;
+    const d = dist(e.pos, ball.pos);
+    if (d > 1.9) continue;
+    const score = e.player.heading * 0.6 + e.player.strength * 0.25
+      + match.rng.gauss(0, 12) - d * 6;
+    if (score > bestScore) { bestScore = score; best = e; }
+  }
+  if (!best) return false;
+
+  ball.prevTouch = ball.lastTouch; ball.prevTouchSide = ball.lastTouchSide;
+  ball.lastTouch = best.id; ball.lastTouchSide = best.side;
+  ball.owner = null;
+
+  const gx = targetGoalX(match, best.side);
+  const distToGoal = Math.hypot(gx - best.pos.x, W / 2 - best.pos.y);
+  const attacking = distToGoal < 20;
+
+  if (attacking) {
+    // Remate a puerta
+    const acc = best.player.heading * 0.7 + best.player.technique * 0.3;
+    const ty = W / 2 + match.rng.gauss(0, 4.2 * (1.2 - acc / 110));
+    const dx = gx - best.pos.x, dy = ty - best.pos.y;
+    const dd = Math.hypot(dx, dy) || 1;
+    const sp = clamp(13 + acc / 8, 10, 22);
+    ball.vel.x = (dx / dd) * sp;
+    ball.vel.y = (dy / dd) * sp;
+    ball.height = 1.4; ball.vz = -1.2;
+    match.stats[best.side].shots++;
+    hooks.onShot && hooks.onShot(best, { x: gx, y: ty }, dd);
+  } else {
+    // Despeje. Bajo presión y cerca de la propia línea, lo normal es mandarlo
+    // fuera: de ahí sale una buena parte de los córners.
+    const ownGoal = ownGoalX(match, best.side);
+    const distOwnGoal = Math.abs(best.pos.x - ownGoal);
+    const pressed = pressureOn(match, best) > 0.8;
+    const panic = distOwnGoal < 13 && (pressed || match.rng.bool(0.25));
+
+    if (panic && match.rng.bool(0.5)) {
+      // Fuera por la línea de fondo, lejos del portero: hacia el banderín
+      const sp = clamp(9 + best.player.strength / 10, 7, 16);
+      const toFlag = best.pos.y < W / 2 ? -1 : 1;
+      ball.vel.x = (ownGoal === 0 ? -1 : 1) * sp;
+      ball.vel.y = toFlag * match.rng.float(5, 11);
+      ball.height = 1.4; ball.vz = 2.4;
+    } else {
+      const away = Math.atan2(
+        (best.pos.y - W / 2) + match.rng.float(-8, 8),
+        (best.pos.x - ownGoal) || 1,
+      );
+      const sp = clamp(10 + best.player.strength / 8, 8, 20);
+      ball.vel.x = Math.cos(away) * sp;
+      ball.vel.y = Math.sin(away) * sp;
+      ball.height = 1.6; ball.vz = 3.2;
+    }
+    hooks.onClearance && hooks.onClearance(best);
+  }
+  best.actionCd = 0.6;
+  return true;
 }
 
 /** Alguien recupera un balón suelto. */
@@ -463,6 +570,7 @@ function carrierAction(match, carrier, ctx, dt, hooks) {
 function tryTackles(match, ctx, dt, hooks) {
   const carrier = ctx.carrier;
   if (!carrier) return;
+  if (match.ball.height > 1.2) return;   // balón por alto: se salta, no se entra
   for (const id of ctx.pressers) {
     const def = match.entities.find((e) => e.id === id);
     if (!def || !def.onPitch || def.red) continue;
@@ -475,7 +583,7 @@ function tryTackles(match, ctx, dt, hooks) {
     // Dentro del área los defensores miden mucho más la entrada
     const ownGoal = attackDir(match, def.side) > 0 ? 0 : L;
     const inOwnBox = Math.abs(def.pos.x - ownGoal) < 17 && Math.abs(def.pos.y - W / 2) < 20.2;
-    const caution = inOwnBox ? 0.35 : 1;
+    const caution = inOwnBox ? 0.16 : 1;
     const eager = (0.055 + tac.aggression * 0.10 + def.player.aggression / 900
       + (def.mood === 'frustrated' ? 0.08 : 0) + (def.mood === 'aggressive' ? 0.05 : 0)) * caution;
     if (match.rng.next() > eager) { def.tackleCd = 1.2; continue; }
@@ -511,7 +619,8 @@ export function simulate(match, dt, hooks) {
 
   stepBall(match, dt, hooks);
 
-  const pick = tryPickUp(match, ctx);
+  const headed = tryHeader(match, ctx, hooks);
+  const pick = headed ? null : tryPickUp(match, ctx);
   if (pick) hooks.onPossessionChange && hooks.onPossessionChange(pick);
 
   if (ctx.carrier) tryTackles(match, ctx, dt, hooks);

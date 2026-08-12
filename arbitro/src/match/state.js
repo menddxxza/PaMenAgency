@@ -56,6 +56,7 @@ function makeEntity(player, slot, sideIdx, teamRef) {
     downUntil: 0,
     actionCd: 0,
     tackleCd: 0,
+    blockCd: 0,
     protestCd: 0,
     hasBall: false,
     minutesPlayed: 0,
@@ -67,7 +68,7 @@ export function createMatch(opts) {
     home, away, competition, seed = Date.now(), weather = 'clear',
     importance = 50, rivalry = 0, difficulty, referee, crew, varEnabled,
     neutralVenue = false, stadium, kickoffScore = null, startMinute = 0,
-    knockout = false, title = null,
+    half: startHalf = null, knockout = false, title = null,
   } = opts;
 
   const rng = new RNG(seed);
@@ -118,8 +119,11 @@ export function createMatch(opts) {
       inPlay: false,
     },
 
-    // Reloj
-    half: 1,               // 1,2 = reglamentario; 3,4 = prórroga; 5 = penaltis
+    // Reloj. Los escenarios pueden arrancar en un minuto concreto: el motor
+    // respeta ese punto de partida en lugar de empezar siempre en el 0.
+    startClock: startMinute * 60,
+    startHalf: startHalf || (startMinute >= 45 ? 2 : 1),
+    half: startHalf || (startMinute >= 45 ? 2 : 1),
     clock: startMinute * 60,
     halfStart: 0,
     halfLength: 45 * 60,

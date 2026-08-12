@@ -32,6 +32,17 @@ export class Renderer {
     this.particles = [];
     this.trail = [];
     this.time = 0;
+    // Estado de animación por jugador (fase de zancada, gestos) y efectos
+    // que no viven en el motor: son puro dibujo.
+    this.anim = new Map();
+    this.cards = [];
+    this.rings = [];
+    this.confetti = [];
+    this.ballSpin = 0;
+    this.ballSquash = 0;
+    // Con movimiento reducido los sprites siguen dibujándose, pero quietos.
+    this.motion = (typeof matchMedia !== 'undefined'
+      && matchMedia('(prefers-reduced-motion: reduce)').matches) ? 0 : 1;
     this.spot = null;          // foco sobre la jugada en decisión
     this.dpr = Math.min(globalThis.devicePixelRatio || 1, 2);
     this.palette = {
@@ -51,17 +62,22 @@ export class Renderer {
     c.width = Math.round(w * this.dpr);
     c.height = Math.round(h * this.dpr);
     this.w = w; this.h = h;
+    // En pantallas verticales el campo se gira: un teléfono en vertical
+    // aprovecha así toda la pantalla en lugar de dejar dos franjas negras.
+    this.rotated = h > w * 1.15;
+    this.vw = this.rotated ? h : w;
+    this.vh = this.rotated ? w : h;
   }
 
   baseScale() {
     // Se encuadra el campo + un anillo de grada: el estadio forma parte del
     // plano, no es un borde recortado.
     const ring = 9;
-    return Math.min(this.w / (L + (MARGIN + ring) * 2), this.h / (W + (MARGIN + ring) * 2));
+    return Math.min(this.vw / (L + (MARGIN + ring) * 2), this.vh / (W + (MARGIN + ring) * 2));
   }
 
   worldToScreen(x, y, s, cam) {
-    return [(x - cam.x) * s + this.w / 2, (y - cam.y) * s + this.h / 2];
+    return [(x - cam.x) * s + this.vw / 2, (y - cam.y) * s + this.vh / 2];
   }
 
   addFloater(text, x, y, color = '#fff', life = 2.2) {
@@ -70,6 +86,48 @@ export class Renderer {
 
   triggerFlash(color = '#ffffff', strength = 0.6) { this.flash = strength; this.flashColor = color; }
   triggerShake(v = 6) { this.shake = v; }
+
+  /** Estado de animación de una entidad (se crea al primer dibujo). */
+  _animOf(id) {
+    let a = this.anim.get(id);
+    if (!a) {
+      // Fase inicial distinta por jugador: veintidós piernas al unísono
+      // se ven como un ejército, no como un partido.
+      a = { phase: (id.length * 1.7 + id.charCodeAt(id.length - 1)) % 6.28, spd: 0, gest: 0, kind: null };
+      this.anim.set(id, a);
+    }
+    return a;
+  }
+
+  /** Gesto puntual de un jugador: protesta, celebración, dolor. */
+  gesture(id, kind, life = 2.2) {
+    const a = this._animOf(id);
+    a.kind = kind; a.gest = life; a.gestMax = life;
+  }
+
+  /** Tarjeta levantada sobre el infractor. */
+  showCard(pos, card) {
+    this.cards.push({ x: pos.x, y: pos.y, card, t: 0, life: 2.4 });
+  }
+
+  /** Onda de silbato: se ve de dónde sale el pitido. */
+  whistle(pos, strength = 1) {
+    this.rings.push({ x: pos.x, y: pos.y, t: 0, life: 1.1, strength });
+  }
+
+  /** Papelillos y humo de bengala en la grada tras un gol. */
+  burst(side) {
+    if (!this.motion) return;
+    for (let i = 0; i < 70; i++) {
+      this.confetti.push({
+        x: Math.random() * L, y: side === 0 ? -MARGIN - Math.random() * 14 : W + MARGIN + Math.random() * 14,
+        vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 4 + (side === 0 ? 3 : -3),
+        rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 9,
+        life: 2.4 + Math.random() * 1.6, max: 4,
+        hue: [242, 193, 78].map((c, k) => c + (Math.random() - 0.5) * (k ? 80 : 40)),
+      });
+    }
+  }
 
   /** Ilumina una jugada concreta y apaga el resto del campo. */
   setSpotlight(pos) { this.spot = pos ? { x: pos.x, y: pos.y, t: 0 } : null; }
@@ -84,6 +142,7 @@ export class Renderer {
     ctx.save();
     ctx.scale(this.dpr, this.dpr);
     ctx.clearRect(0, 0, this.w, this.h);
+    this._applyRotation(ctx);
 
     // Cámara: acompaña al balón, y se acerca cuando hay una jugada que juzgar
     const wantZoom = opts.incident ? 1.32 : this.follow ? 1.12 : 1;
@@ -112,6 +171,7 @@ export class Renderer {
     this.drawEntities(ctx, s, cam, match, opts);
     this.drawBall(ctx, s, cam, match, dt);
     this.drawOfficials(ctx, s, cam, match, opts);
+    this.drawEffects(ctx, s, cam, dt);
     if (opts.incident) this.drawSpotlight(ctx, s, cam, opts.incident, dt);
     this.drawWeather(ctx, dt, match);
     this.drawFloaters(ctx, s, cam, dt);
@@ -120,11 +180,19 @@ export class Renderer {
     if (this.flash > 0.01) {
       ctx.globalAlpha = this.flash * 0.5;
       ctx.fillStyle = this.flashColor;
-      ctx.fillRect(0, 0, this.w, this.h);
+      ctx.fillRect(-this.vw, -this.vh, this.vw * 3, this.vh * 3);
       ctx.globalAlpha = 1;
       this.flash *= 0.9;
     }
     ctx.restore();
+  }
+
+  /** Gira el lienzo un cuarto de vuelta cuando la pantalla es vertical. */
+  _applyRotation(ctx) {
+    if (!this.rotated) return;
+    ctx.translate(this.w / 2, this.h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.translate(-this.vw / 2, -this.vh / 2);
   }
 
   // ── Estadio ─────────────────────────────────────────────────────────
@@ -132,7 +200,7 @@ export class Renderer {
   drawStadium(ctx, s, cam, match) {
     const p = this.palette;
     ctx.fillStyle = p.night;
-    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.fillRect(0, 0, this.vw, this.vh);
 
     const [ix0, iy0] = this.worldToScreen(-MARGIN, -MARGIN, s, cam);
     const [ix1, iy1] = this.worldToScreen(L + MARGIN, W + MARGIN, s, cam);
@@ -151,48 +219,107 @@ export class Renderer {
       ctx.fill();
     }
 
-    // Público: densidad proporcional al aforo, vibración según el ruido
-    const cap = match.stadium ? match.stadium.capacity : 12000;
-    const density = clamp(cap / 60000, 0.18, 1);
+    // Público: se dibuja una vez en una capa aparte y luego se estampa. Antes
+    // eran decenas de miles de rectángulos por fotograma, y se notaba.
     const noise = (match.atmosphere?.noise || 40) / 100;
+    const layer = this._crowdLayer(s, match);
+    if (layer) {
+      const sway = Math.sin(this.time * 7) * noise * 1.6 * this.motion;
+      ctx.drawImage(layer.canvas, ox0, oy0 + sway, layer.w, layer.h);
+    }
+
+    // Focos: cuatro torres proyectando sobre el césped. La luz no se mueve
+    // con el juego, así que también se estampa desde una capa cacheada.
+    if (!match.stadium || match.stadium.floodlights !== false) {
+      const lights = this._lightLayer(s);
+      if (lights) {
+        const [lx, ly] = this.worldToScreen(lights.x0, lights.y0, s, cam);
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.drawImage(lights.canvas, lx, ly, lights.w, lights.h);
+        ctx.restore();
+      }
+    }
+  }
+
+  /** Capa aditiva con el halo de las cuatro torres de luz. */
+  _lightLayer(s) {
+    const key = Math.round(s * 4);
+    if (this._lights && this._lights.key === key) return this._lights;
+    if (typeof document === 'undefined') return null;
+
+    const R = 62, PAD = 8;
+    const x0 = -MARGIN - PAD - R, y0 = -MARGIN - 6 - R;
+    const w = (L + (MARGIN + PAD + R) * 2) * s;
+    const h = (W + (MARGIN + 6 + R) * 2) * s;
+    if (!(w > 8 && h > 8)) return null;
+
+    // A media resolución: son degradados suaves, no se nota, y el estampado
+    // cuesta la cuarta parte.
+    const q = 0.5;
+    const c = document.createElement('canvas');
+    c.width = Math.round(w * q); c.height = Math.round(h * q);
+    const cx = c.getContext('2d');
+    cx.scale(q, q);
+    cx.globalCompositeOperation = 'lighter';
+    const corners = [[-MARGIN - PAD, -MARGIN - 6], [L + MARGIN + PAD, -MARGIN - 6],
+      [-MARGIN - PAD, W + MARGIN + 6], [L + MARGIN + PAD, W + MARGIN + 6]];
+    for (const [wx, wy] of corners) {
+      const px = (wx - x0) * s, py = (wy - y0) * s;
+      const g = cx.createRadialGradient(px, py, 0, px, py, R * s);
+      g.addColorStop(0, 'rgba(226, 240, 255, 0.16)');
+      g.addColorStop(0.45, 'rgba(200, 226, 255, 0.05)');
+      g.addColorStop(1, 'rgba(200, 226, 255, 0)');
+      cx.fillStyle = g;
+      cx.beginPath();
+      cx.arc(px, py, R * s, 0, Math.PI * 2);
+      cx.fill();
+    }
+    this._lights = { key, canvas: c, w, h, x0, y0 };
+    return this._lights;
+  }
+
+  /**
+   * Capa del público, cacheada. Se rehace sólo si cambia la escala o el
+   * aforo; el resto del tiempo es un único `drawImage`.
+   */
+  _crowdLayer(s, match) {
+    const cap = match.stadium ? match.stadium.capacity : 12000;
+    const key = `${Math.round(s * 4)}:${cap}`;
+    if (this._crowd && this._crowd.key === key) return this._crowd;
+
+    const w = (L + (MARGIN + STAND_DEPTH) * 2) * s;
+    const h = (W + MARGIN * 2 + STAND_DEPTH * 1.24) * s;
+    if (!(w > 8 && h > 8) || typeof document === 'undefined') return null;
+
+    const q = Math.min(this.dpr, 1.5);
+    const c = document.createElement('canvas');
+    c.width = Math.round(w * q); c.height = Math.round(h * q);
+    const cx = c.getContext('2d');
+    cx.scale(q, q);
+
+    // Hueco del campo, en coordenadas de la propia capa
+    const hx = STAND_DEPTH * s, hy = STAND_DEPTH * 0.62 * s;
+    const hw = (L + MARGIN * 2) * s, hh = (W + MARGIN * 2) * s;
+    cx.beginPath();
+    cx.roundRect(0, 0, w, h, 34);
+    cx.rect(hx + hw, hy + hh, -hw, -hh);
+    cx.clip('evenodd');
+
+    const density = clamp(cap / 60000, 0.18, 1);
     const step = Math.max(4, 3.2 * s / 6);
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(ox0, oy0, ox1 - ox0, oy1 - oy0, 34);
-    ctx.rect(ix1, iy1, ix0 - ix1, iy0 - iy1); // recorta el hueco del campo
-    ctx.clip('evenodd');
-    for (let sx = ox0; sx < ox1; sx += step) {
-      for (let sy = oy0; sy < oy1; sy += step) {
+    for (let sx = 0; sx < w; sx += step) {
+      for (let sy = 0; sy < h; sy += step) {
         const n = (Math.sin(sx * 12.9898 + sy * 78.233) * 43758.5453) % 1;
         const r = n < 0 ? n + 1 : n;
         if (r > density) continue;
-        const jitter = Math.sin(this.time * 7 + r * 40) * noise * 1.5;
         const shade = 58 + Math.floor(r * 70);
-        ctx.fillStyle = `rgba(${shade}, ${shade + 10}, ${shade + 24}, ${0.5 + r * 0.4})`;
-        ctx.fillRect(sx, sy + jitter, step * 0.6, step * 0.6);
+        cx.fillStyle = `rgba(${shade}, ${shade + 10}, ${shade + 24}, ${0.5 + r * 0.4})`;
+        cx.fillRect(sx, sy, step * 0.6, step * 0.6);
       }
     }
-    ctx.restore();
-
-    // Focos: cuatro torres proyectando sobre el césped
-    if (!match.stadium || match.stadium.floodlights !== false) {
-      const corners = [[-MARGIN - 8, -MARGIN - 6], [L + MARGIN + 8, -MARGIN - 6],
-        [-MARGIN - 8, W + MARGIN + 6], [L + MARGIN + 8, W + MARGIN + 6]];
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      for (const [wx, wy] of corners) {
-        const [cx, cy] = this.worldToScreen(wx, wy, s, cam);
-        const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 62 * s);
-        g.addColorStop(0, 'rgba(226, 240, 255, 0.16)');
-        g.addColorStop(0.45, 'rgba(200, 226, 255, 0.05)');
-        g.addColorStop(1, 'rgba(200, 226, 255, 0)');
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 62 * s, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-    }
+    this._crowd = { key, canvas: c, w, h };
+    return this._crowd;
   }
 
   drawPitch(ctx, s, cam, match) {
@@ -380,9 +507,11 @@ export class Renderer {
   // ── Jugadores ───────────────────────────────────────────────────────
 
   drawEntities(ctx, s, cam, match, opts) {
+    const dt = opts.dt || 1 / 60;
     const r = 0.98 * s;
     const carrier = match.ball.owner;
     const list = match.entities.filter((e) => e.onPitch && !e.red);
+    const celebrating = match.phase === 'celebration' ? match.lastGoalSide : null;
 
     for (const e of list) {
       const [x, y] = this.worldToScreen(e.pos.x, e.pos.y, s, cam);
@@ -391,37 +520,42 @@ export class Renderer {
       const fill = isGK ? '#3fd07f' : kit.primary;
       const trim = isGK ? '#0d2a1a' : kit.secondary;
 
-      // Sombra proyectada por los focos
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.42)';
+      // La zancada la marca la velocidad real del jugador: quien anda mueve
+      // poco las piernas, quien esprinta las abre y se inclina hacia delante.
+      const a = this._animOf(e.id);
+      const v = Math.hypot(e.vel.x, e.vel.y);
+      a.spd = lerp(a.spd, v, 0.2);
+      a.phase += dt * (2.6 + a.spd * 1.5) * this.motion;
+      if (a.gest > 0) a.gest -= dt;
+
+      const gait = clamp(a.spd / 7, 0, 1) * this.motion;
+      const down = e.injured && e.downUntil > match.clock;
+      const gesture = a.gest > 0 ? a.kind : null;
+      const party = celebrating === e.side && !down;
+      const arms = gesture === 'protest' || party;
+
+      // Sombra proyectada por los focos: se encoge con el bote del cuerpo
+      const bob = down ? 0 : Math.sin(a.phase * 2) * 0.06 * gait;
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.42 - bob})`;
       ctx.beginPath();
-      ctx.ellipse(x + r * 0.28, y + r * 0.6, r * 0.92, r * 0.42, 0, 0, Math.PI * 2);
+      ctx.ellipse(x + r * 0.28, y + r * 0.6, r * (down ? 1.35 : 0.92), r * 0.42, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Halo del portador del balón
+      // Halo del portador del balón, latiendo
       if (carrier === e.id) {
+        const pulse = 1 + Math.sin(this.time * 6) * 0.07 * this.motion;
         ctx.strokeStyle = 'rgba(242, 193, 78, 0.85)';
         ctx.lineWidth = Math.max(1.5, r * 0.2);
-        ctx.beginPath(); ctx.arc(x, y, r * 1.5, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(x, y, r * 1.5 * pulse, 0, Math.PI * 2); ctx.stroke();
       }
 
-      // Camiseta: disco sólido con vivo del color secundario y morro corto
       ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(e.facing);
-      ctx.beginPath();
-      ctx.arc(0, 0, isGK ? r * 1.05 : r, 0, Math.PI * 2);
-      ctx.fillStyle = fill;
-      ctx.fill();
-      ctx.lineWidth = Math.max(1.2, r * 0.22);
-      ctx.strokeStyle = trim;
-      ctx.stroke();
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
-      ctx.beginPath();
-      ctx.moveTo(r * 1.02, 0);
-      ctx.lineTo(r * 0.52, -r * 0.28);
-      ctx.lineTo(r * 0.52, r * 0.28);
-      ctx.closePath();
-      ctx.fill();
+      ctx.translate(x, y - bob * r * 3);
+      // Un jugador en el suelo se dibuja tumbado, no de pie inmóvil.
+      ctx.rotate(down ? e.facing + Math.PI / 2 : e.facing);
+      if (down) ctx.scale(1, 0.62);
+      else ctx.scale(1 + bob * 0.5, 1 + bob * 0.5);
+      this._drawBody(ctx, r, { fill, trim, gait, phase: a.phase, arms, down, isGK });
       ctx.restore();
 
       // Aro de estado: lesionado, calentándose, amonestado
@@ -435,22 +569,146 @@ export class Renderer {
       }
 
       // Dorsal
-      if (s > 6) {
-        ctx.font = `700 ${Math.round(r * 0.95)}px ui-monospace, monospace`;
+      if (s > 6 && !down) {
+        ctx.font = `700 ${Math.round(r * 0.72)}px ui-monospace, monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.lineWidth = Math.max(2, r * 0.3);
-        ctx.strokeStyle = 'rgba(8, 12, 17, 0.75)';
+        ctx.lineWidth = Math.max(1.6, r * 0.24);
+        ctx.strokeStyle = 'rgba(8, 12, 17, 0.7)';
         ctx.strokeText(String(e.player.number), x, y + 0.5);
         ctx.fillStyle = '#f6f9fc';
         ctx.fillText(String(e.player.number), x, y + 0.5);
       }
-      if (e.injured) {
+      if (down) {
+        // Cruz médica parpadeando sobre el jugador que pide asistencia
+        ctx.globalAlpha = 0.6 + Math.sin(this.time * 6) * 0.4 * this.motion;
         ctx.fillStyle = '#ff5a5a';
         ctx.font = `700 ${Math.round(r * 1.1)}px ui-sans-serif, sans-serif`;
-        ctx.fillText('+', x - r * 1.5, y - r * 1.2);
+        ctx.textAlign = 'center';
+        ctx.fillText('+', x, y - r * 1.6);
+        ctx.globalAlpha = 1;
       }
     }
+  }
+
+  /**
+   * Cuerpo visto desde arriba: piernas y brazos que se alternan con la
+   * zancada, torso, cabeza y morro de orientación. Se dibuja en el sistema
+   * de coordenadas ya trasladado y girado hacia `facing`.
+   */
+  _drawBody(ctx, r, o) {
+    const { fill, trim, gait, phase, arms, down, isGK } = o;
+    const swing = Math.sin(phase) * gait;
+    const skin = 'rgba(206, 158, 120, 0.95)';
+
+    // A tamaño pequeño el detalle se convierte en ruido: se dibuja el
+    // cuerpo simple y se ahorra trabajo.
+    if (r < 7) {
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 0.98, r * 0.84, 0, 0, Math.PI * 2);
+      ctx.fillStyle = fill; ctx.fill();
+      ctx.lineWidth = Math.max(1.2, r * 0.22);
+      ctx.strokeStyle = trim; ctx.stroke();
+      ctx.fillStyle = skin;
+      ctx.beginPath(); ctx.arc(r * 0.5, 0, r * 0.34, 0, Math.PI * 2); ctx.fill();
+      return;
+    }
+
+    // Piernas: se adelantan y retrasan sobre el eje de avance
+    ctx.fillStyle = skin;
+    for (const side of [-1, 1]) {
+      const off = -r * 0.15 + swing * side * r * 0.6;
+      ctx.beginPath();
+      ctx.ellipse(off, side * r * 0.32, r * 0.42, r * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Pantalón, por detrás del torso
+    ctx.fillStyle = trim;
+    ctx.beginPath();
+    ctx.ellipse(-r * 0.34, 0, r * 0.42, r * 0.56, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Brazos: en oposición a las piernas, o en alto al protestar/celebrar
+    ctx.fillStyle = skin;
+    for (const side of [-1, 1]) {
+      const off = arms ? r * 0.72 : -swing * side * r * 0.45;
+      const spread = arms ? r * 0.82 : r * 0.7;
+      ctx.beginPath();
+      ctx.ellipse(off, side * spread, r * 0.3, r * 0.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Torso: es lo que da el color del equipo, así que manda en el dibujo
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * (isGK ? 0.98 : 0.9), r * (isGK ? 0.8 : 0.72), 0, 0, Math.PI * 2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.lineWidth = Math.max(1.2, r * 0.16);
+    ctx.strokeStyle = trim;
+    ctx.stroke();
+
+    // Cabeza asomando por delante del torso: marca hacia dónde mira
+    if (!down) {
+      ctx.fillStyle = skin;
+      ctx.beginPath();
+      ctx.arc(r * 0.66, 0, r * 0.34, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(20, 26, 34, 0.5)';
+      ctx.lineWidth = Math.max(1, r * 0.09);
+      ctx.stroke();
+    }
+  }
+
+  /** Tarjetas levantadas, ondas de silbato y papelillos. */
+  drawEffects(ctx, s, cam, dt) {
+    for (const c of this.cards) {
+      c.t += dt;
+      const k = clamp(c.t / 0.35, 0, 1);          // sube y se queda arriba
+      const [x, y] = this.worldToScreen(c.x, c.y, s, cam);
+      const w = 1.1 * s, h = 1.6 * s;
+      ctx.save();
+      ctx.globalAlpha = clamp((c.life - c.t) * 2, 0, 1);
+      ctx.translate(x, y - (1.6 + k * 2.6) * s);
+      ctx.rotate((1 - k) * 0.9 - 0.12);
+      ctx.fillStyle = c.card === 'red' ? '#ff453a' : '#ffd60a';
+      ctx.strokeStyle = 'rgba(8, 12, 17, 0.8)';
+      ctx.lineWidth = Math.max(1, 0.12 * s);
+      ctx.beginPath();
+      ctx.roundRect(-w / 2, -h / 2, w, h, 0.18 * s);
+      ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+    this.cards = this.cards.filter((c) => c.t < c.life);
+
+    for (const g of this.rings) {
+      g.t += dt;
+      const k = g.t / g.life;
+      const [x, y] = this.worldToScreen(g.x, g.y, s, cam);
+      ctx.globalAlpha = (1 - k) * 0.55 * g.strength;
+      ctx.strokeStyle = 'rgba(255, 246, 214, 1)';
+      ctx.lineWidth = Math.max(1.2, (1 - k) * 0.35 * s);
+      ctx.beginPath();
+      ctx.arc(x, y, (1 + k * 9) * s, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    this.rings = this.rings.filter((g) => g.t < g.life);
+
+    for (const p of this.confetti) {
+      p.life -= dt;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+      p.vx *= 0.99; p.vy *= 0.99;
+      const [x, y] = this.worldToScreen(p.x, p.y, s, cam);
+      ctx.save();
+      ctx.globalAlpha = clamp(p.life / 1.2, 0, 1);
+      ctx.translate(x, y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = `rgb(${p.hue.map((c) => Math.round(clamp(c, 0, 255))).join(',')})`;
+      ctx.fillRect(-0.22 * s, -0.12 * s, 0.44 * s, 0.24 * s);
+      ctx.restore();
+    }
+    this.confetti = this.confetti.filter((p) => p.life > 0);
+    ctx.globalAlpha = 1;
   }
 
   drawBall(ctx, s, cam, match, dt) {
@@ -484,13 +742,35 @@ export class Renderer {
 
     const rr = (0.36 + h * 0.045) * s;
     const cy = y - h * 0.55 * s;
-    const g = ctx.createRadialGradient(x - rr * 0.35, cy - rr * 0.35, rr * 0.1, x, cy, rr);
+
+    // El balón rueda: gira en proporción a lo que recorre, y se aplasta un
+    // instante al tocar el suelo con fuerza.
+    this.ballSpin += speed * dt * 0.9 * this.motion;
+    const landing = h < 0.25 && speed > 6;
+    this.ballSquash = lerp(this.ballSquash, landing ? 0.22 * this.motion : 0, landing ? 0.6 : 0.12);
+    const sq = this.ballSquash;
+
+    ctx.save();
+    ctx.translate(x, cy);
+    ctx.scale(1 + sq, 1 - sq);
+    ctx.rotate(this.ballSpin);
+    const g = ctx.createRadialGradient(-rr * 0.35, -rr * 0.35, rr * 0.1, 0, 0, rr);
     g.addColorStop(0, '#ffffff');
     g.addColorStop(1, '#c8d2dc');
     ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(x, cy, rr, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.fill();
+    // Pentágonos: sin ellos el giro no se aprecia
+    ctx.fillStyle = 'rgba(24, 30, 38, 0.82)';
+    for (let i = 0; i < 3; i++) {
+      const ang = this.ballSpin * 0 + (i * Math.PI * 2) / 3;
+      ctx.beginPath();
+      ctx.arc(Math.cos(ang) * rr * 0.5, Math.sin(ang) * rr * 0.5, rr * 0.24, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.strokeStyle = 'rgba(20, 26, 34, 0.75)';
-    ctx.lineWidth = 1; ctx.stroke();
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
   }
 
   // ── Equipo arbitral ─────────────────────────────────────────────────
@@ -507,21 +787,30 @@ export class Renderer {
       ctx.beginPath(); ctx.arc(x, y, 0.82 * s, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#12181f'; ctx.lineWidth = Math.max(1, 0.12 * s); ctx.stroke();
 
-      const flag = opts.flagUp === i;
+      // El banderín sube: levantarlo de golpe se leía como un parpadeo
+      if (!this.flagAnim) this.flagAnim = [0, 0];
+      const want = opts.flagUp === i ? 1 : 0;
+      this.flagAnim[i] = this.motion ? lerp(this.flagAnim[i], want, 0.18) : want;
+      const k = this.flagAnim[i];
+      const top = y - (1.1 + k * 1.5) * s;
       ctx.strokeStyle = 'rgba(240,246,250,0.9)';
       ctx.lineWidth = Math.max(1.2, 0.1 * s);
       ctx.beginPath();
       ctx.moveTo(x, y);
-      ctx.lineTo(x, y - (flag ? 2.6 : 1.1) * s);
+      ctx.lineTo(x, top);
       ctx.stroke();
-      if (flag) {
+      if (k > 0.02) {
+        // Ondear: el trapo no está rígido
+        const wave = Math.sin(this.time * 9) * 0.18 * k * this.motion;
+        ctx.globalAlpha = k;
         ctx.fillStyle = '#ff3b30';
         ctx.beginPath();
-        ctx.moveTo(x, y - 2.6 * s);
-        ctx.lineTo(x + 1.35 * s, y - 2.2 * s);
-        ctx.lineTo(x, y - 1.75 * s);
+        ctx.moveTo(x, top);
+        ctx.lineTo(x + 1.35 * s * k, top + (0.4 + wave) * s);
+        ctx.lineTo(x, top + 0.85 * s);
         ctx.closePath();
         ctx.fill();
+        ctx.globalAlpha = 1;
       }
     }
 
@@ -549,21 +838,23 @@ export class Renderer {
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.beginPath(); ctx.ellipse(x + 0.3 * s, y + 0.62 * s, s * 0.95, s * 0.42, 0, 0, Math.PI * 2); ctx.fill();
 
+    // Zancada del árbitro: corre de verdad, y al esprintar se le nota
+    const ra = this._animOf('__ref');
+    const rv = Math.hypot(r.vel ? r.vel.x : 0, r.vel ? r.vel.y : 0);
+    ra.spd = lerp(ra.spd, rv, 0.2);
+    ra.phase += (opts.dt || 1 / 60) * (2.6 + ra.spd * 1.6) * this.motion;
+    const rgait = clamp(ra.spd / 6, 0, 1) * this.motion;
+    const rbob = Math.sin(ra.phase * 2) * 0.06 * rgait;
+
     ctx.save();
-    ctx.translate(x, y);
+    ctx.translate(x, y - rbob * s * 3);
     ctx.rotate(r.facing);
-    ctx.beginPath(); ctx.arc(0, 0, 1.02 * s, 0, Math.PI * 2);
-    ctx.fillStyle = kit.shirt; ctx.fill();
-    ctx.lineWidth = Math.max(1.6, 0.2 * s);
-    ctx.strokeStyle = r.sprinting ? '#ffd60a' : kit.trim;
-    ctx.stroke();
-    ctx.fillStyle = kit.trim;
-    ctx.beginPath();
-    ctx.moveTo(0.98 * s, 0);
-    ctx.lineTo(0.32 * s, -0.44 * s);
-    ctx.lineTo(0.32 * s, 0.44 * s);
-    ctx.closePath();
-    ctx.fill();
+    ctx.scale(1 + rbob * 0.5, 1 + rbob * 0.5);
+    this._drawBody(ctx, 1.02 * s, {
+      fill: kit.shirt,
+      trim: r.sprinting ? '#ffd60a' : kit.trim,
+      gait: rgait, phase: ra.phase, arms: false, down: false, isGK: false,
+    });
     ctx.restore();
 
     // Aviso de físico bajo: se ve en el campo, no sólo en el HUD
@@ -584,7 +875,7 @@ export class Renderer {
     g.addColorStop(0, 'rgba(6, 9, 13, 0)');
     g.addColorStop(1, 'rgba(6, 9, 13, 0.5)');
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.fillRect(0, 0, this.vw, this.vh);
     ctx.restore();
 
     const pulse = 1 + Math.sin(this.time * 5) * 0.06;
@@ -597,14 +888,23 @@ export class Renderer {
   }
 
   drawVignette(ctx) {
-    const g = ctx.createRadialGradient(
-      this.w / 2, this.h / 2, Math.min(this.w, this.h) * 0.32,
-      this.w / 2, this.h / 2, Math.max(this.w, this.h) * 0.78,
-    );
-    g.addColorStop(0, 'rgba(0,0,0,0)');
-    g.addColorStop(1, 'rgba(0,0,0,0.42)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, this.w, this.h);
+    // Sólo depende del tamaño: se calcula una vez y se estampa
+    const key = `${Math.round(this.vw)}x${Math.round(this.vh)}`;
+    if (!this._vig || this._vig.key !== key) {
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(this.vw)); c.height = Math.max(1, Math.round(this.vh));
+      const cx = c.getContext('2d');
+      const g = cx.createRadialGradient(
+        this.vw / 2, this.vh / 2, Math.min(this.vw, this.vh) * 0.32,
+        this.vw / 2, this.vh / 2, Math.max(this.vw, this.vh) * 0.78,
+      );
+      g.addColorStop(0, 'rgba(0,0,0,0)');
+      g.addColorStop(1, 'rgba(0,0,0,0.42)');
+      cx.fillStyle = g;
+      cx.fillRect(0, 0, this.vw, this.vh);
+      this._vig = { key, canvas: c };
+    }
+    ctx.drawImage(this._vig.canvas, 0, 0, this.vw, this.vh);
   }
 
   drawWeather(ctx, dt, match) {
@@ -613,7 +913,7 @@ export class Renderer {
     const want = wid === 'storm' ? 300 : wid === 'rain' ? 170 : wid === 'snow' ? 140 : 50;
     while (this.particles.length < want) {
       this.particles.push({
-        x: Math.random() * this.w, y: Math.random() * this.h,
+        x: Math.random() * this.vw, y: Math.random() * this.vh,
         v: wid === 'snow' ? 40 + Math.random() * 45 : 460 + Math.random() * 340,
         d: wid === 'wind' ? 2.4 : wid === 'storm' ? 1 : 0.35,
         w: 0.4 + Math.random() * 0.8,
@@ -625,8 +925,8 @@ export class Renderer {
     for (const p of this.particles) {
       p.y += p.v * dt;
       p.x += p.v * dt * p.d * 0.35;
-      if (p.y > this.h) { p.y = -10; p.x = Math.random() * this.w; }
-      if (p.x > this.w) p.x = 0;
+      if (p.y > this.vh) { p.y = -10; p.x = Math.random() * this.vw; }
+      if (p.x > this.vw) p.x = 0;
       if (wid === 'snow') {
         ctx.fillStyle = `rgba(240, 248, 255, ${0.5 + p.w * 0.4})`;
         ctx.beginPath();
@@ -671,6 +971,7 @@ export class Renderer {
     ctx.save();
     ctx.scale(this.dpr, this.dpr);
     ctx.clearRect(0, 0, this.w, this.h);
+    this._applyRotation(ctx);
     if (!frame) { ctx.restore(); return; }
 
     const cams = {
@@ -681,20 +982,40 @@ export class Renderer {
     };
     const c = cams[session.camera] || cams.main;
     const s = this.baseScale() * c.zoom * (session.zoom || 1);
-    const cam = { x: c.cx, y: c.cy };
+    // La cámara se queda dentro del campo: sin esto, los planos cerrados
+    // enseñaban medio encuadre de grada vacía.
+    const halfW = this.vw / (2 * s), halfH = this.vh / (2 * s);
+    const cam = {
+      x: clamp(c.cx, Math.min(L / 2, halfW - MARGIN), Math.max(L / 2, L - halfW + MARGIN)),
+      y: clamp(c.cy, Math.min(W / 2, halfH - MARGIN), Math.max(W / 2, W - halfH + MARGIN)),
+    };
 
     this.drawStadium(ctx, s, cam, match);
     this.drawPitch(ctx, s, cam, match);
     this.drawGoals(ctx, s, cam, match);
 
+    // Los cuerpos se animan también en la repetición: la zancada sale de lo
+    // que se movieron entre el fotograma anterior y este.
+    const prev = session.frames && session.index > 0 ? session.frames[session.index - 1] : null;
     for (const p of frame.players) {
       const [x, y] = this.worldToScreen(p.x, p.y, s, cam);
       const kit = (match.kits && match.kits[p.s]) || match.teams[p.s].colors;
+      const was = prev ? prev.players.find((q) => q.id === p.id) : null;
+      const step = was ? Math.hypot(p.x - was.x, p.y - was.y) : 0;
+      const gait = clamp(step * 30 / 7, 0, 1);
       ctx.fillStyle = 'rgba(0,0,0,0.4)';
       ctx.beginPath(); ctx.ellipse(x + 0.2 * s, y + 0.5 * s, 0.85 * s, 0.38 * s, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x, y, 0.95 * s, 0, Math.PI * 2);
-      ctx.fillStyle = kit.primary; ctx.fill();
-      ctx.strokeStyle = kit.secondary; ctx.lineWidth = Math.max(1.2, 0.14 * s); ctx.stroke();
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(p.f || 0);
+      this._drawBody(ctx, 0.95 * s, {
+        fill: kit.primary, trim: kit.secondary,
+        // La fase la marca el propio fotograma: al rebobinar, las piernas
+        // rebobinan con él.
+        gait, phase: this._animOf(p.id).phase + session.index * 0.55,
+        arms: false, down: false, isGK: false,
+      });
+      ctx.restore();
     }
     const [bx, by] = this.worldToScreen(frame.ball.x, frame.ball.y, s, cam);
     ctx.beginPath(); ctx.arc(bx, by, 0.42 * s, 0, Math.PI * 2);
@@ -702,9 +1023,14 @@ export class Renderer {
     ctx.strokeStyle = '#12181f'; ctx.lineWidth = 1; ctx.stroke();
 
     const [rx, ry] = this.worldToScreen(frame.ref.x, frame.ref.y, s, cam);
-    ctx.beginPath(); ctx.arc(rx, ry, 0.95 * s, 0, Math.PI * 2);
-    ctx.fillStyle = '#111418'; ctx.fill();
-    ctx.strokeStyle = '#f2c14e'; ctx.lineWidth = Math.max(1.4, 0.16 * s); ctx.stroke();
+    ctx.save();
+    ctx.translate(rx, ry);
+    ctx.rotate(frame.ref.f || 0);
+    this._drawBody(ctx, 0.95 * s, {
+      fill: '#111418', trim: '#f2c14e',
+      gait: 0.7, phase: session.index * 0.55, arms: false, down: false, isGK: false,
+    });
+    ctx.restore();
 
     // Línea de fuera de juego calibrada
     if (session.offsideLine) {
@@ -742,7 +1068,7 @@ export class Renderer {
     // Marco de monitor
     ctx.strokeStyle = 'rgba(53, 196, 176, 0.28)';
     ctx.lineWidth = 4;
-    ctx.strokeRect(2, 2, this.w - 4, this.h - 4);
+    ctx.strokeRect(2, 2, this.vw - 4, this.vh - 4);
     ctx.restore();
   }
 }

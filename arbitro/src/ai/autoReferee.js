@@ -55,6 +55,8 @@ export function makeAutoReferee(opts = {}) {
         return (sees ? truth.goal : !truth.goal) ? { action: 'goal' } : { action: 'noGoal' };
       case 'dissent':
         return truth.card === 'yellow' && sees ? { action: 'card', card: 'yellow' } : { action: 'warning' };
+      case 'timewasting':
+        return truth.card === 'yellow' && sees ? { action: 'card', card: 'yellow' } : { action: 'warning' };
       case 'violence':
         return sees ? { action: 'card', card: 'red' } : { action: 'card', card: 'yellow' };
       case 'injury':

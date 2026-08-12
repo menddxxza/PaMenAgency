@@ -14,7 +14,8 @@ import { simulate, dist, pressureOn } from './sim.js';
 import {
   makeChallengeIncident, makeHandballIncident, makeOffsideIncident, makeOutOfPlayIncident,
   makeGoalIncident, makeDissentIncident, makeViolenceIncident, makeInjuryIncident,
-  makeCrowdIncident, optionsFor, cardOptionsFor, resetIncidentIds, computeClarity,
+  makeCrowdIncident, makeTimeWastingIncident, optionsFor, cardOptionsFor,
+  resetIncidentIds, computeClarity,
 } from './incidents.js';
 import { RefereeRating } from './rating.js';
 import { VarSystem } from './var.js';
@@ -40,6 +41,8 @@ export class MatchEngine {
     this.deadballUntil = 0;
     this.lastEventCheck = 0;
     this.protocolStep = 0;
+    this.pendingClips = [];
+    match.clips = {};
     resetIncidentIds();
     this._bindHooks();
   }
@@ -53,8 +56,8 @@ export class MatchEngine {
     const m = this.match;
     m.phase = 'kickoff';
     m.running = true;
-    m.half = 1;
-    m.clock = 0;
+    m.half = m.startHalf || 1;
+    m.clock = m.startClock || 0;
     m.halfLength = 45 * 60;
     const first = m.rng.bool(0.5) ? SIDE.HOME : SIDE.AWAY;
     m.kickoffSide = first;
@@ -95,6 +98,8 @@ export class MatchEngine {
     m.clock += matchDt;
 
     if (m.phase === 'deadball') {
+      this._considerSubstitution();
+      this._checkTimeWasting(matchDt);
       if (m.clock >= this.deadballUntil) this._executeRestart();
       this._recordReplayFrame();
       this._checkHalfEnd();
@@ -112,6 +117,8 @@ export class MatchEngine {
     }
 
     simulate(m, dt, this.hooks);
+    this._flushClips();
+    if (this.pendingDelivery) this._deliverSetPiece();
     this._advantageWatch(dt);
     this._moodUpdate(dt);
     this._randomIncidents(dt);
@@ -186,7 +193,8 @@ export class MatchEngine {
       onShot: (from, target, d) => this._onShot(from, target, d),
       onThroughBall: (from, to) => this._onThroughBall(from, to),
       onPossessionChange: (info) => this._onPossessionChange(info),
-      onDeflection: (entity, speed) => this._onDeflection(entity, speed),
+      onDeflection: (entity, speed, info) => this._onDeflection(entity, speed, info),
+      onClearance: (entity) => { this.match.flow.phase = 'clearance'; },
     };
   }
 
@@ -225,10 +233,25 @@ export class MatchEngine {
   }
 
   /** Un rechace puede haber sido con el brazo. */
-  _onDeflection(entity, speed) {
+  _onDeflection(entity, speed, info = {}) {
     const m = this.match;
+
+    // Un disparo bloqueado que sale desviado hacia el fondo acaba en córner
+    // algo más de la mitad de las veces: el portero no llega a todo.
+    if (info.behind && speed > 15 && m.rng.bool(0.5)) {
+      const ownGoal = ownGoalX(m, entity.side);
+      const pos = { x: ownGoal, y: clamp(m.ball.pos.y + m.rng.float(-4, 4), 0.5, W - 0.5) };
+      m.ball.vel.x = 0; m.ball.vel.y = 0; m.ball.owner = null;
+      m.ball.pos = { ...pos };
+      m.ball.height = 0; m.ball.vz = 0;
+      this._raiseOrAuto(makeOutOfPlayIncident(m, 'goalline', pos, m.ball));
+      return;
+    }
+
     if (entity.role === 'GK') return;
-    if (m.rng.next() > 0.03) return;
+    // Un bloqueo dentro del área es donde de verdad aparecen las manos
+    const p = info.blocked ? 0.03 : info.inOwnBox ? 0.02 : 0.01;
+    if (m.rng.next() > p) return;
     const shooter = this.lastShot && m.clock - this.lastShot.clock < 4 ? this.lastShot.shooter : null;
     const inc = makeHandballIncident(m, entity, shooter, { isAttacker: false });
     // Sólo llega al árbitro si hay algo que decidir
@@ -438,7 +461,7 @@ export class MatchEngine {
     // Lesiones (más probables con faltas duras y fatiga)
     for (const e of m.entities) {
       if (!e.onPitch || e.injured || e.red) continue;
-      const p = (0.000006 + (100 - e.stamina) * 0.0000004) * dt * 6;
+      const p = (0.0000035 + (100 - e.stamina) * 0.00000025) * dt * 6;
       if (m.rng.next() < p) {
         const level = m.rng.weighted([[1, 55], [2, 30], [3, 12], [4, 3]]);
         e.injured = true; e.injuryLevel = level; e.downUntil = m.clock + 8 + level * 6;
@@ -465,32 +488,131 @@ export class MatchEngine {
     }
 
     // Cambios
-    if (minute > 45 && m.rng.next() < 0.0006 * dt * 6) this._trySubstitution();
+
   }
 
-  _trySubstitution() {
+  /**
+   * Sustituciones con lectura del partido: se cambia por lesión, por
+   * desgaste, para proteger a un amonestado y para atacar o cerrar el
+   * resultado según el marcador y el minuto.
+   */
+  _considerSubstitution(force = null) {
     const m = this.match;
-    const side = m.rng.bool(0.5) ? SIDE.HOME : SIDE.AWAY;
-    if (m.subsUsed[side] >= SIM.maxSubsPerTeam) return;
+    const minute = m.clock / 60;
+    if (!force && minute < 25) return null;
+    if (!force && m.clock < (this.lastSubCheck || 0) + 90) return null;
+    this.lastSubCheck = m.clock;
+
+    for (const side of m.rng.shuffle([SIDE.HOME, SIDE.AWAY])) {
+      if (m.subsUsed[side] >= SIM.maxSubsPerTeam) continue;
+      if (!m.bench[side] || !m.bench[side].length) continue;
+
+      const plan = this._substitutionPlan(side, minute, force);
+      if (!plan) continue;
+      const done = this._makeSubstitution(side, plan);
+      if (done) return done;
+    }
+    return null;
+  }
+
+  /** Decide a quién quitar y qué perfil pedir al banquillo. */
+  _substitutionPlan(side, minute, force) {
+    const m = this.match;
+    const squad = onPitch(m, side).filter((e) => e.role !== 'GK');
+    if (!squad.length) return null;
+
+    const diff = m.score[side] - m.score[1 - side];
+    const losing = diff < 0;
+    const winning = diff > 0;
+
+    // 1. Lesionado: sale sí o sí
+    const hurt = squad.find((e) => e.id === force || (e.injured && e.injuryLevel >= 2));
+    if (hurt) return { out: hurt, want: hurt.role, reason: 'injury' };
+
+    // 2. Amonestado que sigue jugando al límite: se le protege
+    if (minute > 55) {
+      const risky = squad
+        .filter((e) => e.yellow >= 1 && (e.player.aggression > 62 || e.fouls >= 2))
+        .sort((a, b) => b.player.aggression - a.player.aggression)[0];
+      if (risky && m.rng.bool(0.5)) return { out: risky, want: risky.role, reason: 'protect' };
+    }
+
+    // 3. Marcador: perder obliga a arriesgar, ganar a cerrar
+    if (losing && minute > 58) {
+      const defender = squad.filter((e) => e.role === 'DF')
+        .sort((a, b) => a.player.shooting - b.player.shooting)[0];
+      if (defender && m.rng.bool(0.6)) return { out: defender, want: 'FW', reason: 'chase' };
+      const mid = squad.filter((e) => e.role === 'MF')
+        .sort((a, b) => a.stamina - b.stamina)[0];
+      if (mid) return { out: mid, want: 'FW', reason: 'chase' };
+    }
+    if (winning && minute > 72) {
+      const forward = squad.filter((e) => e.role === 'FW')
+        .sort((a, b) => a.stamina - b.stamina)[0];
+      if (forward && m.rng.bool(0.65)) return { out: forward, want: 'DF', reason: 'protect_lead' };
+    }
+
+    // 4. Desgaste puro
+    const tired = squad.sort((a, b) => a.stamina - b.stamina)[0];
+    if (tired && tired.stamina < 58 && minute > 55) {
+      return { out: tired, want: tired.role, reason: 'tired' };
+    }
+    return null;
+  }
+
+  /** Ejecuta el cambio buscando en el banquillo el perfil pedido. */
+  _makeSubstitution(side, plan) {
+    const m = this.match;
     const bench = m.bench[side];
-    if (!bench || !bench.length) return;
-    const candidates = onPitch(m, side).filter((e) => e.role !== 'GK')
-      .sort((a, b) => a.stamina - b.stamina);
-    const out = candidates[0];
-    if (!out || out.stamina > 62) return;
-    const inPlayer = bench.shift();
+    let idx = bench.findIndex((p) => p.role === plan.want);
+    if (idx < 0) idx = bench.findIndex((p) => p.role !== 'GK');
+    if (idx < 0) return null;
+
+    const inPlayer = bench.splice(idx, 1)[0];
+    const out = plan.out;
     out.onPitch = false;
+
+    // El entrante hereda el hueco táctico del que sale, salvo que el cambio
+    // busque otro perfil: entonces ocupa una posición propia de su rol.
+    const slot = plan.want === out.role ? out.slot : this._slotForRole(side, plan.want, out.slot);
     const ent = {
-      ...out, id: inPlayer.id, player: inPlayer, stamina: 100, onPitch: true,
-      yellow: 0, red: false, fouls: 0, injured: false, mood: 'calm', frustration: 20,
+      ...out,
+      id: inPlayer.id,
+      player: inPlayer,
+      role: inPlayer.role,
+      slot: { ...slot },
+      stamina: 100,
+      onPitch: true,
+      yellow: 0, red: false, fouls: 0,
+      injured: false, injuryLevel: 0, downUntil: 0,
+      mood: 'calm', frustration: 20,
+      actionCd: 0, tackleCd: 0, blockCd: 0, protestCd: 0,
+      warnedForDelay: false,
       pos: { ...out.pos }, vel: { x: 0, y: 0 },
+      minutesPlayed: 0,
     };
     m.entities.push(ent);
     m.subsUsed[side]++;
     m.stats[side].subs++;
     m.stoppage += 25 + m.rng.float(0, 20);
-    this.logEvent('substitution', { side, out: out.player.name, in: inPlayer.name });
-    this.emit('substitution', { side, out, in: ent });
+
+    this.logEvent('substitution', {
+      side, out: out.player.name, in: inPlayer.name, reason: plan.reason,
+    });
+    this.emit('substitution', { side, out, in: ent, reason: plan.reason });
+    return { side, out, in: ent, reason: plan.reason };
+  }
+
+  /** Posición base razonable para un rol dentro de la formación. */
+  _slotForRole(side, role, fallback) {
+    const m = this.match;
+    const sameRole = m.lineups[side].lineup.filter((l) => l.slot.role === role);
+    if (sameRole.length) {
+      const ref = sameRole[m.rng.int(0, sameRole.length - 1)].slot;
+      return { role, x: ref.x, y: ref.y };
+    }
+    const x = role === 'FW' ? 0.72 : role === 'MF' ? 0.45 : 0.2;
+    return { role, x, y: fallback ? fallback.y : 0.5 };
   }
 
   // ---------------------------------------------------------- ventaja
@@ -708,6 +830,12 @@ export class MatchEngine {
     const grade = RuleEngine.gradeDecision(incident, payload);
     incident.grade = grade;
 
+    // Las jugadas con peso se guardan para poder revisarlas al final
+    const worthKeeping = payload.card || ['goal', 'penaltyShout', 'violence'].includes(incident.type)
+      || payload.action === 'penalty' || incident.impact === 'critical' || incident.impact === 'high'
+      || !!incident.varUsed;
+    if (worthKeeping && !payload.auto) this._requestClip(incident);
+
     const record = {
       incidentId: incident.id,
       type: incident.type,
@@ -744,11 +872,17 @@ export class MatchEngine {
       this._giveCard(offender, payload.card, incident);
     } else if (payload.warning && offender) {
       offender.frustration = clamp(offender.frustration - 12, 0, 100);
+      if (incident.type === 'timewasting') offender.warnedForDelay = true;
       this.logEvent('warning', { player: offender.player.name });
     }
     if (payload.action === 'dive' && incident.victimId) {
       const diver = entityById(m, incident.victimId);
       if (diver && payload.card) this._giveCard(diver, payload.card, incident);
+    }
+
+    // Faltas acumuladas por jugador: alimentan la reiteración
+    if (offender && ['foul', 'penalty', 'handball'].includes(payload.action)) {
+      offender.fouls++;
     }
 
     // Estadísticas y marcador
@@ -925,9 +1059,16 @@ export class MatchEngine {
         m.phase = 'stopped';
         this._scheduleResume(incident);
         return;
+      case 'card':
+        // Amonestación fuera de una falta (protesta, pérdida de tiempo):
+        // se recupera la reanudación que estaba en marcha.
+        if (m.restart) { m.phase = 'deadball'; this.deadballUntil = m.clock + 4; }
+        else if (m.phase === 'decision') m.phase = 'play';
+        return;
       default:
         // Sigue el juego (balón suelto)
-        if (m.phase === 'decision') m.phase = 'play';
+        if (m.restart) { m.phase = 'deadball'; this.deadballUntil = m.clock + 3; }
+        else if (m.phase === 'decision') m.phase = 'play';
         return;
     }
   }
@@ -948,7 +1089,7 @@ export class MatchEngine {
     if (incident && incident.type === 'injury') {
       const inj = entityById(m, incident.victimId);
       if (inj) {
-        if (incident.level >= 3) { inj.onPitch = false; this._trySubstitution(); }
+        if (incident.level >= 3) this._considerSubstitution(inj.id);
         else { inj.injured = false; inj.downUntil = 0; }
       }
     }
@@ -967,6 +1108,8 @@ export class MatchEngine {
 
   _setRestart({ type, side, pos }) {
     const m = this.match;
+    this.timeWastingRaised = false;
+    this.delayAccum = 0;
     m.restart = { type, side, pos: { x: clamp(pos.x, 0.5, L - 0.5), y: clamp(pos.y, 0.5, W - 0.5) } };
     m.phase = 'deadball';
     this.deadballUntil = m.clock + (type === 'penalty' ? 18 : type === 'freeKick' ? 14 : 9);
@@ -1009,8 +1152,189 @@ export class MatchEngine {
     m.ball.lastTouchSide = taker.side;
     m.possession = taker.side;
     taker.actionCd = 0.35;
+
+    // Colocación de balón parado: barrera en las faltas cerca del área y
+    // jugadores subidos al remate en los córners.
+    if (r.type === 'corner') {
+      this._setCornerPositions(r.side, bp);
+      this.pendingDelivery = { type: 'corner', takerId: taker.id, at: m.clock + 2.5, side: r.side };
+    } else if (r.type === 'freeKick') {
+      const wall = this._setFreeKickPositions(r.side, bp);
+      if (wall) this.pendingDelivery = { type: 'freeKick', takerId: taker.id, at: m.clock + 3, side: r.side, wall };
+    }
+
     this.emit('restart:taken', { type: r.type, side: r.side, taker });
     m.restart = null;
+  }
+
+  /**
+   * Pérdida de tiempo: el equipo que gana estira las reanudaciones en el
+   * tramo final. Si el retraso se hace descarado, llega al árbitro.
+   */
+  _checkTimeWasting(matchDt) {
+    const m = this.match;
+    const r = m.restart;
+    if (!r || this.timeWastingRaised) return;
+    if (!['throwIn', 'goalKick', 'freeKick', 'corner'].includes(r.type)) return;
+
+    const minute = m.clock / 60;
+    const leading = m.score[r.side] > m.score[1 - r.side];
+    if (!leading || minute < 60) return;
+
+    this.delayAccum = (this.delayAccum || 0) + matchDt;
+    // Cuanto más avanzado el partido y más corta la ventaja, más tentación
+    const urge = (minute - 60) / 30 * (Math.abs(m.score[0] - m.score[1]) === 1 ? 1.4 : 0.7);
+    if (this.delayAccum < 6 || m.rng.next() > 0.02 * urge) return;
+
+    const taker = onPitch(m, r.side)
+      .sort((a, b) => dist(a.pos, r.pos) - dist(b.pos, r.pos))[0];
+    if (!taker) return;
+
+    const delaySeconds = this.delayAccum + m.rng.float(2, 10);
+    this.deadballUntil += delaySeconds * 0.5;
+    m.stoppage += delaySeconds;
+    this.timeWastingRaised = true;
+    this.delayAccum = 0;
+
+    const inc = makeTimeWastingIncident(m, taker, delaySeconds);
+    this.logEvent('timeWasting', { player: taker.player.name, seconds: Math.round(delaySeconds) });
+    this._raise(inc);
+  }
+
+  /** Coloca la barrera y a los rematadores en una falta peligrosa. */
+  _setFreeKickPositions(side, bp) {
+    const m = this.match;
+    const gx = targetGoalX(m, side);
+    const gy = W / 2;
+    const d = Math.hypot(gx - bp.x, gy - bp.y);
+    if (d > 32) return null;                       // demasiado lejos: sin barrera
+
+    const ang = Math.atan2(gy - bp.y, gx - bp.x);
+    const wallCount = d < 18 ? 4 : d < 26 ? 3 : 2;
+    const defenders = onPitch(m, 1 - side)
+      .filter((e) => e.role !== 'GK')
+      .sort((a, b) => dist(a.pos, bp) - dist(b.pos, bp));
+
+    const wall = [];
+    for (let i = 0; i < wallCount && i < defenders.length; i++) {
+      const e = defenders[i];
+      const off = (i - (wallCount - 1) / 2) * 0.75;
+      e.pos.x = clamp(bp.x + Math.cos(ang) * 9.15 - Math.sin(ang) * off, 1, L - 1);
+      e.pos.y = clamp(bp.y + Math.sin(ang) * 9.15 + Math.cos(ang) * off, 1, W - 1);
+      e.vel.x = 0; e.vel.y = 0;
+      e.facing = ang + Math.PI;
+      wall.push(e.id);
+    }
+
+    // Rematadores y marcadores dentro del área
+    const attackers = onPitch(m, side).filter((e) => e.role !== 'GK' && e.id !== m.ball.owner)
+      .sort((a, b) => b.player.heading - a.player.heading).slice(0, 4);
+    const markers = defenders.slice(wallCount, wallCount + 4);
+    attackers.forEach((e, i) => {
+      e.pos.x = clamp(gx + (gx > L / 2 ? -1 : 1) * (7 + i * 1.6), 2, L - 2);
+      e.pos.y = clamp(gy + (i - 1.5) * 4.2, 3, W - 3);
+      e.vel.x = 0; e.vel.y = 0;
+      const mk = markers[i];
+      if (mk) {
+        mk.pos.x = clamp(e.pos.x + (gx > L / 2 ? -1.2 : 1.2), 2, L - 2);
+        mk.pos.y = clamp(e.pos.y + 0.8, 3, W - 3);
+        mk.vel.x = 0; mk.vel.y = 0;
+      }
+    });
+    return wall;
+  }
+
+  /** Llena el área en un saque de esquina. */
+  _setCornerPositions(side, bp) {
+    const m = this.match;
+    const gx = targetGoalX(m, side);
+    const inward = gx > L / 2 ? -1 : 1;
+    const attackers = onPitch(m, side).filter((e) => e.role !== 'GK' && e.id !== m.ball.owner)
+      .sort((a, b) => b.player.heading - a.player.heading).slice(0, 5);
+    const defenders = onPitch(m, 1 - side).filter((e) => e.role !== 'GK')
+      .sort((a, b) => b.player.heading - a.player.heading).slice(0, 6);
+
+    attackers.forEach((e, i) => {
+      e.pos.x = clamp(gx + inward * (5 + (i % 3) * 2.4), 2, L - 2);
+      e.pos.y = clamp(W / 2 + (i - 2) * 3.4, 4, W - 4);
+      e.vel.x = 0; e.vel.y = 0;
+    });
+    defenders.forEach((e, i) => {
+      e.pos.x = clamp(gx + inward * (3.5 + (i % 3) * 2.2), 2, L - 2);
+      e.pos.y = clamp(W / 2 + (i - 2.5) * 3.1, 4, W - 4);
+      e.vel.x = 0; e.vel.y = 0;
+    });
+  }
+
+  /**
+   * Ejecuta el envío: el córner se centra al área y la falta cercana se
+   * dispara por encima de la barrera o se pone al segundo palo.
+   */
+  _deliverSetPiece() {
+    const m = this.match;
+    const del = this.pendingDelivery;
+    if (!del || m.clock < del.at) return;
+    this.pendingDelivery = null;
+    if (m.phase !== 'play') return;
+
+    const taker = entityById(m, del.takerId);
+    if (!taker || m.ball.owner !== taker.id) return;
+
+    const gx = targetGoalX(m, del.side);
+    const inward = gx > L / 2 ? -1 : 1;
+    const skill = taker.player.passing * 0.6 + taker.player.technique * 0.4;
+    const err = (1.1 - skill / 110) * (m.weather.slip > 0.1 ? 1.3 : 1);
+
+    if (del.type === 'corner') {
+      const target = {
+        x: gx + inward * m.rng.float(4.5, 11),
+        y: W / 2 + m.rng.gauss(0, 4.5 * err),
+      };
+      this._launchBall(taker, target, m.rng.float(0.95, 1.15), true);
+      this.logEvent('cross', { side: del.side, player: taker.player.name });
+      return;
+    }
+
+    const d = Math.hypot(gx - taker.pos.x, W / 2 - taker.pos.y);
+    const direct = d < 27 && m.rng.next() < 0.35 + taker.player.shooting / 300;
+    if (direct) {
+      const ty = W / 2 + m.rng.gauss(0, 3.6 * err);
+      const dx = gx - taker.pos.x, dy = ty - taker.pos.y;
+      const dd = Math.hypot(dx, dy) || 1;
+      const sp = clamp(20 + taker.player.shooting / 7, 15, 32);
+      m.ball.owner = null;
+      m.ball.prevTouch = m.ball.lastTouch; m.ball.prevTouchSide = m.ball.lastTouchSide;
+      m.ball.lastTouch = taker.id; m.ball.lastTouchSide = taker.side;
+      m.ball.vel.x = (dx / dd) * sp;
+      m.ball.vel.y = (dy / dd) * sp;
+      m.ball.height = 1.9; m.ball.vz = -0.4;   // por encima de la barrera
+      m.stats[taker.side].shots++;
+      this.lastShot = { shooter: taker, clock: m.clock };
+      this.logEvent('freeKickShot', { side: del.side, player: taker.player.name });
+    } else {
+      const target = {
+        x: gx + inward * m.rng.float(5, 12),
+        y: W / 2 + m.rng.gauss(0, 5 * err),
+      };
+      this._launchBall(taker, target, 1, true);
+    }
+  }
+
+  /** Envía el balón a un punto (centro o servicio), con altura. */
+  _launchBall(from, target, power = 1, lofted = false) {
+    const m = this.match;
+    const dx = target.x - from.pos.x, dy = target.y - from.pos.y;
+    const d = Math.hypot(dx, dy) || 1;
+    const ang = Math.atan2(dy, dx);
+    const speed = clamp(d / (0.55 + d * 0.024) * power, 7, 26);
+    m.ball.owner = null;
+    m.ball.prevTouch = m.ball.lastTouch; m.ball.prevTouchSide = m.ball.lastTouchSide;
+    m.ball.lastTouch = from.id; m.ball.lastTouchSide = from.side;
+    m.ball.vel.x = Math.cos(ang) * speed;
+    m.ball.vel.y = Math.sin(ang) * speed;
+    if (lofted) { m.ball.height = 0.3; m.ball.vz = clamp(d * 0.28, 4, 8.5); }
+    m.stats[from.side].passes++;
+    from.hasBall = false;
   }
 
   _takePenalty(side) {
@@ -1164,6 +1488,9 @@ export class MatchEngine {
 
   _finish(abandoned = false) {
     const m = this.match;
+    // La última jugada del partido es justo la que más se quiere revisar:
+    // se cierran los clips pendientes aunque no haya dado tiempo al epílogo.
+    this._flushClips(true);
     this.finished = true;
     m.phase = abandoned ? 'abandoned' : 'fulltime';
     m.running = false;
@@ -1227,6 +1554,7 @@ export class MatchEngine {
         var: this.var.rate(),
       },
       supervisor: this.rating.supervisorNotes(m),
+      clips: m.clips,
     };
   }
 
@@ -1238,6 +1566,39 @@ export class MatchEngine {
   }
 
   // ------------------------------------------------------------ replays
+
+  /**
+   * Guarda la jugada de un incidente para poder revisarla después. El clip
+   * se cierra unos segundos más tarde, cuando ya se ha visto el desenlace.
+   */
+  _requestClip(incident) {
+    const m = this.match;
+    this.pendingClips.push({
+      id: incident.id,
+      from: incident.clock - 9,
+      until: m.clock + 3,
+      minute: incident.minute,
+      type: incident.type,
+    });
+    if (this.pendingClips.length > 40) this.pendingClips.shift();
+  }
+
+  _flushClips(force = false) {
+    const m = this.match;
+    if (!this.pendingClips.length) return;
+    for (let i = this.pendingClips.length - 1; i >= 0; i--) {
+      const req = this.pendingClips[i];
+      if (!force && m.clock < req.until) continue;
+      const frames = m.replayBuffer.filter((f) => f.t >= req.from && f.t <= req.until);
+      if (frames.length > 4) {
+        m.clips[req.id] = { id: req.id, minute: req.minute, type: req.type, frames };
+      }
+      this.pendingClips.splice(i, 1);
+    }
+    // No se guardan clips sin límite: el partido no debe crecer sin control
+    const ids = Object.keys(m.clips);
+    if (ids.length > 30) delete m.clips[ids[0]];
+  }
 
   _recordReplayFrame() {
     const m = this.match;

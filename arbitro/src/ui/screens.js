@@ -4,7 +4,7 @@ import { t, availableLocales, getLocale } from '../core/i18n.js';
 import { GAME, DIFFICULTY, REF_STATS } from '../core/config.js';
 import { DIVISIONS, divisionById, clubsOfDivision } from '../data/generators.js';
 import { KITS, SKINS, HAIRS, overall, avgRating, XP_PER_LEVEL } from '../career/referee.js';
-import { TRAINING } from '../career/career.js';
+import { TRAINING, ASSETS } from '../career/career.js';
 import { NATIONS } from '../data/names.js';
 import { SCENARIOS, HISTORIC } from '../data/scenarios.js';
 import { listSaves } from '../core/save.js';
@@ -24,6 +24,8 @@ export class Screens {
   render(html, opts = {}) {
     this.show();
     this.root.innerHTML = `<div class="screen ${opts.cls || ''}">${html}</div>`;
+    // En el menú el velo se aclara para dejar ver el partido de fondo
+    this.root.classList.toggle('airy', opts.cls === 'menu');
     this.root.scrollTop = 0;
     this.root.querySelectorAll('[data-act]').forEach((b) => {
       b.addEventListener('click', () => {
@@ -44,6 +46,7 @@ export class Screens {
       scenarios: () => this.specials('scenario'),
       academy: () => this.academy(),
       training: () => this.training(),
+      economy: () => this.economy(),
       stats: () => this.profile(),
       achievements: () => this.achievements(),
       settings: () => this.settings(),
@@ -64,6 +67,9 @@ export class Screens {
     if (act === 'answerExam') return g.answerExam(Number(data.i));
     if (act === 'finishExam') return this.academy();
     if (act === 'train') return g.doTraining(data.id);
+    if (act === 'buy') return g.buyAsset(data.id);
+    if (act === 'review') return g.openReview(data.id);
+    if (act === 'closeReview') return g.closeReview();
     if (act === 'kickoff') return g.beginMatch();
     if (act === 'resumeHalf') return g.resumeSecondHalf();
     if (act === 'ethics') return g.resolveEthics(data.choice);
@@ -205,6 +211,7 @@ export class Screens {
       if (i.type === 'promotion') return `<li class="good">⬆ ${t('career.promoted', { div: divisionById(i.divisionId).name })}</li>`;
       if (i.type === 'relegation') return `<li class="bad">⬇ ${t('career.relegated', { div: divisionById(i.divisionId).name })}</li>`;
       if (i.type === 'federationWarning') return `<li class="bad">✉ La federación te recuerda que debes medir tus declaraciones.</li>`;
+      if (i.type === 'debt') return `<li class="bad">✉ ${t('inbox.debt')}</li>`;
       if (i.type === 'seasonEnd') return `<li>✓ Fin de la temporada ${i.season}. Nota media: ${i.avg ?? '—'}</li>`;
       return `<li>${esc(JSON.stringify(i))}</li>`;
     }).join('') || `<li class="muted">—</li>`;
@@ -235,6 +242,7 @@ export class Screens {
         <button data-act="rest">${t('career.rest')}</button>
         <button data-act="training">${t('training.title')}</button>
         <button data-act="academy">${t('academy.title')}</button>
+        <button data-act="economy">${t('econ.title')}</button>
         <button data-act="press">${t('press.title')}</button>
         <button data-act="stats">${t('menu.stats')}</button>
         <button data-act="achievements">${t('menu.achievements')}</button>
@@ -374,6 +382,8 @@ export class Screens {
 
       <div class="card"><h4>${t('report.supervisor')}</h4><ul class="list">${sup}</ul></div>
 
+      <div class="card"><h4>${t('review.title')}</h4>${this.clipList(report)}</div>
+
       ${extra.gainsHtml || ''}
       <div class="row-btns">${extra.buttons || `<button class="primary big" data-act="menu">${t('ui.continue')}</button>`}</div>`);
   }
@@ -391,6 +401,49 @@ export class Screens {
     const base = t(map[decision.action] || decision.action);
     const card = decision.card ? ` + ${t(`card.${decision.card}`)}` : decision.warning ? ` + ${t('act.warningShort')}` : '';
     return `${base}${card}`;
+  }
+
+  /** Botones de repetición de las jugadas guardadas. */
+  clipList(report) {
+    const clips = Object.values(report.clips || {});
+    if (!clips.length) return `<p class="muted small">${t('review.none')}</p>`;
+    const byId = new Map((report.incidents || []).map((i) => [i.id, i]));
+    return `<div class="chips">${clips
+      .sort((a, b) => a.minute - b.minute)
+      .map((c) => {
+        const inc = byId.get(c.id);
+        const grade = inc && inc.grade ? ` <span class="g-${inc.grade}">●</span>` : '';
+        return `<button class="chip-btn" data-act="review" data-id="${c.id}">
+          ▶ ${c.minute}' ${t(`dec.${c.type}`) !== `dec.${c.type}` ? t(`dec.${c.type}`) : c.type}${grade}
+        </button>`;
+      }).join('')}</div>`;
+  }
+
+  /** Reproductor de una jugada guardada. */
+  matchReview(clip, incident) {
+    const label = t(`dec.${clip.type}`) !== `dec.${clip.type}` ? t(`dec.${clip.type}`) : clip.type;
+    const decision = incident && incident.decision ? this.actionLabel(incident.decision) : null;
+    this.render(`
+      <div class="review-head">
+        <h2>${clip.minute}' · ${esc(label)}</h2>
+        ${incident && incident.grade
+    ? `<span class="pill g-${incident.grade}">${t(`eval.${incident.grade}`)}</span>` : ''}
+      </div>
+      ${decision ? `<p class="muted">${t('eval.decisionTaken')}: ${esc(decision)}</p>` : ''}
+      <div class="review-stage"><canvas id="review-canvas"></canvas></div>
+      <div class="review-transport">
+        <button class="chip-btn" data-rv="start">⏮</button>
+        <button class="chip-btn" data-rv="back10">◀◀</button>
+        <button class="chip-btn" data-rv="back1">◀|</button>
+        <button class="chip-btn" data-rv="play">▶</button>
+        <button class="chip-btn" data-rv="fwd1">|▶</button>
+        <button class="chip-btn" data-rv="fwd10">▶▶</button>
+        <button class="chip-btn" data-rv="speed">1×</button>
+        <button class="chip-btn" data-rv="cam">${t('var.cam.main')}</button>
+        <button class="chip-btn" data-rv="line">${t('var.offsideLine')}</button>
+      </div>
+      <div class="review-scrub"><input type="range" id="review-range" min="0" max="${clip.frames.length - 1}" value="0"></div>
+      <div class="row-btns"><button data-act="closeReview">${t('review.back')}</button></div>`);
   }
 
   eventLabel(e) {
@@ -511,6 +564,50 @@ export class Screens {
           ${t(`training.${s.id}`)}<br><span class="muted small">${s.stat ? `+${t(`stat.${s.stat}`)}` : 'Recupera'} · ${s.fatigue > 0 ? `+${s.fatigue}% fatiga` : `${s.fatigue}% fatiga`}</span>
         </button>`).join('')}
       </div>
+      <div class="row-btns"><button data-act="hub">${t('ui.back')}</button></div>`);
+  }
+
+  // ------------------------------------------------------------ economía
+
+  economy(msg) {
+    const c = this.game.career;
+    if (!c) return this.mainMenu();
+    const money = Math.round(c.referee.money);
+
+    const cards = ASSETS.map((a) => {
+      const owned = c.owns(a.id);
+      const afford = money >= a.cost;
+      return `<div class="card asset ${owned ? 'owned' : ''}">
+        <h4>${t(`econ.${a.id}`)}</h4>
+        <p class="muted small">${t(`econ.${a.id}.desc`)}</p>
+        <p class="small">${a.cost.toLocaleString('es')} €${a.upkeep ? ` · ${a.upkeep} €/jornada de ${t('econ.upkeep')}` : ''}</p>
+        ${owned
+    ? `<span class="tag gold">${t('econ.owned')}</span>`
+    : `<button class="${afford ? 'primary' : 'disabled'}" ${afford ? `data-act="buy" data-id="${a.id}"` : ''}>${t('econ.buy')}</button>`}
+      </div>`;
+    }).join('');
+
+    const conceptLabel = (concept) => {
+      if (concept.startsWith('buy:')) return `${t('ledger.buy')}: ${t(`econ.${concept.slice(4)}`)}`;
+      return t(`ledger.${concept}`) !== `ledger.${concept}` ? t(`ledger.${concept}`) : concept;
+    };
+    const ledger = c.ledger.slice(0, 10).map((l) =>
+      `<li><span class="${l.amount >= 0 ? 'good' : 'bad'}">${l.amount >= 0 ? '+' : ''}${l.amount.toLocaleString('es')} €</span>
+        · ${conceptLabel(l.concept)} <span class="muted">T${l.season} J${l.round}</span></li>`).join('')
+      || `<li class="muted">—</li>`;
+
+    this.render(`
+      <h2>${t('econ.title')}</h2>
+      <div class="hub-kpis">
+        <div class="kpi"><span>${t('econ.balance')}</span><b class="${money < 0 ? 'bad' : ''}">${money.toLocaleString('es')} €</b></div>
+        <div class="kpi"><span>${t('econ.perRound')}</span><b>${c.livingCost().toLocaleString('es')} €</b></div>
+        <div class="kpi"><span>${t('training.fatigue')}</span><b>${Math.round(c.fatigue)}%</b></div>
+      </div>
+      ${money < 0 ? `<div class="banner bad">${t('econ.inDebt')}</div>` : ''}
+      ${msg ? `<div class="banner good">${msg}</div>` : ''}
+      <h3>${t('econ.investments')}</h3>
+      <div class="assignments">${cards}</div>
+      <div class="card"><h4>${t('econ.ledger')}</h4><ul class="list small scroll">${ledger}</ul></div>
       <div class="row-btns"><button data-act="hub">${t('ui.back')}</button></div>`);
   }
 
