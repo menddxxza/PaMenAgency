@@ -3,6 +3,20 @@
 Guía corta para ponerse a tocar el juego sin romperlo. No hace falta saber
 nada del proyecto de antemano: en diez minutos se tiene el juego corriendo.
 
+## Dos formas de entrar
+
+El repositorio es público, así que **no hace falta permiso para empezar**.
+
+- **Con fork** (no requiere que te inviten): haz un *fork*, trabaja en tu
+  copia y abre una pull request contra `claude/silbato-cero`. Las pruebas se
+  ejecutan solas en la pull request.
+- **Como colaborador** (puedes subir ramas al repositorio original): pídele
+  al dueño que te invite en *Settings → Collaborators*. Llega un correo con
+  la invitación; en cuanto la aceptas puedes hacer `git push` de tus ramas.
+
+En los dos casos se trabaja igual: rama por tema y pull request. Nadie
+empuja directamente a `claude/silbato-cero`.
+
 ## Arrancar
 
 No hay compilación, ni dependencias, ni `npm install`. Son módulos ES nativos.
