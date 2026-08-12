@@ -47,6 +47,19 @@ pantalla, y la dirección de la palanca gira con él.
 Tu **posición importa**: la distancia, el ángulo y los cuerpos interpuestos
 determinan lo que realmente ves, y por tanto tu probabilidad de acertar.
 
+## Trabajar en equipo
+
+`CONTRIBUTING.md` cuenta en una página cómo arrancar, qué probar antes de
+subir nada y dónde vive cada cosa. Lo esencial:
+
+- Se trabaja en ramas que salen de `claude/silbato-cero` y se fusionan ahí
+  con una *pull request*.
+- Las 83 pruebas se ejecutan solas en cada push y en cada pull request
+  (`.github/workflows/pruebas.yml`) y tienen que estar en verde.
+- Hay plantillas de pull request y de incidencia para no dejarse lo
+  importante: pruebas, texto en los dos idiomas, y el fichero nuevo dado de
+  alta en la caché sin conexión.
+
 ## Pruebas
 
 ```bash

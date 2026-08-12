@@ -1,0 +1,20 @@
+# Las 83 pruebas del juego en cada push y en cada pull request.
+# Sin dependencias: sólo Node. Tarda menos de un minuto.
+name: Pruebas
+
+on:
+  push:
+    branches: [claude/silbato-cero]
+  pull_request:
+    branches: [claude/silbato-cero]
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Reglamento, sistemas y motor
+        run: node test/all.js
