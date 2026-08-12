@@ -10,7 +10,7 @@ import { DIFFICULTY } from '../src/core/config.js';
 import { es } from '../i18n/es.js';
 import { en } from '../i18n/en.js';
 import { QUESTIONS } from '../src/data/examQuestions.js';
-import { ACHIEVEMENTS } from '../src/career/achievements.js';
+import { ACHIEVEMENT_IDS } from '../src/career/achievements.js';
 import { allSpecials } from '../src/data/scenarios.js';
 import { RNG } from '../src/core/rng.js';
 import { Renderer } from '../src/ui/renderer.js';
@@ -136,6 +136,33 @@ export default suite('Sistemas', (t) => {
       }
     }
     check(missing.size === 0, `claves sin traducción: ${[...missing].slice(0, 10).join(', ')}`);
+  });
+
+  t('las claves construidas al vuelo existen en los dos idiomas', async () => {
+    // La prueba anterior sólo ve `t('clave')` literal. Estas se arman con
+    // plantillas (`t(\`kit.${id}\`)`), así que se comprueban desde los datos:
+    // añadir un capítulo, un uniforme o un estilo sin texto falla aquí.
+    const { KITS } = await import('../src/career/referee.js');
+    const { STYLE_IDS } = await import('../src/data/formations.js');
+    const { COACH_TRAITS } = await import('../src/data/generators.js');
+    const { CHAPTERS } = await import('../src/career/syndicate.js');
+    const { WEATHER } = await import('../src/core/config.js');
+
+    const esperadas = [];
+    for (const k of KITS) esperadas.push(`kit.${k.id}`);
+    for (const s of STYLE_IDS) esperadas.push(`style.${s}`);
+    for (const tr of COACH_TRAITS) esperadas.push(`trait.${tr}`);
+    for (const w of Object.keys(WEATHER)) esperadas.push(`weather.${w}`);
+    for (const ch of CHAPTERS) {
+      esperadas.push(`syn.${ch.id}.text`);
+      for (const o of ch.options) esperadas.push(`syn.${ch.id}.${o.id}`);
+    }
+
+    for (const key of esperadas) {
+      for (const [bundle, lang] of [[es, 'es'], [en, 'en']]) {
+        check(!!bundle[key], `falta ${key} en ${lang}`);
+      }
+    }
   });
 
   // ------------------------------------------------------------ carrera
@@ -273,13 +300,15 @@ export default suite('Sistemas', (t) => {
 
   // -------------------------------------------------------------- varios
 
-  t('todos los logros tienen nombre y descripción', () => {
-    check(ACHIEVEMENTS.length >= 20, 'deberían ser al menos veinte');
-    for (const a of ACHIEVEMENTS) {
-      check(!!a.id && !!a.name && !!a.desc, `logro incompleto: ${a.id}`);
+  t('todos los logros tienen nombre y descripción en los dos idiomas', () => {
+    check(ACHIEVEMENT_IDS.length >= 20, 'deberían ser al menos veinte');
+    check(new Set(ACHIEVEMENT_IDS).size === ACHIEVEMENT_IDS.length, 'hay identificadores repetidos');
+    for (const id of ACHIEVEMENT_IDS) {
+      for (const [bundle, lang] of [[es, 'es'], [en, 'en']]) {
+        check(!!bundle[`ach.${id}.name`], `falta ach.${id}.name en ${lang}`);
+        check(!!bundle[`ach.${id}.desc`], `falta ach.${id}.desc en ${lang}`);
+      }
     }
-    const ids = new Set(ACHIEVEMENTS.map((a) => a.id));
-    check(ids.size === ACHIEVEMENTS.length, 'hay identificadores repetidos');
   });
 
   t('los escenarios están bien definidos', () => {

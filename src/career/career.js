@@ -370,7 +370,7 @@ export class Career {
       clubId: club.id,
       clubName: club.name,
       amount,
-      text: `Un intermediario te espera fuera del vestuario. Quiere que seas "un poco más permisivo" con ${club.name}. Sobre la mesa: ${amount} €.`,
+      text: t('ethics.offer', { club: club.name, amount }),
     };
   }
 

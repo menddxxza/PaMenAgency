@@ -4,13 +4,14 @@ import { RNG, clamp } from '../core/rng.js';
 import { REF_STATS } from '../core/config.js';
 import { FIRST_NAMES, FIRST_NAMES_F, LAST_NAMES, NATIONS } from '../data/names.js';
 
+// El nombre de cada uniforme vive en i18n como `kit.<id>`.
 export const KITS = [
-  { id: 'black', name: 'Negro clásico', shirt: '#111418', trim: '#f2c14e' },
-  { id: 'yellow', name: 'Amarillo alta visibilidad', shirt: '#f4d03f', trim: '#1b1b1b' },
-  { id: 'teal', name: 'Verde azulado', shirt: '#0f766e', trim: '#e6fffb' },
-  { id: 'red', name: 'Rojo', shirt: '#b3261e', trim: '#ffe0dd' },
-  { id: 'purple', name: 'Violeta', shirt: '#5b2c6f', trim: '#f0e6f6' },
-  { id: 'blue', name: 'Azul noche', shirt: '#1b3a6b', trim: '#cfe3ff' },
+  { id: 'black', shirt: '#111418', trim: '#f2c14e' },
+  { id: 'yellow', shirt: '#f4d03f', trim: '#1b1b1b' },
+  { id: 'teal', shirt: '#0f766e', trim: '#e6fffb' },
+  { id: 'red', shirt: '#b3261e', trim: '#ffe0dd' },
+  { id: 'purple', shirt: '#5b2c6f', trim: '#f0e6f6' },
+  { id: 'blue', shirt: '#1b3a6b', trim: '#cfe3ff' },
 ];
 
 export const SKINS = ['#f2d3b6', '#e0b48c', '#c68b5e', '#8d5524', '#5c3317'];

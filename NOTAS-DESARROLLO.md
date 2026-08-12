@@ -117,7 +117,7 @@ No son deudas: son límites elegidos y sostenidos.
 - **Vertical en el móvil.** En pantallas altas el campo se gira un cuarto de
   vuelta y llena el teléfono, en lugar de quedarse en una franja central. La
   dirección de la palanca y del mando gira con él.
-- **Batería de pruebas.** 82 pruebas sin dependencias (`node test/all.js`):
+- **Batería de pruebas.** 83 pruebas sin dependencias (`node test/all.js`):
   reglamento, sistemas y motor. Incluye las que evitan las regresiones que más
   caro salieron durante el desarrollo: partidos que no terminan, jugadores
   fuera del campo, posesión que no cuadra, equipaciones indistinguibles,
@@ -165,6 +165,34 @@ No son deudas: son límites elegidos y sostenidos.
   y el panel de decisión se anuncia entero y sin esperar, porque hay un reloj
   corriendo. La palanca táctil y el temporizador van etiquetados, y sus textos
   viven en `i18n/` como todo lo demás.
+
+## Texto que seguía viviendo en el código
+
+Una pasada de auditoría buscando literales con acentos dentro de `src/`
+destapó que tres sistemas enteros nunca habían pasado por `i18n/`: los 24
+logros, los cinco capítulos del Syndicate con sus quince opciones y los
+nombres de los seis uniformes. Además, la previa del partido enseñaba
+identificadores crudos (`rain`, `balanced`, `manipulative`) y etiquetas
+escritas a mano («Agresividad», «Entrenador», «precisión», «criterio», «Sin
+VAR en esta categoría»), y la oferta de soborno se componía en castellano.
+
+En inglés, todo eso se veía en español o en clave. Ahora:
+
+- `ACHIEVEMENTS` pasó a ser `ACHIEVEMENT_IDS`: sólo identificadores, con el
+  nombre y la descripción en `ach.<id>.name` / `.desc`.
+- Los capítulos del Syndicate son datos —condiciones y efectos—; la escena y
+  las opciones viven en `syn.<capítulo>.text` y `syn.<capítulo>.<opción>`.
+- Los uniformes sólo aportan color; el nombre está en `kit.<id>`.
+- Clima, estilo de juego y carácter del entrenador se traducen
+  (`weather.*`, `style.*`, `trait.*`) en lugar de enseñar el identificador.
+- Se añadió una prueba que arma esas claves **desde los propios datos**: si
+  se añade un capítulo, un uniforme o un estilo sin texto, la batería falla.
+  La prueba anterior sólo veía `t('clave')` literal, y estas se construyen
+  con plantillas.
+
+Verificado recorriendo una carrera entera en inglés —creación de árbitro,
+logros, previa, partido completo, informe y epílogo— sin que se cuele una
+sola palabra en castellano.
 
 ## Qué no está y por qué
 

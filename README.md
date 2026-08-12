@@ -50,14 +50,14 @@ determinan lo que realmente ves, y por tanto tu probabilidad de acertar.
 ## Pruebas
 
 ```bash
-node test/all.js       # 82 pruebas: reglamento, sistemas y motor
+node test/all.js       # 83 pruebas: reglamento, sistemas y motor
 node test/all.js -v    # con el detalle de cada prueba
 node test/run.js 8     # simula 8 partidos y saca las medias por pantalla
 ```
 
 - **Reglamento** (38): casos de las reglas del juego. Si una falla, el juego
   estaría enseñando una regla equivocada.
-- **Sistemas** (28): generación del mundo, equipaciones distinguibles, guardado
+- **Sistemas** (29): generación del mundo, equipaciones distinguibles, guardado
   y carga, economía, academia y —lo más útil al añadir texto— que los dos
   idiomas tengan las mismas claves y que la interfaz no use ninguna
   inexistente. También que los efectos del campo caduquen, que el movimiento
@@ -244,10 +244,14 @@ La arquitectura está preparada: los textos viven en `i18n/`, nunca en la lógic
    ninguna clave, que ninguna esté vacía y que las variables (`{n}`, `{ref}`)
    coincidan entre idiomas.
 
-El juego se entrega en español e inglés, completos y verificados.
+El juego se entrega en español e inglés, completos y verificados: **ningún
+texto vive en el código**, ni siquiera los logros, la trama del Syndicate, los
+uniformes, los estilos de juego, el carácter de los entrenadores o el clima.
+Comprobado recorriendo una carrera entera en inglés sin que se cuele una sola
+palabra en castellano.
 
 ## Estado
 
-Terminado y jugable de principio a fin, con 82 pruebas automáticas en verde.
+Terminado y jugable de principio a fin, con 83 pruebas automáticas en verde.
 El detalle de lo que quedó dentro y lo que se decidió dejar fuera está en
 `NOTAS-DESARROLLO.md`.

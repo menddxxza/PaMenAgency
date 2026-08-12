@@ -154,7 +154,7 @@ export class Screens {
         <label>${t('create.nationality')}
           <select id="f-nation">${NATIONS.map((n) => `<option value="${n.id}" ${p.nationId === n.id ? 'selected' : ''}>${n.name}</option>`).join('')}</select></label>
         <label>${t('create.kit')}
-          <select id="f-kit">${KITS.map((k) => `<option value="${k.id}" ${p.kit === k.id ? 'selected' : ''}>${k.name}</option>`).join('')}</select></label>
+          <select id="f-kit">${KITS.map((k) => `<option value="${k.id}" ${p.kit === k.id ? 'selected' : ''}>${esc(t(`kit.${k.id}`))}</option>`).join('')}</select></label>
         <label>${t('create.skin')}
           <select id="f-skin">${SKINS.map((s, i) => `<option value="${s}" ${p.skin === s ? 'selected' : ''}>Tono ${i + 1}</option>`).join('')}</select></label>
         <label>${t('create.hair')}
@@ -265,24 +265,24 @@ export class Screens {
     this.render(`
       <h2>${esc(cfg.home.name)} <span class="vs">vs</span> ${esc(cfg.away.name)}</h2>
       <p class="muted">${esc(cfg.competition.name)} · 🏟 ${esc(cfg.stadium.name)} (${cfg.stadium.capacity.toLocaleString('es')})
-        · 🌤 ${cfg.weatherId} · ${t('career.pressure')}: ${t(`career.pressure.${assignment ? assignment.pressure : 'medium'}`)}</p>
+        · 🌤 ${t(`weather.${cfg.weatherId}`)} · ${t('career.pressure')}: ${t(`career.pressure.${assignment ? assignment.pressure : 'medium'}`)}</p>
       <div class="two-col">
         <div class="card"><h4 style="color:${cfg.home.colors.primary}">${esc(cfg.home.name)}</h4>
-          <p class="muted">${cfg.home.formation} · ${cfg.home.style} · Agresividad ${cfg.home.aggression}
-            · Entrenador: ${esc(cfg.home.coach.name)} (${cfg.home.coach.trait})</p>
+          <p class="muted">${cfg.home.formation} · ${t(`style.${cfg.home.style}`)} · ${t('ui.aggression')} ${cfg.home.aggression}
+            · ${t('ui.coach')}: ${esc(cfg.home.coach.name)} (${t(`trait.${cfg.home.coach.trait}`)})</p>
           <ol class="list small">${lineup(0)}</ol></div>
         <div class="card"><h4 style="color:${cfg.away.colors.primary}">${esc(cfg.away.name)}</h4>
-          <p class="muted">${cfg.away.formation} · ${cfg.away.style} · Agresividad ${cfg.away.aggression}
-            · Entrenador: ${esc(cfg.away.coach.name)} (${cfg.away.coach.trait})</p>
+          <p class="muted">${cfg.away.formation} · ${t(`style.${cfg.away.style}`)} · ${t('ui.aggression')} ${cfg.away.aggression}
+            · ${t('ui.coach')}: ${esc(cfg.away.coach.name)} (${t(`trait.${cfg.away.coach.trait}`)})</p>
           <ol class="list small">${lineup(1)}</ol></div>
       </div>
       <div class="card"><h4>${t('ui.crew')}</h4>
         <ul class="list small">
-          <li>${t('assistant.ar1')}: ${esc(crew.ar1.name)} (precisión ${crew.ar1.accuracy})</li>
-          <li>${t('assistant.ar2')}: ${esc(crew.ar2.name)} (precisión ${crew.ar2.accuracy})</li>
+          <li>${t('assistant.ar1')}: ${esc(crew.ar1.name)} (${t('ui.accuracy')} ${crew.ar1.accuracy})</li>
+          <li>${t('assistant.ar2')}: ${esc(crew.ar2.name)} (${t('ui.accuracy')} ${crew.ar2.accuracy})</li>
           <li>${t('assistant.fourth')}: ${esc(crew.fourth.name)}</li>
-          ${crew.var ? `<li>VAR: ${esc(crew.var.name)} (criterio ${crew.var.criterion}) · AVAR: ${esc(crew.avar.name)}</li>`
-        : '<li class="muted">Sin VAR en esta categoría</li>'}
+          ${crew.var ? `<li>VAR: ${esc(crew.var.name)} (${t('ui.criterion')} ${crew.var.criterion}) · AVAR: ${esc(crew.avar.name)}</li>`
+        : `<li class="muted">${t('ui.noVar')}</li>`}
         </ul></div>
       <div class="card help">
         ${t('ui.controls')}
@@ -495,11 +495,11 @@ export class Screens {
     if (!ch) return this.careerHub();
     this.render(`
       <h2>${t('syndicate.title')} — ${t('syndicate.chapter', { n: ch.id })}</h2>
-      <div class="card story"><p>${esc(ch.text)}</p></div>
+      <div class="card story"><p>${esc(t(`syn.${ch.id}.text`))}</p></div>
       <div class="row-btns">
-        ${ch.options.map((o) => `<button data-act="syndicateChoose" data-chapter="${ch.id}" data-option="${o.id}">${esc(o.label)}</button>`).join('')}
+        ${ch.options.map((o) => `<button data-act="syndicateChoose" data-chapter="${ch.id}" data-option="${o.id}">${esc(t(`syn.${ch.id}.${o.id}`))}</button>`).join('')}
       </div>
-      <p class="muted">${t('syndicate.suspicion')}: ${Math.round(c.referee.suspicion)}% · Corrupción: ${Math.round(c.referee.corruption)}%</p>`);
+      <p class="muted">${t('syndicate.suspicion')}: ${Math.round(c.referee.suspicion)}% · ${t('syndicate.corruption')}: ${Math.round(c.referee.corruption)}%</p>`);
   }
 
   // ----------------------------------------------------------- academia
@@ -798,7 +798,7 @@ export class Screens {
       <div class="card"><ul class="list small">
         <li>${t('ui.divisionReached')}: ${career.division.name}</li>
         <li>${t('stat.reputation')}: ${Math.round(career.referee.reputation)}</li>
-        <li>${t('stat.ethics')}: ${Math.round(career.referee.ethics)} · Corrupción: ${Math.round(career.referee.corruption)}</li>
+        <li>${t('stat.ethics')}: ${Math.round(career.referee.ethics)} · ${t('syndicate.corruption')}: ${Math.round(career.referee.corruption)}</li>
         <li>${t('ui.promotions')}: ${career.referee.record.promotions}</li>
       </ul></div>
       <div class="row-btns"><button class="primary" data-act="menu">${t('ui.continue')}</button></div>`);

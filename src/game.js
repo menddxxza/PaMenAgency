@@ -288,8 +288,8 @@ export class Game {
   createRefereeFromForm() {
     const q = (id) => this.dom.screens.querySelector(id);
     const opts = {
-      firstName: q('#f-first').value.trim() || 'Árbitro',
-      lastName: q('#f-last').value.trim() || 'Anónimo',
+      firstName: q('#f-first').value.trim() || t('ui.defaultFirst'),
+      lastName: q('#f-last').value.trim() || t('ui.defaultLast'),
       age: Number(q('#f-age').value) || 24,
       gender: q('#f-gender').value,
       nationId: q('#f-nation').value,
@@ -756,7 +756,7 @@ export class Game {
     const gainsHtml = `
       <div class="card"><h4>${t('ui.progress')}</h4>
         <ul class="list small">
-          <li>${t('report.xp')}: +${res.entry.xp} XP${res.entry.levels.length ? ` · ¡Nivel ${res.entry.levels[res.entry.levels.length - 1]}!` : ''}</li>
+          <li>${t('report.xp')}: +${res.entry.xp} XP${res.entry.levels.length ? ` · ${t('ui.levelUp', { n: res.entry.levels[res.entry.levels.length - 1] })}` : ''}</li>
           <li>${t('report.fee')}: +${res.entry.fee} €</li>
           <li>${t('stat.reputation')}: ${res.entry.repDelta >= 0 ? '+' : ''}${res.entry.repDelta}</li>
           ${Object.entries(res.entry.gains).map(([k, v]) => `<li>${t(`stat.${k}`)} +${v}</li>`).join('')}

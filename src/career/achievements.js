@@ -1,32 +1,35 @@
 // Logros. Se guardan a nivel de perfil (persisten entre carreras).
 
 import { loadAchievements, saveAchievements } from '../core/save.js';
+import { t } from '../core/i18n.js';
 
-export const ACHIEVEMENTS = [
-  { id: 'firstMatch', name: 'Debut', desc: 'Arbitra tu primer partido.' },
-  { id: 'firstYellow', name: 'Primera amarilla', desc: 'Muestra tu primera cartulina amarilla.' },
-  { id: 'firstRed', name: 'Primera roja', desc: 'Expulsa a un jugador por primera vez.' },
-  { id: 'firstVar', name: 'Al monitor', desc: 'Completa tu primera revisión VAR.' },
-  { id: 'firstPenalty', name: 'Señalando el punto', desc: 'Pita tu primer penalti.' },
-  { id: 'perfectMatch', name: 'Partido perfecto', desc: 'Termina un partido sin una sola decisión incorrecta.' },
-  { id: 'flawless', name: 'Sobresaliente', desc: 'Consigue una nota de 9.0 o superior.' },
-  { id: 'matches25', name: '25 partidos', desc: 'Arbitra 25 partidos.' },
-  { id: 'matches50', name: '50 partidos', desc: 'Arbitra 50 partidos.' },
-  { id: 'matches100', name: 'Centenario', desc: 'Arbitra 100 partidos.' },
-  { id: 'promotion', name: 'Escalando', desc: 'Asciende de categoría.' },
-  { id: 'topFlight', name: 'Élite', desc: 'Llega a la Primera División Ibérica.' },
-  { id: 'international', name: 'Internacional', desc: 'Arbitra una competición continental.' },
-  { id: 'worldFinal', name: 'La final', desc: 'Arbitra una final internacional.' },
-  { id: 'fiveReds', name: 'Noche caliente', desc: 'Expulsa a cinco jugadores en un partido.' },
-  { id: 'abandon', name: 'Se acabó', desc: 'Suspende un partido.' },
-  { id: 'refuseBribe', name: 'Incorruptible', desc: 'Rechaza un soborno.' },
-  { id: 'reportBribe', name: 'Denunciante', desc: 'Denuncia un intento de soborno.' },
-  { id: 'exposeNetwork', name: 'La red al descubierto', desc: 'Destapa la red de amaños.' },
-  { id: 'advantageMaster', name: 'Ley de la ventaja', desc: 'Aplica tres ventajas acertadas en un partido.' },
-  { id: 'calmDerby', name: 'Mano firme', desc: 'Termina un derbi con nota 8 o más.' },
-  { id: 'examAce', name: 'Reglamento al dedillo', desc: 'Aprueba un examen con el 100%.' },
-  { id: 'ironLungs', name: 'Pulmones de acero', desc: 'Termina un partido con más del 60% de físico.' },
-  { id: 'saveTheMatch', name: 'Salvar el partido', desc: 'Gestiona un incidente grave sin suspender el encuentro.' },
+// Sólo identificadores: el nombre y la descripción viven en i18n
+// (`ach.<id>.name` y `ach.<id>.desc`), como todo texto visible.
+export const ACHIEVEMENT_IDS = [
+  'firstMatch',
+  'firstYellow',
+  'firstRed',
+  'firstVar',
+  'firstPenalty',
+  'perfectMatch',
+  'flawless',
+  'matches25',
+  'matches50',
+  'matches100',
+  'promotion',
+  'topFlight',
+  'international',
+  'worldFinal',
+  'fiveReds',
+  'abandon',
+  'refuseBribe',
+  'reportBribe',
+  'exposeNetwork',
+  'advantageMaster',
+  'calmDerby',
+  'examAce',
+  'ironLungs',
+  'saveTheMatch',
 ];
 
 export class AchievementSystem {
@@ -40,10 +43,10 @@ export class AchievementSystem {
 
   unlock(id) {
     if (this.unlocked[id]) return null;
-    const def = ACHIEVEMENTS.find((a) => a.id === id);
-    if (!def) return null;
+    if (!ACHIEVEMENT_IDS.includes(id)) return null;
     this.unlocked[id] = { at: Date.now() };
     saveAchievements(this.unlocked);
+    const def = { id, name: t(`ach.${id}.name`), desc: t(`ach.${id}.desc`) };
     this.session.push(def);
     return def;
   }
@@ -89,8 +92,14 @@ export class AchievementSystem {
     return out;
   }
 
+  /** Los textos se resuelven aquí, en el borde: la lógica sólo maneja ids. */
   all() {
-    return ACHIEVEMENTS.map((a) => ({ ...a, unlocked: !!this.unlocked[a.id] }));
+    return ACHIEVEMENT_IDS.map((id) => ({
+      id,
+      name: t(`ach.${id}.name`),
+      desc: t(`ach.${id}.desc`),
+      unlocked: !!this.unlocked[id],
+    }));
   }
 
   serialize() { return { unlocked: this.unlocked }; }
