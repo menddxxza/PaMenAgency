@@ -7,9 +7,6 @@ Todo el contenido —clubes, jugadores, entrenadores, estadios, competiciones y
 narrativa— es **ficticio y original**. No se usan marcas, escudos, nombres ni
 assets de terceros.
 
-El juego va aparte del resto del monorepo: esta rama tiene su propia historia,
-sin un solo commit de los demás proyectos, y el juego vive en la raíz.
-
 ## Cómo jugarlo
 
 No hay compilación ni dependencias: son módulos ES nativos.
@@ -52,8 +49,8 @@ determinan lo que realmente ves, y por tanto tu probabilidad de acertar.
 `CONTRIBUTING.md` cuenta en una página cómo arrancar, qué probar antes de
 subir nada y dónde vive cada cosa. Lo esencial:
 
-- Se trabaja en ramas que salen de `claude/silbato-cero` y se fusionan ahí
-  con una *pull request*.
+- Se trabaja en ramas que salen de `main` y se fusionan ahí con una
+  *pull request*.
 - Las 83 pruebas se ejecutan solas en cada push y en cada pull request
   (`.github/workflows/pruebas.yml`) y tienen que estar en verde.
 - Hay plantillas de pull request y de incidencia para no dejarse lo

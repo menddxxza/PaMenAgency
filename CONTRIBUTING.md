@@ -8,23 +8,22 @@ nada del proyecto de antemano: en diez minutos se tiene el juego corriendo.
 El repositorio es público, así que **no hace falta permiso para empezar**.
 
 - **Con fork** (no requiere que te inviten): haz un *fork*, trabaja en tu
-  copia y abre una pull request contra `claude/silbato-cero`. Las pruebas se
-  ejecutan solas en la pull request.
+  copia y abre una pull request contra `main`. Las pruebas se ejecutan
+  solas en la pull request.
 - **Como colaborador** (puedes subir ramas al repositorio original): pídele
   al dueño que te invite en *Settings → Collaborators*. Llega un correo con
   la invitación; en cuanto la aceptas puedes hacer `git push` de tus ramas.
 
 En los dos casos se trabaja igual: rama por tema y pull request. Nadie
-empuja directamente a `claude/silbato-cero`.
+empuja directamente a `main`.
 
 ## Arrancar
 
 No hay compilación, ni dependencias, ni `npm install`. Son módulos ES nativos.
 
 ```bash
-git clone https://github.com/menddxxza/menddxxza.git
-cd menddxxza
-git checkout claude/silbato-cero      # el juego vive en esta rama, en la raíz
+git clone https://github.com/menddxxza/silbato-cero.git
+cd silbato-cero
 python3 -m http.server 8099
 # abrir http://localhost:8099
 ```
@@ -110,12 +109,12 @@ No hay linter: el código se lee, no se formatea con una herramienta.
 
 ## Ramas y commits
 
-- Sal de `claude/silbato-cero` y trabaja en una rama por tema:
+- Sal de `main` y trabaja en una rama por tema:
   `motor/corners-en-contragolpe`, `ui/pantalla-de-logros`.
 - Mensajes de commit en una línea que diga qué cambia de verdad, y un cuerpo
   que explique por qué si no es obvio. En castellano, como el resto.
-- Abre una *pull request* contra `claude/silbato-cero`. Las pruebas se
-  ejecutan solas y tienen que pasar antes de fusionar.
+- Abre una *pull request* contra `main`. Las pruebas se ejecutan solas y
+  tienen que pasar antes de fusionar.
 
 ## Contenido: lo único innegociable
 
