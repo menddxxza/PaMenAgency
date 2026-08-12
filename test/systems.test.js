@@ -340,6 +340,36 @@ export default suite('Sistemas', (t) => {
     check(r.confetti.length === 0, 'los papelillos no desaparecen');
   });
 
+  // ---------------------------------------------------------- sin conexión
+
+  t('el service worker cachea exactamente los ficheros del juego', async () => {
+    const { readFileSync, readdirSync, statSync } = await import('fs');
+    const root = new URL('../', import.meta.url).pathname;
+
+    // La lista vive en sw.js como literal: se lee del fichero para no
+    // obligar al service worker a ser un módulo.
+    const src = readFileSync(`${root}sw.js`, 'utf8');
+    const block = src.match(/const SHELL = \[([\s\S]*?)\];/);
+    check(!!block, 'no se encuentra la lista SHELL en sw.js');
+    const listed = new Set([...block[1].matchAll(/'([^']+)'/g)].map((m) => m[1]));
+
+    // Lo que de verdad necesita el navegador para arrancar el juego
+    const needed = new Set(['./', 'index.html', 'manifest.webmanifest', 'icon.svg']);
+    const walk = (dir, prefix) => {
+      for (const f of readdirSync(`${root}${dir}`)) {
+        const rel = `${dir}/${f}`;
+        if (statSync(`${root}${rel}`).isDirectory()) walk(rel, prefix);
+        else if (f.endsWith('.js') || f.endsWith('.css')) needed.add(rel);
+      }
+    };
+    walk('src'); walk('styles'); walk('i18n');
+
+    const faltan = [...needed].filter((f) => !listed.has(f));
+    const sobran = [...listed].filter((f) => !needed.has(f));
+    check(faltan.length === 0, `sin cachear (el juego no abriría sin conexión): ${faltan.join(', ')}`);
+    check(sobran.length === 0, `en la caché pero ya no existen: ${sobran.join(', ')}`);
+  });
+
   t('con movimiento reducido no se lanzan partículas', () => {
     const r = bareRenderer();
     r.motion = 0;

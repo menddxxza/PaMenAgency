@@ -608,4 +608,7 @@ export const es = {
   "review.back": "Volver al informe",
   "review.speed": "Velocidad",
   "review.frame": "Fotograma",
+  "a11y.pitch": "Campo de juego. {home} {sh} - {sa} {away}, minuto {min}.",
+  "a11y.stick": "Palanca de movimiento del árbitro",
+  "a11y.timer": "Tiempo restante para decidir",
 };

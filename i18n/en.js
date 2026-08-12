@@ -584,4 +584,7 @@ export const en = {
   "review.back": "Back to report",
   "review.speed": "Speed",
   "review.frame": "Frame",
+  "a11y.pitch": "Pitch. {home} {sh} - {sa} {away}, minute {min}.",
+  "a11y.stick": "Referee movement stick",
+  "a11y.timer": "Time left to decide",
 };

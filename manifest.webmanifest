@@ -1,0 +1,17 @@
+{
+  "name": "Silbato Cero",
+  "short_name": "Silbato Cero",
+  "description": "Simulador 2D de carrera arbitral: no controlas a los futbolistas, controlas al árbitro.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#0b0f14",
+  "theme_color": "#0b0f14",
+  "categories": ["games", "sports"],
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

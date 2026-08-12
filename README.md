@@ -21,6 +21,12 @@ python3 -m http.server 8099     # o cualquier servidor estático
 
 (Debe servirse por HTTP, no con `file://`, por las restricciones de módulos ES.)
 
+**Sin conexión.** Tras la primera carga el juego se instala entero en la caché
+del navegador: se puede jugar con la red apagada, y desde el móvil se añade a
+la pantalla de inicio como una aplicación más. La lista de ficheros del casco
+vive en `sw.js`, y hay una prueba que falla si se añade un módulo y se olvida
+meterlo ahí —que es exactamente como se rompe el modo sin conexión.
+
 ### Controles
 
 | Tecla | Acción |
@@ -44,17 +50,19 @@ determinan lo que realmente ves, y por tanto tu probabilidad de acertar.
 ## Pruebas
 
 ```bash
-node test/all.js       # 81 pruebas: reglamento, sistemas y motor
+node test/all.js       # 82 pruebas: reglamento, sistemas y motor
 node test/all.js -v    # con el detalle de cada prueba
 node test/run.js 8     # simula 8 partidos y saca las medias por pantalla
 ```
 
 - **Reglamento** (38): casos de las reglas del juego. Si una falla, el juego
   estaría enseñando una regla equivocada.
-- **Sistemas** (27): generación del mundo, equipaciones distinguibles, guardado
+- **Sistemas** (28): generación del mundo, equipaciones distinguibles, guardado
   y carga, economía, academia y —lo más útil al añadir texto— que los dos
-  idiomas tengan las mismas claves y que la interfaz no use ninguna inexistente. También que los efectos del
-  campo caduquen y que el movimiento se apague con `prefers-reduced-motion`.
+  idiomas tengan las mismas claves y que la interfaz no use ninguna
+  inexistente. También que los efectos del campo caduquen, que el movimiento
+  se apague con `prefers-reduced-motion` y que la caché sin conexión liste
+  exactamente los ficheros que hay en disco.
 - **Motor** (16): invariantes del partido (nadie sale del campo, la posesión
   cuadra, nunca quedan menos de siete jugadores, el mismo partido con la misma
   semilla da el mismo resultado) y que las medias caen en rangos creíbles.
@@ -67,6 +75,7 @@ node test/run.js 8     # simula 8 partidos y saca las medias por pantalla
 ├── styles/tokens.css     sistema de diseño (color OKLCH, tipografía, espacio)
 ├── styles/main.css       estilo propio, construido sólo sobre tokens
 ├── i18n/                 es.js · en.js  (ningún texto vive en la lógica)
+├── sw.js                 caché sin conexión · manifest.webmanifest · icon.svg
 ├── test/run.js           banco de pruebas headless
 └── src/
     ├── core/             rng (semillas) · events · config · i18n · save
@@ -211,6 +220,20 @@ viñeta se dibujan una vez en capas aparte y luego se estampan: antes eran
 decenas de miles de rectángulos y cuatro degradados por fotograma. El coste
 de dibujo bajó de 68 ms a 14 ms por fotograma en el mismo banco de pruebas.
 
+## Accesibilidad
+
+- El documento declara el idioma que se está leyendo de verdad: cambiar a
+  inglés cambia `<html lang>`, del que dependen la pronunciación de los
+  lectores de pantalla y la separación silábica.
+- El campo es un lienzo, que por sí solo no dice nada: lleva encima una
+  descripción con el marcador y el minuto, que se actualiza cada minuto.
+- Los avisos del partido se anuncian solos (`role="status"`), y el panel de
+  decisión se anuncia entero y sin esperar en cuanto aparece, porque hay un
+  reloj corriendo.
+- Las seis opciones de decisión se eligen con `1`–`6`: el partido se arbitra
+  sin soltar el teclado.
+- Todo el movimiento se apaga con `prefers-reduced-motion`.
+
 ## Añadir un idioma
 
 La arquitectura está preparada: los textos viven en `i18n/`, nunca en la lógica.
@@ -225,6 +248,6 @@ El juego se entrega en español e inglés, completos y verificados.
 
 ## Estado
 
-Terminado y jugable de principio a fin, con 81 pruebas automáticas en verde.
+Terminado y jugable de principio a fin, con 82 pruebas automáticas en verde.
 El detalle de lo que quedó dentro y lo que se decidió dejar fuera está en
 `NOTAS-DESARROLLO.md`.

@@ -72,6 +72,8 @@ export class HUD {
 
     // ---- avisos
     this.toasts = el('div', 'toasts');
+    this.toasts.setAttribute('role', 'status');
+    this.toasts.setAttribute('aria-live', 'polite');
     this.root.appendChild(this.toasts);
 
     // ---- evaluación
@@ -98,6 +100,8 @@ export class HUD {
     if (!coarse) return;
 
     const pad = el('div', 'touch-pad');
+    pad.setAttribute('role', 'application');
+    pad.setAttribute('aria-label', t('a11y.stick'));
     pad.innerHTML = '<span class="stick"></span>';
     const stick = pad.querySelector('.stick');
     this.root.appendChild(pad);
@@ -164,6 +168,20 @@ export class HUD {
       node.textContent = match.score[i];
     }
     this._lastScore = [match.score[0], match.score[1]];
+
+    // El lienzo no dice nada por sí solo: se le pone encima el estado del
+    // partido, que es lo que anunciará un lector de pantalla al llegar a él.
+    const minute = Math.floor(match.clock / 60);
+    if (minute !== this._lastMinute) {
+      this._lastMinute = minute;
+      const canvas = this.game && this.game.dom ? this.game.dom.canvas : null;
+      if (canvas) {
+        canvas.setAttribute('aria-label', t('a11y.pitch', {
+          home: h.shortName || h.name, away: a.shortName || a.name,
+          sh: match.score[0], sa: match.score[1], min: minute,
+        }));
+      }
+    }
     q('.clock').textContent = fmtClock(match.clock);
     q('.added').textContent = match.addedTime ? `+${Math.round(match.addedTime / 60)}` : '';
     const periods = { 1: 'hud.half1', 2: 'hud.half2', 3: 'hud.et1', 4: 'hud.et2', 5: 'hud.shootout' };
@@ -225,6 +243,10 @@ export class HUD {
   showDecision(incident, options, match, onChoose) {
     this.decision.classList.remove('hidden');
     this.decision.innerHTML = '';
+    // El panel manda mientras está abierto: se anuncia entero y sin esperar
+    this.decision.setAttribute('role', 'dialog');
+    this.decision.setAttribute('aria-live', 'assertive');
+    this.decision.setAttribute('aria-label', this.incidentTitle(incident));
 
     const head = el('div', 'dp-head');
     head.innerHTML = `<span class="dp-title">${this.incidentTitle(incident)}</span>
@@ -232,6 +254,8 @@ export class HUD {
     this.decision.appendChild(head);
 
     const timerWrap = el('div', 'dp-timer');
+    timerWrap.setAttribute('role', 'timer');
+    timerWrap.setAttribute('aria-label', t('a11y.timer'));
     const timerBar = el('i');
     timerWrap.appendChild(timerBar);
     this.decision.appendChild(timerWrap);

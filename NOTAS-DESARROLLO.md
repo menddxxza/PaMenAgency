@@ -117,7 +117,7 @@ No son deudas: son límites elegidos y sostenidos.
 - **Vertical en el móvil.** En pantallas altas el campo se gira un cuarto de
   vuelta y llena el teléfono, en lugar de quedarse en una franja central. La
   dirección de la palanca y del mando gira con él.
-- **Batería de pruebas.** 81 pruebas sin dependencias (`node test/all.js`):
+- **Batería de pruebas.** 82 pruebas sin dependencias (`node test/all.js`):
   reglamento, sistemas y motor. Incluye las que evitan las regresiones que más
   caro salieron durante el desarrollo: partidos que no terminan, jugadores
   fuera del campo, posesión que no cuadra, equipaciones indistinguibles,
@@ -146,6 +146,25 @@ No son deudas: son límites elegidos y sostenidos.
   cachearon en capas el público, el halo de los focos y la viñeta: 82 ms →
   14 ms por fotograma dibujado, por debajo incluso de los 68 ms que costaba
   antes de animar nada (medido en el mismo navegador sin GPU).
+
+## Cerrado en la pasada de acabado
+
+- **Sin conexión de verdad.** El README decía que el juego funciona sin
+  conexión y era medio cierto: no hay fuentes ni assets remotos, pero hacía
+  falta el servidor. Ahora hay service worker con el casco completo en caché
+  (estrategia *stale-while-revalidate*: se abre al instante y la siguiente
+  carga trae los cambios), manifiesto e icono, así que se instala en el móvil
+  como una aplicación y se juega con la red apagada. Verificado en navegador
+  con la red cortada: arranca, entra al menú y juega un partido.
+  La lista de ficheros se escribe a mano porque no hay compilación, y una
+  prueba la compara con el disco: si se añade un módulo y se olvida meterlo,
+  la batería falla en vez de romperse el modo sin conexión en silencio.
+- **Accesibilidad.** El documento declara el idioma que se lee de verdad
+  (`setLocale` actualiza `<html lang>`), el lienzo lleva una descripción con
+  marcador y minuto que se refresca cada minuto, los avisos son `role=status`
+  y el panel de decisión se anuncia entero y sin esperar, porque hay un reloj
+  corriendo. La palanca táctil y el temporizador van etiquetados, y sus textos
+  viven en `i18n/` como todo lo demás.
 
 ## Qué no está y por qué
 

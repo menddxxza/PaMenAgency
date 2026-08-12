@@ -15,6 +15,10 @@ export function availableLocales() {
 
 export function setLocale(id) {
   if (BUNDLES[id]) current = id;
+  // El documento debe declarar el idioma que realmente se está leyendo: de
+  // ello dependen la pronunciación de los lectores de pantalla y la
+  // separación silábica.
+  if (typeof document !== 'undefined') document.documentElement.lang = current;
   return current;
 }
 
