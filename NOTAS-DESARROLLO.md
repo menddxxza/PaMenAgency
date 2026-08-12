@@ -117,12 +117,35 @@ No son deudas: son límites elegidos y sostenidos.
 - **Vertical en el móvil.** En pantallas altas el campo se gira un cuarto de
   vuelta y llena el teléfono, en lugar de quedarse en una franja central. La
   dirección de la palanca y del mando gira con él.
-- **Batería de pruebas.** 76 pruebas sin dependencias (`node test/all.js`):
+- **Batería de pruebas.** 81 pruebas sin dependencias (`node test/all.js`):
   reglamento, sistemas y motor. Incluye las que evitan las regresiones que más
   caro salieron durante el desarrollo: partidos que no terminan, jugadores
   fuera del campo, posesión que no cuadra, equipaciones indistinguibles,
   guardado que pierde datos, claves de idioma que faltan y medias del partido
   fuera de rango.
+
+## Cerrado en la pasada de animación
+
+- **Cuerpos, no fichas.** Los jugadores dejaron de ser discos: torso con el
+  color del equipo, cabeza asomando hacia donde miran y extremidades que se
+  alternan con la zancada, a la cadencia de su velocidad real y con fase
+  propia por jugador. Botan al correr, se tumban al lesionarse y levantan los
+  brazos al protestar o celebrar. Por debajo de 7 px de radio se dibuja el
+  cuerpo simple: a ese tamaño el detalle era ruido y costaba lo mismo.
+- **Balón con rotación y aplastado** al caer, y banderín de asistente que
+  sube y ondea en vez de aparecer de golpe.
+- **Efectos de retransmisión**: rótulo de gol, papelillos en la grada del
+  equipo que marcó, tinte de tarjeta en el borde de la pantalla, tarjeta
+  levantada sobre el infractor, onda de silbato, marcador que rueda y nota
+  que se desplaza. Todos sólo con `transform` y `opacity`, y todos se apagan
+  con `prefers-reduced-motion` (también los del canvas, vía `renderer.motion`).
+- **Partido de fondo en el menú.** Un encuentro real jugándose con árbitro
+  automático detrás del menú principal, desenfocado. Se para al salir del
+  menú para no gastar batería dibujando lo que no se ve.
+- **Rendimiento.** La animación multiplicó el coste por fotograma, así que se
+  cachearon en capas el público, el halo de los focos y la viñeta: 82 ms →
+  14 ms por fotograma dibujado, por debajo incluso de los 68 ms que costaba
+  antes de animar nada (medido en el mismo navegador sin GPU).
 
 ## Qué no está y por qué
 
@@ -196,3 +219,13 @@ en OKLCH). Registro en `.hallmark/log.json`.
     Ahora se vuelcan al pitido final.
 17. **Cámaras de repetición que enfocaban la grada**: los planos cerrados se
     salían del campo. La cámara se mantiene dentro de los límites.
+18. **Sprites animados que se leían como una mancha**: la primera versión
+    ponía la cabeza en el centro del torso y el dorsal encima, así que el
+    jugador parecía una pelota de color carne. La cabeza pasó al frente, el
+    torso manda en el dibujo y el dorsal se redujo.
+19. **El público costaba 85.000 rectángulos por fotograma**: se redibujaba
+    entero cada vez. Ahora es una capa cacheada que sólo se rehace al cambiar
+    la escala o el aforo, y la vibración es un desplazamiento del conjunto.
+20. **El partido de fondo del menú no se veía**: el velo de las pantallas es
+    casi opaco. Ahora el menú usa un velo más claro (`#screens.airy`) y el
+    resto de pantallas detiene la simulación de fondo.

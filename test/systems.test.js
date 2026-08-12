@@ -13,6 +13,7 @@ import { QUESTIONS } from '../src/data/examQuestions.js';
 import { ACHIEVEMENTS } from '../src/career/achievements.js';
 import { allSpecials } from '../src/data/scenarios.js';
 import { RNG } from '../src/core/rng.js';
+import { Renderer } from '../src/ui/renderer.js';
 
 export default suite('Sistemas', (t) => {
   // ------------------------------------------------------------- mundo
@@ -300,5 +301,49 @@ export default suite('Sistemas', (t) => {
     for (let i = 0; i < N; i++) { const v = r.next(); suma += v; cubos[Math.floor(v * 10)]++; }
     between(suma / N, 0.47, 0.53, 'la media debería rondar 0,5');
     for (const c of cubos) between(c / N, 0.07, 0.13, 'el reparto por décimas está sesgado');
+  });
+
+  // -------------------------------------------------------- animación
+
+  // El renderizador necesita un lienzo, que aquí no existe: se prueba la
+  // parte que no dibuja (fases, efectos y su caducidad) sobre una instancia
+  // desnuda y un contexto de mentira.
+  const bareRenderer = () => {
+    const r = Object.create(Renderer.prototype);
+    r.anim = new Map(); r.cards = []; r.rings = []; r.confetti = [];
+    r.time = 0; r.motion = 1;
+    r.worldToScreen = () => [0, 0];
+    return r;
+  };
+  const fakeCtx = () => new Proxy({}, {
+    get: (o, k) => (k === 'canvas' ? {} : (o[k] !== undefined ? o[k] : () => {})),
+    set: (o, k, v) => { o[k] = v; return true; },
+  });
+
+  t('cada jugador corre con su propia fase: no marchan al unísono', () => {
+    const r = bareRenderer();
+    const fases = ['p-1', 'p-2', 'p-3', 'p-4', 'p-5'].map((id) => r._animOf(id).phase);
+    check(new Set(fases).size === fases.length, 'las fases iniciales se repiten');
+    check(r._animOf('p-1').phase === fases[0], 'la fase de un jugador debería ser estable');
+  });
+
+  t('los efectos del campo caducan solos', () => {
+    const r = bareRenderer();
+    const ctx = fakeCtx();
+    r.showCard({ x: 20, y: 30 }, 'yellow');
+    r.whistle({ x: 20, y: 30 });
+    r.burst(0);
+    check(r.cards.length === 1 && r.rings.length === 1 && r.confetti.length > 0, 'no se han creado');
+    for (let i = 0; i < 400; i++) r.drawEffects(ctx, 6, { x: 52, y: 34 }, 1 / 30);
+    check(r.cards.length === 0, 'la tarjeta se queda pegada en pantalla');
+    check(r.rings.length === 0, 'la onda del silbato no se apaga');
+    check(r.confetti.length === 0, 'los papelillos no desaparecen');
+  });
+
+  t('con movimiento reducido no se lanzan partículas', () => {
+    const r = bareRenderer();
+    r.motion = 0;
+    r.burst(0);
+    check(r.confetti.length === 0, 'debería respetarse prefers-reduced-motion');
   });
 });
