@@ -1,11 +1,37 @@
+/* Hallmark · verbo: redesign · género: modern-minimal
+ * macroestructura: Split Workbench · tema: Cobalt
+ * ejes: papel claro / display grotesk / acento azul frío
+ * tono: preciso, ordenado, de fiar · acento: oklch(50.5% 0.259 265.7)
+ * enriquecimiento: ninguno (tipografía y retícula)
+ * crítica previa: P5 H5 E4 S5 R4 V4
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-      'Helvetica Neue', Arial, sans-serif;
+    /* Las familias reales las inyecta next/font desde app/layout.tsx.
+       Estos son los respaldos si la fuente no llega a cargar. */
+    --font-display: ui-sans-serif, system-ui, sans-serif;
+    --font-sans: ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, monospace;
+
+    --dur-fast: 140ms;
+    --dur-base: 220ms;
+    --dur-slow: 420ms;
+
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  /* `clip` y no `hidden`: hidden convierte el body en contenedor de scroll y
+     rompe el `position: sticky` de la cabecera. */
+  html,
+  body {
+    overflow-x: clip;
   }
 
   html {
@@ -13,7 +39,34 @@
   }
 
   body {
-    @apply bg-white text-ink antialiased;
+    @apply bg-white font-sans text-ink antialiased;
+  }
+
+  /* Los titulares nunca desbordan en móvil aunque lleven una palabra larga. */
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  ::selection {
+    @apply bg-brand-600 text-white;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
@@ -22,25 +75,110 @@
     @apply mx-auto w-full max-w-6xl px-5;
   }
 
+  /* --- Botones -------------------------------------------------------- */
+  /* La transición nombra sus propiedades: el anillo de foco debe aparecer
+     instantáneamente, nunca animado. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3
-           text-sm font-semibold transition focus:outline-none
-           focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl
+           px-5 py-3 text-sm font-semibold
+           transition-[transform,background-color,border-color,box-shadow,color]
+           duration-fast ease-out
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500
+           focus-visible:ring-offset-2;
+  }
+
+  .btn:active {
+    @apply translate-y-px;
   }
 
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 hover:shadow-lift;
   }
 
   .btn-secondary {
-    @apply btn border border-ink/15 bg-white text-ink hover:border-ink/30 hover:bg-ink/[0.03];
+    @apply btn border border-ink/15 bg-white text-ink
+           hover:border-ink/35 hover:bg-ink/[0.03];
   }
 
+  .btn-ghost {
+    @apply btn px-3 py-2 text-ink/70 hover:bg-ink/[0.05] hover:text-ink;
+  }
+
+  /* --- Superficies ---------------------------------------------------- */
   .card {
     @apply rounded-2xl border border-ink/10 bg-white shadow-card;
   }
 
+  /* Tarjeta interactiva: la coreografía completa de hover vive aquí para que
+     todas las superficies clicables del sitio se muevan igual. */
+  .card-interactive {
+    @apply card relative overflow-hidden
+           transition-[transform,box-shadow,border-color] duration-base ease-out
+           hover:-translate-y-1 hover:border-brand-300 hover:shadow-lift
+           focus-within:border-brand-400;
+  }
+
+  /* Línea de acento que se dibuja de izquierda a derecha al pasar por encima. */
+  .card-interactive::after {
+    content: '';
+    @apply pointer-events-none absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0
+           bg-brand-600 transition-transform duration-base ease-out;
+  }
+
+  .card-interactive:hover::after,
+  .card-interactive:focus-within::after {
+    @apply scale-x-100;
+  }
+
   .eyebrow {
-    @apply text-xs font-semibold uppercase tracking-[0.14em] text-brand-600;
+    @apply font-mono text-xs font-medium uppercase tracking-[0.16em] text-brand-600;
+  }
+
+  /* Dato duro: precios, tiempos, contadores. */
+  .dato {
+    @apply font-mono tabular-nums tracking-tight;
+  }
+
+  /* Regla fina con un tramo de acento a la izquierda. */
+  .regla {
+    @apply relative h-px w-full bg-ink/10;
+  }
+
+  .regla::before {
+    content: '';
+    @apply absolute left-0 top-0 h-px w-16 bg-brand-600;
+  }
+}
+
+@layer utilities {
+  /* Entrada al hacer scroll. El estado inicial solo se aplica cuando el
+     observador ha marcado el elemento, así que sin JS el contenido se ve. */
+  [data-reveal='pending'] {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  [data-reveal='in'] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--dur-slow) var(--ease-out),
+      transform var(--dur-slow) var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal='pending'] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Sin JavaScript no hay observador que revele nada: el contenido se ve. */
+  @media (scripting: none) {
+    [data-reveal='pending'] {
+      opacity: 1;
+      transform: none;
+    }
   }
 }

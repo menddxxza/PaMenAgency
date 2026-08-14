@@ -152,7 +152,7 @@ export default function FormularioAcceso({
         ) : null}
 
         {aviso ? (
-          <p className="mt-4 rounded-xl bg-accent-500/10 p-3 text-sm font-medium text-accent-600">
+          <p className="mt-4 rounded-xl bg-accent-500/10 p-3 text-sm font-medium text-accent-700">
             {aviso}
           </p>
         ) : null}

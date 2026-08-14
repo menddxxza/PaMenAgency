@@ -92,7 +92,7 @@ export default function AsistentePublicacion({
                 indice === paso
                   ? 'bg-brand-600 text-white'
                   : indice < paso
-                    ? 'bg-accent-500/15 text-accent-600'
+                    ? 'bg-accent-500/15 text-accent-700'
                     : 'bg-ink/[0.05] text-ink/50'
               }`}
             >

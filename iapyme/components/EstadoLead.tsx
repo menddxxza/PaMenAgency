@@ -8,7 +8,7 @@ import { cambiarEstadoLead } from '@/app/dashboard/leads/actions';
 const ETIQUETAS: Record<LeadStatus, { texto: string; clase: string }> = {
   new: { texto: 'Sin responder', clase: 'bg-amber-100 text-amber-800' },
   contacted: { texto: 'Contactado', clase: 'bg-brand-50 text-brand-700' },
-  converted: { texto: 'Vendido', clase: 'bg-accent-500/15 text-accent-600' },
+  converted: { texto: 'Vendido', clase: 'bg-accent-500/15 text-accent-700' },
   discarded: { texto: 'Descartado', clase: 'bg-ink/[0.06] text-ink/45' },
 };
 

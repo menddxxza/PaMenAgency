@@ -1,0 +1,73 @@
+/**
+ * Iconos de trazo, dibujados a mano con la misma rejilla de 24 y el mismo
+ * grosor. Sustituyen a los emoji que había escritos en el código: un emoji
+ * cambia de forma en cada sistema operativo y abarata cualquier interfaz.
+ *
+ * Los emoji que vienen de la base de datos (el `icono` de cada categoría) se
+ * respetan: son contenido del proyecto, no decoración nuestra.
+ */
+export type NombreIcono =
+  | 'ficha'
+  | 'rayo'
+  | 'idioma'
+  | 'buscar'
+  | 'flecha'
+  | 'check'
+  | 'reloj';
+
+const TRAZOS: Record<NombreIcono, React.ReactNode> = {
+  // Documento con líneas: la ficha técnica.
+  ficha: (
+    <>
+      <path d="M6 3.5h8.5L19 8v12.5H6z" />
+      <path d="M14 3.5V8h5" />
+      <path d="M9 12.5h7M9 16h4.5" />
+    </>
+  ),
+  // Rayo: puesta en marcha inmediata.
+  rayo: <path d="M13.5 3 6 13.5h5L10.5 21 18 10.5h-5z" />,
+  // Bocadillo con acento: el idioma.
+  idioma: (
+    <>
+      <path d="M3.5 6.5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H12l-4.5 4v-4H5.5a2 2 0 0 1-2-2z" />
+      <path d="M8.5 10.5h7" />
+    </>
+  ),
+  buscar: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4.5 4.5" />
+    </>
+  ),
+  flecha: <path d="M4.5 12h15m0 0-6-6m6 6-6 6" />,
+  check: <path d="m4.5 12.5 5 5 10-11" />,
+  reloj: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7v5.5l3.5 2" />
+    </>
+  ),
+};
+
+export default function Icono({
+  nombre,
+  className = 'h-5 w-5',
+}: {
+  nombre: NombreIcono;
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      {TRAZOS[nombre]}
+    </svg>
+  );
+}

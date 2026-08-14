@@ -85,7 +85,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
               <span className="rounded-full bg-ink/[0.05] px-3 py-1 text-ink/70">
                 {NOMBRE_TIPO[producto.product_type]}
               </span>
-              <span className="rounded-full bg-accent-500/10 px-3 py-1 text-accent-600">
+              <span className="rounded-full bg-accent-500/10 px-3 py-1 text-accent-700">
                 Listo en {tiempoInstalacion(producto.minutos_instalacion)}
               </span>
               {producto.idioma_producto === 'en' ? (
@@ -226,7 +226,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
                   <div className="min-w-0">
                     <p className="truncate font-bold">{vendedor.display_name}</p>
                     {vendedor.is_verified ? (
-                      <p className="text-xs font-semibold text-accent-600">✓ Verificado</p>
+                      <p className="text-xs font-semibold text-accent-700">✓ Verificado</p>
                     ) : null}
                   </div>
                 </div>
