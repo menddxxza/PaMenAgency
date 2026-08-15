@@ -1,6 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigurado } from '@/lib/supabase/config';
+// Ruta relativa a propósito, no el alias `@/`: en Vercel, con el proyecto
+// viviendo en una subcarpeta del repositorio, el bundler del Edge Function
+// del middleware no resolvía el alias y marcaba el módulo como "no soportado".
+import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigurado } from './lib/supabase/config';
 
 /** Rutas que exigen sesión iniciada. */
 const RUTAS_PRIVADAS = ['/dashboard', '/admin', '/mis-leads'];
