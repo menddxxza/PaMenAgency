@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
+import FondoAnimado from '@/components/FondoAnimado';
 import './globals.css';
 
 // Display + cuerpo + dato. Tres roles, ni uno más.
@@ -91,6 +92,7 @@ export default function RootLayout({
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
       <body>
+        <FondoAnimado />
         {children}
         {plausibleDomain ? (
           <Script
