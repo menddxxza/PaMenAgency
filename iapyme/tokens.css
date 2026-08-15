@@ -1,6 +1,6 @@
 /* IAPyme · sistema de diseño
- * Género: modern-minimal · Tema: Cobalt
- * Papel claro · display grotesk · acento azul frío
+ * Género: editorial · Tema: Cobalt
+ * Papel claro · display serif de alto contraste · acento azul frío
  *
  * Exportación portable del sistema. La aplicación consume estos valores a
  * través de tailwind.config.ts (mismos valores, nombres semánticos); este
@@ -36,12 +36,14 @@
   --color-accent-700: oklch(50% 0.105 168.6); /* texto verde sobre claro (AA) */
 
   /* --- Tipografía: tres roles, ni uno más --------------------------- */
-  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
-  --text-display: clamp(2.25rem, 1.6rem + 2.9vw, 3.5rem);
-  --text-display-s: clamp(2rem, 1.4rem + 2.6vw, 3rem);
+  /* Tracking mucho menos negativo que una grotesk: una serif de alto
+     contraste se cierra sola, apretarla la vuelve ilegible. */
+  --text-display: clamp(2.4rem, 1.7rem + 3vw, 3.75rem);
+  --text-display-s: clamp(2.1rem, 1.5rem + 2.6vw, 3.1rem);
 
   /* --- Espacio: escala de 4 pt -------------------------------------- */
   --space-xs: 0.5rem;
@@ -66,10 +68,12 @@
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
   /* --- Elevación ---------------------------------------------------- */
-  --shadow-card: 0 1px 2px oklch(17.7% 0.034 269.6 / 0.06),
-    0 12px 32px -12px oklch(17.7% 0.034 269.6 / 0.18);
-  --shadow-lift: 0 2px 4px oklch(17.7% 0.034 269.6 / 0.05),
-    0 22px 48px -16px oklch(17.7% 0.034 269.6 / 0.28);
+  /* Ambiental, casi imperceptible: la superficie se separa del papel por
+     una sombra que se nota al mirarla, no al pasar por delante. */
+  --shadow-quiet: 0 1px 2px oklch(17.7% 0.034 269.6 / 0.04),
+    0 8px 24px -14px oklch(17.7% 0.034 269.6 / 0.14);
+  --shadow-lift: 0 4px 10px -4px oklch(17.7% 0.034 269.6 / 0.08),
+    0 24px 48px -20px oklch(17.7% 0.034 269.6 / 0.22);
 
   /* --- Reglas ------------------------------------------------------- */
   --rule-hairline: 1px solid oklch(17.7% 0.034 269.6 / 0.1);

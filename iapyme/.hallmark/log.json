@@ -2,6 +2,18 @@
   {
     "date": "2026-08-14",
     "verb": "redesign",
+    "genre": "editorial",
+    "macrostructure": "Long Measure",
+    "theme": "Cobalt",
+    "theme_axes": "papel claro / display serif de alto contraste / acento azul frío",
+    "nav": "marketplace canónico (marca · buscador · acciones)",
+    "footer": "declaración + navegación compacta",
+    "enrichment": "none (tipografía y espacio)",
+    "brief": "IAPyme · segunda pasada: más elegante y profesional, registro editorial, manteniendo el azul de marca"
+  },
+  {
+    "date": "2026-08-14",
+    "verb": "redesign",
     "genre": "modern-minimal",
     "macrostructure": "Split Workbench",
     "theme": "Cobalt",

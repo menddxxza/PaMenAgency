@@ -13,22 +13,16 @@ export default async function Footer() {
   const categorias = await getCategorias();
 
   return (
-    <footer className="relative overflow-hidden bg-ink text-white/65">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-grid [background-size:64px_64px] opacity-[0.07]
-                   [mask-image:radial-gradient(ellipse_60%_70%_at_20%_0%,black,transparent)]"
-      />
-
-      <div className="container-page relative">
+    <footer className="bg-ink text-white/60">
+      <div className="container-page">
         {/* Declaración de cierre: lo último que se lee es la propuesta, no un mapa del sitio. */}
-        <div className="grid gap-8 border-b border-white/10 py-16 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:py-20">
-          <h2 className="max-w-[18ch] text-display-s font-bold text-white">
+        <div className="grid gap-8 border-b border-white/10 py-20 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:py-24">
+          <h2 className="max-w-[18ch] text-display-s font-medium text-white">
             Súbelo una vez. Véndelo mil.
           </h2>
 
           <div className="lg:pb-2">
-            <p className="max-w-sm text-sm leading-relaxed">
+            <p className="max-w-sm leading-relaxed">
               Publicar es gratis y no cobramos comisión. Lo que cobras por tu trabajo es
               tuyo, entero.
             </p>
@@ -40,19 +34,17 @@ export default async function Footer() {
         </div>
 
         {/* Navegación compacta */}
-        <div className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Logo inverso />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed">
+            <p className="mt-4 max-w-xs leading-relaxed">
               El marketplace de soluciones de IA para pymes. En español, y sin comisión
               para quien vende.
             </p>
           </div>
 
           <nav aria-label="Comprar">
-            <h3 className="dato text-[11px] uppercase tracking-[0.16em] text-white/55">
-              Comprar
-            </h3>
+            <h3 className="text-[13px] text-white/60">Comprar</h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
                 { href: '/buscar', texto: 'Todas las soluciones' },
@@ -66,9 +58,7 @@ export default async function Footer() {
           </nav>
 
           <nav aria-label="Vender">
-            <h3 className="dato text-[11px] uppercase tracking-[0.16em] text-white/55">
-              Vender
-            </h3>
+            <h3 className="text-[13px] text-white/60">Vender</h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {[
                 { href: '/entrar?registro=1', texto: 'Publicar producto' },
@@ -82,9 +72,7 @@ export default async function Footer() {
           </nav>
 
           <nav aria-label="Sectores">
-            <h3 className="dato text-[11px] uppercase tracking-[0.16em] text-white/55">
-              Sectores
-            </h3>
+            <h3 className="text-[13px] text-white/60">Sectores</h3>
             <ul className="mt-4 space-y-2.5 text-sm">
               {categorias.slice(0, 5).map((categoria) => (
                 <li key={categoria.slug}>
@@ -97,17 +85,15 @@ export default async function Footer() {
           </nav>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-white/10 py-7 sm:flex-row sm:items-center sm:justify-between">
-          <p className="dato text-xs text-white/55">
-            © {new Date().getFullYear()} IAPyme
-          </p>
+        <div className="flex flex-col gap-4 border-t border-white/10 py-7 text-xs sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-white/45">© {new Date().getFullYear()} IAPyme</p>
           <nav aria-label="Legal">
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs">
+            <ul className="flex flex-wrap gap-x-5 gap-y-2">
               {LEGAL.map((enlace) => (
                 <li key={enlace.href}>
                   <Link
                     href={enlace.href}
-                    className="whitespace-nowrap text-white/55 transition-colors duration-fast
+                    className="whitespace-nowrap text-white/45 transition-colors duration-fast
                                ease-out hover:text-white focus:outline-none
                                focus-visible:ring-2 focus-visible:ring-white/60"
                   >

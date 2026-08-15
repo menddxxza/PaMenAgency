@@ -1,12 +1,16 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google';
+import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
 // Display + cuerpo + dato. Tres roles, ni uno más.
-const display = Space_Grotesk({
+// Fraunces trae eje óptico: a tamaño de titular se activa su versión más
+// tallada (contraste alto), a tamaño de etiqueta se acerca a una serif de
+// texto. Roman siempre — el itálico queda reservado al énfasis en párrafos.
+const display = Fraunces({
   subsets: ['latin'],
-  weight: ['500', '600', '700'],
+  weight: ['400', '500', '600'],
+  style: ['normal'],
   variable: '--font-display',
   display: 'swap',
 });

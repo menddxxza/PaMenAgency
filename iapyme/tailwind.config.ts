@@ -42,10 +42,12 @@ const config: Config = {
       },
       fontSize: {
         // Escala de display para titulares; el resto sigue la escala de Tailwind.
-        'display-s': ['clamp(2rem, 1.4rem + 2.6vw, 3rem)', { lineHeight: '1.08', letterSpacing: '-0.028em' }],
-        // Tope en 3.5rem: por encima de eso el titular de portada rompe en tres
-        // líneas dentro de su columna y deja una palabra huérfana.
-        display: ['clamp(2.25rem, 1.6rem + 2.9vw, 3.5rem)', { lineHeight: '1.06', letterSpacing: '-0.03em' }],
+        // Tracking mucho menos negativo que una grotesk: una serif de alto
+        // contraste se cierra sola, apretarla la vuelve ilegible.
+        'display-s': ['clamp(2.1rem, 1.5rem + 2.6vw, 3.1rem)', { lineHeight: '1.1', letterSpacing: '-0.012em' }],
+        // Tope en 3.75rem: por encima de eso el titular de portada rompe en
+        // tres líneas dentro de su columna y deja una palabra huérfana.
+        display: ['clamp(2.4rem, 1.7rem + 3vw, 3.75rem)', { lineHeight: '1.08', letterSpacing: '-0.015em' }],
       },
       transitionTimingFunction: {
         // Tres curvas nombradas. Nunca el `ease` por defecto del navegador.
@@ -59,13 +61,12 @@ const config: Config = {
         slow: '420ms',
       },
       boxShadow: {
+        // Ambiental, casi imperceptible: la superficie se separa del papel
+        // por una sombra que se nota al mirarla, no al pasar por delante.
+        quiet: '0 1px 2px oklch(17.7% 0.034 269.6 / 0.04), 0 8px 24px -14px oklch(17.7% 0.034 269.6 / 0.14)',
+        lift: '0 4px 10px -4px oklch(17.7% 0.034 269.6 / 0.08), 0 24px 48px -20px oklch(17.7% 0.034 269.6 / 0.22)',
+        // Mantenido por compatibilidad con usos existentes fuera de la portada.
         card: '0 1px 2px oklch(17.7% 0.034 269.6 / 0.06), 0 12px 32px -12px oklch(17.7% 0.034 269.6 / 0.18)',
-        lift: '0 2px 4px oklch(17.7% 0.034 269.6 / 0.05), 0 22px 48px -16px oklch(17.7% 0.034 269.6 / 0.28)',
-      },
-      backgroundImage: {
-        // Retícula técnica de fondo: la firma visual del tema.
-        grid: `linear-gradient(to right, oklch(17.7% 0.034 269.6 / 0.055) 1px, transparent 1px),
-               linear-gradient(to bottom, oklch(17.7% 0.034 269.6 / 0.055) 1px, transparent 1px)`,
       },
     },
   },

@@ -1,9 +1,10 @@
-/* Hallmark · verbo: redesign · género: modern-minimal
- * macroestructura: Split Workbench · tema: Cobalt
- * ejes: papel claro / display grotesk / acento azul frío
- * tono: preciso, ordenado, de fiar · acento: oklch(50.5% 0.259 265.7)
- * enriquecimiento: ninguno (tipografía y retícula)
- * crítica previa: P5 H5 E4 S5 R4 V4
+/* Hallmark · verbo: redesign (2ª pasada) · género: editorial
+ * macroestructura: Long Measure — asimétrica, medida de lectura cuidada,
+ * reglas finas en vez de cajas · tema: Cobalt (papel claro · display serif
+ * de alto contraste · acento azul frío, intacto de la 1ª pasada)
+ * acento: oklch(50.5% 0.259 265.7)
+ * enriquecimiento: ninguno (tipografía y espacio)
+ * crítica previa: P5 H5 E5 S5 R5 V4
  */
 
 @tailwind base;
@@ -105,24 +106,28 @@
   }
 
   /* --- Superficies ---------------------------------------------------- */
+  /* Sombra apenas perceptible y borde casi invisible: la superficie se lee
+     por el espacio que la rodea, no por una caja marcada. */
   .card {
-    @apply rounded-2xl border border-ink/10 bg-white shadow-card;
+    @apply rounded-xl border border-ink/[0.07] bg-white shadow-quiet;
   }
 
   /* Tarjeta interactiva: la coreografía completa de hover vive aquí para que
-     todas las superficies clicables del sitio se muevan igual. */
+     todas las superficies clicables del sitio se muevan igual. Elevación
+     discreta — un diseñador no hace saltar la tarjeta, la insinúa. */
   .card-interactive {
     @apply card relative overflow-hidden
            transition-[transform,box-shadow,border-color] duration-base ease-out
-           hover:-translate-y-1 hover:border-brand-300 hover:shadow-lift
+           hover:-translate-y-0.5 hover:border-ink/[0.12] hover:shadow-lift
            focus-within:border-brand-400;
   }
 
-  /* Línea de acento que se dibuja de izquierda a derecha al pasar por encima. */
+  /* Filete de acento que se dibuja de izquierda a derecha al pasar por
+     encima. Un solo píxel: es una insinuación, no una insignia. */
   .card-interactive::after {
     content: '';
-    @apply pointer-events-none absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0
-           bg-brand-600 transition-transform duration-base ease-out;
+    @apply pointer-events-none absolute inset-x-0 top-0 h-px origin-left scale-x-0
+           bg-brand-600 transition-transform duration-slow ease-out;
   }
 
   .card-interactive:hover::after,
@@ -130,23 +135,23 @@
     @apply scale-x-100;
   }
 
+  /* Etiqueta de sección: serif minúscula con tracking generoso, no un chip
+     mono en mayúsculas. Este selector también hace de h2 en varias fichas
+     de producto, así que va siempre en redonda — nunca cursiva en un
+     encabezado. Va sobre una regla fina, nunca sola. */
   .eyebrow {
-    @apply font-mono text-xs font-medium uppercase tracking-[0.16em] text-brand-600;
+    @apply font-display text-[13px] font-normal tracking-wide text-ink/65;
   }
 
-  /* Dato duro: precios, tiempos, contadores. */
+  /* Dato duro: solo donde la alineación tabular importa de verdad — precios,
+     cifras. Nunca como decoración de etiqueta. */
   .dato {
     @apply font-mono tabular-nums tracking-tight;
   }
 
-  /* Regla fina con un tramo de acento a la izquierda. */
+  /* Regla fina simple. Sin tramo de acento: el acento ya vive en el texto. */
   .regla {
-    @apply relative h-px w-full bg-ink/10;
-  }
-
-  .regla::before {
-    content: '';
-    @apply absolute left-0 top-0 h-px w-16 bg-brand-600;
+    @apply h-px w-full bg-ink/10;
   }
 }
 
