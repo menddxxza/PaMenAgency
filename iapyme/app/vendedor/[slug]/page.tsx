@@ -41,7 +41,7 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
                 {vendedor.display_name}
               </h1>
               {vendedor.is_verified ? (
-                <span className="rounded-full bg-accent-500/15 px-2.5 py-1 text-xs font-bold text-accent-600">
+                <span className="rounded-full bg-accent-500/15 px-2.5 py-1 text-xs font-bold text-accent-700">
                   ✓ Verificado
                 </span>
               ) : null}

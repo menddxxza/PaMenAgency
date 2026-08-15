@@ -18,7 +18,7 @@ export default function ProductoCardEstatico({ producto }: { producto: Producto 
           {categoria?.nombre}
         </span>
         {producto.destacado ? (
-          <span className="rounded-full bg-accent-500/15 px-2.5 py-1 text-xs font-semibold text-accent-600">
+          <span className="rounded-full bg-accent-500/15 px-2.5 py-1 text-xs font-semibold text-accent-700">
             Destacado
           </span>
         ) : null}
@@ -44,7 +44,7 @@ export default function ProductoCardEstatico({ producto }: { producto: Producto 
           <span className="text-ink/60"> setup</span>
           <span className="block text-ink/60">+ {producto.precioMensual} €/mes</span>
         </p>
-        <p className="rounded-lg bg-accent-500/10 px-3 py-1.5 text-xs font-semibold text-accent-600">
+        <p className="rounded-lg bg-accent-500/10 px-3 py-1.5 text-xs font-semibold text-accent-700">
           Listo en {formatoTiempo(producto.minutosInstalacion)}
         </p>
       </div>

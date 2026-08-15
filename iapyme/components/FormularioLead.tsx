@@ -50,7 +50,7 @@ export default function FormularioLead({
         <p className="text-2xl" aria-hidden>
           ✅
         </p>
-        <p className="mt-1 text-sm font-bold text-accent-600">Mensaje enviado</p>
+        <p className="mt-1 text-sm font-bold text-accent-700">Mensaje enviado</p>
         <p className="mt-1 text-xs text-ink/65">
           {tituloProducto} es de un vendedor que responde directamente. Te escribirá al
           email que nos has dejado.

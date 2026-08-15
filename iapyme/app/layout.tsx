@@ -1,6 +1,32 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+
+// Display + cuerpo + dato. Tres roles, ni uno más.
+// Fraunces trae eje óptico: a tamaño de titular se activa su versión más
+// tallada (contraste alto), a tamaño de etiqueta se acerca a una serif de
+// texto. Roman siempre — el itálico queda reservado al énfasis en párrafos.
+const display = Fraunces({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const sans = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://iapyme.es';
 
@@ -57,7 +83,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
+    <html
+      lang="es"
+      className={`${display.variable} ${sans.variable} ${mono.variable}`}
+    >
       <body>
         {children}
         {plausibleDomain ? (

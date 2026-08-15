@@ -128,7 +128,7 @@ export default async function ModeracionPage() {
                         </dt>
                         <dd className="mt-1">
                           {producto.cover_image_url || producto.demo_video_url ? (
-                            <span className="text-accent-600">
+                            <span className="text-accent-700">
                               {producto.cover_image_url ? '✓ Portada ' : ''}
                               {producto.demo_video_url ? '✓ Vídeo demo' : ''}
                             </span>

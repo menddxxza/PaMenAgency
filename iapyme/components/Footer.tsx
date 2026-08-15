@@ -1,97 +1,129 @@
 import Link from 'next/link';
 import Logo from './Logo';
+import Icono from './Icono';
 import { getCategorias } from '@/lib/queries';
+
+const LEGAL = [
+  { href: '/legal/privacidad', texto: 'Política de privacidad' },
+  { href: '/legal/cookies', texto: 'Política de cookies' },
+  { href: '/legal/terminos', texto: 'Términos y condiciones' },
+];
 
 export default async function Footer() {
   const categorias = await getCategorias();
 
   return (
-    <footer className="mt-20 border-t border-white/10 bg-ink py-14 text-white/70">
+    <footer className="bg-ink text-white/60">
       <div className="container-page">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Declaración de cierre: lo último que se lee es la propuesta, no un mapa del sitio. */}
+        <div className="grid gap-8 border-b border-white/10 py-20 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:py-24">
+          <h2 className="max-w-[18ch] text-display-s font-medium text-white">
+            Súbelo una vez. Véndelo mil.
+          </h2>
+
+          <div className="lg:pb-2">
+            <p className="max-w-sm leading-relaxed">
+              Publicar es gratis y no cobramos comisión. Lo que cobras por tu trabajo es
+              tuyo, entero.
+            </p>
+            <Link href="/entrar?registro=1" className="btn-primary mt-6">
+              Publicar mi solución
+              <Icono nombre="flecha" className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Navegación compacta */}
+        <div className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Logo inverso />
-            <p className="mt-3 max-w-xs text-sm">
+            <p className="mt-4 max-w-xs leading-relaxed">
               El marketplace de soluciones de IA para pymes. En español, y sin comisión
               para quien vende.
             </p>
           </div>
 
           <nav aria-label="Comprar">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-white/40">
-              Comprar
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li>
-                <Link href="/buscar" className="hover:text-white">
-                  Todas las soluciones
-                </Link>
-              </li>
-              <li>
-                <Link href="/categorias" className="hover:text-white">
-                  Categorías
-                </Link>
-              </li>
+            <h3 className="text-[13px] text-white/60">Comprar</h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {[
+                { href: '/buscar', texto: 'Todas las soluciones' },
+                { href: '/categorias', texto: 'Categorías' },
+              ].map((enlace) => (
+                <li key={enlace.href}>
+                  <EnlacePie href={enlace.href}>{enlace.texto}</EnlacePie>
+                </li>
+              ))}
             </ul>
           </nav>
 
           <nav aria-label="Vender">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-white/40">
-              Vender
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li>
-                <Link href="/entrar?registro=1" className="hover:text-white">
-                  Publicar producto
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard" className="hover:text-white">
-                  Panel de vendedor
-                </Link>
-              </li>
+            <h3 className="text-[13px] text-white/60">Vender</h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {[
+                { href: '/entrar?registro=1', texto: 'Publicar producto' },
+                { href: '/dashboard', texto: 'Panel de vendedor' },
+              ].map((enlace) => (
+                <li key={enlace.href}>
+                  <EnlacePie href={enlace.href}>{enlace.texto}</EnlacePie>
+                </li>
+              ))}
             </ul>
           </nav>
 
           <nav aria-label="Sectores">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-white/40">
-              Sectores
-            </h2>
-            <ul className="mt-3 space-y-2 text-sm">
+            <h3 className="text-[13px] text-white/60">Sectores</h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
               {categorias.slice(0, 5).map((categoria) => (
                 <li key={categoria.slug}>
-                  <Link href={`/categoria/${categoria.slug}`} className="hover:text-white">
+                  <EnlacePie href={`/categoria/${categoria.slug}`}>
                     {categoria.nombre}
-                  </Link>
+                  </EnlacePie>
                 </li>
               ))}
             </ul>
           </nav>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-white/45">© {new Date().getFullYear()} IAPyme</p>
+        <div className="flex flex-col gap-4 border-t border-white/10 py-7 text-xs sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-white/45">© {new Date().getFullYear()} IAPyme</p>
           <nav aria-label="Legal">
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/45">
-              <li>
-                <Link href="/legal/privacidad" className="hover:text-white">
-                  Política de privacidad
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/cookies" className="hover:text-white">
-                  Política de cookies
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/terminos" className="hover:text-white">
-                  Términos y condiciones
-                </Link>
-              </li>
+            <ul className="flex flex-wrap gap-x-5 gap-y-2">
+              {LEGAL.map((enlace) => (
+                <li key={enlace.href}>
+                  <Link
+                    href={enlace.href}
+                    className="whitespace-nowrap text-white/45 transition-colors duration-fast
+                               ease-out hover:text-white focus:outline-none
+                               focus-visible:ring-2 focus-visible:ring-white/60"
+                  >
+                    {enlace.texto}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
       </div>
     </footer>
+  );
+}
+
+/** Enlace de pie con el deslizamiento de acento al pasar por encima. */
+function EnlacePie({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="group inline-flex items-center gap-1.5 whitespace-nowrap
+                 transition-colors duration-fast ease-out hover:text-white
+                 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+    >
+      <span
+        aria-hidden
+        className="h-px w-0 bg-brand-400 transition-all duration-base ease-out
+                   group-hover:w-3"
+      />
+      {children}
+    </Link>
   );
 }
