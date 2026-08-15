@@ -60,8 +60,11 @@ export const metadata: Metadata = {
   },
   alternates: { canonical: '/' },
   manifest: '/manifest.webmanifest',
+  // Declarar `icons` a mano en el layout raíz desactiva la detección
+  // automática de app/icon.png en esta versión de Next, así que hay que
+  // apuntarlo aquí explícitamente igual que el de iOS.
   icons: {
-    icon: '/icon.svg',
+    icon: '/icon.png',
     apple: '/icons/apple-touch-icon.png',
   },
   appleWebApp: {
