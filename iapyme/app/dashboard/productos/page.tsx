@@ -93,6 +93,14 @@ export default async function MisProductos() {
                             : '—'}
                         </dd>
                       </div>
+                      <div className="flex gap-1.5">
+                        <dt className="text-ink/45">Valoración:</dt>
+                        <dd className="font-semibold tabular-nums">
+                          {producto.rating_total > 0
+                            ? `${producto.rating_promedio.toFixed(1)} ★ (${producto.rating_total})`
+                            : '—'}
+                        </dd>
+                      </div>
                     </dl>
                   </div>
 

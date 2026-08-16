@@ -31,6 +31,13 @@ export default async function ResumenPanel() {
   const leads = productos.reduce((suma, p) => suma + p.lead_count, 0);
   const conversion = visitas > 0 ? ((leads / visitas) * 100).toFixed(1) : '—';
 
+  const resenas = productos.reduce((suma, p) => suma + p.rating_total, 0);
+  const sumaValoraciones = productos.reduce(
+    (suma, p) => suma + p.rating_promedio * p.rating_total,
+    0,
+  );
+  const valoracionMedia = resenas > 0 ? (sumaValoraciones / resenas).toFixed(1) : null;
+
   return (
     <div>
       <header className="flex flex-wrap items-start justify-between gap-4">
@@ -49,13 +56,18 @@ export default async function ResumenPanel() {
         </Link>
       </header>
 
-      <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Metrica etiqueta="Visitas a tus fichas" valor={visitas.toLocaleString('es-ES')} />
         <Metrica etiqueta="Mensajes recibidos" valor={leads.toLocaleString('es-ES')} />
         <Metrica
           etiqueta="Conversión"
           valor={conversion === '—' ? '—' : `${conversion} %`}
           ayuda="Cuánta gente que ve la ficha escribe"
+        />
+        <Metrica
+          etiqueta="Reseñas"
+          valor={resenas.toLocaleString('es-ES')}
+          ayuda={valoracionMedia ? `${valoracionMedia} ★ de media` : undefined}
         />
         <Metrica etiqueta="Sin responder" valor={String(leadsSinLeer ?? 0)} destacar={(leadsSinLeer ?? 0) > 0} />
       </dl>
@@ -94,6 +106,7 @@ export default async function ResumenPanel() {
                   <th className="px-4 py-3 text-left font-bold">Estado</th>
                   <th className="px-4 py-3 text-right font-bold">Visitas</th>
                   <th className="px-4 py-3 text-right font-bold">Mensajes</th>
+                  <th className="px-4 py-3 text-right font-bold">Valoración</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,6 +125,11 @@ export default async function ResumenPanel() {
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">{producto.view_count}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{producto.lead_count}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      {producto.rating_total > 0
+                        ? `${producto.rating_promedio.toFixed(1)} ★ (${producto.rating_total})`
+                        : '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
