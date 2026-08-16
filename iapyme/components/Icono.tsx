@@ -13,7 +13,8 @@ export type NombreIcono =
   | 'buscar'
   | 'flecha'
   | 'check'
-  | 'reloj';
+  | 'reloj'
+  | 'chispa';
 
 const TRAZOS: Record<NombreIcono, React.ReactNode> = {
   // Documento con líneas: la ficha técnica.
@@ -45,6 +46,13 @@ const TRAZOS: Record<NombreIcono, React.ReactNode> = {
     <>
       <circle cx="12" cy="12" r="8.5" />
       <path d="M12 7v5.5l3.5 2" />
+    </>
+  ),
+  // Destello de cuatro puntas: el asistente de IA.
+  chispa: (
+    <>
+      <path d="M12 3.5c.6 3.3 2 4.7 5.3 5.3-3.3.6-4.7 2-5.3 5.3-.6-3.3-2-4.7-5.3-5.3 3.3-.6 4.7-2 5.3-5.3Z" />
+      <path d="M18.5 15.5c.3 1.6 1 2.3 2.6 2.6-1.6.3-2.3 1-2.6 2.6-.3-1.6-1-2.3-2.6-2.6 1.6-.3 2.3-1 2.6-2.6Z" />
     </>
   ),
 };
