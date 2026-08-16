@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FormularioLead from '@/components/FormularioLead';
 import ResenasProducto from '@/components/ResenasProducto';
+import BotonFavorito from '@/components/BotonFavorito';
 import { getMiResena, getProducto, getResenas, registrarVisita } from '@/lib/queries';
 import { getPerfilActual } from '@/lib/supabase/server';
 import { NOMBRE_TIPO, euros, precioResumido, tiempoInstalacion } from '@/lib/formato';
@@ -225,6 +226,10 @@ export default async function FichaProducto({ params }: { params: { slug: string
                   sellerId={producto.seller_id}
                   tituloProducto={producto.titulo}
                 />
+              </div>
+
+              <div className="mt-3">
+                <BotonFavorito productId={producto.id} variante="ficha" />
               </div>
 
               <ul className="mt-5 space-y-2 border-t border-ink/10 pt-5 text-xs text-ink/60">

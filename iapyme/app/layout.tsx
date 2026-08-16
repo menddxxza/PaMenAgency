@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
 import FondoAnimado from '@/components/FondoAnimado';
+import FavoritosProvider from '@/components/FavoritosProvider';
 import './globals.css';
 
 // Display + cuerpo + dato. Tres roles, ni uno más.
@@ -93,7 +94,7 @@ export default function RootLayout({
     >
       <body>
         <FondoAnimado />
-        {children}
+        <FavoritosProvider>{children}</FavoritosProvider>
         {plausibleDomain ? (
           <Script
             defer
