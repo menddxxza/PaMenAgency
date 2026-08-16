@@ -181,35 +181,58 @@ export default async function Home() {
               </p>
             </Reveal>
 
-            <ul className="mt-12 grid gap-px overflow-hidden rounded-xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-5">
+            {/* Índice, no retícula: numeración editorial en dos columnas, con
+                una sola regla horizontal por fila en vez de una caja por
+                categoría. Nada de líneas verticales ni celdas iguales. */}
+            <ul className="mt-12 sm:grid sm:grid-cols-2 sm:gap-x-12">
               {categorias.map((categoria, i) => (
-                <li key={categoria.slug} className="bg-white">
-                  <Reveal delay={Math.min(i, 6) * 40} className="h-full">
+                <li
+                  key={categoria.slug}
+                  className={
+                    i === 0
+                      ? '' // primera fila, primera columna: nunca lleva regla arriba
+                      : i === 1
+                        ? 'border-t border-ink/10 sm:border-t-0' // primera fila en desktop, pero segundo en móvil apilado
+                        : 'border-t border-ink/10'
+                  }
+                >
+                  <Reveal delay={Math.min(i, 6) * 40}>
                     <Link
                       href={`/categoria/${categoria.slug}`}
-                      className="group flex h-full flex-col p-6
-                                 transition-colors duration-base ease-out hover:bg-brand-50/40
+                      className="group flex items-baseline gap-5 py-6
                                  focus:outline-none focus-visible:relative focus-visible:z-10
-                                 focus-visible:ring-2 focus-visible:ring-inset
-                                 focus-visible:ring-brand-500"
+                                 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:rounded-sm"
                     >
-                      <span className="text-xl" aria-hidden>
-                        {categoria.icono}
+                      <span className="dato shrink-0 text-sm text-ink/45" aria-hidden>
+                        {String(i + 1).padStart(2, '0')}
                       </span>
 
-                      <h3 className="mt-4 font-display text-[15px] font-normal leading-snug text-ink transition-colors duration-fast ease-out group-hover:text-brand-700">
-                        {categoria.nombre}
-                      </h3>
-                      <p className="mt-1.5 text-xs leading-relaxed text-ink/65">
-                        {categoria.descripcion}
-                      </p>
-
-                      {conteo[categoria.id] ? (
-                        <p className="mt-auto pt-4 text-xs text-ink/65">
-                          {conteo[categoria.id]}{' '}
-                          {conteo[categoria.id] === 1 ? 'solución' : 'soluciones'}
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-2.5">
+                          <span className="text-lg" aria-hidden>
+                            {categoria.icono}
+                          </span>
+                          <h3 className="font-display text-lg font-normal leading-snug text-ink transition-colors duration-fast ease-out group-hover:text-brand-700">
+                            {categoria.nombre}
+                          </h3>
+                        </span>
+                        <p className="mt-1.5 max-w-[38ch] text-sm leading-relaxed text-ink/60">
+                          {categoria.descripcion}
                         </p>
-                      ) : null}
+                        {conteo[categoria.id] ? (
+                          <p className="mt-2 text-xs text-ink/45">
+                            {conteo[categoria.id]}{' '}
+                            {conteo[categoria.id] === 1 ? 'solución' : 'soluciones'}
+                          </p>
+                        ) : null}
+                      </span>
+
+                      <Icono
+                        nombre="flecha"
+                        className="h-4 w-4 shrink-0 self-center text-ink/20
+                                   transition-transform duration-base ease-out
+                                   group-hover:translate-x-1 group-hover:text-brand-600"
+                      />
                     </Link>
                   </Reveal>
                 </li>
