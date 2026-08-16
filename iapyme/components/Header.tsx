@@ -28,6 +28,9 @@ export default async function Header() {
           <Link href="/categorias" className="btn-ghost hidden sm:inline-flex">
             Categorías
           </Link>
+          <Link href="/como-funciona" className="btn-ghost hidden lg:inline-flex">
+            Cómo funciona
+          </Link>
 
           {perfil ? (
             <>
