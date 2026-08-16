@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Icono from './Icono';
 import Estrellas from './Estrellas';
+import BotonFavorito from './BotonFavorito';
 import type { ProductoConRelaciones } from '@/lib/database.types';
 import { precioResumido, tiempoInstalacion } from '@/lib/formato';
 
@@ -8,12 +9,16 @@ export default function ProductoCard({ producto }: { producto: ProductoConRelaci
   const precio = precioResumido(producto);
 
   return (
-    <Link
-      href={`/p/${producto.slug}`}
-      className="card-interactive group flex h-full flex-col
-                 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500
-                 focus-visible:ring-offset-2"
-    >
+    <div className="card-interactive group relative flex h-full flex-col">
+      <div className="absolute right-3 top-3 z-10">
+        <BotonFavorito productId={producto.id} />
+      </div>
+
+      <Link
+        href={`/p/${producto.slug}`}
+        className="flex h-full flex-col focus:outline-none focus-visible:ring-2
+                   focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+      >
       <div className="relative aspect-[16/10] overflow-hidden bg-brand-50">
         {producto.cover_image_url ? (
           // Imagen de Supabase Storage: dominio variable, por eso <img> y no next/image.
@@ -90,6 +95,7 @@ export default function ProductoCard({ producto }: { producto: ProductoConRelaci
           </span>
         </div>
       </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

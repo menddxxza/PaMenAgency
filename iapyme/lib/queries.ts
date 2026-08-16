@@ -196,6 +196,29 @@ export async function getDestacados(limite = 4): Promise<ProductoConRelaciones[]
   return (data ?? []) as unknown as ProductoConRelaciones[];
 }
 
+/** Productos guardados por el usuario con sesión, para "Mis favoritos" en el panel. */
+export async function getFavoritos(): Promise<ProductoConRelaciones[]> {
+  const supabase = createClient();
+  if (!supabase) return [];
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from('favorites')
+    .select(`product_id, products ( ${SELECT_PRODUCTO} )`)
+    .eq('buyer_id', user.id)
+    .order('created_at', { ascending: false });
+
+  // Un producto ya no visible por RLS (archivado, o del propio vendedor visto
+  // por otra persona) llega como products: null. Se descarta en vez de romper.
+  return ((data ?? []) as unknown as { products: ProductoConRelaciones | null }[])
+    .map((fila) => fila.products)
+    .filter((p): p is ProductoConRelaciones => p !== null);
+}
+
 /**
  * Ficha por slug. Usa el cliente de sesión a propósito: así el vendedor puede ver su
  * propia ficha antes de publicarla, y el admin puede revisarla. La página que la

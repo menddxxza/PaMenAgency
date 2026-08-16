@@ -97,6 +97,13 @@ export type ResenaConAutor = Review & {
   profiles: Pick<Profile, 'display_name' | 'avatar_url'> | null;
 };
 
+export type Favorite = {
+  id: string;
+  buyer_id: string;
+  product_id: string;
+  created_at: string;
+};
+
 export type Lead = {
   id: string;
   product_id: string;
