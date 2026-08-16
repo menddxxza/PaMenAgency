@@ -4,7 +4,9 @@ import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FormularioLead from '@/components/FormularioLead';
-import { getProducto, registrarVisita } from '@/lib/queries';
+import ResenasProducto from '@/components/ResenasProducto';
+import { getMiResena, getProducto, getResenas, registrarVisita } from '@/lib/queries';
+import { getPerfilActual } from '@/lib/supabase/server';
 import { NOMBRE_TIPO, euros, precioResumido, tiempoInstalacion } from '@/lib/formato';
 
 export const dynamic = 'force-dynamic';
@@ -39,6 +41,12 @@ export default async function FichaProducto({ params }: { params: { slug: string
   if (producto.status === 'published') {
     await registrarVisita(producto.id);
   }
+
+  const [resenas, perfil, miResena] = await Promise.all([
+    getResenas(producto.id),
+    getPerfilActual(),
+    getMiResena(producto.id),
+  ]);
 
   const precio = precioResumido(producto);
   const vendedor = producto.profiles;
@@ -185,6 +193,16 @@ export default async function FichaProducto({ params }: { params: { slug: string
                   </ul>
                 </section>
               ) : null}
+
+              <ResenasProducto
+                productId={producto.id}
+                tituloProducto={producto.titulo}
+                resenas={resenas}
+                ratingPromedio={producto.rating_promedio}
+                ratingTotal={producto.rating_total}
+                sesionIniciada={Boolean(perfil)}
+                yaHaResenado={Boolean(miResena)}
+              />
             </div>
           </article>
 

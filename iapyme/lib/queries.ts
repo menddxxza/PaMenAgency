@@ -1,6 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
 import { createPublicClient } from '@/lib/supabase/public';
-import type { Category, ProductoConRelaciones, Profile } from '@/lib/database.types';
+import type {
+  Category,
+  ProductoConRelaciones,
+  Profile,
+  ResenaConAutor,
+} from '@/lib/database.types';
 import { CATEGORIAS } from '@/lib/categorias';
 
 /** Columnas de producto + categoría + vendedor, para las tarjetas y la ficha. */
@@ -183,6 +188,45 @@ export async function getConteoPorCategoria(): Promise<Record<string, number>> {
     conteo[id] = (conteo[id] ?? 0) + 1;
   }
   return conteo;
+}
+
+/** Reseñas de un producto, con el autor resuelto, más recientes primero. */
+export async function getResenas(productId: string): Promise<ResenaConAutor[]> {
+  const supabase = createPublicClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*, profiles ( display_name, avatar_url )')
+    .eq('product_id', productId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[queries] getResenas:', error.message);
+    return [];
+  }
+
+  return (data ?? []) as unknown as ResenaConAutor[];
+}
+
+/** Si el usuario con sesión ya dejó una reseña en este producto (para no duplicar el formulario). */
+export async function getMiResena(productId: string): Promise<ResenaConAutor | null> {
+  const supabase = createClient();
+  if (!supabase) return null;
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data } = await supabase
+    .from('reviews')
+    .select('*, profiles ( display_name, avatar_url )')
+    .eq('product_id', productId)
+    .eq('buyer_id', user.id)
+    .maybeSingle();
+
+  return (data as unknown as ResenaConAutor) ?? null;
 }
 
 /**

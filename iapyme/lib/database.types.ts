@@ -74,10 +74,27 @@ export type Product = {
   published_at: string | null;
   view_count: number;
   lead_count: number;
+  rating_promedio: number;
+  rating_total: number;
   meta_title: string | null;
   meta_description: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type Review = {
+  id: string;
+  product_id: string;
+  buyer_id: string;
+  puntuacion: number;
+  comentario: string;
+  created_at: string;
+  updated_at: string;
+};
+
+/** Reseña con el perfil del comprador resuelto, tal como la pinta la ficha de producto. */
+export type ResenaConAutor = Review & {
+  profiles: Pick<Profile, 'display_name' | 'avatar_url'> | null;
 };
 
 export type Lead = {
