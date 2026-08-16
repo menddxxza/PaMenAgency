@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Icono from './Icono';
+import Estrellas from './Estrellas';
 import type { ProductoConRelaciones } from '@/lib/database.types';
 import { precioResumido, tiempoInstalacion } from '@/lib/formato';
 
@@ -48,6 +49,13 @@ export default function ProductoCard({ producto }: { producto: ProductoConRelaci
             <span className="inline-flex items-center gap-1.5 text-brand-700">
               {producto.categories ? <span aria-hidden>·</span> : null}
               Destacado
+            </span>
+          ) : null}
+          {producto.rating_total > 0 ? (
+            <span className="inline-flex items-center gap-1">
+              {producto.categories || producto.is_featured ? <span aria-hidden>·</span> : null}
+              <Estrellas puntuacion={producto.rating_promedio} tamano="text-[0.7rem]" />
+              <span>{producto.rating_promedio.toFixed(1)}</span>
             </span>
           ) : null}
         </div>
