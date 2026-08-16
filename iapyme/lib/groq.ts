@@ -48,3 +48,39 @@ export async function preguntarGroq(mensajes: Mensaje[]): Promise<string | null>
     return null;
   }
 }
+
+/**
+ * Amplía una búsqueda literal que ha encontrado poco o nada: le pide a Groq
+ * términos relacionados (sinónimos, tecnologías, vocabulario del sector) para
+ * intentar una segunda pasada. Devuelve null si no hay clave, si Groq falla,
+ * o si la respuesta no es una lista de texto válida — nunca debe tumbar la
+ * búsqueda normal, solo es una mejora opcional sobre ella.
+ */
+export async function expandirBusqueda(consulta: string): Promise<string[] | null> {
+  const respuesta = await preguntarGroq([
+    {
+      role: 'system',
+      content: `Eres un motor de sinónimos para el buscador de IAPyme, un marketplace de soluciones de IA para pymes en español.
+
+Dada la búsqueda de un usuario, devuelve entre 3 y 6 palabras o expresiones cortas relacionadas (sinónimos, tecnologías habituales, vocabulario del sector) que ayuden a encontrar soluciones aunque no compartan las palabras exactas de la búsqueda.
+
+Responde ÚNICAMENTE con un array JSON de strings, sin explicación ni texto adicional.
+Ejemplo: ["chatbot", "atención al cliente", "whatsapp business"]`,
+    },
+    { role: 'user', content: consulta },
+  ]);
+
+  if (!respuesta) return null;
+
+  try {
+    const limpio = respuesta.trim().replace(/^```json\s*|```\s*$/g, '');
+    const terminos: unknown = JSON.parse(limpio);
+    if (!Array.isArray(terminos)) return null;
+
+    return terminos
+      .filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
+      .slice(0, 6);
+  } catch {
+    return null;
+  }
+}
