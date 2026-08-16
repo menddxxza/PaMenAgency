@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getServiceClient } from '@/lib/supabase';
 import { excedeLimite, obtenerIp } from '@/lib/security/rate-limit';
+import { avisarNuevoLead } from '@/lib/email';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
   // cualquiera podría inyectar leads en la bandeja de otro vendedor.
   const { data: producto } = await supabase
     .from('products')
-    .select('id, seller_id, status')
+    .select('id, seller_id, status, titulo')
     .eq('id', productId)
     .maybeSingle();
 
@@ -85,6 +87,19 @@ export async function POST(request: Request) {
       { error: 'No hemos podido enviarlo. Inténtalo de nuevo.' },
       { status: 500 },
     );
+  }
+
+  const admin = getServiceClient();
+  if (admin) {
+    const { data: vendedor } = await admin.auth.admin.getUserById(producto.seller_id);
+    if (vendedor.user?.email) {
+      await avisarNuevoLead({
+        sellerEmail: vendedor.user.email,
+        tituloProducto: producto.titulo,
+        nombreComprador: nombre,
+        mensaje,
+      });
+    }
   }
 
   return NextResponse.json({ ok: true });

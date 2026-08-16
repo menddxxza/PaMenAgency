@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getServiceClient } from '@/lib/supabase';
 import { excedeLimite, obtenerIp } from '@/lib/security/rate-limit';
+import { avisarNuevaResena } from '@/lib/email';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -55,6 +57,12 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: producto } = await supabase
+    .from('products')
+    .select('seller_id, titulo')
+    .eq('id', productId)
+    .maybeSingle();
+
   const { error } = await supabase.from('reviews').insert({
     product_id: productId,
     buyer_id: user.id,
@@ -80,6 +88,21 @@ export async function POST(request: Request) {
       { error: 'No hemos podido guardar tu reseña. Inténtalo de nuevo.' },
       { status: 500 },
     );
+  }
+
+  if (producto) {
+    const admin = getServiceClient();
+    if (admin) {
+      const { data: vendedor } = await admin.auth.admin.getUserById(producto.seller_id);
+      if (vendedor.user?.email) {
+        await avisarNuevaResena({
+          sellerEmail: vendedor.user.email,
+          tituloProducto: producto.titulo,
+          puntuacion,
+          comentario,
+        });
+      }
+    }
   }
 
   return NextResponse.json({ ok: true });
