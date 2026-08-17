@@ -29,11 +29,11 @@ export default function ProductoCardEstatico({ producto }: { producto: Producto 
 
       <dl className="mt-5 space-y-3 border-t border-ink/10 pt-5 text-sm">
         <div>
-          <dt className="font-semibold text-ink/50">El problema</dt>
+          <dt className="font-semibold text-ink/65">El problema</dt>
           <dd className="mt-0.5 text-ink/80">{producto.problema}</dd>
         </div>
         <div>
-          <dt className="font-semibold text-ink/50">La solución</dt>
+          <dt className="font-semibold text-ink/65">La solución</dt>
           <dd className="mt-0.5 text-ink/80">{producto.solucion}</dd>
         </div>
       </dl>

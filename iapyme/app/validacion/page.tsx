@@ -120,15 +120,15 @@ export default function Home() {
 
               <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/10 pt-8">
                 <div>
-                  <dt className="text-xs uppercase tracking-wider text-white/50">Categorías</dt>
+                  <dt className="text-xs uppercase tracking-wider text-white/60">Categorías</dt>
                   <dd className="mt-1 text-2xl font-extrabold">10</dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wider text-white/50">Puesta en marcha</dt>
+                  <dt className="text-xs uppercase tracking-wider text-white/60">Puesta en marcha</dt>
                   <dd className="mt-1 text-2xl font-extrabold">&lt; 1 h</dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wider text-white/50">Idioma</dt>
+                  <dt className="text-xs uppercase tracking-wider text-white/60">Idioma</dt>
                   <dd className="mt-1 text-2xl font-extrabold">Español</dd>
                 </div>
               </dl>
