@@ -52,7 +52,7 @@ export default async function CategoriaPage({
       <Header />
 
       <main className="container-page py-10">
-        <nav aria-label="Migas" className="text-sm text-ink/50">
+        <nav aria-label="Migas" className="text-sm text-ink/65">
           <Link href="/" className="hover:text-ink">
             Inicio
           </Link>{' '}

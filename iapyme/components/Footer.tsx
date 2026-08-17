@@ -50,6 +50,7 @@ export default async function Footer() {
                 { href: '/buscar', texto: 'Todas las soluciones' },
                 { href: '/categorias', texto: 'Categorías' },
                 { href: '/como-funciona', texto: 'Cómo funciona' },
+                { href: '/blog', texto: 'Blog' },
               ].map((enlace) => (
                 <li key={enlace.href}>
                   <EnlacePie href={enlace.href}>{enlace.texto}</EnlacePie>

@@ -67,7 +67,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
           </p>
         ) : null}
 
-        <nav aria-label="Migas" className="text-sm text-ink/50">
+        <nav aria-label="Migas" className="text-sm text-ink/65">
           <Link href="/" className="hover:text-ink">
             Inicio
           </Link>
