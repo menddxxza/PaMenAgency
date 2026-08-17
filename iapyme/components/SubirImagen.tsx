@@ -10,10 +10,13 @@ export default function SubirImagen({
   userId,
   valor,
   onChange,
+  aspecto = 'aspect-video',
 }: {
   userId: string;
   valor: string;
   onChange: (url: string) => void;
+  /** Clase de Tailwind para la relación de aspecto de la vista previa. */
+  aspecto?: string;
 }) {
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +64,7 @@ export default function SubirImagen({
       {valor ? (
         <div className="relative overflow-hidden rounded-xl border border-ink/15">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={valor} alt="Portada elegida" className="aspect-video w-full object-cover" />
+          <img src={valor} alt="Imagen elegida" className={`${aspecto} w-full object-cover`} />
           <button
             type="button"
             onClick={() => onChange('')}
