@@ -56,6 +56,12 @@ export default async function ResumenPanel() {
         </Link>
       </header>
 
+      <ChecklistInicio
+        perfilCompleto={Boolean(perfil.bio)}
+        tieneFicha={productos.length > 0}
+        tienePublicada={publicados.length > 0}
+      />
+
       <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Metrica etiqueta="Visitas a tus fichas" valor={visitas.toLocaleString('es-ES')} />
         <Metrica etiqueta="Mensajes recibidos" valor={leads.toLocaleString('es-ES')} />
@@ -138,6 +144,84 @@ export default async function ResumenPanel() {
         </section>
       )}
     </div>
+  );
+}
+
+/**
+ * Se oculta sola en cuanto se completan los tres pasos: no tiene sentido
+ * seguir mostrándole una lista de tareas a quien ya lleva meses vendiendo.
+ */
+function ChecklistInicio({
+  perfilCompleto,
+  tieneFicha,
+  tienePublicada,
+}: {
+  perfilCompleto: boolean;
+  tieneFicha: boolean;
+  tienePublicada: boolean;
+}) {
+  const pasos = [
+    {
+      hecho: perfilCompleto,
+      texto: 'Completa tu perfil',
+      ayuda: 'Una bio breve ayuda a que confíen antes de escribirte.',
+      href: '/dashboard/perfil',
+    },
+    {
+      hecho: tieneFicha,
+      texto: 'Publica tu primera ficha',
+      ayuda: 'Cuéntanos qué resuelve, para quién y cuánto cuesta.',
+      href: '/dashboard/productos/nuevo',
+    },
+    {
+      hecho: tienePublicada,
+      texto: 'Consigue tu primera aprobación',
+      ayuda: 'La revisamos y, si todo encaja, sale al catálogo.',
+      href: '/dashboard/productos',
+    },
+  ];
+
+  if (pasos.every((paso) => paso.hecho)) return null;
+
+  return (
+    <section className="card mt-8 p-6">
+      <h2 className="font-bold">Primeros pasos</h2>
+      <ul className="mt-4 space-y-1">
+        {pasos.map((paso) => (
+          <li key={paso.texto}>
+            <Link
+              href={paso.href}
+              className="-mx-2 flex items-start gap-3 rounded-lg px-2 py-2 transition
+                         hover:bg-ink/[0.03]"
+            >
+              <span
+                aria-hidden
+                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full
+                            border text-[11px] font-bold ${
+                              paso.hecho
+                                ? 'border-accent-500 bg-accent-500 text-white'
+                                : 'border-ink/25 text-transparent'
+                            }`}
+              >
+                ✓
+              </span>
+              <span className="min-w-0">
+                <span
+                  className={`block text-sm font-semibold ${
+                    paso.hecho ? 'text-ink/40 line-through' : 'text-ink'
+                  }`}
+                >
+                  {paso.texto}
+                </span>
+                {!paso.hecho ? (
+                  <span className="mt-0.5 block text-xs text-ink/50">{paso.ayuda}</span>
+                ) : null}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
