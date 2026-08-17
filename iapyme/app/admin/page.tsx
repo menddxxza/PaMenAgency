@@ -4,6 +4,7 @@ import { createClient, getPerfilActual } from '@/lib/supabase/server';
 import type { ProductoConRelaciones } from '@/lib/database.types';
 import AccionesModeracion from '@/components/AccionesModeracion';
 import EstadoFicha from '@/components/EstadoFicha';
+import AvisoSinSupabase from '@/components/AvisoSinSupabase';
 import { NOMBRE_TIPO, precioResumido, tiempoInstalacion } from '@/lib/formato';
 
 export const dynamic = 'force-dynamic';
@@ -12,8 +13,16 @@ export const metadata = { title: 'Moderación · IAPyme' };
 
 export default async function ModeracionPage() {
   const supabase = createClient();
+  if (!supabase) {
+    return (
+      <main className="container-page py-20">
+        <AvisoSinSupabase que="La moderación" />
+      </main>
+    );
+  }
+
   const perfil = await getPerfilActual();
-  if (!supabase || !perfil) return null;
+  if (!perfil) redirect('/entrar?volver=/admin');
   if (perfil.role !== 'admin') redirect('/dashboard');
 
   const { data } = await supabase
