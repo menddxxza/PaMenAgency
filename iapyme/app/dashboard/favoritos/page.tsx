@@ -1,4 +1,5 @@
 import ProductoCard from '@/components/ProductoCard';
+import ComparadorFavoritos from '@/components/ComparadorFavoritos';
 import { getFavoritos } from '@/lib/queries';
 
 export const dynamic = 'force-dynamic';
@@ -30,11 +31,15 @@ export default async function FavoritosPage() {
           </p>
         </div>
       ) : (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {productos.map((producto) => (
-            <ProductoCard key={producto.id} producto={producto} />
-          ))}
-        </div>
+        <>
+          <ComparadorFavoritos productos={productos} />
+
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {productos.map((producto) => (
+              <ProductoCard key={producto.id} producto={producto} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
