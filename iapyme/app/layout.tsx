@@ -59,7 +59,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icon.svg',
+    icon: '/icon.png',
     apple: '/icons/apple-touch-icon.png',
   },
   appleWebApp: {
