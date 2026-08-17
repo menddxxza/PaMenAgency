@@ -1,6 +1,6 @@
 /* IAPyme · sistema de diseño
- * Género: editorial · Tema: Cobalt
- * Papel claro · display serif de alto contraste · acento azul frío
+ * Género: modern-minimal · Tema: Cobalt refinado
+ * Papel claro · display grotesk (Inter) · acento azul frío · sin fondos animados
  *
  * Exportación portable del sistema. La aplicación consume estos valores a
  * través de tailwind.config.ts (mismos valores, nombres semánticos); este
@@ -35,13 +35,16 @@
   --color-accent-600: oklch(64% 0.126 168.6);
   --color-accent-700: oklch(50% 0.105 168.6); /* texto verde sobre claro (AA) */
 
-  /* --- Tipografía: tres roles, ni uno más --------------------------- */
-  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  /* --- Tipografía: dos roles, no tres. Display y cuerpo comparten     */
+  /* familia (Inter): una grotesk no necesita una serif de acompañante */
+  /* para leer como "diseñada", y una sola familia reduce el peso de   */
+  /* descarga y el riesgo de descuadre entre roles.                    */
+  --font-display: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Tracking mucho menos negativo que una grotesk: una serif de alto
-     contraste se cierra sola, apretarla la vuelve ilegible. */
+  /* Tracking más negativo que en la pasada con serif: una grotesk se
+     abre a estos tamaños si no se aprieta. */
   --text-display: clamp(2.4rem, 1.7rem + 3vw, 3.75rem);
   --text-display-s: clamp(2.1rem, 1.5rem + 2.6vw, 3.1rem);
 

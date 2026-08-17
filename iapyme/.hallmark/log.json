@@ -22,5 +22,21 @@
     "footer": "declaración + navegación compacta",
     "enrichment": "none (tipografía y retícula)",
     "brief": "IAPyme · marketplace de soluciones de IA para pymes — rediseño elegante, profesional, con movimiento notable al pasar el ratón"
+  },
+  {
+    "date": "2026-08-17",
+    "verb": "redesign",
+    "scope": "fase 1: sistema + home + header/footer (resto de páginas pendiente de fase 2)",
+    "genre": "modern-minimal",
+    "macrostructure": "Product Rail",
+    "theme": "Cobalt refinado",
+    "theme_axes": "papel claro / display grotesk (ya no serif) / acento azul frío / radios más contenidos / sin fondos animados",
+    "nav": "marketplace canónico (marca · buscador · acciones) — cromo sólido, sin glassmorphism",
+    "footer": "declaración + navegación compacta (sin cambios estructurales, solo peso tipográfico)",
+    "enrichment": "escaparate de catálogo real en el hero (EscaparateProducto), no ilustración genérica",
+    "diverge_de_pasadas_previas_en": "estilo de display (serif → sans/grotesk), composición del hero (índice editorial → producto visible), eliminación de fondo animado con blobs",
+    "critica_previa": "P5 H4 E5 S5 R5 V5",
+    "nota_entorno": "el directorio references/ del skill Hallmark no está materializado en este entorno (solo SKILL.md); build guiado por las reglas inline del skill + criterio senior",
+    "brief": "IAPyme · rediseño completo pedido por el usuario para eliminar cualquier apariencia 'hecha por IA': sin gradientes/blobs/glassmorphism/iconos genéricos, tipografía como protagonista, mostrar el producto real, calidad de referencia Linear/Stripe/Notion/Vercel"
   }
 ]

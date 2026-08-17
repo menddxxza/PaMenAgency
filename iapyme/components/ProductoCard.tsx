@@ -66,7 +66,7 @@ export default function ProductoCard({ producto }: { producto: ProductoConRelaci
         </div>
 
         <h3
-          className="mt-1.5 font-display text-lg font-normal leading-snug text-ink
+          className="mt-1.5 font-display text-[17px] font-semibold leading-snug tracking-[-0.01em] text-ink
                      transition-colors duration-fast ease-out
                      group-hover:text-brand-700"
         >

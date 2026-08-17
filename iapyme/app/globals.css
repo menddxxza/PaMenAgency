@@ -1,10 +1,15 @@
-/* Hallmark · verbo: redesign (2ª pasada) · género: editorial
- * macroestructura: Long Measure — asimétrica, medida de lectura cuidada,
- * reglas finas en vez de cajas · tema: Cobalt (papel claro · display serif
- * de alto contraste · acento azul frío, intacto de la 1ª pasada)
+/* Hallmark · verbo: redesign (3ª pasada, Fase 1: sistema + home) · género: modern-minimal
+ * macroestructura: Product Rail — copy a la izquierda, panel real del
+ * producto a la derecha en el hero; el resto sigue en índice numerado,
+ * sin retícula de tarjetas repetida · tema: Cobalt refinado (papel casi
+ * blanco cálido · display grotesk, ya no serif · acento azul frío,
+ * intacto desde la 1ª pasada — continuidad de marca deliberada)
  * acento: oklch(50.5% 0.259 265.7)
- * enriquecimiento: ninguno (tipografía y espacio)
- * crítica previa: P5 H5 E5 S5 R5 V4
+ * enriquecimiento: Tier A — tarjetas de producto reales compuestas en
+ * CSS, sin capturas ni cromo de navegador falso
+ * diverge de las pasadas anteriores en: estilo de display (serif → sans),
+ * composición del hero (índice editorial → producto visible)
+ * crítica previa: P5 H4 E5 S5 R5 V5
  */
 
 @tailwind base;
@@ -14,9 +19,13 @@
 @layer base {
   :root {
     /* Las familias reales las inyecta next/font desde app/layout.tsx.
-       Estos son los respaldos si la fuente no llega a cargar. */
-    --font-display: ui-sans-serif, system-ui, sans-serif;
+       Estos son los respaldos si la fuente no llega a cargar. Una sola
+       familia real (Inter) para display y cuerpo — --font-display no
+       carga nada aparte, solo reutiliza --font-sans para que el resto del
+       sistema pueda seguir marcando el rol tipográfico sin que existan dos
+       fuentes físicas distintas. */
     --font-sans: ui-sans-serif, system-ui, sans-serif;
+    --font-display: var(--font-sans);
     --font-mono: ui-monospace, SFMono-Regular, monospace;
 
     --dur-fast: 140ms;
@@ -80,7 +89,7 @@
   /* La transición nombra sus propiedades: el anillo de foco debe aparecer
      instantáneamente, nunca animado. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg
            px-5 py-3 text-sm font-semibold
            transition-[transform,background-color,border-color,box-shadow,color]
            duration-fast ease-out
@@ -135,12 +144,16 @@
     @apply scale-x-100;
   }
 
-  /* Etiqueta de sección: serif minúscula con tracking generoso, no un chip
-     mono en mayúsculas. Este selector también hace de h2 en varias fichas
-     de producto, así que va siempre en redonda — nunca cursiva en un
-     encabezado. Va sobre una regla fina, nunca sola. */
+  /* Etiqueta de sección: texto pequeño con tracking generoso, no un chip
+     mono en mayúsculas ni una insignia de color. Este selector también hace
+     de h2 en varias fichas de producto (título corto, "El problema"), así
+     que se queda en redonda, nunca cursiva. Va sobre una regla fina, nunca
+     sola.
+     Nota de la 3ª pasada: dejamos deliberadamente esta clase casi intacta
+     — cambiarla a mayúsculas tendría efecto en páginas que esta pasada no
+     ha podido revisar visualmente (necesitan datos reales de Supabase). */
   .eyebrow {
-    @apply font-display text-[13px] font-normal tracking-wide text-ink/65;
+    @apply font-display text-[13px] font-medium tracking-[0.02em] text-ink/65;
   }
 
   /* Dato duro: solo donde la alineación tabular importa de verdad — precios,
