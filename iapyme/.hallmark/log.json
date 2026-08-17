@@ -38,5 +38,19 @@
     "critica_previa": "P5 H4 E5 S5 R5 V5",
     "nota_entorno": "el directorio references/ del skill Hallmark no está materializado en este entorno (solo SKILL.md); build guiado por las reglas inline del skill + criterio senior",
     "brief": "IAPyme · rediseño completo pedido por el usuario para eliminar cualquier apariencia 'hecha por IA': sin gradientes/blobs/glassmorphism/iconos genéricos, tipografía como protagonista, mostrar el producto real, calidad de referencia Linear/Stripe/Notion/Vercel"
+  },
+  {
+    "date": "2026-08-17",
+    "verb": "redesign",
+    "scope": "fase 2: extiende el sistema de fase 1 al resto de la app (~22 páginas: catálogo, ficha, categoría, vendedor, dashboard, admin, entrar, validación, legales)",
+    "genre": "modern-minimal",
+    "macrostructure": "Product Rail (heredada de fase 1, sin macroestructura nueva)",
+    "theme": "Cobalt refinado",
+    "cambios_sistemicos": "font-extrabold → font-semibold en cabeceras de página en toda la app (consistencia con el peso ya fijado en home/footer); barrido de contraste text-ink/35–45 → /60 en etiquetas, dt/dd y texto secundario real (dashboard, admin, ficha, vendedor, componentes compartidos); eliminados los dos únicos fondos con blobs que quedaban (/entrar, /validacion) y su glassmorphism de cabecera (HeaderLanding); dl decorativo del hero de /validacion pasa a texto plano donde aplica",
+    "nota": "la mayoría de páginas ya heredaban los cambios globales de fase 1 (tipografía Inter, sin fondo animado, header/footer sólidos) por venir de layout.tsx/globals.css/tailwind.config.ts compartidos; fase 2 fue sobre todo un barrido de consistencia página por página, no una reconstrucción",
+    "critica_previa": "P5 H4 E5 S5 R5 V4 (V4: misma macroestructura que fase 1 por diseño, es una extensión de sistema, no una pasada nueva)",
+    "verificacion": "typecheck y build limpios; axe-core 0 violaciones en las 12 rutas verificables sin datos reales de Supabase (/, /categorias, /como-funciona, /blog, /entrar, /buscar, /legal/*, /validacion, /dashboard, /admin); sin overflow ni errores de consola en 1440/768/375px",
+    "nota_entorno": "dashboard, admin, ficha de producto y vendedor solo se verificaron en su estado 'sin Supabase configurado' — su interfaz con datos reales no se pudo renderizar en este entorno",
+    "brief": "continuación aprobada por el usuario ('fase 2') del rediseño completo de IAPymeApp: extender el sistema de diseño de fase 1 al resto de la aplicación"
   }
 ]

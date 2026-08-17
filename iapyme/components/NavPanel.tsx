@@ -55,7 +55,7 @@ export default function NavPanel({
 
       {esAdmin ? (
         <>
-          <p className="px-3 pb-1 pt-5 text-xs font-bold uppercase tracking-wider text-ink/35">
+          <p className="px-3 pb-1 pt-5 text-xs font-bold uppercase tracking-wider text-ink/60">
             Administración
           </p>
           <Link

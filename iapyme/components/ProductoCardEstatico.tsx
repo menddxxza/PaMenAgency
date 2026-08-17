@@ -40,7 +40,7 @@ export default function ProductoCardEstatico({ producto }: { producto: Producto 
 
       <div className="mt-auto flex items-end justify-between gap-4 border-t border-ink/10 pt-5">
         <p className="text-sm">
-          <span className="text-xl font-extrabold">{producto.precioSetup} €</span>
+          <span className="text-xl font-semibold">{producto.precioSetup} €</span>
           <span className="text-ink/60"> setup</span>
           <span className="block text-ink/60">+ {producto.precioMensual} €/mes</span>
         </p>

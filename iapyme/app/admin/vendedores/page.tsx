@@ -43,7 +43,7 @@ export default async function VendedoresAdminPage() {
   return (
     <div>
       <header>
-        <h1 className="text-2xl font-extrabold tracking-tight">Vendedores</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Vendedores</h1>
         <p className="mt-1 text-sm text-ink/60">
           {lista.length} {lista.length === 1 ? 'vendedor registrado' : 'vendedores registrados'}
         </p>

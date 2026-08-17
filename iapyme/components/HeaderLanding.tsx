@@ -2,7 +2,7 @@ import Logo from './Logo';
 
 export default function HeaderLanding() {
   return (
-    <header className="sticky top-0 z-40 border-b border-ink/10 bg-white/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-ink/10 bg-white">
       <div className="container-page flex h-16 items-center justify-between">
         <Logo />
         <nav className="hidden items-center gap-7 text-sm font-medium text-ink/70 md:flex">

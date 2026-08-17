@@ -88,7 +88,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
 
         <div className="mt-6 grid gap-12 lg:grid-cols-[1fr_320px] lg:items-start">
           <article>
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               {producto.titulo}
             </h1>
             <p className="mt-2 text-lg text-ink/70">{producto.tagline}</p>
@@ -212,7 +212,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
 
           <aside className="lg:sticky lg:top-24">
             <div className="card p-6">
-              <p className="text-3xl font-extrabold tracking-tight">{precio.principal}</p>
+              <p className="text-3xl font-semibold tracking-tight">{precio.principal}</p>
               {precio.secundario ? (
                 <p className="mt-1 text-sm text-ink/60">{precio.secundario}</p>
               ) : null}
@@ -248,7 +248,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
 
             {vendedor ? (
               <div className="card mt-4 p-5">
-                <p className="text-xs font-bold uppercase tracking-wider text-ink/40">
+                <p className="text-xs font-bold uppercase tracking-wider text-ink/60">
                   Lo vende
                 </p>
                 <div className="mt-3 flex items-center gap-3">

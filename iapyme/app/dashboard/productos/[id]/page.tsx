@@ -33,7 +33,7 @@ export default async function EditarProducto({ params }: { params: { id: string 
       </Link>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-extrabold tracking-tight">{producto.titulo}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{producto.titulo}</h1>
         <EstadoFicha status={producto.status} />
       </div>
 

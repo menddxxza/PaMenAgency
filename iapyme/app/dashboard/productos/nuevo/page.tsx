@@ -17,7 +17,7 @@ export default async function NuevoProducto() {
         ← Mis productos
       </Link>
 
-      <h1 className="mt-4 text-2xl font-extrabold tracking-tight">Publicar producto</h1>
+      <h1 className="mt-4 text-2xl font-semibold tracking-tight">Publicar producto</h1>
       <p className="mt-1 text-sm text-ink/60">
         Cuatro pasos. Puedes guardar el borrador y seguir en otro momento.
       </p>
