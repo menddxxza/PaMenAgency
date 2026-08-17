@@ -231,7 +231,7 @@ export async function actualizarPerfil(formData: FormData): Promise<ResultadoAcc
   const websiteUrl = limpiarUrl(formData.get('website_url'));
   const avatarUrl = limpiarUrl(formData.get('avatar_url'));
 
-  const { error } = await supabase
+  const { data: actualizado, error } = await supabase
     .from('profiles')
     .update({
       display_name: displayName,
@@ -239,13 +239,20 @@ export async function actualizarPerfil(formData: FormData): Promise<ResultadoAcc
       website_url: websiteUrl,
       avatar_url: avatarUrl,
     })
-    .eq('id', user.id);
+    .eq('id', user.id)
+    .select('slug')
+    .single();
 
   if (error) return { ok: false, error: 'No hemos podido guardar los cambios.' };
 
-  // El perfil público (/vendedor/[slug]) y la ficha ya son force-dynamic, así
-  // que no hay caché ISR que invalidar ahí: solo esta página se sirve cacheada.
   revalidatePath('/dashboard/perfil');
+
+  // getVendedor() usa el cliente público, que cachea sus fetch 60s (para no
+  // pegarle a Supabase en cada visita al catálogo). Que esa página sea
+  // force-dynamic no libra de esa caché: es una caché de datos, no de ruta.
+  // Sin este revalidatePath explícito, el perfil público podía tardar hasta
+  // un minuto en reflejar la foto o la bio recién guardadas.
+  if (actualizado?.slug) revalidatePath(`/vendedor/${actualizado.slug}`);
   return { ok: true };
 }
 
