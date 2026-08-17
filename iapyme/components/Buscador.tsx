@@ -26,7 +26,7 @@ function BuscadorEsqueleto({ compacto }: { compacto: boolean }) {
   );
 }
 
-type RespuestaIA = { respuesta: string; producto: { slug: string; titulo: string } | null };
+type RespuestaIA = { respuesta: string; productos: { slug: string; titulo: string }[] };
 type EstadoIA = 'idle' | 'pensando' | 'lista' | 'error';
 
 function BuscadorInterno({ compacto }: { compacto: boolean }) {
@@ -172,15 +172,20 @@ function BuscadorInterno({ compacto }: { compacto: boolean }) {
             Recomendación de la IA
           </p>
           <p className="mt-2 text-sm leading-relaxed text-ink/80">{respuestaIA.respuesta}</p>
-          {respuestaIA.producto ? (
-            <Link
-              href={`/p/${respuestaIA.producto.slug}`}
-              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700
-                         transition-colors duration-fast ease-out hover:text-brand-800"
-            >
-              Ver {respuestaIA.producto.titulo}
-              <Icono nombre="flecha" className="h-4 w-4" />
-            </Link>
+          {respuestaIA.productos.length > 0 ? (
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+              {respuestaIA.productos.map((producto) => (
+                <Link
+                  key={producto.slug}
+                  href={`/p/${producto.slug}`}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700
+                             transition-colors duration-fast ease-out hover:text-brand-800"
+                >
+                  Ver {producto.titulo}
+                  <Icono nombre="flecha" className="h-4 w-4" />
+                </Link>
+              ))}
+            </div>
           ) : null}
         </div>
       ) : null}
