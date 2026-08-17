@@ -16,7 +16,7 @@ const FUNCIONES = [
     emoji: '📝',
     titulo: 'Notas que se resumen solas',
     texto:
-      'Editor por bloques: texto, títulos, listas, tareas, código y citas. Markdown cuando lo quieres, WYSIWYG cuando no. Y un botón que convierte tres páginas de acta en cinco puntos.',
+      'Editor por bloques: texto, títulos, listas, tareas, código y citas. Escribe con símbolos tipo Markdown si te gusta, o en modo visual normal si no — lo ves formateado según escribes. Y un botón que convierte tres páginas de acta en cinco puntos.',
   },
   {
     emoji: '✅',
