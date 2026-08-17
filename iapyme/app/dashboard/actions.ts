@@ -201,6 +201,54 @@ export async function irAFicha(slug: string) {
   redirect(`/p/${slug}`);
 }
 
+/** Normaliza una URL opcional: añade https:// si falta, o la descarta si no es válida. */
+function limpiarUrl(valor: FormDataEntryValue | null): string | null {
+  const texto = limpiar(valor, 300);
+  if (!texto) return null;
+
+  const conProtocolo = /^https?:\/\//i.test(texto) ? texto : `https://${texto}`;
+  try {
+    return new URL(conProtocolo).toString();
+  } catch {
+    return null;
+  }
+}
+
+/** Actualiza los datos del perfil público: nombre, bio, foto y web. */
+export async function actualizarPerfil(formData: FormData): Promise<ResultadoAccion> {
+  const supabase = createClient();
+  if (!supabase) return { ok: false, error: 'La base de datos no está configurada.' };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: 'Tienes que iniciar sesión.' };
+
+  const displayName = limpiar(formData.get('display_name'), 80);
+  if (!displayName) return { ok: false, error: 'Escribe tu nombre o el de tu negocio.' };
+
+  const bio = limpiar(formData.get('bio'), 500) || null;
+  const websiteUrl = limpiarUrl(formData.get('website_url'));
+  const avatarUrl = limpiarUrl(formData.get('avatar_url'));
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      display_name: displayName,
+      bio,
+      website_url: websiteUrl,
+      avatar_url: avatarUrl,
+    })
+    .eq('id', user.id);
+
+  if (error) return { ok: false, error: 'No hemos podido guardar los cambios.' };
+
+  // El perfil público (/vendedor/[slug]) y la ficha ya son force-dynamic, así
+  // que no hay caché ISR que invalidar ahí: solo esta página se sirve cacheada.
+  revalidatePath('/dashboard/perfil');
+  return { ok: true };
+}
+
 function traducir(mensaje: string): string {
   if (mensaje.includes('administrador')) return mensaje;
   if (mensaje.includes('duplicate key')) return 'Ya existe una ficha con ese nombre.';

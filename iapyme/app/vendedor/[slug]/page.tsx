@@ -34,7 +34,16 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
 
       <main className="container-page py-12">
         <header className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <div className="h-16 w-16 shrink-0 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500" />
+          {vendedor.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={vendedor.avatar_url}
+              alt=""
+              className="h-16 w-16 shrink-0 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="h-16 w-16 shrink-0 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500" />
+          )}
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-2xl font-extrabold tracking-tight">
