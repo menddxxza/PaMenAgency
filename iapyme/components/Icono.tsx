@@ -14,7 +14,9 @@ export type NombreIcono =
   | 'flecha'
   | 'check'
   | 'reloj'
-  | 'chispa';
+  | 'chispa'
+  | 'compartir'
+  | 'enlace';
 
 const TRAZOS: Record<NombreIcono, React.ReactNode> = {
   // Documento con líneas: la ficha técnica.
@@ -53,6 +55,22 @@ const TRAZOS: Record<NombreIcono, React.ReactNode> = {
     <>
       <path d="M12 3.5c.6 3.3 2 4.7 5.3 5.3-3.3.6-4.7 2-5.3 5.3-.6-3.3-2-4.7-5.3-5.3 3.3-.6 4.7-2 5.3-5.3Z" />
       <path d="M18.5 15.5c.3 1.6 1 2.3 2.6 2.6-1.6.3-2.3 1-2.6 2.6-.3-1.6-1-2.3-2.6-2.6 1.6-.3 2.3-1 2.6-2.6Z" />
+    </>
+  ),
+  // Tres nodos enlazados: compartir.
+  compartir: (
+    <>
+      <circle cx="18" cy="5.5" r="2.3" />
+      <circle cx="6" cy="12" r="2.3" />
+      <circle cx="18" cy="18.5" r="2.3" />
+      <path d="M8.1 10.7 15.9 6.9M8.1 13.3 15.9 17.1" />
+    </>
+  ),
+  // Dos eslabones: copiar enlace.
+  enlace: (
+    <>
+      <path d="M10.3 13.7a3.7 3.7 0 0 1 0-5.2l2.2-2.2a3.7 3.7 0 0 1 5.2 5.2L16.5 12.7" />
+      <path d="M13.7 10.3a3.7 3.7 0 0 1 0 5.2l-2.2 2.2a3.7 3.7 0 0 1-5.2-5.2L7.5 11.3" />
     </>
   ),
 };
