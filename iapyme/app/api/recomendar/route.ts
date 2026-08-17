@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   if (!supabase) {
     return NextResponse.json({
       respuesta: 'El catálogo todavía no está conectado, así que no puedo comparar productos ahora mismo.',
-      producto: null,
+      productos: [],
     });
   }
 
@@ -62,28 +62,30 @@ export async function POST(request: Request) {
   if (productos.length === 0) {
     return NextResponse.json({
       respuesta: 'Todavía no hay soluciones publicadas en el catálogo para poder recomendarte una.',
-      producto: null,
+      productos: [],
     });
   }
 
-  const systemPrompt = `Eres el asistente de compra de IAPyme, un marketplace de soluciones de IA para pymes en español.
+  const systemPrompt = `Eres el asistente de compra de IAPyme, un marketplace de soluciones de IA para pymes en español. Actúas como un consultor de tecnología profesional y honesto — no como un buscador que enlaza lo primero que se parece.
 
-Tu única tarea: leer lo que el usuario quiere automatizar y decidir si alguna opción del catálogo de abajo resuelve DE VERDAD ese problema concreto.
+Antes de responder, analiza con calma lo que cuenta el usuario: a qué se dedica, qué tarea concreta quiere automatizar, y qué necesitaría de verdad para resolverla. No te quedes en las palabras sueltas de la consulta, entiende el problema de fondo.
 
-Qué cuenta como encaje real: el producto debe pertenecer al mismo sector o resolver el mismo tipo de tarea que ha descrito el usuario. Por ejemplo, si pide algo para gestionar citas de una clínica, sirve un producto de salud o de gestión de citas — NO sirve una web genérica para cualquier negocio, ni un chatbot pensado para ecommerce, aunque sea "lo más parecido" que haya en el catálogo. Coincidir solo en formato (web, bot, automatización) sin coincidir en el problema NO es un encaje.
+Después, revisa el catálogo de abajo con criterio. Un producto solo cuenta como recomendación si resuelve ese problema concreto — coincidir solo en formato (web, bot, automatización...) sin coincidir en el sector o la tarea NO es un encaje real. Por ejemplo, si piden algo para gestionar citas de una clínica, sirve un producto de salud o de gestión de citas; NO sirve una web genérica para cualquier negocio ni un chatbot pensado para ecommerce, aunque sea "lo más parecido" que haya.
 
-Sé exigente. Recomendar algo que no encaja de verdad es peor que no recomendar nada: confunde a la persona y le hace perder el tiempo. Si ninguna opción del catálogo sirve de verdad para lo que pide, dilo con total honestidad — no fuerces la opción menos mala.
+Si hay dos opciones del catálogo que encajan de verdad y se complementan o resuelven ángulos distintos del mismo problema, puedes mencionar las dos y explicar en qué se diferencian, para que decida con más criterio. Nunca menciones más de dos, y nunca fuerces una segunda opción de relleno solo por completar.
+
+Sé exigente: recomendar algo que no encaja de verdad es peor que no recomendar nada, porque hace perder el tiempo a quien confía en tu respuesta. Si ninguna opción sirve de verdad, dilo con total honestidad en vez de forzar la menos mala.
 
 Nunca inventes productos que no estén en la lista.
 
-Responde en español, en 2-4 frases, cercano y directo.
-- Si hay un encaje real, explica concretamente por qué esa opción resuelve su problema.
-- Si no lo hay, dilo claramente (por ejemplo: "Ahora mismo no tenemos ninguna solución pensada para clínicas") y anímale a mirar el catálogo completo o, si vende soluciones de IA, a publicar la primera para ese sector.
+Responde en español, con tono profesional, cercano y directo — como alguien que ha entendido de verdad el problema, no un script. Entre 3 y 6 frases: explica el porqué de tu respuesta, no solo el qué.
+- Si hay encaje real, explica concretamente por qué esa opción (o esas dos) resuelve su problema.
+- Si no lo hay, dilo con claridad (por ejemplo: "Ahora mismo no tenemos ninguna solución pensada para clínicas") y anímale a mirar el catálogo completo o, si vende soluciones de IA, a publicar la primera para ese sector.
 
-Termina SIEMPRE tu respuesta con una última línea, exactamente en este formato (sin nada más en esa línea):
-RECOMENDADO: <slug-del-producto>
-o, si ninguna encaja de verdad:
-RECOMENDADO: ninguno
+Termina SIEMPRE tu respuesta con una última línea, exactamente en uno de estos formatos (sin nada más en esa línea):
+RECOMENDADOS: <slug1>
+RECOMENDADOS: <slug1>, <slug2>
+RECOMENDADOS: ninguno
 
 Catálogo disponible:
 ${catalogoComoTexto(productos)}`;
@@ -96,31 +98,39 @@ ${catalogoComoTexto(productos)}`;
   if (!respuestaIA) {
     return NextResponse.json({
       respuesta: 'El asistente no está disponible ahora mismo. Prueba a buscar directamente en el catálogo.',
-      producto: null,
+      productos: [],
     });
   }
 
-  // Separamos la línea "RECOMENDADO: <slug>" del resto del texto para
-  // mostrar el mensaje limpio y, si aplica, enlazar la ficha de verdad.
+  // Separamos la línea "RECOMENDADOS: <slug1>, <slug2>" del resto del texto
+  // para mostrar el mensaje limpio y, si aplica, enlazar las fichas de verdad.
   const lineas = respuestaIA.split('\n');
-  const indiceRecomendado = lineas.findIndex((l) => l.trim().toUpperCase().startsWith('RECOMENDADO:'));
+  const indiceRecomendados = lineas.findIndex((l) => l.trim().toUpperCase().startsWith('RECOMENDADOS:'));
   let mensaje = respuestaIA;
-  let slugRecomendado: string | null = null;
+  let slugsRecomendados: string[] = [];
 
-  if (indiceRecomendado !== -1) {
-    const slug = lineas[indiceRecomendado].split(':')[1]?.trim();
-    slugRecomendado = slug && slug !== 'ninguno' ? slug : null;
-    mensaje = lineas.slice(0, indiceRecomendado).join('\n').trim();
+  if (indiceRecomendados !== -1) {
+    const lista = lineas[indiceRecomendados].split(':')[1]?.trim() ?? '';
+    slugsRecomendados =
+      lista.toLowerCase() === 'ninguno'
+        ? []
+        : lista
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .slice(0, 2);
+    mensaje = lineas.slice(0, indiceRecomendados).join('\n').trim();
   }
 
-  // El slug lo dice el modelo: solo lo aceptamos si es de verdad uno de
-  // nuestros productos, para que no se pueda colar un enlace inventado.
-  const producto = slugRecomendado
-    ? productos.find((p) => p.slug === slugRecomendado)
-    : undefined;
+  // Los slugs los dice el modelo: solo aceptamos los que son de verdad
+  // nuestros, para que no se pueda colar un enlace inventado.
+  const productosRecomendados = slugsRecomendados
+    .map((slug) => productos.find((p) => p.slug === slug))
+    .filter((p): p is ProductoConRelaciones => Boolean(p))
+    .map((p) => ({ slug: p.slug, titulo: p.titulo }));
 
   return NextResponse.json({
     respuesta: mensaje || respuestaIA,
-    producto: producto ? { slug: producto.slug, titulo: producto.titulo } : null,
+    productos: productosRecomendados,
   });
 }

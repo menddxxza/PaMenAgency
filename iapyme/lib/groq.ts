@@ -30,7 +30,7 @@ export async function preguntarGroq(mensajes: Mensaje[]): Promise<string | null>
         model: MODELO,
         messages: mensajes,
         temperature: 0.3,
-        max_tokens: 400,
+        max_tokens: 550,
       }),
     });
 
