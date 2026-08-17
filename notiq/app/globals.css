@@ -1,0 +1,253 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+      'Helvetica Neue', Arial, sans-serif;
+  }
+
+  body {
+    @apply bg-white text-ink antialiased;
+  }
+
+  /* Salvaguarda de ancho: sin esto, un elemento que se pase de 100vw por poco
+     (el fondo animado, una sombra difuminada) añade una barra de scroll
+     horizontal en vez de recortarse. */
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5
+           text-sm font-semibold transition focus:outline-none
+           focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
+           disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
+
+  .btn-secondary {
+    @apply btn border border-ink/15 bg-white text-ink hover:border-ink/30 hover:bg-ink/[0.03];
+  }
+
+  .btn-fantasma {
+    @apply btn text-ink/70 hover:bg-ink/[0.05] hover:text-ink;
+  }
+
+  .card {
+    @apply rounded-2xl border border-ink/10 bg-white shadow-card;
+  }
+
+  /*
+   * Variante "cristal esmerilado" de .card, solo para donde hay algo detrás que
+   * merezca la pena dejar entrever (la landing, con el fondo animado) — por eso
+   * es una clase aparte y no un cambio de .card: .card la usan también páginas de
+   * la aplicación (ajustes, notas...) sin nada de fondo detrás, donde un cristal
+   * translúcido no tendría ningún efecto que justifique perder el blanco sólido.
+   */
+  .card-flotante {
+    @apply rounded-2xl border border-white/60 shadow-card transition duration-200;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Solo donde la tarjeta flotante es además un enlace/botón: un levantamiento
+     sutil confirma que hay algo interactivo debajo. En una tarjeta puramente
+     informativa (el mockup del hero, el del asistente) no se aplica. */
+  a.card-flotante:hover,
+  .card-flotante-interactiva:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 2px rgba(20, 19, 25, 0.06),
+      0 20px 40px -16px rgba(104, 41, 224, 0.28);
+  }
+
+  .campo {
+    @apply w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm
+           outline-none transition placeholder:text-ink/35
+           focus:border-brand-400 focus:ring-2 focus:ring-brand-100;
+  }
+
+  .etiqueta-campo {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink/55;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-brand-600;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full border border-ink/10 bg-ink/[0.03]
+           px-2.5 py-1 text-xs font-medium text-ink/70;
+  }
+
+  /* Círculo de icono para las tarjetas de la landing (sección "Cómo funciona"):
+     un tinte violeta muy suave, no el violeta sólido de los botones — así el
+     acento queda para las llamadas a la acción de verdad. */
+  .icono-funcion {
+    @apply grid h-11 w-11 place-items-center rounded-2xl bg-brand-50 text-xl;
+  }
+
+  /* Acento de texto en degradado, para una sola frase por página como mucho —
+     perder el efecto por sobreusarlo es peor que no tenerlo. */
+  .texto-degradado {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(90deg, theme('colors.brand.600'), theme('colors.brand.400'));
+  }
+}
+
+@layer utilities {
+  /* El editor de bloques usa contenteditable: sin esto un bloque vacío colapsa a
+     cero de alto y no hay dónde hacer clic para escribir. */
+  .bloque-vacio:empty::before {
+    content: attr(data-marcador);
+    @apply pointer-events-none text-ink/30;
+  }
+}
+
+/*
+ * Fondo animado de la landing (components/FondoAnimado.tsx): "Notiq" se escribe
+ * solo en bucle, con un lápiz que lo sigue.
+ *
+ * stroke-dasharray/stroke-dashoffset sobre el <text> es lo que crea el efecto de
+ * trazo: el navegador calcula el contorno de las letras como un path y se anima
+ * igual que cualquier otro trazo SVG. El valor de dasharray se deja generoso
+ * (3000) porque no se puede medir el contorno real de memoria: de sobra para
+ * cualquier tamaño de fuente razonable aquí, y un valor de más no se nota.
+ *
+ * Van fuera de @layer para que su especificidad no dependa del orden en que
+ * Tailwind purga/reordena las capas.
+ */
+.notiq-trazo {
+  fill: none;
+  stroke: #6829e0;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 3000;
+  stroke-dashoffset: 3000;
+  opacity: 0;
+  animation: notiq-trazar 6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+.notiq-lapiz {
+  opacity: 0;
+  offset-path: path('M -420 40 Q -250 -40 -80 30 T 260 20 T 430 40');
+  offset-rotate: 20deg;
+  animation: notiq-mover-lapiz 6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes notiq-trazar {
+  0% {
+    stroke-dashoffset: 3000;
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.4;
+  }
+  58% {
+    stroke-dashoffset: 0;
+    opacity: 0.4;
+  }
+  78% {
+    stroke-dashoffset: 0;
+    opacity: 0.4;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 3000;
+    opacity: 0;
+  }
+}
+
+@keyframes notiq-mover-lapiz {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.7;
+  }
+  58% {
+    offset-distance: 100%;
+    opacity: 0.7;
+  }
+  78% {
+    opacity: 0.7;
+  }
+  92% {
+    opacity: 0;
+  }
+  100% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+}
+
+.notiq-acento {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0.25;
+  filter: blur(1px);
+}
+.notiq-acento-1 {
+  top: 18%;
+  left: 12%;
+  width: 10px;
+  height: 10px;
+  background: #a3e635;
+  animation: notiq-flotar 9s ease-in-out infinite;
+}
+.notiq-acento-2 {
+  bottom: 22%;
+  right: 16%;
+  width: 14px;
+  height: 14px;
+  background: #6829e0;
+  animation: notiq-flotar 11s ease-in-out infinite reverse;
+}
+.notiq-acento-3 {
+  top: 65%;
+  left: 22%;
+  width: 8px;
+  height: 8px;
+  background: #a3e635;
+  animation: notiq-flotar 7s ease-in-out infinite;
+}
+
+@keyframes notiq-flotar {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+/* Quien pide menos movimiento en el sistema operativo, lo tiene: fondo estático
+   (invisible del todo, ya que su única función es moverse) en vez de forzar la
+   animación. */
+@media (prefers-reduced-motion: reduce) {
+  .notiq-trazo,
+  .notiq-lapiz,
+  .notiq-acento-1,
+  .notiq-acento-2,
+  .notiq-acento-3 {
+    animation: none;
+  }
+}

@@ -53,12 +53,14 @@ export const metadata: Metadata = {
     title: 'IAPyme — El marketplace de soluciones de IA para pymes',
     description:
       'Compra soluciones de IA listas para usar en 5 minutos. O vende las tuyas 1.000 veces sin dar soporte uno a uno.',
+    images: [{ url: '/og-cover.png', width: 1200, height: 630, alt: 'IAPyme' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'IAPyme — El marketplace de soluciones de IA para pymes',
     description:
       'El primer marketplace vertical de soluciones de IA en español.',
+    images: ['/og-cover.png'],
   },
   alternates: { canonical: '/' },
   manifest: '/manifest.webmanifest',
