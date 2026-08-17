@@ -13,6 +13,7 @@
  */
 const BASE_URL = (process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1').replace(/\/+$/, '');
 const ENDPOINT = `${BASE_URL}/chat/completions`;
+const ENDPOINT_RESPUESTAS = `${BASE_URL}/responses`;
 
 /** Barato y suficiente para resumir y extraer tareas. Ver README para los costes.
  * Con un servidor en local, aquí va el nombre del modelo que sirva ese servidor
@@ -93,6 +94,75 @@ export async function completar({
     choices?: { message?: { content?: string } }[];
   };
   const contenido = datos.choices?.[0]?.message?.content?.trim();
+
+  if (!contenido) throw new ErrorIA('La IA ha devuelto una respuesta vacía.');
+  return contenido;
+}
+
+/**
+ * Igual que `completar`, pero con el buscador web integrado de OpenAI disponible:
+ * el propio modelo decide en cada pregunta si necesita buscar en internet antes de
+ * responder (algo actual, un dato que no sabe de memoria...) o si le basta con el
+ * contexto que se le ha dado. Solo funciona contra la API real de OpenAI — los
+ * servidores compatibles en local (Ollama, LM Studio...) no exponen buscador, así
+ * que ahí se cae a `completar` sin más.
+ *
+ * Usa el endpoint /responses (no /chat/completions) porque el buscador integrado
+ * solo existe ahí. La forma de la respuesta es distinta a la de chat completions:
+ * un array `output` con los pasos que ha dado el modelo (llamadas al buscador,
+ * mensaje final...), así que hay que quedarse solo con el texto del mensaje.
+ */
+export async function completarConBusqueda({
+  mensajes,
+  temperatura = 0.4,
+  maxTokens = 1200,
+}: Omit<Opciones, 'json'>): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new ErrorIA('La IA no está configurada en este despliegue.', 503);
+  }
+
+  if (process.env.OPENAI_BASE_URL) {
+    return completar({ mensajes, temperatura, maxTokens });
+  }
+
+  let respuesta: Response;
+  try {
+    respuesta = await fetch(ENDPOINT_RESPUESTAS, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: MODELO,
+        input: mensajes,
+        tools: [{ type: 'web_search_preview' }],
+        temperature: temperatura,
+        max_output_tokens: maxTokens,
+      }),
+      signal: AbortSignal.timeout(90_000),
+    });
+  } catch {
+    throw new ErrorIA('No se ha podido contactar con el proveedor de IA.', 504);
+  }
+
+  if (!respuesta.ok) {
+    const estado = respuesta.status === 429 ? 429 : 502;
+    throw new ErrorIA('El proveedor de IA ha devuelto un error.', estado);
+  }
+
+  const datos = (await respuesta.json()) as {
+    output?: { type: string; content?: { type: string; text?: string }[] }[];
+  };
+
+  const contenido = datos.output
+    ?.filter((paso) => paso.type === 'message')
+    .flatMap((paso) => paso.content ?? [])
+    .filter((bloque) => bloque.type === 'output_text')
+    .map((bloque) => bloque.text ?? '')
+    .join('\n')
+    .trim();
 
   if (!contenido) throw new ErrorIA('La IA ha devuelto una respuesta vacía.');
   return contenido;

@@ -8,8 +8,25 @@ const SUGERENCIAS = [
   'Resume mis notas de esta semana',
   '¿Qué tareas tengo pendientes para el viernes?',
   '¿Qué decidimos en la última reunión?',
-  'Dame las tres cosas más urgentes que tengo',
+  'Búscame las últimas noticias sobre esto',
 ];
+
+/** Trocea un texto en fragmentos de texto plano y URLs, para poder pintar las URLs
+ * como enlaces clicables — hace falta sobre todo cuando el asistente cita fuentes
+ * de algo que ha buscado en internet. */
+function trocearConEnlaces(texto: string): (string | { url: string })[] {
+  const patronUrl = /https?:\/\/[^\s)]+/g;
+  const partes: (string | { url: string })[] = [];
+  let ultimoIndice = 0;
+  for (const coincidencia of texto.matchAll(patronUrl)) {
+    const indice = coincidencia.index ?? 0;
+    if (indice > ultimoIndice) partes.push(texto.slice(ultimoIndice, indice));
+    partes.push({ url: coincidencia[0] });
+    ultimoIndice = indice + coincidencia[0].length;
+  }
+  if (ultimoIndice < texto.length) partes.push(texto.slice(ultimoIndice));
+  return partes;
+}
 
 export default function Asistente() {
   const [turnos, setTurnos] = useState<Turno[]>([]);
@@ -59,8 +76,9 @@ export default function Asistente() {
         {turnos.length === 0 && (
           <div className="card p-6">
             <p className="text-sm text-ink/70">
-              Pregúntame sobre tus notas y tus tareas. Solo veo lo tuyo, y solo cuando
-              me preguntas.
+              Pregúntame sobre tus notas y tareas, o cualquier otra cosa — si hace falta,
+              busco en internet antes de responder. De tu contenido solo veo lo tuyo, y
+              solo cuando me preguntas.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {SUGERENCIAS.map((sugerencia) => (
@@ -89,7 +107,23 @@ export default function Asistente() {
                   : 'border border-ink/10 bg-white text-ink/85 shadow-card'
               }`}
             >
-              {turno.content}
+              {turno.role === 'assistant'
+                ? trocearConEnlaces(turno.content).map((parte, j) =>
+                    typeof parte === 'string' ? (
+                      <span key={j}>{parte}</span>
+                    ) : (
+                      <a
+                        key={j}
+                        href={parte.url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="text-brand-600 underline hover:text-brand-700"
+                      >
+                        {parte.url}
+                      </a>
+                    ),
+                  )
+                : turno.content}
             </div>
           </div>
         ))}
@@ -97,7 +131,7 @@ export default function Asistente() {
         {cargando && (
           <div className="flex justify-start">
             <div className="rounded-2xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink/45 shadow-card">
-              Leyendo tus notas…
+              Pensando…
             </div>
           </div>
         )}
@@ -121,7 +155,7 @@ export default function Asistente() {
         <input
           value={pregunta}
           onChange={(e) => setPregunta(e.target.value)}
-          placeholder="Pregunta sobre tus notas y tareas…"
+          placeholder="Pregúntame lo que sea…"
           aria-label="Pregunta"
           maxLength={1000}
           className="campo flex-1"

@@ -143,10 +143,20 @@ IA configurada y cuota del plan. Un par de decisiones a la vista:
   de una cuenta personal `websearch_to_tsquery` acierta lo suficiente y evita mantener
   embeddings al día en cada tecla del editor. Si la búsqueda no devuelve nada (una
   pregunta genérica tipo «resume mi semana»), cae a las notas recientes.
+- **El chat no está limitado a notas y tareas.** `SISTEMA_ASISTENTE` lo trata como una
+  IA de uso general con el añadido de conocer el contenido del usuario: responde
+  cualquier pregunta, y tiene el buscador integrado de OpenAI (`web_search_preview`,
+  vía `/v1/responses` en `completarConBusqueda`) disponible para cuando la pregunta
+  necesita algo actual o que el modelo no sabe de memoria — decide él mismo cuándo
+  buscar, no hace falta pedírselo. Solo funciona contra la API real de OpenAI; con
+  `OPENAI_BASE_URL` puesto (servidor local) cae a `completar` sin buscador, porque
+  esos servidores no lo exponen.
 
 Coste aproximado con `gpt-4o-mini` (0,15 $ por millón de tokens de entrada): un resumen
 de una nota larga ronda los 0,0002 $. Las 20 operaciones del plan gratuito cuestan
-menos de un céntimo al mes por usuario.
+menos de un céntimo al mes por usuario. El buscador web añade coste solo cuando el
+modelo decide usarlo (unos 0,025 $ por búsqueda a precios actuales de OpenAI), no en
+cada mensaje del chat.
 
 **Servidor de IA en local.** `OPENAI_BASE_URL` apunta el cliente a cualquier servidor
 compatible con la API de OpenAI (Ollama, LM Studio, llama.cpp, vLLM…) en vez de a

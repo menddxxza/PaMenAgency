@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { completar, type Mensaje } from '@/lib/ia/openai';
+import { completarConBusqueda, type Mensaje } from '@/lib/ia/openai';
 import { SISTEMA_ASISTENTE, bloqueDeContexto, hoyISO } from '@/lib/ia/prompts';
 import { prepararIa, respuestaDeError } from '@/lib/ia/handler';
 
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       .slice(-MAX_HISTORIAL)
       .map((m) => ({ role: m.role, content: m.content.slice(0, 2_000) }));
 
-    const respuesta = await completar({
+    const respuesta = await completarConBusqueda({
       mensajes: [
         { role: 'system', content: SISTEMA_ASISTENTE },
         ...historial,
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         },
       ],
       temperatura: 0.4,
-      maxTokens: 800,
+      maxTokens: 900,
     });
 
     return NextResponse.json({ respuesta });
