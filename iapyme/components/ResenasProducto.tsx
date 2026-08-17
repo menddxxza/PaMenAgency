@@ -161,7 +161,7 @@ export default function ResenasProducto({
               <div className="flex items-center gap-2">
                 <p className="font-bold">{resena.profiles?.display_name ?? 'Comprador'}</p>
                 <Estrellas puntuacion={resena.puntuacion} />
-                <p className="text-xs text-ink/45">{fechaRelativa(resena.created_at)}</p>
+                <p className="text-xs text-ink/60">{fechaRelativa(resena.created_at)}</p>
               </div>
               <p className="mt-1.5 whitespace-pre-line text-sm text-ink/75">
                 {resena.comentario}

@@ -26,7 +26,7 @@ export default async function MisProductos() {
     <div>
       <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">Mis productos</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Mis productos</h1>
           <p className="mt-1 text-sm text-ink/60">
             {productos.length} {productos.length === 1 ? 'ficha' : 'fichas'}
           </p>
@@ -69,7 +69,7 @@ export default async function MisProductos() {
 
                     <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-2 text-sm">
                       <div className="flex gap-1.5">
-                        <dt className="text-ink/45">Precio:</dt>
+                        <dt className="text-ink/60">Precio:</dt>
                         <dd className="font-semibold">
                           {precio.principal}
                           {precio.secundario ? (
@@ -78,15 +78,15 @@ export default async function MisProductos() {
                         </dd>
                       </div>
                       <div className="flex gap-1.5">
-                        <dt className="text-ink/45">Visitas:</dt>
+                        <dt className="text-ink/60">Visitas:</dt>
                         <dd className="font-semibold tabular-nums">{producto.view_count}</dd>
                       </div>
                       <div className="flex gap-1.5">
-                        <dt className="text-ink/45">Mensajes:</dt>
+                        <dt className="text-ink/60">Mensajes:</dt>
                         <dd className="font-semibold tabular-nums">{producto.lead_count}</dd>
                       </div>
                       <div className="flex gap-1.5">
-                        <dt className="text-ink/45">Conversión:</dt>
+                        <dt className="text-ink/60">Conversión:</dt>
                         <dd className="font-semibold tabular-nums">
                           {producto.view_count > 0
                             ? `${((producto.lead_count / producto.view_count) * 100).toFixed(1)} %`
@@ -94,7 +94,7 @@ export default async function MisProductos() {
                         </dd>
                       </div>
                       <div className="flex gap-1.5">
-                        <dt className="text-ink/45">Valoración:</dt>
+                        <dt className="text-ink/60">Valoración:</dt>
                         <dd className="font-semibold tabular-nums">
                           {producto.rating_total > 0
                             ? `${producto.rating_promedio.toFixed(1)} ★ (${producto.rating_total})`

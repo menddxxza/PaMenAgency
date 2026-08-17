@@ -26,7 +26,7 @@ export default async function BuscarPage({
       <Header />
 
       <main className="container-page py-10">
-        <h1 className="text-3xl font-extrabold tracking-tight">
+        <h1 className="text-3xl font-semibold tracking-tight">
           {filtros.q ? `Resultados para «${filtros.q}»` : 'Todas las soluciones'}
         </h1>
 

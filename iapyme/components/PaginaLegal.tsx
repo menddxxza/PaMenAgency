@@ -16,7 +16,7 @@ export default function PaginaLegal({
 
       <main className="container-page py-12">
         <div className="mx-auto max-w-2xl">
-          <h1 className="text-3xl font-extrabold tracking-tight">{titulo}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">{titulo}</h1>
           <p className="mt-2 text-sm text-ink/65">Última actualización: {actualizado}</p>
 
           <div className="mt-8 space-y-8 text-ink/80">{children}</div>

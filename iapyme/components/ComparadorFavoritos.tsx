@@ -29,7 +29,7 @@ export default function ComparadorFavoritos({
 
   return (
     <section className="card mt-8 p-6">
-      <h2 className="font-extrabold tracking-tight">Comparar favoritos</h2>
+      <h2 className="font-semibold tracking-tight">Comparar favoritos</h2>
       <p className="mt-1 text-sm text-ink/60">
         Elige hasta {MAX} para verlos uno junto al otro.
       </p>
@@ -94,7 +94,7 @@ export default function ComparadorFavoritos({
                 valores={elegidos.map((p) => NOMBRE_TIPO[p.product_type])}
               />
               <tr className="border-t border-ink/10">
-                <td className="w-32 py-3 text-xs font-bold uppercase tracking-wider text-ink/40">
+                <td className="w-32 py-3 text-xs font-bold uppercase tracking-wider text-ink/60">
                   Valoración
                 </td>
                 {elegidos.map((p) => (
@@ -105,7 +105,7 @@ export default function ComparadorFavoritos({
                         <span className="text-xs text-ink/50">({p.rating_total})</span>
                       </span>
                     ) : (
-                      <span className="text-ink/40">Sin reseñas</span>
+                      <span className="text-ink/60">Sin reseñas</span>
                     )}
                   </td>
                 ))}
@@ -127,7 +127,7 @@ export default function ComparadorFavoritos({
 function FilaComparacion({ etiqueta, valores }: { etiqueta: string; valores: string[] }) {
   return (
     <tr className="border-t border-ink/10">
-      <td className="w-32 py-3 text-xs font-bold uppercase tracking-wider text-ink/40">
+      <td className="w-32 py-3 text-xs font-bold uppercase tracking-wider text-ink/60">
         {etiqueta}
       </td>
       {valores.map((valor, i) => (

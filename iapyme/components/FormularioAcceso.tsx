@@ -106,7 +106,7 @@ export default function FormularioAcceso({
             <span aria-hidden>🇬</span> Continuar con Google
           </button>
 
-          <div className="my-6 flex items-center gap-3 text-xs text-ink/40">
+          <div className="my-6 flex items-center gap-3 text-xs text-ink/60">
             <span className="h-px flex-1 bg-ink/10" />o con tu email
             <span className="h-px flex-1 bg-ink/10" />
           </div>

@@ -42,7 +42,7 @@ export default async function ResumenPanel() {
     <div>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight">
             Hola, {perfil.display_name.split(' ')[0]}
           </h1>
           <p className="mt-1 text-sm text-ink/60">
@@ -95,7 +95,7 @@ export default async function ResumenPanel() {
       ) : (
         <section className="mt-10">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-extrabold tracking-tight">Tus fichas</h2>
+            <h2 className="font-semibold tracking-tight">Tus fichas</h2>
             <Link
               href="/dashboard/productos"
               className="text-sm font-medium text-brand-600 hover:underline"
@@ -106,7 +106,7 @@ export default async function ResumenPanel() {
 
           <div className="card mt-4 overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-ink/[0.02] text-xs uppercase tracking-wider text-ink/45">
+              <thead className="bg-ink/[0.02] text-xs uppercase tracking-wider text-ink/60">
                 <tr>
                   <th className="px-4 py-3 text-left font-bold">Producto</th>
                   <th className="px-4 py-3 text-left font-bold">Estado</th>
@@ -208,7 +208,7 @@ function ChecklistInicio({
               <span className="min-w-0">
                 <span
                   className={`block text-sm font-semibold ${
-                    paso.hecho ? 'text-ink/40 line-through' : 'text-ink'
+                    paso.hecho ? 'text-ink/55 line-through' : 'text-ink'
                   }`}
                 >
                   {paso.texto}
@@ -238,8 +238,8 @@ function Metrica({
 }) {
   return (
     <div className={`card p-5 ${destacar ? 'border-amber-300 bg-amber-50' : ''}`}>
-      <dt className="text-xs font-bold uppercase tracking-wider text-ink/45">{etiqueta}</dt>
-      <dd className="mt-1.5 text-2xl font-extrabold tracking-tight">{valor}</dd>
+      <dt className="text-xs font-bold uppercase tracking-wider text-ink/60">{etiqueta}</dt>
+      <dd className="mt-1.5 text-2xl font-semibold tracking-tight">{valor}</dd>
       {ayuda ? <p className="mt-1 text-xs text-ink/50">{ayuda}</p> : null}
     </div>
   );

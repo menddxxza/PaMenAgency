@@ -12,7 +12,7 @@ export default async function FavoritosPage() {
   return (
     <div>
       <header>
-        <h1 className="text-2xl font-extrabold tracking-tight">Mis favoritos</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Mis favoritos</h1>
         <p className="mt-1 text-sm text-ink/60">
           {productos.length === 0
             ? 'Las soluciones que guardes con el corazón aparecen aquí.'

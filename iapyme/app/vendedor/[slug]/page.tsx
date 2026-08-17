@@ -46,7 +46,7 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
           )}
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-extrabold tracking-tight">
+              <h1 className="text-2xl font-semibold tracking-tight">
                 {vendedor.display_name}
               </h1>
               {vendedor.is_verified ? (
@@ -76,12 +76,12 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
 
             <dl className="mt-5 flex gap-8">
               <div>
-                <dt className="text-xs uppercase tracking-wider text-ink/45">Soluciones</dt>
-                <dd className="mt-0.5 text-xl font-extrabold">{productos.length}</dd>
+                <dt className="text-xs uppercase tracking-wider text-ink/60">Soluciones</dt>
+                <dd className="mt-0.5 text-xl font-semibold">{productos.length}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wider text-ink/45">En IAPyme desde</dt>
-                <dd className="mt-0.5 text-xl font-extrabold">
+                <dt className="text-xs uppercase tracking-wider text-ink/60">En IAPyme desde</dt>
+                <dd className="mt-0.5 text-xl font-semibold">
                   {new Date(vendedor.created_at).getFullYear()}
                 </dd>
               </div>
@@ -90,7 +90,7 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
         </header>
 
         <section className="mt-12">
-          <h2 className="text-lg font-extrabold tracking-tight">Sus soluciones</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Sus soluciones</h2>
           {productos.length > 0 ? (
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {productos.map((producto) => (

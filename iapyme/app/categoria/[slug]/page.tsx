@@ -64,14 +64,14 @@ export default async function CategoriaPage({
             {categoria.icono}
           </span>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">{categoria.nombre}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">{categoria.nombre}</h1>
             <p className="mt-1 text-ink/65">{categoria.descripcion}</p>
           </div>
         </header>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[220px_1fr]">
           <aside>
-            <h2 className="text-xs font-bold uppercase tracking-wider text-ink/40">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-ink/60">
               Categorías
             </h2>
             <ul className="mt-3 space-y-0.5">

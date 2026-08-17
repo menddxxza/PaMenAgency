@@ -62,7 +62,7 @@ export default function AccionesFicha({
               ejecutar(() => archivarProducto(id));
             }
           }}
-          className="text-xs font-medium text-ink/45 hover:text-red-600 disabled:opacity-60"
+          className="text-xs font-medium text-ink/60 hover:text-red-600 disabled:opacity-60"
         >
           Archivar
         </button>
