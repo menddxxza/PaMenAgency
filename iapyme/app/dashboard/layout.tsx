@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import Logo from '@/components/Logo';
 import NavPanel from '@/components/NavPanel';
-import { getPerfilActual } from '@/lib/supabase/server';
+import { createClient, getPerfilActual } from '@/lib/supabase/server';
 import { supabaseConfigurado } from '@/lib/supabase/config';
 import AvisoSinSupabase from '@/components/AvisoSinSupabase';
 
@@ -22,6 +22,15 @@ export default async function DashboardLayout({
   const perfil = await getPerfilActual();
   if (!perfil) redirect('/entrar?volver=/dashboard');
 
+  const supabase = createClient();
+  const { count: mensajesSinLeer } = supabase
+    ? await supabase
+        .from('leads')
+        .select('id', { count: 'exact', head: true })
+        .eq('seller_id', perfil.id)
+        .eq('status', 'new')
+    : { count: 0 };
+
   return (
     <div className="min-h-screen bg-ink/[0.02]">
       <div className="mx-auto flex w-full max-w-7xl flex-col lg:flex-row">
@@ -30,7 +39,7 @@ export default async function DashboardLayout({
             <Logo />
           </Link>
 
-          <NavPanel esAdmin={perfil.role === 'admin'} />
+          <NavPanel esAdmin={perfil.role === 'admin'} mensajesSinLeer={mensajesSinLeer ?? 0} />
 
           <div className="mt-8 border-t border-ink/10 px-2 pt-5">
             <p className="truncate text-sm font-semibold">{perfil.display_name}</p>

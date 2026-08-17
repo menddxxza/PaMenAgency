@@ -34,14 +34,23 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
 
       <main className="container-page py-12">
         <header className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <div className="h-16 w-16 shrink-0 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500" />
+          {vendedor.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={vendedor.avatar_url}
+              alt=""
+              className="h-16 w-16 shrink-0 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="h-16 w-16 shrink-0 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500" />
+          )}
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-extrabold tracking-tight">
+              <h1 className="text-2xl font-semibold tracking-tight">
                 {vendedor.display_name}
               </h1>
               {vendedor.is_verified ? (
-                <span className="rounded-full bg-accent-500/15 px-2.5 py-1 text-xs font-bold text-accent-600">
+                <span className="rounded-full bg-accent-500/15 px-2.5 py-1 text-xs font-bold text-accent-700">
                   ✓ Verificado
                 </span>
               ) : null}
@@ -67,12 +76,12 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
 
             <dl className="mt-5 flex gap-8">
               <div>
-                <dt className="text-xs uppercase tracking-wider text-ink/45">Soluciones</dt>
-                <dd className="mt-0.5 text-xl font-extrabold">{productos.length}</dd>
+                <dt className="text-xs uppercase tracking-wider text-ink/60">Soluciones</dt>
+                <dd className="mt-0.5 text-xl font-semibold">{productos.length}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wider text-ink/45">En IAPyme desde</dt>
-                <dd className="mt-0.5 text-xl font-extrabold">
+                <dt className="text-xs uppercase tracking-wider text-ink/60">En IAPyme desde</dt>
+                <dd className="mt-0.5 text-xl font-semibold">
                   {new Date(vendedor.created_at).getFullYear()}
                 </dd>
               </div>
@@ -81,7 +90,7 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
         </header>
 
         <section className="mt-12">
-          <h2 className="text-lg font-extrabold tracking-tight">Sus soluciones</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Sus soluciones</h2>
           {productos.length > 0 ? (
             <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {productos.map((producto) => (

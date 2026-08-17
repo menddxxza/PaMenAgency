@@ -1,0 +1,56 @@
+[
+  {
+    "date": "2026-08-14",
+    "verb": "redesign",
+    "genre": "editorial",
+    "macrostructure": "Long Measure",
+    "theme": "Cobalt",
+    "theme_axes": "papel claro / display serif de alto contraste / acento azul frío",
+    "nav": "marketplace canónico (marca · buscador · acciones)",
+    "footer": "declaración + navegación compacta",
+    "enrichment": "none (tipografía y espacio)",
+    "brief": "IAPyme · segunda pasada: más elegante y profesional, registro editorial, manteniendo el azul de marca"
+  },
+  {
+    "date": "2026-08-14",
+    "verb": "redesign",
+    "genre": "modern-minimal",
+    "macrostructure": "Split Workbench",
+    "theme": "Cobalt",
+    "theme_axes": "papel claro / display grotesk / acento azul frío",
+    "nav": "marketplace canónico (marca · buscador · acciones)",
+    "footer": "declaración + navegación compacta",
+    "enrichment": "none (tipografía y retícula)",
+    "brief": "IAPyme · marketplace de soluciones de IA para pymes — rediseño elegante, profesional, con movimiento notable al pasar el ratón"
+  },
+  {
+    "date": "2026-08-17",
+    "verb": "redesign",
+    "scope": "fase 1: sistema + home + header/footer (resto de páginas pendiente de fase 2)",
+    "genre": "modern-minimal",
+    "macrostructure": "Product Rail",
+    "theme": "Cobalt refinado",
+    "theme_axes": "papel claro / display grotesk (ya no serif) / acento azul frío / radios más contenidos / sin fondos animados",
+    "nav": "marketplace canónico (marca · buscador · acciones) — cromo sólido, sin glassmorphism",
+    "footer": "declaración + navegación compacta (sin cambios estructurales, solo peso tipográfico)",
+    "enrichment": "escaparate de catálogo real en el hero (EscaparateProducto), no ilustración genérica",
+    "diverge_de_pasadas_previas_en": "estilo de display (serif → sans/grotesk), composición del hero (índice editorial → producto visible), eliminación de fondo animado con blobs",
+    "critica_previa": "P5 H4 E5 S5 R5 V5",
+    "nota_entorno": "el directorio references/ del skill Hallmark no está materializado en este entorno (solo SKILL.md); build guiado por las reglas inline del skill + criterio senior",
+    "brief": "IAPyme · rediseño completo pedido por el usuario para eliminar cualquier apariencia 'hecha por IA': sin gradientes/blobs/glassmorphism/iconos genéricos, tipografía como protagonista, mostrar el producto real, calidad de referencia Linear/Stripe/Notion/Vercel"
+  },
+  {
+    "date": "2026-08-17",
+    "verb": "redesign",
+    "scope": "fase 2: extiende el sistema de fase 1 al resto de la app (~22 páginas: catálogo, ficha, categoría, vendedor, dashboard, admin, entrar, validación, legales)",
+    "genre": "modern-minimal",
+    "macrostructure": "Product Rail (heredada de fase 1, sin macroestructura nueva)",
+    "theme": "Cobalt refinado",
+    "cambios_sistemicos": "font-extrabold → font-semibold en cabeceras de página en toda la app (consistencia con el peso ya fijado en home/footer); barrido de contraste text-ink/35–45 → /60 en etiquetas, dt/dd y texto secundario real (dashboard, admin, ficha, vendedor, componentes compartidos); eliminados los dos únicos fondos con blobs que quedaban (/entrar, /validacion) y su glassmorphism de cabecera (HeaderLanding); dl decorativo del hero de /validacion pasa a texto plano donde aplica",
+    "nota": "la mayoría de páginas ya heredaban los cambios globales de fase 1 (tipografía Inter, sin fondo animado, header/footer sólidos) por venir de layout.tsx/globals.css/tailwind.config.ts compartidos; fase 2 fue sobre todo un barrido de consistencia página por página, no una reconstrucción",
+    "critica_previa": "P5 H4 E5 S5 R5 V4 (V4: misma macroestructura que fase 1 por diseño, es una extensión de sistema, no una pasada nueva)",
+    "verificacion": "typecheck y build limpios; axe-core 0 violaciones en las 12 rutas verificables sin datos reales de Supabase (/, /categorias, /como-funciona, /blog, /entrar, /buscar, /legal/*, /validacion, /dashboard, /admin); sin overflow ni errores de consola en 1440/768/375px",
+    "nota_entorno": "dashboard, admin, ficha de producto y vendedor solo se verificaron en su estado 'sin Supabase configurado' — su interfaz con datos reales no se pudo renderizar en este entorno",
+    "brief": "continuación aprobada por el usuario ('fase 2') del rediseño completo de IAPymeApp: extender el sistema de diseño de fase 1 al resto de la aplicación"
+  }
+]

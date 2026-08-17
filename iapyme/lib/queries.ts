@@ -1,7 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import { createPublicClient } from '@/lib/supabase/public';
-import type { Category, ProductoConRelaciones, Profile } from '@/lib/database.types';
+import type {
+  Category,
+  ProductoConRelaciones,
+  Profile,
+  ResenaConAutor,
+} from '@/lib/database.types';
 import { CATEGORIAS } from '@/lib/categorias';
+import { expandirBusqueda } from '@/lib/groq';
 
 /** Columnas de producto + categoría + vendedor, para las tarjetas y la ficha. */
 const SELECT_PRODUCTO = `
@@ -105,6 +111,76 @@ export async function getProductos(
   return (data ?? []) as unknown as ProductoConRelaciones[];
 }
 
+/**
+ * Como getProductos, pero cuando una búsqueda de texto encuentra poco o nada,
+ * le pide a Groq términos relacionados y hace una segunda pasada con ellos.
+ * Solo para la página de búsqueda: es la única que quiere mostrar al usuario
+ * que el resultado se ha ampliado con IA.
+ */
+export async function getProductosConAmpliacion(
+  filtros: FiltrosCatalogo = {},
+  limite = 24,
+): Promise<{ productos: ProductoConRelaciones[]; ampliadoConIA: boolean }> {
+  const productos = await getProductos(filtros, limite);
+  const termino = filtros.q?.trim();
+
+  if (!termino || productos.length >= 3) {
+    return { productos, ampliadoConIA: false };
+  }
+
+  const terminosRelacionados = await expandirBusqueda(termino);
+  if (!terminosRelacionados?.length) {
+    return { productos, ampliadoConIA: false };
+  }
+
+  const supabase = createPublicClient();
+  if (!supabase) return { productos, ampliadoConIA: false };
+
+  const orAmpliado = terminosRelacionados
+    .map((t) => t.replace(/[,()]/g, ' ').trim())
+    .filter(Boolean)
+    .map((t) => `titulo.ilike.%${t}%,tagline.ilike.%${t}%,problema.ilike.%${t}%`)
+    .join(',');
+
+  if (!orAmpliado) return { productos, ampliadoConIA: false };
+
+  let consultaAmpliada = supabase
+    .from('products')
+    .select(SELECT_PRODUCTO)
+    .eq('status', 'published')
+    .or(orAmpliado)
+    .limit(limite);
+
+  // Reaplicamos los filtros no textuales para no colar resultados fuera de
+  // precio, idioma o categoría solo porque encajan con un término ampliado.
+  if (filtros.categoria) {
+    const categoria = await getCategoria(filtros.categoria);
+    if (categoria) consultaAmpliada = consultaAmpliada.eq('category_id', categoria.id);
+  }
+  if (filtros.idioma) consultaAmpliada = consultaAmpliada.eq('idioma_producto', filtros.idioma);
+  if (filtros.minutosMax) {
+    consultaAmpliada = consultaAmpliada.lte('minutos_instalacion', filtros.minutosMax);
+  }
+  if (filtros.precioMax) consultaAmpliada = consultaAmpliada.lte('precio_setup', filtros.precioMax);
+
+  const { data, error } = await consultaAmpliada;
+  if (error || !data?.length) {
+    return { productos, ampliadoConIA: false };
+  }
+
+  const vistos = new Set(productos.map((p) => p.id));
+  const ampliados = (data as unknown as ProductoConRelaciones[]).filter((p) => !vistos.has(p.id));
+
+  if (ampliados.length === 0) {
+    return { productos, ampliadoConIA: false };
+  }
+
+  return {
+    productos: [...productos, ...ampliados].slice(0, limite),
+    ampliadoConIA: true,
+  };
+}
+
 export async function getDestacados(limite = 4): Promise<ProductoConRelaciones[]> {
   const supabase = createPublicClient();
   if (!supabase) return [];
@@ -118,6 +194,29 @@ export async function getDestacados(limite = 4): Promise<ProductoConRelaciones[]
     .limit(limite);
 
   return (data ?? []) as unknown as ProductoConRelaciones[];
+}
+
+/** Productos guardados por el usuario con sesión, para "Mis favoritos" en el panel. */
+export async function getFavoritos(): Promise<ProductoConRelaciones[]> {
+  const supabase = createClient();
+  if (!supabase) return [];
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data } = await supabase
+    .from('favorites')
+    .select(`product_id, products ( ${SELECT_PRODUCTO} )`)
+    .eq('buyer_id', user.id)
+    .order('created_at', { ascending: false });
+
+  // Un producto ya no visible por RLS (archivado, o del propio vendedor visto
+  // por otra persona) llega como products: null. Se descarta en vez de romper.
+  return ((data ?? []) as unknown as { products: ProductoConRelaciones | null }[])
+    .map((fila) => fila.products)
+    .filter((p): p is ProductoConRelaciones => p !== null);
 }
 
 /**
@@ -183,6 +282,45 @@ export async function getConteoPorCategoria(): Promise<Record<string, number>> {
     conteo[id] = (conteo[id] ?? 0) + 1;
   }
   return conteo;
+}
+
+/** Reseñas de un producto, con el autor resuelto, más recientes primero. */
+export async function getResenas(productId: string): Promise<ResenaConAutor[]> {
+  const supabase = createPublicClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*, profiles ( display_name, avatar_url )')
+    .eq('product_id', productId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[queries] getResenas:', error.message);
+    return [];
+  }
+
+  return (data ?? []) as unknown as ResenaConAutor[];
+}
+
+/** Si el usuario con sesión ya dejó una reseña en este producto (para no duplicar el formulario). */
+export async function getMiResena(productId: string): Promise<ResenaConAutor | null> {
+  const supabase = createClient();
+  if (!supabase) return null;
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data } = await supabase
+    .from('reviews')
+    .select('*, profiles ( display_name, avatar_url )')
+    .eq('product_id', productId)
+    .eq('buyer_id', user.id)
+    .maybeSingle();
+
+  return (data as unknown as ResenaConAutor) ?? null;
 }
 
 /**

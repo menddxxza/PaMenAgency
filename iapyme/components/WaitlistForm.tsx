@@ -162,7 +162,7 @@ export default function WaitlistForm({
         {estado === 'enviando' ? 'Enviando…' : 'Entrar en la lista de espera'}
       </button>
 
-      <p className="mt-3 text-center text-xs text-ink/50">
+      <p className="mt-3 text-center text-xs text-ink/60">
         Sin spam. Solo te escribimos cuando abramos el acceso.
       </p>
     </form>

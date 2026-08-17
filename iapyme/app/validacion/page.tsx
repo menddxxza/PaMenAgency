@@ -73,31 +73,16 @@ export default function Home() {
 
       <main>
         {/* Hero */}
-        <section className="relative overflow-hidden bg-ink text-white">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full
-                       bg-brand-600/30 blur-3xl"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-52 -left-24 h-[28rem] w-[28rem] rounded-full
-                       bg-accent-500/20 blur-3xl"
-          />
-
-          <div className="container-page relative grid gap-12 py-20 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-28">
+        <section className="border-b border-ink/10 bg-ink text-white">
+          <div className="container-page grid gap-12 py-20 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:py-28">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent-400" />
                 En fase de validación · Plazas de vendedor fundador limitadas
               </p>
 
-              <h1 className="mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-                El marketplace de{' '}
-                <span className="bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent">
-                  soluciones de IA
-                </span>{' '}
-                para pymes
+              <h1 className="mt-6 max-w-[16ch] text-display-s font-semibold leading-[1.12]">
+                El marketplace de soluciones de IA para pymes
               </h1>
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/75">
@@ -118,27 +103,25 @@ export default function Home() {
                 </a>
               </div>
 
-              <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/10 pt-8">
+              <div className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/10 pt-8">
                 <div>
-                  <dt className="text-xs uppercase tracking-wider text-white/50">Categorías</dt>
-                  <dd className="mt-1 text-2xl font-extrabold">10</dd>
+                  <p className="text-xs uppercase tracking-wider text-white/60">Categorías</p>
+                  <p className="dato mt-1 text-2xl font-semibold">10</p>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wider text-white/50">Puesta en marcha</dt>
-                  <dd className="mt-1 text-2xl font-extrabold">&lt; 1 h</dd>
+                  <p className="text-xs uppercase tracking-wider text-white/60">Puesta en marcha</p>
+                  <p className="dato mt-1 text-2xl font-semibold">&lt; 1 h</p>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wider text-white/50">Idioma</dt>
-                  <dd className="mt-1 text-2xl font-extrabold">Español</dd>
+                  <p className="text-xs uppercase tracking-wider text-white/60">Idioma</p>
+                  <p className="dato mt-1 text-2xl font-semibold">Español</p>
                 </div>
-              </dl>
+              </div>
             </div>
 
             <div className="lg:pl-4">
-              <div className="rounded-2xl border border-white/15 bg-white/[0.06] p-2 backdrop-blur">
-                <div className="rounded-xl bg-white p-1 text-ink">
-                  <WaitlistForm origen="hero" />
-                </div>
+              <div className="rounded-xl border border-white/15 bg-white p-1 text-ink">
+                <WaitlistForm origen="hero" />
               </div>
             </div>
           </div>
@@ -149,7 +132,7 @@ export default function Home() {
           <div className="container-page">
             <div className="mx-auto max-w-3xl text-center">
               <p className="eyebrow">Por qué existe IAPyme</p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
                 Buscamos dónde vender un agente de IA en español. No existía.
               </h2>
               <p className="mt-4 text-lg text-ink/70">
@@ -178,7 +161,7 @@ export default function Home() {
         <section id="categorias" className="py-20">
           <div className="container-page">
             <p className="eyebrow">Categorías verticales</p>
-            <h2 className="mt-3 max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
               Soluciones organizadas por sector, no por tecnología
             </h2>
             <p className="mt-4 max-w-2xl text-lg text-ink/70">
@@ -209,7 +192,7 @@ export default function Home() {
         <section id="productos" className="border-y border-ink/10 bg-ink/[0.02] py-20">
           <div className="container-page">
             <p className="eyebrow">Catálogo de salida</p>
-            <h2 className="mt-3 max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
               Las 5 primeras soluciones, ya construidas
             </h2>
             <p className="mt-4 max-w-2xl text-lg text-ink/70">
@@ -234,7 +217,7 @@ export default function Home() {
           <div className="container-page grid gap-12 lg:grid-cols-2">
             <div>
               <p className="eyebrow">Si compras</p>
-              <h2 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
                 Una solución de IA en 5 minutos, sin contratar a nadie
               </h2>
               <ol className="mt-8 space-y-6">
@@ -254,7 +237,7 @@ export default function Home() {
 
             <div id="vender" className="scroll-mt-20">
               <p className="eyebrow">Si vendes</p>
-              <h2 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
                 Sube tu proyecto una vez y véndelo mil
               </h2>
               <ol className="mt-8 space-y-6">
@@ -287,7 +270,7 @@ export default function Home() {
           <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="eyebrow text-brand-300">Acceso anticipado</p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
                 Esto se construye si hay gente al otro lado
               </h2>
               <p className="mt-4 text-lg text-white/75">
@@ -321,7 +304,7 @@ export default function Home() {
         <section id="faq" className="py-20">
           <div className="container-page max-w-3xl">
             <p className="eyebrow">Preguntas</p>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
               Lo que nos preguntáis
             </h2>
 

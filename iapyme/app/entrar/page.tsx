@@ -22,7 +22,7 @@ export default function EntrarPage({
             <Logo />
           </Link>
 
-          <h1 className="mt-10 text-2xl font-extrabold tracking-tight">
+          <h1 className="mt-10 text-2xl font-semibold tracking-tight">
             {searchParams.registro ? 'Crea tu cuenta' : 'Entra en IAPyme'}
           </h1>
           <p className="mt-2 text-sm text-ink/65">
@@ -42,14 +42,10 @@ export default function EntrarPage({
         </div>
       </div>
 
-      <aside className="relative hidden overflow-hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-center">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -right-24 -top-32 h-[26rem] w-[26rem] rounded-full bg-brand-600/40 blur-3xl"
-        />
-        <div className="relative max-w-md">
+      <aside className="hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-center">
+        <div className="max-w-md">
           <p className="eyebrow text-brand-300">Vendedores</p>
-          <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight">
+          <h2 className="mt-3 text-3xl font-semibold leading-tight tracking-tight">
             Sube tu proyecto una vez y véndelo mil
           </h2>
           <p className="mt-4 text-white/70">

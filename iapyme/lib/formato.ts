@@ -41,6 +41,34 @@ export function precioResumido(producto: Pick<
   }
 }
 
+/** Fecha relativa breve en español, para reseñas y actividad reciente. */
+export function fechaRelativa(iso: string): string {
+  const segundos = (Date.now() - new Date(iso).getTime()) / 1000;
+  const tramos: [number, Intl.RelativeTimeFormatUnit][] = [
+    [60, 'second'],
+    [60, 'minute'],
+    [24, 'hour'],
+    [30, 'day'],
+    [12, 'month'],
+    [Infinity, 'year'],
+  ];
+
+  const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+  let valor = segundos;
+  let unidad: Intl.RelativeTimeFormatUnit = 'second';
+
+  for (const [limite, siguiente] of tramos) {
+    if (Math.abs(valor) < limite) {
+      unidad = siguiente;
+      break;
+    }
+    valor /= limite;
+    unidad = siguiente;
+  }
+
+  return rtf.format(-Math.round(valor), unidad);
+}
+
 export const NOMBRE_TIPO: Record<Product['product_type'], string> = {
   automation: 'Automatización',
   agent: 'Agente de IA',
