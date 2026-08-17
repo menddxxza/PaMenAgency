@@ -245,7 +245,16 @@ export default async function FichaProducto({ params }: { params: { slug: string
                   Lo vende
                 </p>
                 <div className="mt-3 flex items-center gap-3">
-                  <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-brand-500 to-accent-500" />
+                  {vendedor.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={vendedor.avatar_url}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-brand-500 to-accent-500" />
+                  )}
                   <div className="min-w-0">
                     <p className="truncate font-bold">{vendedor.display_name}</p>
                     {vendedor.is_verified ? (
