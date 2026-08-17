@@ -52,65 +52,69 @@ export default async function Home() {
       <Header />
 
       <main>
-        {/* ---- Portada: copy a la izquierda, el catálogo real a la derecha.
-            Nada de ilustración de IA genérica — lo que se ve es la propia
-            interfaz del producto, con datos reales del catálogo. ---- */}
-        <section className="border-b border-ink/10">
-          <div className="container-page grid gap-10 py-12 sm:py-16 lg:grid-cols-[1fr_0.92fr] lg:items-center lg:gap-16 lg:py-24">
-            <div>
+        {/* ---- Portada: fondo oscuro a todo lo ancho (mismo tono que el
+            footer y "entrar" — no es un color nuevo en el sistema), titular
+            arriba, catálogo real como franja horizontal debajo. Nada de
+            ilustración de IA genérica ni tarjeta flotante al lado. ---- */}
+        <section className="border-b border-ink/10 bg-ink text-white">
+          <div className="container-page py-14 sm:py-20 lg:py-24">
+            <div className="max-w-2xl">
               {/* 17ch parte el titular en dos líneas limpias en vez de dejar
                   "usar" huérfano en una tercera. */}
-              <h1 className="max-w-[15ch] text-display font-semibold text-ink">
+              <h1 className="max-w-[15ch] text-display font-semibold">
                 Soluciones de IA listas para usar
               </h1>
 
-              <p className="mt-5 max-w-[42ch] text-lg leading-relaxed text-ink/60">
+              <p className="mt-5 max-w-[42ch] text-lg leading-relaxed text-white/70">
                 Automatizaciones, agentes y bots hechos por otras pymes españolas.
                 Instalación en horas, no en proyectos de meses.
               </p>
 
               <div className="mt-9 max-w-xl">
-                <Buscador />
+                <Buscador oscuro />
               </div>
 
               {/* Franja de cifras decorativa, no una lista de datos real:
                   por eso son <div>/<span> planos y no <dl>. */}
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink/60">
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/60">
                 <span className="flex items-baseline gap-1.5">
-                  <span className="dato font-semibold text-ink">{categorias.length}</span>
+                  <span className="dato font-semibold text-white">{categorias.length}</span>
                   sectores
                 </span>
-                <span aria-hidden className="h-3 w-px bg-ink/15" />
+                <span aria-hidden className="h-3 w-px bg-white/15" />
                 <span className="flex items-baseline gap-1.5">
-                  <span className="dato font-semibold text-ink">0%</span>
+                  <span className="dato font-semibold text-white">0%</span>
                   comisión
                 </span>
                 {totalSoluciones > 0 ? (
                   <>
-                    <span aria-hidden className="h-3 w-px bg-ink/15" />
+                    <span aria-hidden className="h-3 w-px bg-white/15" />
                     <span className="flex items-baseline gap-1.5">
-                      <span className="dato font-semibold text-ink">{totalSoluciones}</span>
+                      <span className="dato font-semibold text-white">{totalSoluciones}</span>
                       {totalSoluciones === 1 ? 'solución' : 'soluciones'}
                     </span>
                   </>
                 ) : null}
               </div>
 
-              <p className="mt-6 text-sm text-ink/65">
+              <p className="mt-6 text-sm text-white/70">
                 ¿Tienes algo que vender?{' '}
                 <Link
                   href="/entrar?registro=1"
-                  className="font-medium text-ink underline decoration-ink/25
+                  className="font-medium text-white underline decoration-white/30
                              decoration-1 underline-offset-4
-                             transition-colors duration-fast ease-out hover:text-brand-700
-                             hover:decoration-brand-600"
+                             transition-colors duration-fast ease-out hover:text-brand-300
+                             hover:decoration-brand-300"
                 >
                   Publícalo gratis
                 </Link>
               </p>
             </div>
 
-            {/* Escaparate real: el propio catálogo, no una maqueta. Si
+            {/* Escaparate real: el propio catálogo, no una maqueta. Franja
+                horizontal a todo lo ancho, no una tarjeta flotante — sigue
+                siendo el mismo componente del hero, solo que ahora se lee
+                como continuación de la página, no como un widget aparte. Si
                 todavía no hay nada publicado, el hueco lo dice tal cual —
                 nunca una cifra o una ficha inventada. */}
             <Reveal delay={80}>
@@ -319,95 +323,90 @@ function EscaparateProducto({ productos }: { productos: ProductoConRelaciones[] 
   const items = productos.slice(0, 3);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-ink/10 bg-white shadow-quiet lg:shadow-lift">
-      <div className="flex items-center justify-between border-b border-ink/10 px-5 py-3.5">
-        <p className="dato text-xs font-medium text-ink/60">Catálogo</p>
+    <div className="mt-14 border-t border-white/10 pt-10 sm:mt-16 sm:pt-12">
+      <div className="flex items-center justify-between">
+        <p className="dato text-xs font-medium text-white/50">Catálogo</p>
         {items.length > 0 ? (
-          <span className="flex items-center gap-1.5 text-xs text-ink/60">
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent-500" />
+          <span className="flex items-center gap-1.5 text-xs text-white/50">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent-400" />
             recién publicadas
           </span>
-        ) : null}
+        ) : (
+          <Link
+            href="/entrar?registro=1"
+            className="group inline-flex items-center gap-1.5 text-xs font-medium text-white/70
+                       transition-colors duration-fast ease-out hover:text-white"
+          >
+            Publicar el primero
+            <Icono
+              nombre="flecha"
+              className="h-3 w-3 transition-transform duration-base ease-out group-hover:translate-x-1"
+            />
+          </Link>
+        )}
       </div>
 
       {items.length > 0 ? (
-        <ul>
-          {items.map((producto, i) => {
+        <ul className="mt-5 grid gap-3 sm:grid-cols-3">
+          {items.map((producto) => {
             const precio = precioResumido(producto);
             return (
-              <li key={producto.id} className={i > 0 ? 'border-t border-ink/10' : ''}>
+              <li key={producto.id}>
                 <Link
                   href={`/p/${producto.slug}`}
-                  className="group flex items-center gap-4 px-5 py-4
-                             transition-colors duration-fast ease-out hover:bg-ink/[0.025]
+                  className="group block rounded-lg border border-white/10 bg-white/[0.04] p-4
+                             transition-colors duration-fast ease-out hover:border-white/20 hover:bg-white/[0.07]
                              focus:outline-none focus-visible:relative focus-visible:z-10
-                             focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-inset"
+                             focus-visible:ring-2 focus-visible:ring-brand-400"
                 >
-                  <span
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-lg"
-                    aria-hidden
-                  >
-                    {producto.categories?.icono ?? '·'}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="truncate font-display text-[15px] font-medium text-ink transition-colors duration-fast ease-out group-hover:text-brand-700">
-                        {producto.titulo}
-                      </span>
-                      {producto.rating_total > 0 ? (
-                        <Estrellas puntuacion={producto.rating_promedio} tamano="text-[0.65rem]" />
-                      ) : null}
+                  <div className="flex items-center justify-between gap-3">
+                    <span
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-base"
+                      aria-hidden
+                    >
+                      {producto.categories?.icono ?? '·'}
                     </span>
-                    <span className="mt-0.5 flex items-center gap-2 text-xs text-ink/60">
-                      <span className="truncate">{producto.categories?.nombre}</span>
-                      <span aria-hidden>·</span>
-                      <span className="shrink-0">
-                        {tiempoInstalacion(producto.minutos_instalacion)}
-                      </span>
+                    <span className="dato shrink-0 text-sm font-medium text-white">
+                      {precio.principal}
                     </span>
-                  </span>
-                  <span className="dato shrink-0 text-sm font-medium text-ink">
-                    {precio.principal}
-                  </span>
+                  </div>
+
+                  <p className="mt-3 flex items-center gap-2">
+                    <span className="truncate font-display text-[15px] font-medium text-white transition-colors duration-fast ease-out group-hover:text-brand-300">
+                      {producto.titulo}
+                    </span>
+                    {producto.rating_total > 0 ? (
+                      <Estrellas puntuacion={producto.rating_promedio} tamano="text-[0.65rem]" />
+                    ) : null}
+                  </p>
+                  <p className="mt-1 flex items-center gap-2 text-xs text-white/55">
+                    <span className="truncate">{producto.categories?.nombre}</span>
+                    <span aria-hidden>·</span>
+                    <span className="shrink-0">{tiempoInstalacion(producto.minutos_instalacion)}</span>
+                  </p>
                 </Link>
               </li>
             );
           })}
         </ul>
       ) : (
-        <div className="px-6 py-10 text-center">
-          <p className="font-display text-base font-medium text-ink">
-            Todavía no hay nada publicado
-          </p>
-          <p className="mx-auto mt-1.5 max-w-[30ch] text-sm leading-relaxed text-ink/65">
-            Los primeros vendedores salen destacados aquí mismo.
-          </p>
-          <Link
-            href="/entrar?registro=1"
-            className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium
-                       text-brand-700 transition-colors duration-fast ease-out hover:text-brand-800"
-          >
-            Publicar el primero
-            <Icono nombre="flecha" className="h-4 w-4" />
-          </Link>
-        </div>
+        <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-white/55">
+          Todavía no hay nada publicado. Los primeros vendedores salen destacados aquí mismo.
+        </p>
       )}
 
       {items.length > 0 ? (
-        <div className="border-t border-ink/10 px-5 py-3.5">
-          <Link
-            href="/buscar"
-            className="group inline-flex items-center gap-1.5 text-sm font-medium text-ink/60
-                       transition-colors duration-fast ease-out hover:text-brand-700"
-          >
-            Ver el catálogo completo
-            <Icono
-              nombre="flecha"
-              className="h-3.5 w-3.5 transition-transform duration-base ease-out
-                         group-hover:translate-x-1"
-            />
-          </Link>
-        </div>
+        <Link
+          href="/buscar"
+          className="group mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-white/70
+                     transition-colors duration-fast ease-out hover:text-white"
+        >
+          Ver el catálogo completo
+          <Icono
+            nombre="flecha"
+            className="h-3.5 w-3.5 transition-transform duration-base ease-out group-hover:translate-x-1"
+          />
+        </Link>
       ) : null}
     </div>
   );
