@@ -17,7 +17,14 @@ export default async function VendedoresAdminPage() {
   if (perfil.role !== 'admin') redirect('/dashboard');
 
   const [{ data: vendedores }, { data: productos }] = await Promise.all([
-    supabase.from('profiles').select('*').eq('role', 'seller').order('created_at', { ascending: false }),
+    // in() en vez de eq('role', 'seller'): un admin que también venda no
+    // debe quedar fuera solo por su rol — necesita poder verificarse a sí
+    // mismo igual que a cualquier otro vendedor.
+    supabase
+      .from('profiles')
+      .select('*')
+      .in('role', ['seller', 'admin'])
+      .order('created_at', { ascending: false }),
     supabase.from('products').select('seller_id, status, view_count, lead_count, rating_total'),
   ]);
 
@@ -90,6 +97,11 @@ export default async function VendedoresAdminPage() {
                     {vendedor.is_founder ? (
                       <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">
                         Fundador
+                      </span>
+                    ) : null}
+                    {vendedor.id === perfil.id ? (
+                      <span className="rounded-full bg-ink/[0.06] px-2 py-0.5 text-xs font-semibold text-ink/60">
+                        Tú
                       </span>
                     ) : null}
                   </div>
