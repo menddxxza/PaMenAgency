@@ -9,6 +9,7 @@ const ENLACES = [
   { href: '/dashboard/leads', etiqueta: 'Mensajes', icono: '💬' },
   { href: '/dashboard/favoritos', etiqueta: 'Mis favoritos', icono: '🤍' },
   { href: '/dashboard/perfil', etiqueta: 'Mi perfil', icono: '👤' },
+  { href: '/dashboard/cuenta', etiqueta: 'Mi cuenta', icono: '⚙️' },
 ];
 
 export default function NavPanel({ esAdmin }: { esAdmin: boolean }) {
