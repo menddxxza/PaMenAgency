@@ -6,11 +6,14 @@ import Footer from '@/components/Footer';
 import FormularioLead from '@/components/FormularioLead';
 import ResenasProducto from '@/components/ResenasProducto';
 import BotonFavorito from '@/components/BotonFavorito';
+import Compartir from '@/components/Compartir';
 import { getMiResena, getProducto, getResenas, registrarVisita } from '@/lib/queries';
 import { getPerfilActual } from '@/lib/supabase/server';
 import { NOMBRE_TIPO, euros, precioResumido, tiempoInstalacion } from '@/lib/formato';
 
 export const dynamic = 'force-dynamic';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://iapyme.es';
 
 export async function generateMetadata({
   params,
@@ -230,6 +233,10 @@ export default async function FichaProducto({ params }: { params: { slug: string
 
               <div className="mt-3">
                 <BotonFavorito productId={producto.id} variante="ficha" />
+              </div>
+
+              <div className="mt-2">
+                <Compartir titulo={producto.titulo} url={`${SITE_URL}/p/${producto.slug}`} />
               </div>
 
               <ul className="mt-5 space-y-2 border-t border-ink/10 pt-5 text-xs text-ink/60">
