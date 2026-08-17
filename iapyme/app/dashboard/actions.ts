@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getServiceClient } from '@/lib/supabase';
 import { slugConSufijo, slugificar } from '@/lib/slug';
 import { avisarNuevaRevision } from '@/lib/email';
 import type { PricingModel, ProductType } from '@/lib/database.types';
@@ -253,6 +254,40 @@ export async function actualizarPerfil(formData: FormData): Promise<ResultadoAcc
   // Sin este revalidatePath explícito, el perfil público podía tardar hasta
   // un minuto en reflejar la foto o la bio recién guardadas.
   if (actualizado?.slug) revalidatePath(`/vendedor/${actualizado.slug}`);
+  return { ok: true };
+}
+
+/**
+ * Borra la cuenta y todo lo suyo: la fila de auth.users en cascada se lleva
+ * por delante el perfil (profiles.id → auth.users on delete cascade) y desde
+ * ahí, en cascada, sus productos, leads, reseñas y favoritos — ya está todo
+ * declarado así en el esquema, no hay nada que limpiar a mano aquí.
+ */
+export async function eliminarCuenta(): Promise<ResultadoAccion> {
+  const supabase = createClient();
+  if (!supabase) return { ok: false, error: 'La base de datos no está configurada.' };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: 'Tienes que iniciar sesión.' };
+
+  const admin = getServiceClient();
+  if (!admin) {
+    return {
+      ok: false,
+      error: 'No se puede completar la baja ahora mismo. Escríbenos a hola@iapymeapp.com.',
+    };
+  }
+
+  const { error } = await admin.auth.admin.deleteUser(user.id);
+  if (error) {
+    return {
+      ok: false,
+      error: 'No hemos podido eliminar la cuenta. Escríbenos a hola@iapymeapp.com y lo resolvemos.',
+    };
+  }
+
   return { ok: true };
 }
 
