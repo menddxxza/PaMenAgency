@@ -92,3 +92,21 @@ export async function destacarFicha(
   revalidatePath('/');
   return { ok: true };
 }
+
+export async function verificarVendedor(
+  id: string,
+  verificado: boolean,
+): Promise<ResultadoModeracion> {
+  const { supabase, error: errorAuth } = await exigirAdmin();
+  if (!supabase) return { ok: false, error: errorAuth! };
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ is_verified: verificado })
+    .eq('id', id);
+
+  if (error) return { ok: false, error: 'No hemos podido cambiarlo.' };
+
+  revalidatePath('/admin/vendedores');
+  return { ok: true };
+}

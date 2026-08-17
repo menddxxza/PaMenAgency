@@ -44,15 +44,27 @@ export default function NavPanel({ esAdmin }: { esAdmin: boolean }) {
           </p>
           <Link
             href="/admin"
-            aria-current={pathname.startsWith('/admin') ? 'page' : undefined}
+            aria-current={pathname === '/admin' ? 'page' : undefined}
             className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
-              pathname.startsWith('/admin')
+              pathname === '/admin'
                 ? 'bg-brand-50 font-semibold text-brand-700'
                 : 'text-ink/70 hover:bg-ink/[0.04]'
             }`}
           >
             <span aria-hidden>🛡️</span>
             Moderación
+          </Link>
+          <Link
+            href="/admin/vendedores"
+            aria-current={pathname === '/admin/vendedores' ? 'page' : undefined}
+            className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition ${
+              pathname === '/admin/vendedores'
+                ? 'bg-brand-50 font-semibold text-brand-700'
+                : 'text-ink/70 hover:bg-ink/[0.04]'
+            }`}
+          >
+            <span aria-hidden>✓</span>
+            Vendedores
           </Link>
         </>
       ) : null}
