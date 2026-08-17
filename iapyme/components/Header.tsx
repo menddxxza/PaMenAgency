@@ -7,10 +7,7 @@ export default async function Header() {
   const perfil = await getPerfilActual();
 
   return (
-    <header
-      className="sticky top-0 z-40 border-b border-ink/10
-                 bg-white/80 backdrop-blur-md supports-[backdrop-filter]:bg-white/70"
-    >
+    <header className="sticky top-0 z-40 border-b border-ink/10 bg-white">
       <div className="container-page flex h-16 items-center gap-4">
         <Link
           href="/"

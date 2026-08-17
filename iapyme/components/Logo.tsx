@@ -10,15 +10,15 @@ export default function Logo({ inverso = false }: { inverso?: boolean }) {
       <img
         src="/icons/icon-192.png"
         alt=""
-        width={32}
-        height={32}
-        className="h-8 w-8 shrink-0 rounded-[10px]
+        width={30}
+        height={30}
+        className="h-[30px] w-[30px] shrink-0 rounded-lg
                    transition-transform duration-base ease-out
-                   group-hover/logo:-rotate-6"
+                   group-hover/logo:-rotate-3"
       />
 
       <span
-        className={`font-display text-lg font-bold tracking-tight ${
+        className={`font-display text-[17px] font-semibold tracking-[-0.02em] ${
           inverso ? 'text-white' : 'text-ink'
         }`}
       >

@@ -42,12 +42,12 @@ const config: Config = {
       },
       fontSize: {
         // Escala de display para titulares; el resto sigue la escala de Tailwind.
-        // Tracking mucho menos negativo que una grotesk: una serif de alto
-        // contraste se cierra sola, apretarla la vuelve ilegible.
-        'display-s': ['clamp(2.1rem, 1.5rem + 2.6vw, 3.1rem)', { lineHeight: '1.1', letterSpacing: '-0.012em' }],
+        // Tracking negativo generoso: una grotesk necesita cerrarse a mano,
+        // al contrario que la serif de alto contraste que llevaba antes.
+        'display-s': ['clamp(2.1rem, 1.5rem + 2.6vw, 3.1rem)', { lineHeight: '1.12', letterSpacing: '-0.025em' }],
         // Tope en 3.75rem: por encima de eso el titular de portada rompe en
         // tres líneas dentro de su columna y deja una palabra huérfana.
-        display: ['clamp(2.4rem, 1.7rem + 3vw, 3.75rem)', { lineHeight: '1.08', letterSpacing: '-0.015em' }],
+        display: ['clamp(2.4rem, 1.7rem + 3vw, 3.75rem)', { lineHeight: '1.08', letterSpacing: '-0.03em' }],
       },
       transitionTimingFunction: {
         // Tres curvas nombradas. Nunca el `ease` por defecto del navegador.
@@ -67,29 +67,6 @@ const config: Config = {
         lift: '0 4px 10px -4px oklch(17.7% 0.034 269.6 / 0.08), 0 24px 48px -20px oklch(17.7% 0.034 269.6 / 0.22)',
         // Mantenido por compatibilidad con usos existentes fuera de la portada.
         card: '0 1px 2px oklch(17.7% 0.034 269.6 / 0.06), 0 12px 32px -12px oklch(17.7% 0.034 269.6 / 0.18)',
-      },
-      keyframes: {
-        // Tres trayectorias distintas para que las tres manchas no se
-        // sientan como una sola copiada tres veces.
-        'drift-a': {
-          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-          '33%': { transform: 'translate(6%, 8%) scale(1.08)' },
-          '66%': { transform: 'translate(-4%, 5%) scale(0.96)' },
-        },
-        'drift-b': {
-          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-          '40%': { transform: 'translate(-7%, -6%) scale(1.1)' },
-          '75%': { transform: 'translate(4%, 3%) scale(0.94)' },
-        },
-        'drift-c': {
-          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
-          '50%': { transform: 'translate(5%, -7%) scale(1.06)' },
-        },
-      },
-      animation: {
-        'drift-a': 'drift-a 34s ease-in-out infinite',
-        'drift-b': 'drift-b 40s ease-in-out infinite',
-        'drift-c': 'drift-c 28s ease-in-out infinite',
       },
     },
   },

@@ -1,22 +1,16 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Fraunces, Inter, JetBrains_Mono } from 'next/font/google';
-import FondoAnimado from '@/components/FondoAnimado';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import FavoritosProvider from '@/components/FavoritosProvider';
 import './globals.css';
 
-// Display + cuerpo + dato. Tres roles, ni uno más.
-// Fraunces trae eje óptico: a tamaño de titular se activa su versión más
-// tallada (contraste alto), a tamaño de etiqueta se acerca a una serif de
-// texto. Roman siempre — el itálico queda reservado al énfasis en párrafos.
-const display = Fraunces({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  style: ['normal'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
+// Una sola familia para display y cuerpo — Inter, con más peso y tracking
+// negativo en los titulares en vez de una segunda tipografía "de marca".
+// next/font solo necesita cargar el archivo una vez; --font-display y
+// --font-sans apuntan al mismo valor (ver globals.css) para que el resto
+// del sistema pueda seguir distinguiendo el rol sin que sean fuentes
+// distintas de verdad. JetBrains Mono queda como el tercer rol, solo para
+// cifras y datos.
 const sans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
@@ -88,12 +82,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="es"
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
-    >
+    <html lang="es" className={`${sans.variable} ${mono.variable}`}>
       <body>
-        <FondoAnimado />
         <FavoritosProvider>{children}</FavoritosProvider>
         {plausibleDomain ? (
           <Script

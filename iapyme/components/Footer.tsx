@@ -17,7 +17,7 @@ export default async function Footer() {
       <div className="container-page">
         {/* Declaración de cierre: lo último que se lee es la propuesta, no un mapa del sitio. */}
         <div className="grid gap-8 border-b border-white/10 py-20 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:py-24">
-          <h2 className="max-w-[18ch] text-display-s font-medium text-white">
+          <h2 className="max-w-[18ch] text-display-s font-semibold text-white">
             Súbelo una vez. Véndelo mil.
           </h2>
 
