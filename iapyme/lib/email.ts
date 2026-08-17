@@ -32,7 +32,8 @@ export async function avisarNuevaRevision(producto: { titulo: string; vendedor: 
       to: destino,
       subject: `Nueva ficha en revisión: ${producto.titulo}`,
       html: `
-        <p><b>${producto.vendedor}</b> ha enviado <b>${producto.titulo}</b> a revisión.</p>
+        <p><b>${escapeHtml(producto.vendedor)}</b> ha enviado
+        <b>${escapeHtml(producto.titulo)}</b> a revisión.</p>
         <p><a href="${SITE_URL}/admin">Revisarla ahora →</a></p>
       `,
     });
