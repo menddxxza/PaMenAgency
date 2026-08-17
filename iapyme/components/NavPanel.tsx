@@ -12,7 +12,13 @@ const ENLACES = [
   { href: '/dashboard/cuenta', etiqueta: 'Mi cuenta', icono: '⚙️' },
 ];
 
-export default function NavPanel({ esAdmin }: { esAdmin: boolean }) {
+export default function NavPanel({
+  esAdmin,
+  mensajesSinLeer = 0,
+}: {
+  esAdmin: boolean;
+  mensajesSinLeer?: number;
+}) {
   const pathname = usePathname();
 
   return (
@@ -34,7 +40,15 @@ export default function NavPanel({ esAdmin }: { esAdmin: boolean }) {
             }`}
           >
             <span aria-hidden>{enlace.icono}</span>
-            {enlace.etiqueta}
+            <span className="flex-1">{enlace.etiqueta}</span>
+            {enlace.href === '/dashboard/leads' && mensajesSinLeer > 0 ? (
+              <span
+                className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[11px] font-bold leading-none text-white"
+                aria-label={`${mensajesSinLeer} sin responder`}
+              >
+                {mensajesSinLeer}
+              </span>
+            ) : null}
           </Link>
         );
       })}

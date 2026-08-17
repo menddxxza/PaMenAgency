@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { LeadStatus } from '@/lib/database.types';
 import { cambiarEstadoLead } from '@/app/dashboard/leads/actions';
 
-const ETIQUETAS: Record<LeadStatus, { texto: string; clase: string }> = {
+export const ETIQUETAS_LEAD: Record<LeadStatus, { texto: string; clase: string }> = {
   new: { texto: 'Sin responder', clase: 'bg-amber-100 text-amber-800' },
   contacted: { texto: 'Contactado', clase: 'bg-brand-50 text-brand-700' },
   converted: { texto: 'Vendido', clase: 'bg-accent-500/15 text-accent-700' },
@@ -27,7 +27,7 @@ export default function EstadoLead({ id, status }: { id: string; status: LeadSta
     });
   }
 
-  const etiqueta = ETIQUETAS[status];
+  const etiqueta = ETIQUETAS_LEAD[status];
 
   return (
     <span className="relative inline-block">
@@ -58,7 +58,7 @@ export default function EstadoLead({ id, status }: { id: string; status: LeadSta
                   valor === status ? 'font-bold' : ''
                 }`}
               >
-                {ETIQUETAS[valor].texto}
+                {ETIQUETAS_LEAD[valor].texto}
               </button>
             </li>
           ))}

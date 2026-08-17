@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getCategorias, getProductos } from '@/lib/queries';
+import { POSTS_BLOG } from '@/lib/blog';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://iapyme.es';
 
@@ -17,6 +18,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.6,
     },
+    {
+      url: `${siteUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+    ...POSTS_BLOG.map((post) => ({
+      url: `${siteUrl}/blog/${post.slug}`,
+      lastModified: new Date(post.fecha),
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
     {
       url: `${siteUrl}/categorias`,
       lastModified: new Date(),
