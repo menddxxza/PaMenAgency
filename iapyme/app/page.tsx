@@ -56,7 +56,7 @@ export default async function Home() {
             Nada de ilustración de IA genérica — lo que se ve es la propia
             interfaz del producto, con datos reales del catálogo. ---- */}
         <section className="border-b border-ink/10">
-          <div className="container-page grid gap-14 py-16 lg:grid-cols-[1fr_0.92fr] lg:items-center lg:gap-16 lg:py-24">
+          <div className="container-page grid gap-10 py-12 sm:py-16 lg:grid-cols-[1fr_0.92fr] lg:items-center lg:gap-16 lg:py-24">
             <div>
               {/* 17ch parte el titular en dos líneas limpias en vez de dejar
                   "usar" huérfano en una tercera. */}
@@ -319,7 +319,7 @@ function EscaparateProducto({ productos }: { productos: ProductoConRelaciones[] 
   const items = productos.slice(0, 3);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-ink/10 bg-white shadow-lift">
+    <div className="overflow-hidden rounded-xl border border-ink/10 bg-white shadow-quiet lg:shadow-lift">
       <div className="flex items-center justify-between border-b border-ink/10 px-5 py-3.5">
         <p className="dato text-xs font-medium text-ink/60">Catálogo</p>
         {items.length > 0 ? (
