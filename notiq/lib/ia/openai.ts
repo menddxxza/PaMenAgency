@@ -20,6 +20,14 @@ const ENDPOINT_RESPUESTAS = `${BASE_URL}/responses`;
  * (p. ej. "llama3.1" en Ollama), no un modelo de OpenAI. */
 export const MODELO = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
 
+/** Modelo para el chat del asistente (completarConBusqueda), que puede ser distinto
+ * del de resumir/extraer tareas: en OpenAI da igual (ambos soportan el buscador),
+ * pero en Groq hace falta separarlo — `groq/compound` trae el buscador integrado
+ * pero no es un modelo ideal para forzar JSON, así que resumen/tareas siguen en
+ * MODELO (p. ej. `openai/gpt-oss-120b`) y solo el chat usa este. Si no se define,
+ * usa el mismo que el resto. */
+export const MODELO_ASISTENTE = process.env.OPENAI_MODEL_ASISTENTE ?? MODELO;
+
 export type Mensaje = {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -48,6 +56,9 @@ type Opciones = {
   /** Solo para llamadas que ya han consumido parte del `maxDuration` de su ruta
    * (el plan B de `completarConBusqueda`) — recorta la espera para no superarlo. */
   timeoutMs?: number;
+  /** Por defecto MODELO — completarConBusqueda lo pisa con MODELO_ASISTENTE cuando
+   * el proveedor (p. ej. Groq) resuelve el buscador dentro del propio modelo. */
+  modelo?: string;
 };
 
 export async function completar({
@@ -56,6 +67,7 @@ export async function completar({
   temperatura = 0.3,
   maxTokens = 1200,
   timeoutMs = 90_000,
+  modelo = MODELO,
 }: Opciones): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -71,7 +83,7 @@ export async function completar({
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: MODELO,
+        model: modelo,
         messages: mensajes,
         temperature: temperatura,
         max_tokens: maxTokens,
@@ -114,11 +126,13 @@ export async function completar({
  *   en /chat/completions). La forma de la respuesta es distinta a la de chat
  *   completions: un array `output` con los pasos que ha dado el modelo (llamadas al
  *   buscador, mensaje final...), así que hay que quedarse solo con el texto.
- * - Groq con un modelo "compound" (`OPENAI_MODEL=groq/compound`): el buscador va
- *   integrado en el propio modelo sobre el endpoint normal de chat completions, sin
- *   parámetro de herramienta ni endpoint distinto — por eso, en cuanto hay
- *   `OPENAI_BASE_URL` (cualquier proveedor que no sea OpenAI, Groq incluido), esta
- *   función no toca /responses y usa `completar` tal cual.
+ * - Groq con un modelo "compound" (`OPENAI_MODEL_ASISTENTE=groq/compound`): el
+ *   buscador va integrado en el propio modelo sobre el endpoint normal de chat
+ *   completions, sin parámetro de herramienta ni endpoint distinto — por eso, en
+ *   cuanto hay `OPENAI_BASE_URL` (cualquier proveedor que no sea OpenAI, Groq
+ *   incluido), esta función no toca /responses y usa `completar` tal cual, pero con
+ *   MODELO_ASISTENTE en vez de MODELO (compound no es el modelo que se quiere para
+ *   resumir notas o forzar JSON en la extracción de tareas).
  *
  * Si la llamada a /responses falla por lo que sea (cuenta sin el buscador
  * habilitado, error puntual del proveedor...), no se rompe el asistente entero: se
@@ -128,14 +142,14 @@ export async function completarConBusqueda({
   mensajes,
   temperatura = 0.4,
   maxTokens = 1200,
-}: Omit<Opciones, 'json'>): Promise<string> {
+}: Omit<Opciones, 'json' | 'modelo'>): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new ErrorIA('La IA no está configurada en este despliegue.', 503);
   }
 
   if (process.env.OPENAI_BASE_URL) {
-    return completar({ mensajes, temperatura, maxTokens });
+    return completar({ mensajes, temperatura, maxTokens, modelo: MODELO_ASISTENTE });
   }
 
   try {
@@ -147,7 +161,13 @@ export async function completarConBusqueda({
     // timeoutMs corto: el intento con buscador ya se ha comido buena parte de los
     // 60s de la ruta, y este plan B tiene que caber en lo que queda.
     if (fallo instanceof ErrorIA && fallo.estado === 503) throw fallo;
-    return completar({ mensajes, temperatura, maxTokens, timeoutMs: 15_000 });
+    return completar({
+      mensajes,
+      temperatura,
+      maxTokens,
+      timeoutMs: 15_000,
+      modelo: MODELO_ASISTENTE,
+    });
   }
 }
 
@@ -171,7 +191,7 @@ async function buscarConResponsesApi({
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: MODELO,
+        model: MODELO_ASISTENTE,
         input: mensajes,
         tools: [{ type: 'web_search_preview' }],
         temperature: temperatura,
