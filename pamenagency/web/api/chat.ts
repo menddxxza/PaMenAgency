@@ -10,7 +10,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
  * - GROQ_API_KEY: clave de https://console.groq.com/keys. Sin ella, el
  *   asistente responde igualmente con un mensaje que remite al contacto
  *   humano en lugar de fallar.
- * - GROQ_MODEL: modelo a usar (por defecto `llama-3.3-70b-versatile`).
+ * - GROQ_MODEL: modelo a usar (por defecto `openai/gpt-oss-120b`, el modelo
+ *   de chat de propósito general más capaz disponible en la cuenta al
+ *   configurar esto). Si Groq retira o renombra un modelo, la lista vigente
+ *   puede consultarse con `GET https://api.groq.com/openai/v1/models`.
  *
  * No pasa por Vite ni por el `tsconfig` del frontend, así que el prompt va
  * en línea en vez de importarse de `src/content` (evita depender del alias
@@ -18,7 +21,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
  */
 
 const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions'
-const DEFAULT_MODEL = 'llama-3.3-70b-versatile'
+const DEFAULT_MODEL = 'openai/gpt-oss-120b'
 const MAX_TOKENS = 1024
 const MAX_TURNS = 16
 const MAX_CHARS = 4000
@@ -89,10 +92,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const model = process.env.GROQ_MODEL || DEFAULT_MODEL
 
   if (!apiKey) {
-    // DIAGNÓSTICO TEMPORAL: distingue "falta la variable" de un fallo real
-    // de Groq, para no depurar a ciegas sin acceso a los logs de Vercel.
-    // Quitar esta línea (y las otras marcadas igual) en cuanto todo funcione.
-    res.status(200).json({ reply: `[diagnóstico: GROQ_API_KEY no está definida en este entorno] ${FALLBACK_REPLY}` })
+    res.status(200).json({ reply: FALLBACK_REPLY })
     return
   }
 
@@ -127,26 +127,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }).finally(() => clearTimeout(timeout))
 
     if (!groqRes.ok) {
-      // DIAGNÓSTICO TEMPORAL: nunca se expone la clave, sólo el estado HTTP,
-      // el error de Groq y, si el fallo es de modelo, la lista de modelos
-      // que esa clave sí tiene disponibles (para no volver a adivinar el id).
-      const errBody = await groqRes.text().catch(() => '')
-      let modelsHint = ''
-      try {
-        const modelsRes = await fetch('https://api.groq.com/openai/v1/models', {
-          headers: { Authorization: `Bearer ${apiKey}` },
-        })
-        if (modelsRes.ok) {
-          const modelsData = (await modelsRes.json()) as { data?: { id: string }[] }
-          const ids = (modelsData.data ?? []).map((m) => m.id)
-          modelsHint = ` | modelos disponibles: ${ids.join(', ')}`
-        }
-      } catch {
-        // Si tampoco se puede listar modelos, seguimos sólo con el error original.
-      }
-      res.status(200).json({
-        reply: `[diagnóstico: Groq respondió ${groqRes.status} — ${errBody.slice(0, 200)}${modelsHint}] ${FALLBACK_REPLY}`,
-      })
+      res.status(200).json({ reply: FALLBACK_REPLY })
       return
     }
 
@@ -158,10 +139,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(200).json({
       reply: reply || 'No he podido generar una respuesta. Inténtalo de nuevo.',
     })
-  } catch (err) {
-    // DIAGNÓSTICO TEMPORAL: tiempo agotado, DNS, red bloqueada... Nunca se
-    // expone la clave, sólo el nombre/mensaje del error de red.
-    const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
-    res.status(200).json({ reply: `[diagnóstico: fallo de red — ${msg}] ${FALLBACK_REPLY}` })
+  } catch {
+    // Clave inválida, límite de peticiones, tiempo agotado: cualquier fallo
+    // cae aquí. Nunca se expone el error interno ni la clave.
+    res.status(200).json({ reply: FALLBACK_REPLY })
   }
 }

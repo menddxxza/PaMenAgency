@@ -110,7 +110,7 @@ Configura en Vercel (Settings → Environment Variables, en Production y
 Preview):
 
 - `GROQ_API_KEY`: clave de [console.groq.com/keys](https://console.groq.com/keys).
-- `GROQ_MODEL`: el modelo a usar (por defecto `llama-3.3-70b-versatile`).
+- `GROQ_MODEL`: el modelo a usar (por defecto `openai/gpt-oss-120b`).
 
 Sin `GROQ_API_KEY` configurada, o si la petición falla, el asistente sigue
 funcionando pero responde siempre con un mensaje que remite al contacto
