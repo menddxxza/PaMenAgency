@@ -27,7 +27,7 @@ export const site = {
   whatsapp: null as string | null,
   social: [
     { name: 'Instagram', url: null as string | null },
-    { name: 'TikTok', url: null as string | null },
+    { name: 'TikTok', url: 'https://www.tiktok.com/@pamenagency' as string | null },
     { name: 'LinkedIn', url: null as string | null },
   ],
 } as const
