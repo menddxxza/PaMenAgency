@@ -4,18 +4,18 @@ import { site } from '@/content/site'
 /**
  * Logotipo de PaMenAgency.
  *
- * ── Cómo sustituir el placeholder por el logo definitivo ──────────────────
- * 1. Coloca el archivo en `public/logo.svg` (o `.png` a 3× de resolución).
- * 2. Cambia `LOGO_SRC` a esa ruta.
- * No hay que tocar nada más: el hueco reservado, la relación de aspecto y los
- * tamaños de cabecera y pie ya están definidos aquí, así que el logo no se
- * deformará ni desplazará el resto del diseño.
+ * Logo definitivo en uso: `public/logo.jpg`, recortado al círculo (sin el
+ * margen negro sobrante del archivo original) y reutilizado también como
+ * favicon (`public/favicon.png`, generado a partir del mismo recorte).
  *
- * `LOGO_ASPECT` es la relación ancho/alto de la marca definitiva; ajústala si
- * el logo real no es cuadrado.
+ * Para sustituirlo por una versión nueva: coloca el archivo en `public/`,
+ * cambia `LOGO_SRC` a esa ruta y ajusta `LOGO_ASPECT` (ancho ÷ alto) si no
+ * es igual de proporción. El hueco reservado y los tamaños de cabecera y
+ * pie ya están definidos aquí, así que el logo no se deformará ni
+ * desplazará el resto del diseño.
  */
-const LOGO_SRC: string | null = null
-const LOGO_ASPECT = 1
+const LOGO_SRC: string | null = '/logo.jpg'
+const LOGO_ASPECT = 507 / 485
 
 type Props = {
   /** `nav` en la cabecera, `footer` en el pie, `mark` sólo el símbolo. */

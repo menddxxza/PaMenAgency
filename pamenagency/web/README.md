@@ -58,17 +58,16 @@ tocar la interfaz.
 Para convertir un documento propio en una página del centro de conocimiento,
 las instrucciones están en `src/content/knowledge/README.md`.
 
-## Sustituir el logotipo
+## Logotipo
 
-El logo actual es un placeholder. Para poner el definitivo:
-
-1. Coloca el archivo en `public/logo.svg`.
-2. En `src/components/layout/Logo.tsx`, cambia `LOGO_SRC` a `'/logo.svg'` y
-   ajusta `LOGO_ASPECT` si no es cuadrado.
-
-El hueco reservado, los tamaños de cabecera y pie y la alineación ya están
-definidos ahí, así que no hay que retocar el diseño ni el resto de los
-componentes.
+El logo definitivo ya está en uso: `public/logo.jpg` (recortado al círculo,
+sin el margen negro sobrante del archivo original), y reutilizado como
+favicon en `public/favicon.png`. Para sustituirlo por otra versión, coloca
+el archivo nuevo en `public/`, cambia `LOGO_SRC` en
+`src/components/layout/Logo.tsx` a esa ruta y ajusta `LOGO_ASPECT` (ancho ÷
+alto) si la proporción cambia. El hueco reservado, los tamaños de cabecera
+y pie y la alineación ya están definidos ahí, así que no hay que retocar el
+diseño ni el resto de los componentes.
 
 ## Datos pendientes antes de publicar
 
