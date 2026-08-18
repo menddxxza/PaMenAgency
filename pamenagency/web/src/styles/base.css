@@ -1,0 +1,324 @@
+/* ------------------------------------------------------------------
+   Reset, tipografía y primitivas de layout.
+   Regla que manda sobre todas las demás: nada desborda en horizontal.
+   ------------------------------------------------------------------ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* El header sticky no debe tapar el destino de un ancla. */
+  scroll-padding-top: calc(var(--header-h) + 1.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+html,
+body {
+  max-width: 100%;
+  /* `clip` corta el desbordamiento sin crear un contexto de scroll,
+     de modo que position: sticky sigue funcionando en el header. */
+  overflow-x: clip;
+}
+
+body {
+  background: var(--pm-void);
+  color: var(--pm-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.65;
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+/* Ningún medio incrustado puede empujar el layout. */
+img,
+svg,
+video,
+canvas,
+iframe {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Palabras largas (URLs, términos técnicos) parten antes que desbordar. */
+p, li, h1, h2, h3, h4, h5, h6, dd, dt, blockquote, figcaption, td, th, label {
+  overflow-wrap: break-word;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: var(--fs-h4); }
+
+p { text-wrap: pretty; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button { background: none; border: none; cursor: pointer; }
+
+ul, ol { list-style: none; }
+
+/* Foco siempre visible y siempre dorado: accesibilidad sin romper la estética. */
+:focus-visible {
+  outline: 2px solid var(--pm-gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--pm-gold);
+  color: #000;
+}
+
+/* Barra de scroll discreta, coherente con la paleta. */
+@supports (scrollbar-color: red blue) {
+  html {
+    scrollbar-color: var(--pm-surface-3) var(--pm-void);
+    scrollbar-width: thin;
+  }
+}
+
+/* ------------------------------ Layout ------------------------------ */
+
+.pm-container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.pm-container--wide { max-width: var(--container-wide); }
+.pm-container--reading { max-width: var(--container-reading); }
+
+.pm-section {
+  position: relative;
+  padding-block: var(--space-section);
+}
+
+/* Separador de secciones: una línea que se desvanece hacia los lados. */
+.pm-section--divided::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--pm-line-strong) 20%, var(--pm-line-strong) 80%, transparent);
+}
+
+.pm-grid { display: grid; gap: var(--space-lg); }
+
+/* Rejilla auto-ajustable: nunca provoca scroll horizontal porque el mínimo
+   se limita al ancho disponible con min(). */
+.pm-grid--cards {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+.pm-grid--2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+}
+
+.pm-stack { display: flex; flex-direction: column; gap: var(--space-md); }
+.pm-row { display: flex; flex-wrap: wrap; gap: var(--space-sm); align-items: center; }
+
+/* ---------------------------- Tipografía ---------------------------- */
+
+.pm-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-size: var(--fs-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pm-gold);
+  font-weight: 500;
+}
+
+.pm-eyebrow::before {
+  content: '';
+  width: 26px;
+  height: 1px;
+  background: var(--pm-gold);
+  opacity: 0.7;
+  flex: none;
+}
+
+.pm-title { font-size: var(--fs-h2); margin-block: 0.6rem 0; }
+.pm-lead {
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  color: var(--pm-text-soft);
+  max-width: 62ch;
+  line-height: 1.6;
+}
+
+.pm-muted { color: var(--pm-muted); }
+.pm-gold { color: var(--pm-gold); }
+
+/* Tratamiento propio del nombre de la marca. */
+.pm-wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.pm-wordmark .pm-wordmark__accent {
+  background: linear-gradient(120deg, var(--pm-gold-bright), var(--pm-gold) 45%, var(--pm-gold-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.pm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Enlace para saltar al contenido: invisible hasta recibir foco. */
+.pm-skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 9999;
+  padding: 0.7rem 1.1rem;
+  background: var(--pm-gold);
+  color: #000;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  transform: translateY(-160%);
+  transition: transform var(--dur) var(--ease-out);
+}
+
+.pm-skip-link:focus-visible { transform: translateY(0); }
+
+/* --------------------------- Scroll reveal --------------------------- */
+
+.pm-reveal {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.pm-reveal[data-visible='true'] {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ------------------------- Fondos atmosféricos ------------------------- */
+
+/* Halo dorado muy tenue. Decorativo: siempre inerte al puntero y recortado. */
+.pm-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(90px);
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.pm-noise {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.pm-grid-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--pm-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pm-line) 1px, transparent 1px);
+  background-size: 78px 78px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
+  opacity: 0.5;
+}
+
+/* El contenido siempre por encima de los fondos decorativos. */
+.pm-above { position: relative; z-index: 2; }
+
+/* Los envoltorios de animación no deben romper la altura de las rejillas:
+   el hijo real sigue ocupando toda la celda. */
+.pm-grid > .pm-reveal {
+  display: flex;
+  min-width: 0;
+}
+
+.pm-grid > .pm-reveal > * {
+  flex: 1;
+  min-width: 0;
+}
+
+
+/* ------------------------------ Escenas 3D ------------------------------ */
+
+/* Tamaño por defecto de una escena. Su colocación la decide la sección que la
+   contiene, mediante una clase propia; nunca un estilo en línea. */
+.pm-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Ocupa por completo el contenedor posicionado más cercano. Las medidas se
+   devuelven a `auto` para que manden los desplazamientos, no el 100 %. */
+.pm-scene--fill {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+}

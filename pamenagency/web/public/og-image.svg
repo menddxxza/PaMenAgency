@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F0D680"/>
+      <stop offset="55%" stop-color="#D4AF37"/>
+      <stop offset="100%" stop-color="#8A6F1E"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="78%" cy="34%" r="46%">
+      <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#050506"/>
+  <rect width="1200" height="630" fill="url(#halo)"/>
+
+  <g stroke="#D4AF37" fill="none">
+    <circle cx="930" cy="300" r="150" opacity="0.28"/>
+    <ellipse cx="930" cy="300" rx="150" ry="58" opacity="0.20"/>
+    <ellipse cx="930" cy="300" rx="58" ry="150" opacity="0.20"/>
+    <ellipse cx="930" cy="300" rx="150" ry="58" opacity="0.14" transform="rotate(45 930 300)"/>
+    <ellipse cx="930" cy="300" rx="150" ry="58" opacity="0.14" transform="rotate(-45 930 300)"/>
+    <circle cx="930" cy="300" r="52" opacity="0.45"/>
+  </g>
+  <g fill="#F0D680">
+    <circle cx="930" cy="150" r="4"/><circle cx="1080" cy="300" r="4"/>
+    <circle cx="930" cy="450" r="4"/><circle cx="780" cy="300" r="4"/>
+    <circle cx="1036" cy="194" r="3"/><circle cx="1036" cy="406" r="3"/>
+    <circle cx="824" cy="406" r="3"/><circle cx="824" cy="194" r="3"/>
+  </g>
+
+  <g transform="translate(90 220)">
+    <rect x="4" y="4" width="42" height="42" rx="9" transform="rotate(45 25 25)" fill="none" stroke="url(#gold)" stroke-width="2.4"/>
+    <path d="M17 39V15h12a6 6 0 0 1 0 12H17" fill="none" stroke="url(#gold)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="90" y="345" font-family="'Space Grotesk',Segoe UI,system-ui,sans-serif" font-size="72" font-weight="700" letter-spacing="2" fill="#F4F4F2">PA MEN</text>
+  <text x="90" y="425" font-family="'Space Grotesk',Segoe UI,system-ui,sans-serif" font-size="72" font-weight="700" letter-spacing="2" fill="url(#gold)">AGENCY</text>
+  <text x="92" y="482" font-family="Inter,Segoe UI,system-ui,sans-serif" font-size="26" fill="#A1A1A6">Convierte la Inteligencia Artificial en una ventaja real.</text>
+
+  <rect x="90" y="520" width="64" height="2" fill="#D4AF37"/>
+</svg>
