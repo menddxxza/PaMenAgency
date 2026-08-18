@@ -101,22 +101,45 @@ define `VITE_CONTACT_ENDPOINT` (ver `.env.example`): recibirá un POST con JSON.
 
 Widget de chat flotante (`src/components/chat/AssistantWidget.tsx`), visible en
 todas las páginas, que llama a la función serverless `api/chat.ts`. Esa función
-usa la API de Claude (`@anthropic-ai/sdk`, modelo `claude-opus-5`) con un
-prompt de sistema que resume los servicios, el tono y los límites de la
-agencia; no tiene acceso a nada más y no inventa datos que no estén en ese
-prompt.
+habla con un modelo **local** vía [Ollama](https://ollama.com) — cero coste
+por token, el mismo patrón que ya usa `telegram-bot/src/common/ollama.ts` para
+el bot de soporte de Telegram — con un prompt de sistema que resume los
+servicios, el tono y los límites de la agencia; no tiene acceso a nada más y
+no inventa datos que no estén en ese prompt.
 
-**Requiere la variable de entorno `ANTHROPIC_API_KEY`** en el proyecto de
-Vercel (Settings → Environment Variables, en Production y Preview). Sin ella,
-el asistente sigue funcionando pero responde siempre con un mensaje que remite
-al contacto humano, en vez de fallar.
+**Importante — Ollama no corre dentro de Vercel.** Una función serverless es
+efímera y no puede alojar un proceso persistente ni un modelo de varios GB.
+Necesitas una instancia de Ollama corriendo en una máquina tuya (con `ollama
+serve` arrancado y el modelo descargado) y **alcanzable desde internet**:
+
+- Un servidor o VPS propio con Ollama instalado y un dominio/IP pública.
+- O tu propio ordenador, expuesto mediante un túnel — por ejemplo
+  [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
+  o `ngrok http 11434` — mientras quieras que el asistente esté disponible.
+
+Configura en Vercel (Settings → Environment Variables, en Production y
+Preview):
+
+- `OLLAMA_URL`: la URL pública de esa instancia (nunca `http://localhost:...`,
+  que en el servidor de Vercel no apunta a tu máquina).
+- `OLLAMA_MODEL`: el modelo a usar (por defecto `llama3.2`, igual que el bot
+  de Telegram — `ollama pull llama3.2` para descargarlo).
+
+Sin `OLLAMA_URL` configurada, o si la instancia no responde, el asistente
+sigue funcionando pero responde siempre con un mensaje que remite al contacto
+humano, en vez de fallar o quedarse colgado (la función corta la espera a los
+25 segundos).
 
 La conversación vive sólo en memoria del componente: no se guarda en el
 navegador ni se envía a ningún sitio salvo a esa función, así que no requiere
-consentimiento de cookies. `claude-opus-5` es el modelo más capaz —y más caro—
-de los disponibles; en un widget público conviene vigilar el consumo y, si el
-tráfico crece mucho, valorar un modelo más económico (`claude-sonnet-5` o
-`claude-haiku-4-5`) cambiando la constante `MODEL` en `api/chat.ts`.
+consentimiento de cookies.
+
+**A tener en cuenta al exponer tu Ollama al público:** a diferencia de una API
+de pago, aquí el hardware que responde es el tuyo. Un pico de visitas a la web
+se traduce en carga real sobre esa máquina, sin ningún límite de tarifa de por
+medio salvo el que ya impone la función (`MAX_TURNS`, `MAX_CHARS` en
+`api/chat.ts`). Si el tráfico crece, conviene añadir algún tipo de límite de
+peticiones por IP delante de `OLLAMA_URL`.
 
 ## Decisiones que conviene conocer
 
