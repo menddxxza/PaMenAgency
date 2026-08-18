@@ -45,6 +45,9 @@ type Opciones = {
   json?: boolean;
   temperatura?: number;
   maxTokens?: number;
+  /** Solo para llamadas que ya han consumido parte del `maxDuration` de su ruta
+   * (el plan B de `completarConBusqueda`) — recorta la espera para no superarlo. */
+  timeoutMs?: number;
 };
 
 export async function completar({
@@ -52,6 +55,7 @@ export async function completar({
   json = false,
   temperatura = 0.3,
   maxTokens = 1200,
+  timeoutMs = 90_000,
 }: Opciones): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -77,7 +81,7 @@ export async function completar({
       // de la plataforma, que es mucho más largo que la paciencia del usuario.
       // Más margen que con la API de OpenAI porque un modelo en local (sobre todo
       // sin GPU) puede tardar bastante más en generar la misma respuesta.
-      signal: AbortSignal.timeout(90_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch {
     throw new ErrorIA('No se ha podido contactar con el proveedor de IA.', 504);
@@ -103,14 +107,22 @@ export async function completar({
  * Igual que `completar`, pero con el buscador web integrado de OpenAI disponible:
  * el propio modelo decide en cada pregunta si necesita buscar en internet antes de
  * responder (algo actual, un dato que no sabe de memoria...) o si le basta con el
- * contexto que se le ha dado. Solo funciona contra la API real de OpenAI — los
- * servidores compatibles en local (Ollama, LM Studio...) no exponen buscador, así
- * que ahí se cae a `completar` sin más.
+ * contexto que se le ha dado.
  *
- * Usa el endpoint /responses (no /chat/completions) porque el buscador integrado
- * solo existe ahí. La forma de la respuesta es distinta a la de chat completions:
- * un array `output` con los pasos que ha dado el modelo (llamadas al buscador,
- * mensaje final...), así que hay que quedarse solo con el texto del mensaje.
+ * Dos proveedores lo dan sin montar nada aparte:
+ * - OpenAI real: usa /responses con la herramienta `web_search_preview` (no existe
+ *   en /chat/completions). La forma de la respuesta es distinta a la de chat
+ *   completions: un array `output` con los pasos que ha dado el modelo (llamadas al
+ *   buscador, mensaje final...), así que hay que quedarse solo con el texto.
+ * - Groq con un modelo "compound" (`OPENAI_MODEL=groq/compound`): el buscador va
+ *   integrado en el propio modelo sobre el endpoint normal de chat completions, sin
+ *   parámetro de herramienta ni endpoint distinto — por eso, en cuanto hay
+ *   `OPENAI_BASE_URL` (cualquier proveedor que no sea OpenAI, Groq incluido), esta
+ *   función no toca /responses y usa `completar` tal cual.
+ *
+ * Si la llamada a /responses falla por lo que sea (cuenta sin el buscador
+ * habilitado, error puntual del proveedor...), no se rompe el asistente entero: se
+ * reintenta sin buscador contra /chat/completions, que es más compatible.
  */
 export async function completarConBusqueda({
   mensajes,
@@ -126,6 +138,30 @@ export async function completarConBusqueda({
     return completar({ mensajes, temperatura, maxTokens });
   }
 
+  try {
+    return await buscarConResponsesApi({ mensajes, apiKey, temperatura, maxTokens });
+  } catch (fallo) {
+    // 503 es "no hay clave" (ya se ha comprobado arriba, no puede pasar) — cualquier
+    // otro fallo del buscador cae a la llamada de siempre, sin buscador, en vez de
+    // dejar al usuario sin respuesta por una herramienta que no es imprescindible.
+    // timeoutMs corto: el intento con buscador ya se ha comido buena parte de los
+    // 60s de la ruta, y este plan B tiene que caber en lo que queda.
+    if (fallo instanceof ErrorIA && fallo.estado === 503) throw fallo;
+    return completar({ mensajes, temperatura, maxTokens, timeoutMs: 15_000 });
+  }
+}
+
+async function buscarConResponsesApi({
+  mensajes,
+  apiKey,
+  temperatura,
+  maxTokens,
+}: {
+  mensajes: Mensaje[];
+  apiKey: string;
+  temperatura: number;
+  maxTokens: number;
+}): Promise<string> {
   let respuesta: Response;
   try {
     respuesta = await fetch(ENDPOINT_RESPUESTAS, {
@@ -141,7 +177,9 @@ export async function completarConBusqueda({
         temperature: temperatura,
         max_output_tokens: maxTokens,
       }),
-      signal: AbortSignal.timeout(90_000),
+      // Deja margen dentro del maxDuration=60 de la ruta para el plan B (completar
+      // sin buscador) si esto falla o se pasa de tiempo.
+      signal: AbortSignal.timeout(42_000),
     });
   } catch {
     throw new ErrorIA('No se ha podido contactar con el proveedor de IA.', 504);

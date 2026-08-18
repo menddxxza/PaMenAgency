@@ -5,6 +5,10 @@ import { SISTEMA_ASISTENTE, bloqueDeContexto, hoyISO } from '@/lib/ia/prompts';
 import { prepararIa, respuestaDeError } from '@/lib/ia/handler';
 
 export const runtime = 'nodejs';
+// Sin esto Vercel corta la función a los pocos segundos (10s por defecto en Hobby):
+// una respuesta que pasa por el buscador web real casi siempre tarda más que eso.
+// 60 es el máximo que admite el plan Hobby sin Fluid Compute.
+export const maxDuration = 60;
 
 /** Notas que se meten en el contexto. Más no cabe sin disparar el coste por pregunta. */
 const MAX_NOTAS = 6;
