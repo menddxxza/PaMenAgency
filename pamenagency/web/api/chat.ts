@@ -89,7 +89,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const model = process.env.GROQ_MODEL || DEFAULT_MODEL
 
   if (!apiKey) {
-    res.status(200).json({ reply: FALLBACK_REPLY })
+    // DIAGNÓSTICO TEMPORAL: distingue "falta la variable" de un fallo real
+    // de Groq, para no depurar a ciegas sin acceso a los logs de Vercel.
+    // Quitar esta línea (y las otras marcadas igual) en cuanto todo funcione.
+    res.status(200).json({ reply: `[diagnóstico: GROQ_API_KEY no está definida en este entorno] ${FALLBACK_REPLY}` })
     return
   }
 
@@ -124,7 +127,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }).finally(() => clearTimeout(timeout))
 
     if (!groqRes.ok) {
-      res.status(200).json({ reply: FALLBACK_REPLY })
+      // DIAGNÓSTICO TEMPORAL: nunca se expone la clave, sólo el estado HTTP
+      // y el inicio del cuerpo de error que devuelve Groq.
+      const errBody = await groqRes.text().catch(() => '')
+      res.status(200).json({
+        reply: `[diagnóstico: Groq respondió ${groqRes.status} — ${errBody.slice(0, 200)}] ${FALLBACK_REPLY}`,
+      })
       return
     }
 
@@ -136,9 +144,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(200).json({
       reply: reply || 'No he podido generar una respuesta. Inténtalo de nuevo.',
     })
-  } catch {
-    // Clave inválida, límite de peticiones, tiempo agotado: cualquier fallo
-    // cae aquí. Nunca se expone el error interno ni la clave.
-    res.status(200).json({ reply: FALLBACK_REPLY })
+  } catch (err) {
+    // DIAGNÓSTICO TEMPORAL: tiempo agotado, DNS, red bloqueada... Nunca se
+    // expone la clave, sólo el nombre/mensaje del error de red.
+    const msg = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+    res.status(200).json({ reply: `[diagnóstico: fallo de red — ${msg}] ${FALLBACK_REPLY}` })
   }
 }
