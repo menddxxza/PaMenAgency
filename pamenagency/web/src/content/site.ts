@@ -26,7 +26,7 @@ export const site = {
   phone: null as string | null,
   whatsapp: null as string | null,
   social: [
-    { name: 'Instagram', url: null as string | null },
+    { name: 'Instagram', url: 'https://www.instagram.com/pamenagency' as string | null },
     { name: 'TikTok', url: 'https://www.tiktok.com/@pamenagency' as string | null },
     { name: 'LinkedIn', url: null as string | null },
   ],
