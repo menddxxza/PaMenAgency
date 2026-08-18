@@ -159,33 +159,34 @@ menos de un céntimo al mes por usuario. El buscador web añade coste solo cuand
 modelo decide usarlo (unos 0,025 $ por búsqueda a precios actuales de OpenAI), no en
 cada mensaje del chat.
 
-**Servidor de IA en local o proveedor alternativo.** `OPENAI_BASE_URL` apunta el
-cliente a cualquier servidor compatible con la API de OpenAI (Ollama, LM Studio,
-llama.cpp, vLLM, Groq…) en vez de a OpenAI de verdad — casi todos exponen
-`/v1/chat/completions` con el mismo formato. `OPENAI_MODEL` pasa a ser el nombre del
-modelo que sirva ese proveedor, y `OPENAI_API_KEY` puede ser cualquier texto no
-vacío si el servidor no valida claves. Ver `.env.example` para los puertos por
-defecto de Ollama y LM Studio. Con un servidor local no hay coste por token, pero
-conviene saber que `response_format: json_object` (lo que usa la extracción de
-tareas) no lo soportan todos los modelos/servidores locales por igual — si falla ahí
-mientras el resumen normal funciona, es la explicación más probable.
-
-**Groq.** Es la forma más sencilla de tener buscador web sin depender de OpenAI (y
-gratis hasta cierto volumen). Tres variables en `.env.local` o en Vercel:
+**Groq es el proveedor por defecto**, sin tener que poner `OPENAI_BASE_URL`: rápido,
+con plan gratuito, y con buscador web integrado en el chat sin depender de OpenAI.
+Lo único que hace falta es:
 
 ```
-OPENAI_BASE_URL=https://api.groq.com/openai/v1
 OPENAI_API_KEY=<tu clave de https://console.groq.com>
-OPENAI_MODEL=openai/gpt-oss-120b
-OPENAI_MODEL_ASISTENTE=groq/compound
 ```
 
-`OPENAI_MODEL` (resumen y extracción de tareas) y `OPENAI_MODEL_ASISTENTE` (chat)
-van separados a propósito: `groq/compound` trae el buscador integrado, pero no es un
-modelo pensado para forzar JSON con `response_format: json_object` — por eso el chat
-usa `compound` y el resto de operaciones se quedan en un modelo normal. Si no se
-define `OPENAI_MODEL_ASISTENTE`, `completarConBusqueda` usa el mismo que
-`OPENAI_MODEL` para todo, sin buscador integrado.
+Con eso ya está — `OPENAI_MODEL` (resumen y extracción de tareas) y
+`OPENAI_MODEL_ASISTENTE` (el chat) se ponen solos a `openai/gpt-oss-120b` y
+`groq/compound` respectivamente cuando no se definen a mano. Van separados a
+propósito: `groq/compound` trae el buscador integrado, pero no es un modelo pensado
+para forzar JSON con `response_format: json_object`, así que resumen/tareas se
+quedan en un modelo normal y solo el chat usa `compound`.
+
+**Servidor de IA en local o volver a OpenAI real.** `OPENAI_BASE_URL` cambia de
+proveedor: cualquier servidor compatible con la API de OpenAI vale (Ollama, LM
+Studio, llama.cpp, vLLM, la propia OpenAI…) — casi todos exponen
+`/v1/chat/completions` con el mismo formato. En cuanto se pone, `OPENAI_MODEL` deja
+de asumirse Groq y pasa a hacer falta explícito (el nombre del modelo que sirva ese
+proveedor), salvo que sea `https://api.openai.com/v1`, donde por defecto usa
+`gpt-4o-mini` y el chat recupera el buscador propio de OpenAI (Responses API) en vez
+del de Groq. `OPENAI_API_KEY` puede ser cualquier texto no vacío si el servidor no
+valida claves. Ver `.env.example` para los puertos por defecto de Ollama y LM
+Studio. Con un servidor local no hay coste por token, pero conviene saber que
+`response_format: json_object` (lo que usa la extracción de tareas) no lo soportan
+todos los modelos/servidores locales por igual — si falla ahí mientras el resumen
+normal funciona, es la explicación más probable.
 
 ### Stripe
 
