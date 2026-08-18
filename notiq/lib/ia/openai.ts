@@ -5,28 +5,42 @@
  * sin JSON forzado) y el SDK son ~4 MB en el bundle del servidor que hay que mantener
  * al día. Si algún día hacen falta streaming de audio o assistants, se cambia.
  *
- * OPENAI_BASE_URL permite apuntar a un servidor de IA en local (Ollama, LM Studio,
- * llama.cpp, vLLM...) en vez de a OpenAI: casi todos exponen una API compatible con
- * la de OpenAI en /v1/chat/completions, solo cambia la dirección. La clave sigue
- * haciendo falta como cabecera (Authorization: Bearer ...) aunque el servidor local
- * no la valide de verdad — basta con poner cualquier texto no vacío.
+ * Groq es el proveedor por defecto (rápido, con plan gratuito, y su modelo
+ * "compound" trae buscador web integrado sin depender de nada más). Basta con
+ * poner una `OPENAI_API_KEY` de https://console.groq.com y ya funciona todo —
+ * `OPENAI_MODEL` y `OPENAI_MODEL_ASISTENTE` de abajo ya vienen puestos al modelo
+ * correcto de Groq para cada caso, sin tocar nada más.
+ *
+ * `OPENAI_BASE_URL` permite cambiar a la API real de OpenAI, a otro proveedor
+ * compatible o a un servidor en local (Ollama, LM Studio, llama.cpp, vLLM...) — casi
+ * todos exponen una API compatible con la de OpenAI en /v1/chat/completions, solo
+ * cambia la dirección. La clave sigue haciendo falta como cabecera
+ * (Authorization: Bearer ...) aunque el servidor no la valide de verdad — basta con
+ * poner cualquier texto no vacío.
  */
-const BASE_URL = (process.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1').replace(/\/+$/, '');
+const BASE_URL_GROQ = 'https://api.groq.com/openai/v1';
+const BASE_URL = (process.env.OPENAI_BASE_URL ?? BASE_URL_GROQ).replace(/\/+$/, '');
 const ENDPOINT = `${BASE_URL}/chat/completions`;
 const ENDPOINT_RESPUESTAS = `${BASE_URL}/responses`;
 
+/** Solo la API real de OpenAI expone /responses con buscador integrado — Groq (el
+ * proveedor por defecto) y cualquier servidor local resuelven el buscador de otra
+ * forma (ver completarConBusqueda) o no lo tienen. */
+const ES_OPENAI_REAL = BASE_URL === 'https://api.openai.com/v1';
+const ES_GROQ = BASE_URL === BASE_URL_GROQ;
+
 /** Barato y suficiente para resumir y extraer tareas. Ver README para los costes.
  * Con un servidor en local, aquí va el nombre del modelo que sirva ese servidor
- * (p. ej. "llama3.1" en Ollama), no un modelo de OpenAI. */
-export const MODELO = process.env.OPENAI_MODEL ?? 'gpt-4o-mini';
+ * (p. ej. "llama3.1" en Ollama), no un modelo de OpenAI ni de Groq. */
+export const MODELO = process.env.OPENAI_MODEL ?? (ES_GROQ ? 'openai/gpt-oss-120b' : 'gpt-4o-mini');
 
 /** Modelo para el chat del asistente (completarConBusqueda), que puede ser distinto
  * del de resumir/extraer tareas: en OpenAI da igual (ambos soportan el buscador),
  * pero en Groq hace falta separarlo — `groq/compound` trae el buscador integrado
  * pero no es un modelo ideal para forzar JSON, así que resumen/tareas siguen en
- * MODELO (p. ej. `openai/gpt-oss-120b`) y solo el chat usa este. Si no se define,
- * usa el mismo que el resto. */
-export const MODELO_ASISTENTE = process.env.OPENAI_MODEL_ASISTENTE ?? MODELO;
+ * MODELO y solo el chat usa este. Si no se define, usa el mismo que el resto. */
+export const MODELO_ASISTENTE =
+  process.env.OPENAI_MODEL_ASISTENTE ?? (ES_GROQ ? 'groq/compound' : MODELO);
 
 export type Mensaje = {
   role: 'system' | 'user' | 'assistant';
@@ -122,17 +136,18 @@ export async function completar({
  * contexto que se le ha dado.
  *
  * Dos proveedores lo dan sin montar nada aparte:
+ * - Groq (proveedor por defecto) con el modelo "compound": el buscador va integrado
+ *   en el propio modelo sobre el endpoint normal de chat completions, sin parámetro
+ *   de herramienta ni endpoint distinto.
  * - OpenAI real: usa /responses con la herramienta `web_search_preview` (no existe
  *   en /chat/completions). La forma de la respuesta es distinta a la de chat
  *   completions: un array `output` con los pasos que ha dado el modelo (llamadas al
  *   buscador, mensaje final...), así que hay que quedarse solo con el texto.
- * - Groq con un modelo "compound" (`OPENAI_MODEL_ASISTENTE=groq/compound`): el
- *   buscador va integrado en el propio modelo sobre el endpoint normal de chat
- *   completions, sin parámetro de herramienta ni endpoint distinto — por eso, en
- *   cuanto hay `OPENAI_BASE_URL` (cualquier proveedor que no sea OpenAI, Groq
- *   incluido), esta función no toca /responses y usa `completar` tal cual, pero con
- *   MODELO_ASISTENTE en vez de MODELO (compound no es el modelo que se quiere para
- *   resumir notas o forzar JSON en la extracción de tareas).
+ *
+ * Fuera de OpenAI real (Groq, servidor local...) esta función no toca /responses y
+ * usa `completar` tal cual, pero con MODELO_ASISTENTE en vez de MODELO (con Groq,
+ * `compound` no es el modelo que se quiere para resumir notas o forzar JSON en la
+ * extracción de tareas).
  *
  * Si la llamada a /responses falla por lo que sea (cuenta sin el buscador
  * habilitado, error puntual del proveedor...), no se rompe el asistente entero: se
@@ -148,7 +163,7 @@ export async function completarConBusqueda({
     throw new ErrorIA('La IA no está configurada en este despliegue.', 503);
   }
 
-  if (process.env.OPENAI_BASE_URL) {
+  if (!ES_OPENAI_REAL) {
     return completar({ mensajes, temperatura, maxTokens, modelo: MODELO_ASISTENTE });
   }
 
