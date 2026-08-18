@@ -4,10 +4,16 @@ import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FormularioLead from '@/components/FormularioLead';
-import { getProducto, registrarVisita } from '@/lib/queries';
+import ResenasProducto from '@/components/ResenasProducto';
+import BotonFavorito from '@/components/BotonFavorito';
+import Compartir from '@/components/Compartir';
+import { getMiResena, getProducto, getResenas, registrarVisita } from '@/lib/queries';
+import { getPerfilActual } from '@/lib/supabase/server';
 import { NOMBRE_TIPO, euros, precioResumido, tiempoInstalacion } from '@/lib/formato';
 
 export const dynamic = 'force-dynamic';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://iapyme.es';
 
 export async function generateMetadata({
   params,
@@ -40,6 +46,12 @@ export default async function FichaProducto({ params }: { params: { slug: string
     await registrarVisita(producto.id);
   }
 
+  const [resenas, perfil, miResena] = await Promise.all([
+    getResenas(producto.id),
+    getPerfilActual(),
+    getMiResena(producto.id),
+  ]);
+
   const precio = precioResumido(producto);
   const vendedor = producto.profiles;
 
@@ -55,7 +67,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
           </p>
         ) : null}
 
-        <nav aria-label="Migas" className="text-sm text-ink/50">
+        <nav aria-label="Migas" className="text-sm text-ink/65">
           <Link href="/" className="hover:text-ink">
             Inicio
           </Link>
@@ -76,7 +88,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
 
         <div className="mt-6 grid gap-12 lg:grid-cols-[1fr_320px] lg:items-start">
           <article>
-            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               {producto.titulo}
             </h1>
             <p className="mt-2 text-lg text-ink/70">{producto.tagline}</p>
@@ -85,7 +97,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
               <span className="rounded-full bg-ink/[0.05] px-3 py-1 text-ink/70">
                 {NOMBRE_TIPO[producto.product_type]}
               </span>
-              <span className="rounded-full bg-accent-500/10 px-3 py-1 text-accent-600">
+              <span className="rounded-full bg-accent-500/10 px-3 py-1 text-accent-700">
                 Listo en {tiempoInstalacion(producto.minutos_instalacion)}
               </span>
               {producto.idioma_producto === 'en' ? (
@@ -185,12 +197,22 @@ export default async function FichaProducto({ params }: { params: { slug: string
                   </ul>
                 </section>
               ) : null}
+
+              <ResenasProducto
+                productId={producto.id}
+                tituloProducto={producto.titulo}
+                resenas={resenas}
+                ratingPromedio={producto.rating_promedio}
+                ratingTotal={producto.rating_total}
+                sesionIniciada={Boolean(perfil)}
+                yaHaResenado={Boolean(miResena)}
+              />
             </div>
           </article>
 
           <aside className="lg:sticky lg:top-24">
             <div className="card p-6">
-              <p className="text-3xl font-extrabold tracking-tight">{precio.principal}</p>
+              <p className="text-3xl font-semibold tracking-tight">{precio.principal}</p>
               {precio.secundario ? (
                 <p className="mt-1 text-sm text-ink/60">{precio.secundario}</p>
               ) : null}
@@ -209,6 +231,14 @@ export default async function FichaProducto({ params }: { params: { slug: string
                 />
               </div>
 
+              <div className="mt-3">
+                <BotonFavorito productId={producto.id} variante="ficha" />
+              </div>
+
+              <div className="mt-2">
+                <Compartir titulo={producto.titulo} url={`${SITE_URL}/p/${producto.slug}`} />
+              </div>
+
               <ul className="mt-5 space-y-2 border-t border-ink/10 pt-5 text-xs text-ink/60">
                 <li>✓ Listo en {tiempoInstalacion(producto.minutos_instalacion)}</li>
                 <li>✓ Trato directo con quien lo ha construido</li>
@@ -218,15 +248,24 @@ export default async function FichaProducto({ params }: { params: { slug: string
 
             {vendedor ? (
               <div className="card mt-4 p-5">
-                <p className="text-xs font-bold uppercase tracking-wider text-ink/40">
+                <p className="text-xs font-bold uppercase tracking-wider text-ink/60">
                   Lo vende
                 </p>
                 <div className="mt-3 flex items-center gap-3">
-                  <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-brand-500 to-accent-500" />
+                  {vendedor.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={vendedor.avatar_url}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 shrink-0 rounded-full bg-gradient-to-br from-brand-500 to-accent-500" />
+                  )}
                   <div className="min-w-0">
                     <p className="truncate font-bold">{vendedor.display_name}</p>
                     {vendedor.is_verified ? (
-                      <p className="text-xs font-semibold text-accent-600">✓ Verificado</p>
+                      <p className="text-xs font-semibold text-accent-700">✓ Verificado</p>
                     ) : null}
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { excedeLimite, obtenerIp } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,6 +12,10 @@ function texto(valor: unknown, maximo: number): string {
 }
 
 export async function POST(request: Request) {
+  if (excedeLimite(obtenerIp(request), 8, 60_000)) {
+    return NextResponse.json({ error: 'Demasiados intentos, prueba en un minuto.' }, { status: 429 });
+  }
+
   const supabase = createClient();
   if (!supabase) {
     return NextResponse.json(
@@ -24,6 +29,11 @@ export async function POST(request: Request) {
     cuerpo = (await request.json()) as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: 'Petición inválida.' }, { status: 400 });
+  }
+
+  // Campo trampa: invisible para personas, los bots que rellenan todo lo detectan.
+  if (texto(cuerpo.web, 200).length > 0) {
+    return NextResponse.json({ ok: true });
   }
 
   const productId = texto(cuerpo.productId, 40);

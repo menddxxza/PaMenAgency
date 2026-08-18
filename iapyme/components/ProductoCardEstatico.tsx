@@ -18,7 +18,7 @@ export default function ProductoCardEstatico({ producto }: { producto: Producto 
           {categoria?.nombre}
         </span>
         {producto.destacado ? (
-          <span className="rounded-full bg-accent-500/15 px-2.5 py-1 text-xs font-semibold text-accent-600">
+          <span className="rounded-full bg-accent-500/15 px-2.5 py-1 text-xs font-semibold text-accent-700">
             Destacado
           </span>
         ) : null}
@@ -29,22 +29,22 @@ export default function ProductoCardEstatico({ producto }: { producto: Producto 
 
       <dl className="mt-5 space-y-3 border-t border-ink/10 pt-5 text-sm">
         <div>
-          <dt className="font-semibold text-ink/50">El problema</dt>
+          <dt className="font-semibold text-ink/65">El problema</dt>
           <dd className="mt-0.5 text-ink/80">{producto.problema}</dd>
         </div>
         <div>
-          <dt className="font-semibold text-ink/50">La solución</dt>
+          <dt className="font-semibold text-ink/65">La solución</dt>
           <dd className="mt-0.5 text-ink/80">{producto.solucion}</dd>
         </div>
       </dl>
 
       <div className="mt-auto flex items-end justify-between gap-4 border-t border-ink/10 pt-5">
         <p className="text-sm">
-          <span className="text-xl font-extrabold">{producto.precioSetup} €</span>
+          <span className="text-xl font-semibold">{producto.precioSetup} €</span>
           <span className="text-ink/60"> setup</span>
           <span className="block text-ink/60">+ {producto.precioMensual} €/mes</span>
         </p>
-        <p className="rounded-lg bg-accent-500/10 px-3 py-1.5 text-xs font-semibold text-accent-600">
+        <p className="rounded-lg bg-accent-500/10 px-3 py-1.5 text-xs font-semibold text-accent-700">
           Listo en {formatoTiempo(producto.minutosInstalacion)}
         </p>
       </div>

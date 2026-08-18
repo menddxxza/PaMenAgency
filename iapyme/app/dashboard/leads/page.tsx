@@ -25,13 +25,20 @@ export default async function LeadsPage() {
 
   return (
     <div>
-      <header>
-        <h1 className="text-2xl font-extrabold tracking-tight">Mensajes</h1>
-        <p className="mt-1 text-sm text-ink/60">
-          {leads.length === 0
-            ? 'Aquí llegan las personas que preguntan por tus soluciones.'
-            : `${leads.length} en total · ${sinResponder} sin responder`}
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Mensajes</h1>
+          <p className="mt-1 text-sm text-ink/60">
+            {leads.length === 0
+              ? 'Aquí llegan las personas que preguntan por tus soluciones.'
+              : `${leads.length} en total · ${sinResponder} sin responder`}
+          </p>
+        </div>
+        {leads.length > 0 ? (
+          <a href="/dashboard/leads/exportar" className="btn-secondary">
+            Exportar CSV
+          </a>
+        ) : null}
       </header>
 
       {sinResponder > 0 ? (
@@ -71,7 +78,7 @@ export default async function LeadsPage() {
                   </p>
                 </div>
 
-                <p className="text-xs text-ink/45">
+                <p className="text-xs text-ink/60">
                   {new Date(lead.created_at).toLocaleDateString('es-ES', {
                     day: 'numeric',
                     month: 'short',

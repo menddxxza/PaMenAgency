@@ -20,7 +20,7 @@ export default async function CategoriasPage() {
       <Header />
 
       <main className="container-page py-12">
-        <h1 className="text-3xl font-extrabold tracking-tight">Categorías</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Categorías</h1>
         <p className="mt-2 max-w-2xl text-ink/65">
           Las soluciones están organizadas por sector, no por tecnología. Busca el problema
           que tienes, no la herramienta que lo resuelve.

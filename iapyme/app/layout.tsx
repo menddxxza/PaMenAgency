@@ -1,6 +1,28 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { Inter, JetBrains_Mono } from 'next/font/google';
+import FavoritosProvider from '@/components/FavoritosProvider';
 import './globals.css';
+
+// Una sola familia para display y cuerpo — Inter, con más peso y tracking
+// negativo en los titulares en vez de una segunda tipografía "de marca".
+// next/font solo necesita cargar el archivo una vez; --font-display y
+// --font-sans apuntan al mismo valor (ver globals.css) para que el resto
+// del sistema pueda seguir distinguiendo el rol sin que sean fuentes
+// distintas de verdad. JetBrains Mono queda como el tercer rol, solo para
+// cifras y datos.
+const sans = Inter({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://iapyme.es';
 
@@ -25,17 +47,19 @@ export const metadata: Metadata = {
     title: 'IAPyme — El marketplace de soluciones de IA para pymes',
     description:
       'Compra soluciones de IA listas para usar en 5 minutos. O vende las tuyas 1.000 veces sin dar soporte uno a uno.',
+    images: [{ url: '/og-cover.png', width: 1200, height: 630, alt: 'IAPyme' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'IAPyme — El marketplace de soluciones de IA para pymes',
     description:
       'El primer marketplace vertical de soluciones de IA en español.',
+    images: ['/og-cover.png'],
   },
   alternates: { canonical: '/' },
   manifest: '/manifest.webmanifest',
   icons: {
-    icon: '/icon.svg',
+    icon: '/icon.png',
     apple: '/icons/apple-touch-icon.png',
   },
   appleWebApp: {
@@ -57,9 +81,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${sans.variable} ${mono.variable}`}>
       <body>
-        {children}
+        <FavoritosProvider>{children}</FavoritosProvider>
         {plausibleDomain ? (
           <Script
             defer

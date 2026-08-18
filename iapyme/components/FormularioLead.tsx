@@ -71,6 +71,12 @@ export default function FormularioLead({
     <form onSubmit={onSubmit} className="space-y-3">
       <p className="text-sm font-bold">Habla con el vendedor</p>
 
+      {/* Campo trampa anti-spam: oculto para personas, los bots lo rellenan igual que el resto. */}
+      <div className="hidden" aria-hidden="true">
+        <label htmlFor="lead-web">No rellenar</label>
+        <input id="lead-web" name="web" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <div>
         <label htmlFor="lead-nombre" className="sr-only">
           Tu nombre

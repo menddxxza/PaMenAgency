@@ -94,7 +94,7 @@ function Grupo({
 }) {
   return (
     <fieldset>
-      <legend className="text-xs font-bold uppercase tracking-wider text-ink/40">
+      <legend className="text-xs font-bold uppercase tracking-wider text-ink/60">
         {titulo}
       </legend>
       <div className="mt-3 flex flex-wrap gap-2 lg:flex-col lg:items-start">
