@@ -127,11 +127,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }).finally(() => clearTimeout(timeout))
 
     if (!groqRes.ok) {
-      // DIAGNÓSTICO TEMPORAL: nunca se expone la clave, sólo el estado HTTP
-      // y el inicio del cuerpo de error que devuelve Groq.
+      // DIAGNÓSTICO TEMPORAL: nunca se expone la clave, sólo el estado HTTP,
+      // el error de Groq y, si el fallo es de modelo, la lista de modelos
+      // que esa clave sí tiene disponibles (para no volver a adivinar el id).
       const errBody = await groqRes.text().catch(() => '')
+      let modelsHint = ''
+      try {
+        const modelsRes = await fetch('https://api.groq.com/openai/v1/models', {
+          headers: { Authorization: `Bearer ${apiKey}` },
+        })
+        if (modelsRes.ok) {
+          const modelsData = (await modelsRes.json()) as { data?: { id: string }[] }
+          const ids = (modelsData.data ?? []).map((m) => m.id)
+          modelsHint = ` | modelos disponibles: ${ids.join(', ')}`
+        }
+      } catch {
+        // Si tampoco se puede listar modelos, seguimos sólo con el error original.
+      }
       res.status(200).json({
-        reply: `[diagnóstico: Groq respondió ${groqRes.status} — ${errBody.slice(0, 200)}] ${FALLBACK_REPLY}`,
+        reply: `[diagnóstico: Groq respondió ${groqRes.status} — ${errBody.slice(0, 200)}${modelsHint}] ${FALLBACK_REPLY}`,
       })
       return
     }
