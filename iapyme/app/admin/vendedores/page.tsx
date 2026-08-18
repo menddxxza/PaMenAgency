@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { createClient, getPerfilActual } from '@/lib/supabase/server';
 import type { Profile } from '@/lib/database.types';
 import BotonVerificar from '@/components/BotonVerificar';
+import AvisoSinSupabase from '@/components/AvisoSinSupabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,8 +13,16 @@ type StatsVendedor = { publicados: number; visitas: number; leads: number; resen
 
 export default async function VendedoresAdminPage() {
   const supabase = createClient();
+  if (!supabase) {
+    return (
+      <main className="container-page py-20">
+        <AvisoSinSupabase que="Esta sección" />
+      </main>
+    );
+  }
+
   const perfil = await getPerfilActual();
-  if (!supabase || !perfil) return null;
+  if (!perfil) redirect('/entrar?volver=/admin/vendedores');
   if (perfil.role !== 'admin') redirect('/dashboard');
 
   const [{ data: vendedores }, { data: productos }] = await Promise.all([

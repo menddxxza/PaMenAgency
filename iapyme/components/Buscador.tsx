@@ -10,10 +10,18 @@ import Icono from './Icono';
  * eso tumba el prerenderizado estático de cualquier página que monte el buscador.
  * El límite va aquí para que ningún consumidor tenga que acordarse de ponerlo.
  */
-export default function Buscador({ compacto = false }: { compacto?: boolean }) {
+export default function Buscador({
+  compacto = false,
+  oscuro = false,
+}: {
+  compacto?: boolean;
+  /** El buscador de portada vive sobre el hero oscuro: los acentos de
+   *  marca necesitan un tono más claro para seguir leyéndose ahí. */
+  oscuro?: boolean;
+}) {
   return (
     <Suspense fallback={<BuscadorEsqueleto compacto={compacto} />}>
-      <BuscadorInterno compacto={compacto} />
+      <BuscadorInterno compacto={compacto} oscuro={oscuro} />
     </Suspense>
   );
 }
@@ -29,7 +37,7 @@ function BuscadorEsqueleto({ compacto }: { compacto: boolean }) {
 type RespuestaIA = { respuesta: string; productos: { slug: string; titulo: string }[] };
 type EstadoIA = 'idle' | 'pensando' | 'lista' | 'error';
 
-function BuscadorInterno({ compacto }: { compacto: boolean }) {
+function BuscadorInterno({ compacto, oscuro }: { compacto: boolean; oscuro: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [q, setQ] = useState(searchParams.get('q') ?? '');
@@ -151,16 +159,16 @@ function BuscadorInterno({ compacto }: { compacto: boolean }) {
         type="button"
         onClick={preguntarIA}
         disabled={estadoIA === 'pensando'}
-        className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-brand-700
-                   transition-colors duration-fast ease-out hover:text-brand-800
-                   disabled:cursor-wait disabled:opacity-60"
+        className={`mt-3 inline-flex items-center gap-1.5 text-sm font-medium
+                    transition-colors duration-fast ease-out disabled:cursor-wait disabled:opacity-60
+                    ${oscuro ? 'text-brand-300 hover:text-brand-200' : 'text-brand-700 hover:text-brand-800'}`}
       >
         <Icono nombre="chispa" className="h-4 w-4" />
         {estadoIA === 'pensando' ? 'Pensando…' : '¿No sabes qué buscar? Pregúntale a la IA'}
       </button>
 
       {estadoIA === 'error' && errorIA ? (
-        <p role="alert" className="mt-2 text-sm text-red-600">
+        <p role="alert" className={`mt-2 text-sm ${oscuro ? 'text-red-300' : 'text-red-600'}`}>
           {errorIA}
         </p>
       ) : null}
