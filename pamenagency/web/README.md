@@ -79,11 +79,9 @@ como pendiente en vez de mostrar un dato falso.
 - `src/pages/legal/AvisoLegal.tsx` y `Privacidad.tsx`: cuando exista una razón
   social y un NIF que publicar, añádelos donde el propio texto indica que
   faltan.
-- `src/content/site.ts` → `url`: dominio definitivo (se usa en canonical, Open
-  Graph y sitemap). Debe coincidir con `BASE` en `scripts/generate-sitemap.mjs`
-  y con las URL de `index.html` y `public/robots.txt`.
-- `src/content/site.ts` → `social`: URLs de Instagram, TikTok y LinkedIn. Sin
-  URL, el pie muestra el nombre sin enlazar en lugar de un enlace roto.
+- `src/content/site.ts` → `social`: URL de LinkedIn (Instagram y TikTok ya
+  están). Sin URL, el pie muestra el nombre sin enlazar en lugar de un enlace
+  roto.
 - `src/content/site.ts` → `phone` y `whatsapp`, si se quieren ofrecer.
 - Páginas legales: los proveedores de alojamiento y correo, en
   `src/pages/legal/Privacidad.tsx` y `TratamientoDatos.tsx`.

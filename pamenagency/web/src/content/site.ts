@@ -17,8 +17,8 @@ export const site = {
   tagline: 'Convierte la Inteligencia Artificial en una ventaja real.',
   description:
     'PaMenAgency es una agencia de Inteligencia Artificial y centro de conocimiento. Ayudamos a personas, PYMEs y empresas a entender, implementar y aprovechar la IA con criterio.',
-  /** Dominio definitivo aún sin confirmar: se usa para canonical, OG y sitemap. */
-  url: 'https://www.pamenagency.com',
+  /** Dominio definitivo: se usa para canonical, OG y sitemap. */
+  url: 'https://pamenagency.com',
   locale: 'es_ES',
   lang: 'es',
   email: 'soporte.atiende@gmail.com',

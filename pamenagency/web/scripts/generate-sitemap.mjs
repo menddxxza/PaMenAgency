@@ -14,7 +14,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = join(root, 'dist')
 
 // Debe coincidir con `site.url` en src/content/site.ts.
-const BASE = 'https://www.pamenagency.com'
+const BASE = 'https://pamenagency.com'
 
 /** Rutas fijas, con la prioridad relativa que les corresponde. */
 const staticRoutes = [
