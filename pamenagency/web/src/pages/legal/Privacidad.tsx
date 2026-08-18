@@ -11,19 +11,13 @@ export default function Privacidad() {
     >
       <h2>1. Responsable del tratamiento</h2>
       <ul>
-        <li>
-          Responsable: <Placeholder>RESPONSABLE DEL TRATAMIENTO</Placeholder>
-        </li>
-        <li>
-          NIF / CIF: <Placeholder>NIF / CIF</Placeholder>
-        </li>
-        <li>
-          Dirección: <Placeholder>DIRECCIÓN</Placeholder>
-        </li>
-        <li>
-          Correo de contacto: <Placeholder>EMAIL DE PROTECCIÓN DE DATOS</Placeholder>
-        </li>
+        <li>Responsable: {site.name}</li>
+        <li>Correo de contacto: {site.email}</li>
       </ul>
+      <p className="pm-muted" style={{ fontSize: '0.9rem' }}>
+        Faltan por confirmar el NIF/CIF y el domicilio del responsable, exigidos por el RGPD para
+        una identificación completa. Se añadirán en cuanto estén disponibles.
+      </p>
 
       <h2>2. Qué datos tratamos</h2>
       <p>Este sitio recoge datos personales únicamente en un caso: el formulario de contacto.</p>
@@ -97,7 +91,7 @@ export default function Privacidad() {
       <p>
         Puedes ejercer los derechos de acceso, rectificación, supresión, limitación del
         tratamiento, portabilidad y oposición, así como retirar el consentimiento en cualquier
-        momento, escribiendo a <Placeholder>EMAIL DE PROTECCIÓN DE DATOS</Placeholder> e indicando
+        momento, escribiendo a {site.email} e indicando
         el derecho que deseas ejercer.
       </p>
       <p>

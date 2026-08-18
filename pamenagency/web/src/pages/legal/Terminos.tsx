@@ -1,5 +1,4 @@
 import { LegalPage } from './LegalPage'
-import { Placeholder } from '@/components/ui/Placeholder'
 import { site } from '@/content/site'
 
 export default function Terminos() {
@@ -73,8 +72,7 @@ export default function Terminos() {
       <p>
         Estos términos se rigen por la legislación española. Para cualquier controversia, las
         partes se someten a los juzgados y tribunales que correspondan conforme a la normativa
-        aplicable, con el domicilio del titular indicado en el aviso legal:{' '}
-        <Placeholder>DIRECCIÓN</Placeholder>.
+        de protección de personas consumidoras y usuarias aplicable.
       </p>
     </LegalPage>
   )

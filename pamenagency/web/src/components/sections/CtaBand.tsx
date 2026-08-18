@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button'
 export function CtaBand({
   title = '¿Y si empezamos?',
   text = 'Cuéntanos tu situación. Si no necesitas contratar nada, también te lo diremos.',
-  primary = { label: 'Hablar con PA MEN AGENCY', to: '/contacto' },
+  primary = { label: 'Hablar con PAMEN AGENCY', to: '/contacto' },
   secondary = { label: 'Descubrir mi potencial', to: '/diagnostico' },
 }: {
   title?: string

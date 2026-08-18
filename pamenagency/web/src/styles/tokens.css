@@ -79,6 +79,7 @@
   --z-cookie: 8000;
   --z-menu: 7000;
   --z-header: 6000;
+  --z-assistant: 5500;
 }
 
 /* El usuario pide menos movimiento: se lo damos, sin romper el diseño. */

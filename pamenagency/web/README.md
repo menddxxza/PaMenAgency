@@ -27,15 +27,18 @@ src/
     knowledge/     Documentos del centro de conocimiento (ver su README)
   components/
     layout/        Cabecera, menú móvil, pie y armazón de página
-    ui/            Botón, icono, sección, acordeón, cursor, cabecera de página
+    ui/            Botón, icono, sección, acordeón, cursor, partículas, cabecera de página
     sections/      Bloques que componen la portada y las páginas internas
     three/         Escenas WebGL y su equivalente estático en SVG
     cookies/       Banner y panel de consentimiento
+    chat/          Widget del asistente de IA (frontend)
   lib/
     seo.ts         Metadatos por ruta, Open Graph y datos estructurados
     motion.ts      Scroll reveal, parallax, spotlight, detección de capacidades
     consent.ts     Almacenamiento y lectura del consentimiento
   pages/           Una página por ruta; todas salvo la portada se cargan bajo demanda
+api/
+  chat.ts          Función serverless de Vercel: backend del asistente de IA
 ```
 
 ## Cómo ampliar el sitio
@@ -69,10 +72,14 @@ componentes.
 
 ## Datos pendientes antes de publicar
 
-Estos datos no se han inventado: aparecen en la web como marcadores visibles.
+Los datos personales de identificación (titular, NIF/CIF, domicilio) se han
+dejado deliberadamente fuera de las páginas legales a petición expresa: no se
+inventan y no se piden. El aviso legal y la política de privacidad lo indican
+como pendiente en vez de mostrar un dato falso.
 
-- `src/content/site.ts` → bloque `legal`: titular, NIF/CIF, dirección, email
-  legal, responsable del tratamiento y dominio.
+- `src/pages/legal/AvisoLegal.tsx` y `Privacidad.tsx`: cuando exista una razón
+  social y un NIF que publicar, añádelos donde el propio texto indica que
+  faltan.
 - `src/content/site.ts` → `url`: dominio definitivo (se usa en canonical, Open
   Graph y sitemap). Debe coincidir con `BASE` en `scripts/generate-sitemap.mjs`
   y con las URL de `index.html` y `public/robots.txt`.
@@ -89,6 +96,27 @@ Estos datos no se han inventado: aparecen en la web como marcadores visibles.
 Sin backend configurado, el formulario valida y después compone un correo con
 los datos y abre el cliente del usuario. Para enviarlo a un servicio propio,
 define `VITE_CONTACT_ENDPOINT` (ver `.env.example`): recibirá un POST con JSON.
+
+## Asistente de IA
+
+Widget de chat flotante (`src/components/chat/AssistantWidget.tsx`), visible en
+todas las páginas, que llama a la función serverless `api/chat.ts`. Esa función
+usa la API de Claude (`@anthropic-ai/sdk`, modelo `claude-opus-5`) con un
+prompt de sistema que resume los servicios, el tono y los límites de la
+agencia; no tiene acceso a nada más y no inventa datos que no estén en ese
+prompt.
+
+**Requiere la variable de entorno `ANTHROPIC_API_KEY`** en el proyecto de
+Vercel (Settings → Environment Variables, en Production y Preview). Sin ella,
+el asistente sigue funcionando pero responde siempre con un mensaje que remite
+al contacto humano, en vez de fallar.
+
+La conversación vive sólo en memoria del componente: no se guarda en el
+navegador ni se envía a ningún sitio salvo a esa función, así que no requiere
+consentimiento de cookies. `claude-opus-5` es el modelo más capaz —y más caro—
+de los disponibles; en un widget público conviene vigilar el consumo y, si el
+tráfico crece mucho, valorar un modelo más económico (`claude-sonnet-5` o
+`claude-haiku-4-5`) cambiando la constante `MODEL` en `api/chat.ts`.
 
 ## Decisiones que conviene conocer
 

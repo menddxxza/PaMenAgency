@@ -322,7 +322,7 @@ export function ContactForm() {
 
       <div style={{ marginTop: '1.75rem' }}>
         <Button type="submit" disabled={status === 'sending'} arrow full>
-          {status === 'sending' ? 'Enviando…' : 'Hablar con PA MEN AGENCY'}
+          {status === 'sending' ? 'Enviando…' : 'Hablar con PAMEN AGENCY'}
         </Button>
       </div>
     </form>

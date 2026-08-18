@@ -4,6 +4,8 @@ import { Header } from './Header'
 import { Footer } from './Footer'
 import { CookieBanner } from '@/components/cookies/CookieBanner'
 import { CustomCursor } from '@/components/ui/CustomCursor'
+import { AmbientParticles } from '@/components/ui/AmbientParticles'
+import { AssistantWidget } from '@/components/chat/AssistantWidget'
 
 /** Cada navegación empieza arriba, salvo que se navegue a un ancla. */
 function ScrollToTop() {
@@ -41,6 +43,7 @@ export function Layout() {
       </a>
       <ScrollToTop />
       <CustomCursor />
+      <AmbientParticles />
       <div className="pm-noise" aria-hidden="true" />
       <Header />
       <main id="contenido" tabIndex={-1}>
@@ -52,6 +55,7 @@ export function Layout() {
       </main>
       <Footer />
       <CookieBanner />
+      <AssistantWidget />
     </>
   )
 }

@@ -13,7 +13,7 @@ export const PENDIENTE = 'PENDIENTE' as const
 export const site = {
   name: 'PaMenAgency',
   /** El nombre se compone en dos piezas para poder darle tratamiento visual. */
-  wordmark: { first: 'PA MEN', second: 'AGENCY' },
+  wordmark: { first: 'PAMEN', second: 'AGENCY' },
   tagline: 'Convierte la Inteligencia Artificial en una ventaja real.',
   description:
     'PaMenAgency es una agencia de Inteligencia Artificial y centro de conocimiento. Ayudamos a personas, PYMEs y empresas a entender, implementar y aprovechar la IA con criterio.',
@@ -21,7 +21,7 @@ export const site = {
   url: 'https://www.pamenagency.com',
   locale: 'es_ES',
   lang: 'es',
-  email: 'hola@pamenagency.com',
+  email: 'soporte.atiende@gmail.com',
   /** Sin número confirmado: la web no muestra teléfono hasta que exista. */
   phone: null as string | null,
   whatsapp: null as string | null,
@@ -30,15 +30,6 @@ export const site = {
     { name: 'TikTok', url: null as string | null },
     { name: 'LinkedIn', url: null as string | null },
   ],
-  /** Datos exigidos por la LSSI-CE y el RGPD. Pendientes de aportar. */
-  legal: {
-    titular: PENDIENTE,
-    nif: PENDIENTE,
-    direccion: PENDIENTE,
-    emailLegal: PENDIENTE,
-    responsableTratamiento: PENDIENTE,
-    dominio: PENDIENTE,
-  },
 } as const
 
 /** Navegación principal. El orden es también el orden del relato de la home. */

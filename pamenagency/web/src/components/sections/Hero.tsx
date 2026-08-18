@@ -66,7 +66,7 @@ export function Hero() {
 
           <div className="pm-hero__actions">
             <Button to="/nosotros" arrow>
-              Descubrir PA MEN AGENCY
+              Descubrir PAMEN AGENCY
             </Button>
             <Button to="/servicios" variant="ghost">
               Ver servicios

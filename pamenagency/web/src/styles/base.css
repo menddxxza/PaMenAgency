@@ -322,3 +322,51 @@ ul, ol { list-style: none; }
   width: auto;
   height: auto;
 }
+
+/* -------------------------- Partículas ambientales -------------------------- */
+
+.pm-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pm-particle {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--pm-gold-bright);
+  box-shadow: 0 0 6px 1px rgba(212, 175, 55, 0.55);
+  opacity: 0;
+  animation: pm-particle-float var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+
+/* La mitad de las partículas se ocultan en pantallas estrechas: mismo
+   fondo, la mitad del coste de pintado. */
+@media (max-width: 720px) {
+  .pm-particle--wide { display: none; }
+}
+
+@keyframes pm-particle-float {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: var(--op);
+  }
+  85% {
+    opacity: var(--op);
+  }
+  100% {
+    transform: translate3d(calc(var(--drift) * 0.4), calc(var(--drift) * -1), 0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-particles { display: none; }
+}

@@ -1,5 +1,6 @@
 import { LegalPage } from './LegalPage'
 import { Placeholder } from '@/components/ui/Placeholder'
+import { site } from '@/content/site'
 
 export default function TratamientoDatos() {
   return (
@@ -84,7 +85,7 @@ export default function TratamientoDatos() {
       <h2>5. Ejercicio de derechos</h2>
       <p>
         Las solicitudes de acceso, rectificación, supresión, limitación, portabilidad u oposición
-        se dirigen a <Placeholder>EMAIL DE PROTECCIÓN DE DATOS</Placeholder> y se responden en el
+        se dirigen a {site.email} y se responden en el
         plazo máximo de un mes desde su recepción, prorrogable conforme a la normativa.
       </p>
 

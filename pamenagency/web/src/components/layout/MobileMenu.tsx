@@ -73,7 +73,7 @@ export function MobileMenu({ onClose, email }: { onClose: () => void; email: str
           Descubrir mi potencial
         </Button>
         <Button to="/contacto" full arrow>
-          Hablar con PA MEN AGENCY
+          Hablar con PAMEN AGENCY
         </Button>
         <a className="pm-link" href={`mailto:${email}`} style={{ justifyContent: 'center' }}>
           {email}

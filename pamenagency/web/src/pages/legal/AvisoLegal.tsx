@@ -16,22 +16,11 @@ export default function AvisoLegal() {
         datos:
       </p>
       <ul>
-        <li>
-          Titular: <Placeholder>TITULAR</Placeholder>
-        </li>
-        <li>
-          NIF / CIF: <Placeholder>NIF / CIF</Placeholder>
-        </li>
-        <li>
-          Domicilio: <Placeholder>DIRECCIÓN</Placeholder>
-        </li>
-        <li>
-          Correo electrónico: <Placeholder>EMAIL DE CONTACTO LEGAL</Placeholder>
-        </li>
+        <li>Nombre comercial: {site.name}</li>
+        <li>Correo electrónico: {site.email}</li>
         <li>
           Nombre de dominio: <Placeholder>DOMINIO</Placeholder>
         </li>
-        <li>Nombre comercial: {site.name}</li>
       </ul>
 
       <h2>2. Objeto</h2>
@@ -53,9 +42,9 @@ export default function AvisoLegal() {
       <h2>4. Propiedad intelectual e industrial</h2>
       <p>
         Los contenidos de este sitio —textos, guías, diseño, código, elementos gráficos y
-        estructura— son titularidad de <Placeholder>TITULAR</Placeholder> o se utilizan con la
-        autorización correspondiente, y están protegidos por la normativa de propiedad intelectual
-        e industrial.
+        estructura— son titularidad de {site.name} o se utilizan con la autorización
+        correspondiente, y están protegidos por la normativa de propiedad intelectual e
+        industrial.
       </p>
       <p>
         Se permite la lectura, la consulta y la cita con indicación de la fuente. No se autoriza su
@@ -89,6 +78,14 @@ export default function AvisoLegal() {
         Las presentes condiciones se rigen por la legislación española. Para la resolución de
         cualquier controversia, las partes se someten a los juzgados y tribunales que correspondan
         conforme a la normativa aplicable.
+      </p>
+
+      <h2>8. Identificación del titular</h2>
+      <p>
+        Este aviso legal está pendiente de completar con los datos identificativos del titular
+        (persona física o jurídica, NIF/CIF y domicilio) exigidos por la LSSI-CE. Mientras tanto,
+        el único canal de contacto e identificación disponible es el correo electrónico indicado
+        arriba.
       </p>
     </LegalPage>
   )

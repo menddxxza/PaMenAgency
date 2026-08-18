@@ -172,24 +172,55 @@
 
 .pm-checklist li svg { flex: none; margin-top: 4px; color: var(--pm-gold); }
 
-/* Lista de "lo que suele pasar": tono más crítico, marca roja apagada. */
+/* Lista de "lo que suele pasar": tono más crítico, marca roja apagada.
+   Cada punto se puede abrir para ver cómo lo resolvemos — reutiliza la
+   mecánica de altura animada del acordeón (.pm-accordion__panel). */
 .pm-painlist { display: grid; gap: 0.6rem; }
 
-.pm-painlist li {
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-  padding: 0.85rem 1rem;
+.pm-painlist__item {
   border: 1px solid var(--pm-line);
   border-left: 2px solid rgba(196, 84, 74, 0.5);
   border-radius: var(--radius-sm);
   background: var(--pm-surface);
-  color: var(--pm-text-soft);
-  font-size: 0.95rem;
+  overflow: hidden;
   transition: border-left-color var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
 }
 
-.pm-painlist li:hover { border-left-color: var(--pm-gold); transform: translateX(3px); }
+.pm-painlist__item:hover { transform: translateX(3px); }
+.pm-painlist__item:hover,
+.pm-painlist__item[data-open='true'] { border-left-color: var(--pm-gold); }
+
+.pm-painlist__trigger.pm-accordion__trigger {
+  padding: 0.85rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--pm-text-soft);
+}
+
+.pm-painlist__item:hover .pm-painlist__trigger,
+.pm-painlist__trigger[aria-expanded='true'] { color: var(--pm-text); }
+
+.pm-painlist__label {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  text-align: left;
+  min-width: 0;
+}
+
+.pm-painlist__label svg {
+  flex: none;
+  margin-top: 2px;
+  color: rgba(196, 84, 74, 0.75);
+  transition: color var(--dur) var(--ease-out);
+}
+
+.pm-painlist__item:hover .pm-painlist__label svg,
+.pm-painlist__trigger[aria-expanded='true'] .pm-painlist__label svg { color: var(--pm-gold); }
+
+.pm-painlist__item .pm-accordion__panel { padding-inline: 1rem; }
+.pm-painlist__item .pm-accordion__body { color: var(--pm-text-soft); font-size: 0.9rem; }
 
 /* --------------------------- Metodología --------------------------- */
 
@@ -813,12 +844,3 @@
     opacity: 0.45;
   }
 }
-
-.pm-painlist li svg {
-  flex: none;
-  margin-top: 4px;
-  color: rgba(196, 84, 74, 0.75);
-  transition: color var(--dur) var(--ease-out);
-}
-
-.pm-painlist li:hover svg { color: var(--pm-gold); }
