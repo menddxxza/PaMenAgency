@@ -1,9 +1,10 @@
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Llama 3.3 70B en la capa gratuita de Groq: rápido y suficientemente
-// capaz para elegir entre un catálogo corto, sin coste mientras el uso
-// se mantenga dentro de los límites gratuitos.
-const MODELO = 'llama-3.3-70b-versatile';
+// Groq retiró los modelos Llama de chat de su catálogo; gpt-oss-120b es el
+// modelo de razonamiento general más capaz que queda en la capa gratuita,
+// necesario para juzgar bien si un producto encaja con lo que pide el
+// usuario en vez de solo coincidir en palabras sueltas.
+const MODELO = 'openai/gpt-oss-120b';
 
 type Mensaje = { role: 'system' | 'user'; content: string };
 
