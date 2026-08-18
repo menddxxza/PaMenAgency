@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
-type Modo = 'entrar' | 'registro';
+type Modo = 'entrar' | 'registro' | 'recuperar';
 
 export default function FormularioAcceso({
   volver,
@@ -29,6 +29,23 @@ export default function FormularioAcceso({
     setAviso(null);
 
     const supabase = createClient();
+
+    if (modo === 'recuperar') {
+      const { error: errorRecuperar } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?volver=${encodeURIComponent('/dashboard/cuenta?recuperada=1')}`,
+      });
+
+      if (errorRecuperar) {
+        setError(traducirError(errorRecuperar.message));
+      } else {
+        // No se confirma si el email existe o no: evita que alguien use este
+        // formulario para averiguar qué emails están registrados.
+        setAviso('Si ese email tiene cuenta, te hemos enviado un enlace para recuperarla.');
+      }
+
+      setCargando(false);
+      return;
+    }
 
     if (modo === 'registro') {
       const { data, error: errorRegistro } = await supabase.auth.signUp({
@@ -83,14 +100,22 @@ export default function FormularioAcceso({
 
   return (
     <div>
-      <button type="button" onClick={entrarConGoogle} className="btn-secondary w-full">
-        <span aria-hidden>🇬</span> Continuar con Google
-      </button>
+      {modo !== 'recuperar' ? (
+        <>
+          <button type="button" onClick={entrarConGoogle} className="btn-secondary w-full">
+            <span aria-hidden>🇬</span> Continuar con Google
+          </button>
 
-      <div className="my-6 flex items-center gap-3 text-xs text-ink/40">
-        <span className="h-px flex-1 bg-ink/10" />o con tu email
-        <span className="h-px flex-1 bg-ink/10" />
-      </div>
+          <div className="my-6 flex items-center gap-3 text-xs text-ink/60">
+            <span className="h-px flex-1 bg-ink/10" />o con tu email
+            <span className="h-px flex-1 bg-ink/10" />
+          </div>
+        </>
+      ) : (
+        <p className="mb-6 text-sm text-ink/60">
+          Escribe tu email y te mandamos un enlace para poner una contraseña nueva.
+        </p>
+      )}
 
       <form onSubmit={onSubmit}>
         {modo === 'registro' ? (
@@ -125,25 +150,39 @@ export default function FormularioAcceso({
           />
         </div>
 
-        <div className="mt-4">
-          <label htmlFor="password" className="block text-sm font-semibold">
-            Contraseña
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={8}
-            autoComplete={modo === 'registro' ? 'new-password' : 'current-password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1.5 w-full rounded-xl border border-ink/15 px-4 py-3 text-sm
-                       outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
-          />
-          {modo === 'registro' ? (
-            <p className="mt-1.5 text-xs text-ink/50">Mínimo 8 caracteres.</p>
-          ) : null}
-        </div>
+        {modo !== 'recuperar' ? (
+          <div className="mt-4">
+            <label htmlFor="password" className="block text-sm font-semibold">
+              Contraseña
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              minLength={8}
+              autoComplete={modo === 'registro' ? 'new-password' : 'current-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1.5 w-full rounded-xl border border-ink/15 px-4 py-3 text-sm
+                         outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+            />
+            {modo === 'registro' ? (
+              <p className="mt-1.5 text-xs text-ink/50">Mínimo 8 caracteres.</p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setModo('recuperar');
+                  setError(null);
+                  setAviso(null);
+                }}
+                className="mt-1.5 text-xs font-medium text-brand-600 hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            )}
+          </div>
+        ) : null}
 
         {error ? (
           <p role="alert" className="mt-4 text-sm font-medium text-red-600">
@@ -152,29 +191,51 @@ export default function FormularioAcceso({
         ) : null}
 
         {aviso ? (
-          <p className="mt-4 rounded-xl bg-accent-500/10 p-3 text-sm font-medium text-accent-600">
+          <p className="mt-4 rounded-xl bg-accent-500/10 p-3 text-sm font-medium text-accent-700">
             {aviso}
           </p>
         ) : null}
 
         <button type="submit" disabled={cargando} className="btn-primary mt-6 w-full disabled:opacity-60">
-          {cargando ? 'Un momento…' : modo === 'registro' ? 'Crear cuenta' : 'Entrar'}
+          {cargando
+            ? 'Un momento…'
+            : modo === 'registro'
+              ? 'Crear cuenta'
+              : modo === 'recuperar'
+                ? 'Enviar enlace'
+                : 'Entrar'}
         </button>
       </form>
 
       <p className="mt-6 text-center text-sm text-ink/60">
-        {modo === 'registro' ? '¿Ya tienes cuenta?' : '¿Aún no tienes cuenta?'}{' '}
-        <button
-          type="button"
-          onClick={() => {
-            setModo(modo === 'registro' ? 'entrar' : 'registro');
-            setError(null);
-            setAviso(null);
-          }}
-          className="font-semibold text-brand-600 hover:underline"
-        >
-          {modo === 'registro' ? 'Entra' : 'Créala gratis'}
-        </button>
+        {modo === 'recuperar' ? (
+          <button
+            type="button"
+            onClick={() => {
+              setModo('entrar');
+              setError(null);
+              setAviso(null);
+            }}
+            className="font-semibold text-brand-600 hover:underline"
+          >
+            ← Volver a entrar
+          </button>
+        ) : (
+          <>
+            {modo === 'registro' ? '¿Ya tienes cuenta?' : '¿Aún no tienes cuenta?'}{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setModo(modo === 'registro' ? 'entrar' : 'registro');
+                setError(null);
+                setAviso(null);
+              }}
+              className="font-semibold text-brand-600 hover:underline"
+            >
+              {modo === 'registro' ? 'Entra' : 'Créala gratis'}
+            </button>
+          </>
+        )}
       </p>
     </div>
   );

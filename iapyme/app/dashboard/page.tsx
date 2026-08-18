@@ -31,11 +31,18 @@ export default async function ResumenPanel() {
   const leads = productos.reduce((suma, p) => suma + p.lead_count, 0);
   const conversion = visitas > 0 ? ((leads / visitas) * 100).toFixed(1) : '—';
 
+  const resenas = productos.reduce((suma, p) => suma + p.rating_total, 0);
+  const sumaValoraciones = productos.reduce(
+    (suma, p) => suma + p.rating_promedio * p.rating_total,
+    0,
+  );
+  const valoracionMedia = resenas > 0 ? (sumaValoraciones / resenas).toFixed(1) : null;
+
   return (
     <div>
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight">
             Hola, {perfil.display_name.split(' ')[0]}
           </h1>
           <p className="mt-1 text-sm text-ink/60">
@@ -49,13 +56,24 @@ export default async function ResumenPanel() {
         </Link>
       </header>
 
-      <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ChecklistInicio
+        perfilCompleto={Boolean(perfil.bio)}
+        tieneFicha={productos.length > 0}
+        tienePublicada={publicados.length > 0}
+      />
+
+      <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Metrica etiqueta="Visitas a tus fichas" valor={visitas.toLocaleString('es-ES')} />
         <Metrica etiqueta="Mensajes recibidos" valor={leads.toLocaleString('es-ES')} />
         <Metrica
           etiqueta="Conversión"
           valor={conversion === '—' ? '—' : `${conversion} %`}
           ayuda="Cuánta gente que ve la ficha escribe"
+        />
+        <Metrica
+          etiqueta="Reseñas"
+          valor={resenas.toLocaleString('es-ES')}
+          ayuda={valoracionMedia ? `${valoracionMedia} ★ de media` : undefined}
         />
         <Metrica etiqueta="Sin responder" valor={String(leadsSinLeer ?? 0)} destacar={(leadsSinLeer ?? 0) > 0} />
       </dl>
@@ -77,7 +95,7 @@ export default async function ResumenPanel() {
       ) : (
         <section className="mt-10">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-extrabold tracking-tight">Tus fichas</h2>
+            <h2 className="font-semibold tracking-tight">Tus fichas</h2>
             <Link
               href="/dashboard/productos"
               className="text-sm font-medium text-brand-600 hover:underline"
@@ -88,12 +106,13 @@ export default async function ResumenPanel() {
 
           <div className="card mt-4 overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-ink/[0.02] text-xs uppercase tracking-wider text-ink/45">
+              <thead className="bg-ink/[0.02] text-xs uppercase tracking-wider text-ink/60">
                 <tr>
                   <th className="px-4 py-3 text-left font-bold">Producto</th>
                   <th className="px-4 py-3 text-left font-bold">Estado</th>
                   <th className="px-4 py-3 text-right font-bold">Visitas</th>
                   <th className="px-4 py-3 text-right font-bold">Mensajes</th>
+                  <th className="px-4 py-3 text-right font-bold">Valoración</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,6 +131,11 @@ export default async function ResumenPanel() {
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">{producto.view_count}</td>
                     <td className="px-4 py-3 text-right tabular-nums">{producto.lead_count}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      {producto.rating_total > 0
+                        ? `${producto.rating_promedio.toFixed(1)} ★ (${producto.rating_total})`
+                        : '—'}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -120,6 +144,84 @@ export default async function ResumenPanel() {
         </section>
       )}
     </div>
+  );
+}
+
+/**
+ * Se oculta sola en cuanto se completan los tres pasos: no tiene sentido
+ * seguir mostrándole una lista de tareas a quien ya lleva meses vendiendo.
+ */
+function ChecklistInicio({
+  perfilCompleto,
+  tieneFicha,
+  tienePublicada,
+}: {
+  perfilCompleto: boolean;
+  tieneFicha: boolean;
+  tienePublicada: boolean;
+}) {
+  const pasos = [
+    {
+      hecho: perfilCompleto,
+      texto: 'Completa tu perfil',
+      ayuda: 'Una bio breve ayuda a que confíen antes de escribirte.',
+      href: '/dashboard/perfil',
+    },
+    {
+      hecho: tieneFicha,
+      texto: 'Publica tu primera ficha',
+      ayuda: 'Cuéntanos qué resuelve, para quién y cuánto cuesta.',
+      href: '/dashboard/productos/nuevo',
+    },
+    {
+      hecho: tienePublicada,
+      texto: 'Consigue tu primera aprobación',
+      ayuda: 'La revisamos y, si todo encaja, sale al catálogo.',
+      href: '/dashboard/productos',
+    },
+  ];
+
+  if (pasos.every((paso) => paso.hecho)) return null;
+
+  return (
+    <section className="card mt-8 p-6">
+      <h2 className="font-bold">Primeros pasos</h2>
+      <ul className="mt-4 space-y-1">
+        {pasos.map((paso) => (
+          <li key={paso.texto}>
+            <Link
+              href={paso.href}
+              className="-mx-2 flex items-start gap-3 rounded-lg px-2 py-2 transition
+                         hover:bg-ink/[0.03]"
+            >
+              <span
+                aria-hidden
+                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full
+                            border text-[11px] font-bold ${
+                              paso.hecho
+                                ? 'border-accent-500 bg-accent-500 text-white'
+                                : 'border-ink/25 text-transparent'
+                            }`}
+              >
+                ✓
+              </span>
+              <span className="min-w-0">
+                <span
+                  className={`block text-sm font-semibold ${
+                    paso.hecho ? 'text-ink/55 line-through' : 'text-ink'
+                  }`}
+                >
+                  {paso.texto}
+                </span>
+                {!paso.hecho ? (
+                  <span className="mt-0.5 block text-xs text-ink/50">{paso.ayuda}</span>
+                ) : null}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -136,8 +238,8 @@ function Metrica({
 }) {
   return (
     <div className={`card p-5 ${destacar ? 'border-amber-300 bg-amber-50' : ''}`}>
-      <dt className="text-xs font-bold uppercase tracking-wider text-ink/45">{etiqueta}</dt>
-      <dd className="mt-1.5 text-2xl font-extrabold tracking-tight">{valor}</dd>
+      <dt className="text-xs font-bold uppercase tracking-wider text-ink/60">{etiqueta}</dt>
+      <dd className="mt-1.5 text-2xl font-semibold tracking-tight">{valor}</dd>
       {ayuda ? <p className="mt-1 text-xs text-ink/50">{ayuda}</p> : null}
     </div>
   );

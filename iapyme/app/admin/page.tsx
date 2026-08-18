@@ -4,6 +4,7 @@ import { createClient, getPerfilActual } from '@/lib/supabase/server';
 import type { ProductoConRelaciones } from '@/lib/database.types';
 import AccionesModeracion from '@/components/AccionesModeracion';
 import EstadoFicha from '@/components/EstadoFicha';
+import AvisoSinSupabase from '@/components/AvisoSinSupabase';
 import { NOMBRE_TIPO, precioResumido, tiempoInstalacion } from '@/lib/formato';
 
 export const dynamic = 'force-dynamic';
@@ -12,8 +13,16 @@ export const metadata = { title: 'Moderación · IAPyme' };
 
 export default async function ModeracionPage() {
   const supabase = createClient();
+  if (!supabase) {
+    return (
+      <main className="container-page py-20">
+        <AvisoSinSupabase que="La moderación" />
+      </main>
+    );
+  }
+
   const perfil = await getPerfilActual();
-  if (!supabase || !perfil) return null;
+  if (!perfil) redirect('/entrar?volver=/admin');
   if (perfil.role !== 'admin') redirect('/dashboard');
 
   const { data } = await supabase
@@ -32,7 +41,7 @@ export default async function ModeracionPage() {
   return (
     <div>
       <header>
-        <h1 className="text-2xl font-extrabold tracking-tight">Moderación</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Moderación</h1>
         <p className="mt-1 text-sm text-ink/60">
           {cola.length === 0
             ? 'No hay nada esperando revisión.'
@@ -95,7 +104,7 @@ export default async function ModeracionPage() {
 
                     <dl className="mt-5 space-y-4 text-sm">
                       <div>
-                        <dt className="text-xs font-bold uppercase tracking-wider text-ink/40">
+                        <dt className="text-xs font-bold uppercase tracking-wider text-ink/60">
                           Problema
                         </dt>
                         <dd className="mt-1 whitespace-pre-line text-ink/80">
@@ -103,7 +112,7 @@ export default async function ModeracionPage() {
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs font-bold uppercase tracking-wider text-ink/40">
+                        <dt className="text-xs font-bold uppercase tracking-wider text-ink/60">
                           Solución
                         </dt>
                         <dd className="mt-1 whitespace-pre-line text-ink/80">
@@ -111,7 +120,7 @@ export default async function ModeracionPage() {
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs font-bold uppercase tracking-wider text-ink/40">
+                        <dt className="text-xs font-bold uppercase tracking-wider text-ink/60">
                           Requisitos
                         </dt>
                         <dd
@@ -123,12 +132,12 @@ export default async function ModeracionPage() {
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs font-bold uppercase tracking-wider text-ink/40">
+                        <dt className="text-xs font-bold uppercase tracking-wider text-ink/60">
                           Material de apoyo
                         </dt>
                         <dd className="mt-1">
                           {producto.cover_image_url || producto.demo_video_url ? (
-                            <span className="text-accent-600">
+                            <span className="text-accent-700">
                               {producto.cover_image_url ? '✓ Portada ' : ''}
                               {producto.demo_video_url ? '✓ Vídeo demo' : ''}
                             </span>

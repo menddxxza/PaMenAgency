@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getServiceClient } from '@/lib/supabase';
 import { slugConSufijo, slugificar } from '@/lib/slug';
 import { avisarNuevaRevision } from '@/lib/email';
 import type { PricingModel, ProductType } from '@/lib/database.types';
@@ -199,6 +200,95 @@ async function asegurarPerfilDeVendedor(userId: string) {
 
 export async function irAFicha(slug: string) {
   redirect(`/p/${slug}`);
+}
+
+/** Normaliza una URL opcional: añade https:// si falta, o la descarta si no es válida. */
+function limpiarUrl(valor: FormDataEntryValue | null): string | null {
+  const texto = limpiar(valor, 300);
+  if (!texto) return null;
+
+  const conProtocolo = /^https?:\/\//i.test(texto) ? texto : `https://${texto}`;
+  try {
+    return new URL(conProtocolo).toString();
+  } catch {
+    return null;
+  }
+}
+
+/** Actualiza los datos del perfil público: nombre, bio, foto y web. */
+export async function actualizarPerfil(formData: FormData): Promise<ResultadoAccion> {
+  const supabase = createClient();
+  if (!supabase) return { ok: false, error: 'La base de datos no está configurada.' };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: 'Tienes que iniciar sesión.' };
+
+  const displayName = limpiar(formData.get('display_name'), 80);
+  if (!displayName) return { ok: false, error: 'Escribe tu nombre o el de tu negocio.' };
+
+  const bio = limpiar(formData.get('bio'), 500) || null;
+  const websiteUrl = limpiarUrl(formData.get('website_url'));
+  const avatarUrl = limpiarUrl(formData.get('avatar_url'));
+
+  const { data: actualizado, error } = await supabase
+    .from('profiles')
+    .update({
+      display_name: displayName,
+      bio,
+      website_url: websiteUrl,
+      avatar_url: avatarUrl,
+    })
+    .eq('id', user.id)
+    .select('slug')
+    .single();
+
+  if (error) return { ok: false, error: 'No hemos podido guardar los cambios.' };
+
+  revalidatePath('/dashboard/perfil');
+
+  // getVendedor() usa el cliente público, que cachea sus fetch 60s (para no
+  // pegarle a Supabase en cada visita al catálogo). Que esa página sea
+  // force-dynamic no libra de esa caché: es una caché de datos, no de ruta.
+  // Sin este revalidatePath explícito, el perfil público podía tardar hasta
+  // un minuto en reflejar la foto o la bio recién guardadas.
+  if (actualizado?.slug) revalidatePath(`/vendedor/${actualizado.slug}`);
+  return { ok: true };
+}
+
+/**
+ * Borra la cuenta y todo lo suyo: la fila de auth.users en cascada se lleva
+ * por delante el perfil (profiles.id → auth.users on delete cascade) y desde
+ * ahí, en cascada, sus productos, leads, reseñas y favoritos — ya está todo
+ * declarado así en el esquema, no hay nada que limpiar a mano aquí.
+ */
+export async function eliminarCuenta(): Promise<ResultadoAccion> {
+  const supabase = createClient();
+  if (!supabase) return { ok: false, error: 'La base de datos no está configurada.' };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: 'Tienes que iniciar sesión.' };
+
+  const admin = getServiceClient();
+  if (!admin) {
+    return {
+      ok: false,
+      error: 'No se puede completar la baja ahora mismo. Escríbenos a hola@iapymeapp.com.',
+    };
+  }
+
+  const { error } = await admin.auth.admin.deleteUser(user.id);
+  if (error) {
+    return {
+      ok: false,
+      error: 'No hemos podido eliminar la cuenta. Escríbenos a hola@iapymeapp.com y lo resolvemos.',
+    };
+  }
+
+  return { ok: true };
 }
 
 function traducir(mensaje: string): string {
