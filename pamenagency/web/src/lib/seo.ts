@@ -96,13 +96,18 @@ export function useSeo({ title, description, path, jsonLd, noindex, type = 'webs
 export const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
+  '@id': `${site.url}/#organization`,
   name: site.name,
+  alternateName: 'PaMen Agency',
   description: site.description,
   url: site.url,
   email: site.email,
+  logo: `${site.url}/logo.jpg`,
+  image: `${site.url}/logo.jpg`,
   areaServed: 'ES',
   availableLanguage: 'es',
   slogan: site.tagline,
+  sameAs: site.social.filter((s) => s.url).map((s) => s.url as string),
   knowsAbout: [
     'Inteligencia artificial',
     'Automatización de procesos',
