@@ -9,6 +9,8 @@ import { consultoriaVsPlantilla } from './consultoria-vs-plantilla'
 import { iaAutonomos } from './ia-autonomos'
 import { iaComercios } from './ia-comercios'
 import { iaClinicas } from './ia-clinicas'
+import { iaQuitaTrabajo } from './ia-quita-trabajo'
+import { quePasaConTusDatos } from './que-pasa-con-tus-datos'
 
 export type { KnowledgeDoc, Chapter, Block, Level } from './types'
 
@@ -29,6 +31,8 @@ export const docs: KnowledgeDoc[] = [
   iaAutonomos,
   iaComercios,
   iaClinicas,
+  iaQuitaTrabajo,
+  quePasaConTusDatos,
 ]
 
 export const getDoc = (slug: string | undefined) => docs.find((d) => d.slug === slug)
