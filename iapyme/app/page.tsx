@@ -7,6 +7,7 @@ import AvisoSinSupabase from '@/components/AvisoSinSupabase';
 import Reveal from '@/components/Reveal';
 import Icono, { type NombreIcono } from '@/components/Icono';
 import Estrellas from '@/components/Estrellas';
+import EscenaHeroLazy from '@/components/EscenaHeroLazy';
 import { getCategorias, getConteoPorCategoria, getDestacados, getProductos } from '@/lib/queries';
 import { supabaseConfigurado } from '@/lib/supabase/config';
 import { precioResumido, tiempoInstalacion } from '@/lib/formato';
@@ -54,10 +55,20 @@ export default async function Home() {
       <main>
         {/* ---- Portada: fondo oscuro a todo lo ancho (mismo tono que el
             footer y "entrar" — no es un color nuevo en el sistema), titular
-            arriba, catálogo real como franja horizontal debajo. Nada de
-            ilustración de IA genérica ni tarjeta flotante al lado. ---- */}
-        <section className="border-b border-ink/10 bg-ink text-white">
-          <div className="container-page py-14 sm:py-20 lg:py-24">
+            arriba, catálogo real como franja horizontal debajo. Motivo 3D
+            abstracto (red de nodos, no cerebro ni robot) en el hueco a la
+            derecha del titular en escritorio — decorativo, aria-hidden,
+            se omite entero con prefers-reduced-motion. ---- */}
+        <section className="relative overflow-hidden border-b border-ink/10 bg-ink text-white">
+          <div
+            className="pointer-events-none absolute -right-24 top-1/2 hidden h-[34rem] w-[34rem]
+                       -translate-y-1/2 lg:block"
+            aria-hidden
+          >
+            <EscenaHeroLazy />
+          </div>
+
+          <div className="container-page relative py-14 sm:py-20 lg:py-24">
             <div className="max-w-2xl">
               {/* 17ch parte el titular en dos líneas limpias en vez de dejar
                   "usar" huérfano en una tercera. */}
@@ -159,7 +170,7 @@ export default async function Home() {
                                  focus:outline-none focus-visible:relative focus-visible:z-10
                                  focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:rounded-sm"
                     >
-                      <span className="dato shrink-0 text-sm text-ink/45" aria-hidden>
+                      <span className="dato shrink-0 text-sm text-ink/60" aria-hidden>
                         {String(i + 1).padStart(2, '0')}
                       </span>
 
