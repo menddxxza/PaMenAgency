@@ -44,7 +44,7 @@ export function useSeo({ title, description, path, jsonLd, noindex, type = 'webs
   useEffect(() => {
     const fullTitle = path === '/' ? `${site.name} — ${site.tagline}` : `${title} · ${site.name}`
     const url = `${site.url}${path === '/' ? '' : path}`
-    const image = `${site.url}/og-image.svg`
+    const image = `${site.url}/og-image.png`
 
     document.title = fullTitle
     upsertMeta('meta[name="description"]', { name: 'description', content: description })

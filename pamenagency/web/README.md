@@ -85,8 +85,6 @@ como pendiente en vez de mostrar un dato falso.
 - `src/content/site.ts` → `phone` y `whatsapp`, si se quieren ofrecer.
 - Páginas legales: los proveedores de alojamiento y correo, en
   `src/pages/legal/Privacidad.tsx` y `TratamientoDatos.tsx`.
-- `public/og-image.svg`: si la red social de destino no admite SVG, exportarlo a
-  PNG de 1200×630 y actualizar la referencia en `src/lib/seo.ts` e `index.html`.
 
 ## Formulario de contacto
 
