@@ -22,13 +22,20 @@ export async function POST() {
     return NextResponse.json({ error: 'No hay suscripción activa' }, { status: 400 });
   }
 
-  const stripe = stripeClient();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
-  const session = await stripe.billingPortal.sessions.create({
-    customer: profile.stripe_customer_id,
-    return_url: `${siteUrl}/dashboard/billing`,
-  });
+  try {
+    const stripe = stripeClient();
+    const session = await stripe.billingPortal.sessions.create({
+      customer: profile.stripe_customer_id,
+      return_url: `${siteUrl}/dashboard/billing`,
+    });
 
-  return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Stripe no está configurado todavía' },
+      { status: 503 }
+    );
+  }
 }
