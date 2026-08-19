@@ -8,7 +8,7 @@ export function PricingSection() {
   return (
     <section id="pricing" className="container py-24">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
+        <h2 className="font-display text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
           Precios simples, sin sorpresas
         </h2>
         <p className="mt-4 text-muted">Empieza gratis. Mejora a Pro cuando necesites más volumen.</p>
@@ -31,7 +31,7 @@ export function PricingSection() {
             )}
             <h3 className="text-sm font-medium text-muted">{plan.name}</h3>
             <p className="mt-2 flex items-baseline gap-1">
-              <span className="text-4xl font-semibold text-fg">${plan.priceMonthly}</span>
+              <span className="font-display text-4xl font-semibold text-fg">${plan.priceMonthly}</span>
               <span className="text-sm text-muted">/mes</span>
             </p>
 

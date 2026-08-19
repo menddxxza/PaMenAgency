@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Radar, Search, History, CreditCard, Settings, LogOut } from 'lucide-react';
+import { Search, History, CreditCard, Settings, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
+import { Logomark } from '@/components/logomark';
 import { useRouter } from 'next/navigation';
 
 const NAV_ITEMS = [
@@ -27,10 +28,8 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface/50 md:flex">
-      <div className="flex h-16 items-center gap-2 px-6 font-semibold text-fg">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-          <Radar className="h-4 w-4" />
-        </span>
+      <div className="flex h-16 items-center gap-2 px-6 font-display font-semibold text-fg">
+        <Logomark />
         LeadScope
       </div>
 

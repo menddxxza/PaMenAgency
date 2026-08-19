@@ -1,81 +1,107 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Search, Globe2 } from 'lucide-react';
-import { buttonVariants } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import dynamic from 'next/dynamic';
+import { ArrowRight, Phone, Star } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button-variants';
+
+const RadarScene = dynamic(() => import('@/components/three/radar-scene').then((m) => m.RadarScene), {
+  ssr: false,
+});
+
+const DETECTIONS = [
+  { name: 'Clínica Dental Rivas', status: 'Sin web', opportunity: 'Alta' },
+  { name: 'Gimnasio PowerFit', status: 'Solo Instagram', opportunity: 'Alta' },
+  { name: 'Bufete García & Asoc.', status: 'Web rota', opportunity: 'Media' },
+];
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pb-24 pt-20 sm:pt-28">
-      <div className="absolute inset-0 -z-10 bg-grid bg-fade-mask" />
-      <div className="absolute left-1/2 top-0 -z-10 h-[480px] w-[820px] -translate-x-1/2 rounded-full bg-brand-500/20 blur-[120px]" />
+    <section className="relative overflow-hidden border-b border-border">
+      <div className="absolute inset-0 -z-10 bg-grid opacity-40" />
 
-      <div className="container flex flex-col items-center text-center">
-        <Badge variant="brand" className="animate-fade-in">
-          <Globe2 className="h-3.5 w-3.5" />
-          Datos en tiempo real desde Google Places
-        </Badge>
+      <div className="container grid grid-cols-1 items-center gap-12 py-20 lg:grid-cols-[1.05fr_1fr] lg:gap-8 lg:py-28">
+        <div>
+          <p className="animate-slide-up font-display text-xs font-semibold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 [animation-delay:0ms]">
+            Detección de negocios en tiempo real
+          </p>
 
-        <h1 className="mt-6 max-w-3xl animate-slide-up text-4xl font-semibold tracking-tight text-fg sm:text-6xl [animation-delay:80ms]">
-          Encuentra negocios <span className="text-brand-600">sin página web</span> en cualquier
-          ciudad del mundo
-        </h1>
+          <h1 className="mt-5 animate-slide-up text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight text-fg sm:text-5xl lg:text-6xl [animation-delay:70ms]">
+            Localiza al negocio que{' '}
+            <span className="relative whitespace-nowrap">
+              todavía no tiene web
+              <svg
+                viewBox="0 0 300 12"
+                className="absolute -bottom-1 left-0 h-3 w-full text-brand-500"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M2 9C60 3 240 3 298 9"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
+          </h1>
 
-        <p className="mt-5 max-w-xl animate-slide-up text-balance text-lg text-muted [animation-delay:160ms]">
-          Busca por nicho, ciudad o código postal. Detectamos automáticamente qué negocios no
-          tienen web, tienen una web rota o solo usan redes sociales — tu próxima venta ya está
-          en el mapa.
-        </p>
+          <p className="mt-6 max-w-md animate-slide-up text-lg leading-relaxed text-muted [animation-delay:140ms]">
+            Nicho y ubicación. Nosotros consultamos Google Places, comprobamos cada web en vivo y
+            te devolvemos solo los negocios que de verdad necesitan tus servicios.
+          </p>
 
-        <div className="mt-8 flex animate-slide-up flex-col gap-3 sm:flex-row [animation-delay:240ms]">
-          <Link href="/signup" className={buttonVariants({ variant: 'brand', size: 'lg' })}>
-            Empezar gratis
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <a href="#how" className={buttonVariants({ variant: 'secondary', size: 'lg' })}>
-            <Search className="h-4 w-4" />
-            Ver cómo funciona
-          </a>
+          <div className="mt-8 flex animate-slide-up flex-col gap-3 sm:flex-row [animation-delay:210ms]">
+            <Link href="/signup" className={buttonVariants({ variant: 'brand', size: 'lg' })}>
+              Empezar gratis
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <a href="#how" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
+              Ver cómo funciona
+            </a>
+          </div>
+
+          <p className="mt-5 animate-slide-up text-xs text-muted [animation-delay:260ms]">
+            5 búsquedas gratis al mes · sin tarjeta de crédito
+          </p>
         </div>
 
-        <div className="mt-16 w-full max-w-4xl animate-slide-up [animation-delay:320ms]">
-          <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card-hover">
-            <div className="flex items-center gap-1.5 border-b border-border bg-surface-hover px-4 py-3">
-              <span className="h-2.5 w-2.5 rounded-full bg-danger/60" />
-              <span className="h-2.5 w-2.5 rounded-full bg-warning/60" />
-              <span className="h-2.5 w-2.5 rounded-full bg-success/60" />
-              <span className="ml-3 text-xs text-muted">leadscope.app/dashboard/search</span>
-            </div>
-            <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-[220px_1fr] sm:divide-x sm:divide-y-0">
-              <div className="space-y-3 p-5 text-left">
-                <div className="h-8 rounded-lg bg-surface-hover" />
-                <div className="h-8 rounded-lg bg-surface-hover" />
-                <div className="h-8 w-2/3 rounded-lg bg-surface-hover" />
-                <div className="h-9 rounded-lg bg-brand-600/90" />
+        <div className="relative animate-fade-in [animation-delay:200ms]">
+          <div className="relative aspect-square w-full max-w-md justify-self-center overflow-hidden rounded-2xl border border-border bg-[#0e0b08]">
+            <RadarScene />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0e0b08] via-transparent to-transparent" />
+          </div>
+
+          <div className="mt-5 space-y-2.5">
+            {DETECTIONS.map((d, i) => (
+              <div
+                key={d.name}
+                className="flex animate-slide-up items-center justify-between rounded-xl border border-border bg-surface px-4 py-3 text-sm shadow-card"
+                style={{ animationDelay: `${320 + i * 90}ms` }}
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-fg">{d.name}</p>
+                  <p className="flex items-center gap-1 text-xs text-muted">
+                    {d.status === 'Sin web' ? (
+                      <Phone className="h-3 w-3" />
+                    ) : (
+                      <Star className="h-3 w-3" />
+                    )}
+                    {d.status}
+                  </p>
+                </div>
+                <span
+                  className={
+                    d.opportunity === 'Alta'
+                      ? 'shrink-0 rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success'
+                      : 'shrink-0 rounded-full bg-warning/10 px-2.5 py-1 text-xs font-medium text-warning'
+                  }
+                >
+                  {d.opportunity}
+                </span>
               </div>
-              <div className="space-y-2.5 p-5">
-                {[
-                  ['Clínica Dental Rivas', 'Sin web', 'Alta'],
-                  ['Gimnasio PowerFit', 'Solo Instagram', 'Alta'],
-                  ['Bufete García & Asoc.', 'Web rota', 'Media'],
-                  ['Restaurante La Marina', 'Web activa', 'Baja'],
-                ].map(([name, status, opp]) => (
-                  <div
-                    key={name}
-                    className="flex items-center justify-between rounded-lg border border-border px-3.5 py-2.5 text-left text-sm"
-                  >
-                    <span className="font-medium text-fg">{name}</span>
-                    <span className="text-xs text-muted">{status}</span>
-                    <Badge
-                      variant={opp === 'Alta' ? 'success' : opp === 'Media' ? 'warning' : 'outline'}
-                    >
-                      {opp}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
