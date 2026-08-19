@@ -4,6 +4,7 @@ import { grietasDoc } from './grietas'
 import { erroresComunes } from './errores-comunes'
 import { detectarOportunidades } from './detectar-oportunidades'
 import { elegirAgenciaIa } from './elegir-agencia-ia'
+import { cuantoCuestaIaPyme } from './cuanto-cuesta-ia-pyme'
 
 export type { KnowledgeDoc, Chapter, Block, Level } from './types'
 
@@ -19,6 +20,7 @@ export const docs: KnowledgeDoc[] = [
   erroresComunes,
   detectarOportunidades,
   elegirAgenciaIa,
+  cuantoCuestaIaPyme,
 ]
 
 export const getDoc = (slug: string | undefined) => docs.find((d) => d.slug === slug)
