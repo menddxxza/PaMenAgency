@@ -1,13 +1,4 @@
-/**
- * Configuración central del sitio.
- *
- * Todo lo que aquí aparece marcado como `PENDIENTE` es un dato real de la
- * empresa que todavía no se ha facilitado. No se inventa: se muestra en la web
- * con un marcador visible (`<Placeholder />`) para que sea imposible publicar
- * información legal falsa por descuido.
- */
-
-export const PENDIENTE = 'PENDIENTE' as const
+/** Configuración central del sitio. */
 
 /** Datos identificativos y de contacto. */
 export const site = {
