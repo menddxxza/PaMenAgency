@@ -7,6 +7,8 @@ export type Service = {
   short: string
   /** Beneficio concreto, no adjetivos. */
   benefit: string
+  /** Rango de precio orientativo. Varía según alcance: nunca es una cifra cerrada. */
+  priceRange: string
   icon: IconName
   /** Contenido de la página de detalle. */
   detail: {
@@ -36,6 +38,7 @@ export const services: Service[] = [
     short:
       'Analizamos tu situación y te decimos dónde la IA aporta algo real y dónde no.',
     benefit: 'Sales con una lista priorizada de acciones, no con una idea vaga.',
+    priceRange: 'Entre 90 € y 40.000 €, según el alcance de la consultoría.',
     icon: 'compass',
     detail: {
       intro:
@@ -68,6 +71,7 @@ export const services: Service[] = [
     short:
       'Diseñamos procesos que se ejecutan solos para que dejes de hacer lo mismo cada día.',
     benefit: 'Recuperas horas concretas de la semana, medibles desde el primer mes.',
+    priceRange: 'Entre 300 € y 8.000 €, según la complejidad del proceso.',
     icon: 'gears',
     detail: {
       intro:
@@ -100,6 +104,7 @@ export const services: Service[] = [
     short:
       'Conectamos tus herramientas y sistemas para que la información deje de moverse a mano.',
     benefit: 'Tus herramientas dejan de ser islas y empiezan a trabajar juntas.',
+    priceRange: 'Entre 3.000 € y 6.000 €.',
     icon: 'plug',
     detail: {
       intro:
@@ -131,6 +136,7 @@ export const services: Service[] = [
     short:
       'Diseñamos e implementamos asistentes y sistemas conversacionales con un propósito claro.',
     benefit: 'Respuestas coherentes a cualquier hora, con límites definidos por ti.',
+    priceRange: 'Entre 500 € y 15.000 €, según el alcance del asistente.',
     icon: 'chat',
     detail: {
       intro:
@@ -163,6 +169,7 @@ export const services: Service[] = [
     short:
       'Detectamos dónde tiene sentido aplicar IA dentro de una organización con varios equipos.',
     benefit: 'Un plan por áreas, no una herramienta suelta que nadie adopta.',
+    priceRange: 'Entre 500 € y 9.000 €.',
     icon: 'building',
     detail: {
       intro:
@@ -194,6 +201,7 @@ export const services: Service[] = [
     short:
       'Soluciones proporcionadas para negocios pequeños, sin infraestructura ni presupuestos grandes.',
     benefit: 'Mejoras que caben en tu día a día y en tu presupuesto.',
+    priceRange: 'Entre 3.000 € y 12.000 €, con mantenimiento opcional desde 50 € a 250 € al mes.',
     icon: 'store',
     detail: {
       intro:
@@ -224,6 +232,8 @@ export const services: Service[] = [
     short:
       'Te enseñamos a usar la IA para trabajar, estudiar, crear y organizarte mejor.',
     benefit: 'Dejas de pedirle cosas a una IA y empiezas a trabajar con ella.',
+    priceRange:
+      'Desde 30 €/mes por usuario con software comercial, o pago único de 2.000 € a 6.000 € por un sistema a medida.',
     icon: 'gauge',
     detail: {
       intro:
@@ -255,6 +265,8 @@ export const services: Service[] = [
     short:
       'Usamos IA para acelerar la creación de contenido, webs, documentos y materiales digitales.',
     benefit: 'Produces más sin que se note que has producido más rápido.',
+    priceRange:
+      'Desde 20 € a 100 € al mes en licencias de software, o entre 2.500 € y 8.000 € por proyecto de flujos a medida.',
     icon: 'sparkles',
     detail: {
       intro:
@@ -285,6 +297,7 @@ export const services: Service[] = [
     short:
       'Enseñamos a usar correctamente las herramientas de IA, con sus capacidades y sus límites.',
     benefit: 'Tu equipo deja de depender de que alguien de fuera lo haga.',
+    priceRange: 'Entre 800 € y 6.000 € el curso completo, según su duración.',
     icon: 'book',
     detail: {
       intro:
@@ -316,6 +329,7 @@ export const services: Service[] = [
     short:
       'Analizamos dónde merece la pena implementar IA y, sobre todo, dónde no.',
     benefit: 'Decisiones argumentadas, con el coste de no hacer nada incluido.',
+    priceRange: 'Entre 1.000 € y 25.000 €, según el tamaño de la empresa.',
     icon: 'map',
     detail: {
       intro:

@@ -106,6 +106,29 @@ function ServicioContenido({ service }: { service: NonNullable<ReturnType<typeof
           </div>
 
           <div style={{ display: 'grid', gap: '1.25rem', position: 'sticky', top: 'calc(var(--header-h) + 1.5rem)' }}>
+            <Reveal delay={40}>
+              <div
+                style={{
+                  padding: '1.35rem 1.5rem',
+                  border: '1px solid var(--pm-gold-line)',
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'var(--pm-gold-soft)',
+                }}
+              >
+                <p className="pm-eyebrow">Precio orientativo</p>
+                <p style={{ marginTop: '0.75rem', fontSize: '1.05rem', fontWeight: 600, color: 'var(--pm-text)' }}>
+                  {service.priceRange}
+                </p>
+                <p style={{ marginTop: '0.6rem', fontSize: '0.85rem', color: 'var(--pm-muted)' }}>
+                  El precio final depende del alcance concreto.{' '}
+                  <Link to="/conocimiento/cuanto-cuesta-implementar-ia-en-una-pyme" style={{ color: 'var(--pm-gold)' }}>
+                    Cómo se calcula
+                  </Link>
+                  .
+                </p>
+              </div>
+            </Reveal>
+
             <Reveal delay={60}>
               <div
                 style={{
