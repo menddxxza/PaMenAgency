@@ -1,3 +1,6 @@
+'use client';
+
+import { useRef } from 'react';
 import Link from 'next/link';
 import Icono from './Icono';
 import Estrellas from './Estrellas';
@@ -5,11 +8,51 @@ import BotonFavorito from './BotonFavorito';
 import type { ProductoConRelaciones } from '@/lib/database.types';
 import { precioResumido, tiempoInstalacion } from '@/lib/formato';
 
+// Se lee una sola vez por sesión de navegador, no en cada render.
+const prefiereMovimientoReducido =
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 export default function ProductoCard({ producto }: { producto: ProductoConRelaciones }) {
   const precio = precioResumido(producto);
+  const tarjetaRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Inclinación sutil siguiendo el cursor — la tarjeta se ladea unos
+   * grados hacia donde apunta el ratón, como si tuviera peso real. Se
+   * escribe en variables CSS en vez de en el estado de React para que no
+   * haya un re-render por cada movimiento del ratón.
+   */
+  function onMouseMove(evento: React.MouseEvent<HTMLDivElement>) {
+    if (prefiereMovimientoReducido) return;
+    const tarjeta = tarjetaRef.current;
+    if (!tarjeta) return;
+
+    const rect = tarjeta.getBoundingClientRect();
+    const x = (evento.clientX - rect.left) / rect.width - 0.5;
+    const y = (evento.clientY - rect.top) / rect.height - 0.5;
+
+    tarjeta.style.setProperty('--tilt-x', `${(-y * 5).toFixed(2)}deg`);
+    tarjeta.style.setProperty('--tilt-y', `${(x * 5).toFixed(2)}deg`);
+    tarjeta.style.setProperty('--brillo-x', `${((x + 0.5) * 100).toFixed(1)}%`);
+    tarjeta.style.setProperty('--brillo-y', `${((y + 0.5) * 100).toFixed(1)}%`);
+  }
+
+  function onMouseLeave() {
+    const tarjeta = tarjetaRef.current;
+    if (!tarjeta) return;
+    tarjeta.style.setProperty('--tilt-x', '0deg');
+    tarjeta.style.setProperty('--tilt-y', '0deg');
+  }
 
   return (
-    <div className="card-interactive group relative flex h-full flex-col">
+    <div
+      ref={tarjetaRef}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      style={{ transform: 'perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))' }}
+      className="card-interactive group relative flex h-full flex-col
+                 transition-transform duration-fast ease-out will-change-transform"
+    >
       <div className="absolute right-3 top-3 z-10">
         <BotonFavorito productId={producto.id} />
       </div>
@@ -42,6 +85,17 @@ export default function ProductoCard({ producto }: { producto: ProductoConRelaci
           </div>
         )}
 
+        {/* Brillo que sigue al cursor, muy tenue — un acabado de cristal
+            discreto, no un efecto de foco. Solo visible en hover gracias
+            a la opacidad en el propio gradiente. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-base ease-out group-hover:opacity-100"
+          style={{
+            background:
+              'radial-gradient(180px circle at var(--brillo-x, 50%) var(--brillo-y, 50%), rgba(255,255,255,0.35), transparent 65%)',
+          }}
+        />
       </div>
 
       <div className="flex flex-1 flex-col p-6">
