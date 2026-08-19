@@ -44,11 +44,11 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface">
-      <div className="grid grid-cols-[2fr_1.4fr_0.9fr_0.9fr_1fr_1fr] gap-3 border-b border-border bg-surface-hover px-4 py-3 text-xs font-medium uppercase tracking-wide text-muted">
+      <div className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-border bg-surface-hover px-4 py-3 text-xs font-medium uppercase tracking-wide text-muted lg:grid-cols-[2fr_1.4fr_0.9fr_0.9fr_1fr_1fr]">
         <span>Negocio</span>
-        <span>Contacto</span>
-        <span>Rating</span>
-        <span>Categoría</span>
+        <span className="hidden lg:block">Contacto</span>
+        <span className="hidden lg:block">Rating</span>
+        <span className="hidden lg:block">Categoría</span>
         <span>Estado web</span>
         <span>Oportunidad</span>
       </div>
@@ -60,7 +60,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
             return (
               <div
                 key={b.id}
-                className="absolute left-0 top-0 grid w-full grid-cols-[2fr_1.4fr_0.9fr_0.9fr_1fr_1fr] items-center gap-3 border-b border-border px-4 text-sm transition-colors hover:bg-surface-hover"
+                className="absolute left-0 top-0 grid w-full grid-cols-[1fr_auto_auto] items-center gap-3 border-b border-border px-4 text-sm transition-colors hover:bg-surface-hover lg:grid-cols-[2fr_1.4fr_0.9fr_0.9fr_1fr_1fr]"
                 style={{ height: ROW_HEIGHT, transform: `translateY(${virtualRow.start}px)` }}
               >
                 <div className="min-w-0">
@@ -74,9 +74,13 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                     <ExternalLink className="h-3 w-3 shrink-0 text-muted" />
                   </a>
                   <p className="truncate text-xs text-muted">{b.address}</p>
+                  <p className="truncate text-xs text-muted lg:hidden">
+                    {b.phone ?? b.category}
+                    {b.rating ? ` · ★ ${b.rating.toFixed(1)}` : ''}
+                  </p>
                 </div>
 
-                <div className="min-w-0 space-y-0.5 text-xs text-muted">
+                <div className="hidden min-w-0 space-y-0.5 text-xs text-muted lg:block">
                   {b.phone && (
                     <div className="flex items-center gap-1.5">
                       <Phone className="h-3 w-3 shrink-0" />
@@ -103,7 +107,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                   {!b.phone && !b.email && !b.socialLinks.whatsapp && <span>—</span>}
                 </div>
 
-                <div className="flex items-center gap-1 text-xs text-fg">
+                <div className="hidden items-center gap-1 text-xs text-fg lg:flex">
                   {b.rating ? (
                     <>
                       <Star className="h-3.5 w-3.5 fill-warning text-warning" />
@@ -115,7 +119,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                   )}
                 </div>
 
-                <span className="truncate text-xs text-muted">{b.category}</span>
+                <span className="hidden truncate text-xs text-muted lg:block">{b.category}</span>
 
                 <WebsiteStatusBadge status={b.websiteStatus} />
 
