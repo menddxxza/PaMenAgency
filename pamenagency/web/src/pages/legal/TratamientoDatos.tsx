@@ -1,5 +1,4 @@
 import { LegalPage } from './LegalPage'
-import { Placeholder } from '@/components/ui/Placeholder'
 import { site } from '@/content/site'
 
 export default function TratamientoDatos() {
@@ -70,8 +69,8 @@ export default function TratamientoDatos() {
       <h2>3. Encargados del tratamiento</h2>
       <p>
         Los proveedores que acceden a datos personales por cuenta del responsable lo hacen bajo
-        contrato conforme al artículo 28 del RGPD. Relación de encargados:{' '}
-        <Placeholder>LISTADO DE PROVEEDORES</Placeholder>.
+        contrato conforme al artículo 28 del RGPD. Relación de encargados: Vercel Inc. (alojamiento
+        web) y Google LLC (Gmail, correo electrónico).
       </p>
 
       <h2>4. Medidas de seguridad</h2>

@@ -1,5 +1,4 @@
 import { LegalPage } from './LegalPage'
-import { Placeholder } from '@/components/ui/Placeholder'
 import { site } from '@/content/site'
 
 export default function AvisoLegal() {
@@ -18,9 +17,7 @@ export default function AvisoLegal() {
       <ul>
         <li>Nombre comercial: {site.name}</li>
         <li>Correo electrónico: {site.email}</li>
-        <li>
-          Nombre de dominio: <Placeholder>DOMINIO</Placeholder>
-        </li>
+        <li>Nombre de dominio: {site.url.replace(/^https?:\/\//, '')}</li>
       </ul>
 
       <h2>2. Objeto</h2>

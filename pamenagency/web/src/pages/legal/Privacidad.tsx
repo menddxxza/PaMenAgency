@@ -1,5 +1,4 @@
 import { LegalPage } from './LegalPage'
-import { Placeholder } from '@/components/ui/Placeholder'
 import { site } from '@/content/site'
 
 export default function Privacidad() {
@@ -75,8 +74,8 @@ export default function Privacidad() {
         encargados del tratamiento, con contrato conforme al artículo 28 del RGPD.
       </p>
       <p>
-        Proveedores utilizados: <Placeholder>PROVEEDOR DE ALOJAMIENTO</Placeholder> y{' '}
-        <Placeholder>PROVEEDOR DE CORREO</Placeholder>.
+        Proveedores utilizados: Vercel Inc. (alojamiento web) y Google LLC (Gmail, correo
+        electrónico).
       </p>
 
       <h2>6. Transferencias internacionales</h2>
