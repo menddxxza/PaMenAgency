@@ -140,6 +140,9 @@ npm run dev
 3. Copia `Project URL` y `anon public key` a `NEXT_PUBLIC_SUPABASE_URL` /
    `NEXT_PUBLIC_SUPABASE_ANON_KEY`, y la `service_role key` a `SUPABASE_SERVICE_ROLE_KEY`
    (solo se usa en el webhook de Stripe, nunca en el cliente).
+4. `0003_admin_full_access.sql` sube automáticamente a plan Pro (sin límite de búsquedas) la
+   cuenta que se registre con `mendozitadjerez@gmail.com`, se registre antes o después de aplicar
+   la migración. Para dar el mismo acceso a otra cuenta, cambia el email en esa migración.
 
 ### 2. Google Places API
 
