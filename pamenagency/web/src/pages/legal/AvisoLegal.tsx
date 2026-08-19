@@ -79,10 +79,11 @@ export default function AvisoLegal() {
 
       <h2>8. Identificación del titular</h2>
       <p>
-        Este aviso legal está pendiente de completar con los datos identificativos del titular
-        (persona física o jurídica, NIF/CIF y domicilio) exigidos por la LSSI-CE. Mientras tanto,
-        el único canal de contacto e identificación disponible es el correo electrónico indicado
-        arriba.
+        El titular de este sitio web es una persona física, con domicilio en Jerez de la Frontera,
+        Cádiz, España (11404). Por motivos de privacidad, el NIF no se publica en este aviso
+        legal; queda identificado ante las autoridades competentes que lo requieran, y puede
+        facilitarse de forma no pública si es necesario para un trámite concreto. El canal de
+        contacto disponible es el correo electrónico indicado arriba.
       </p>
     </LegalPage>
   )
