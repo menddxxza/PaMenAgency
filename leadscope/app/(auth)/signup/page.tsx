@@ -89,6 +89,18 @@ export default function SignupPage() {
         <Button type="submit" className="w-full" loading={loading}>
           Crear cuenta
         </Button>
+
+        <p className="text-center text-xs text-muted">
+          Al registrarte aceptas los{' '}
+          <Link href="/legal/terminos" className="underline underline-offset-2 hover:text-fg">
+            Términos
+          </Link>{' '}
+          y la{' '}
+          <Link href="/legal/privacidad" className="underline underline-offset-2 hover:text-fg">
+            Política de privacidad
+          </Link>
+          .
+        </p>
       </form>
     </AuthCard>
   );
