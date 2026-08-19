@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Radar } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button-variants';
+import { Logomark } from '@/components/logomark';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/components/providers/auth-provider';
 
@@ -12,10 +12,8 @@ export function LandingNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-bg/80 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-semibold text-fg">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-            <Radar className="h-4 w-4" />
-          </span>
+        <Link href="/" className="flex items-center gap-2 font-display font-semibold text-fg">
+          <Logomark />
           LeadScope
         </Link>
 

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { spaceGrotesk, inter } from '@/lib/fonts';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ToastProvider } from '@/components/providers/toast-provider';
 import { AuthProvider } from '@/components/providers/auth-provider';
@@ -25,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className="font-sans antialiased">
+      <body className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased`}>
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>{children}</AuthProvider>
