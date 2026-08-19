@@ -6,6 +6,9 @@ import { detectarOportunidades } from './detectar-oportunidades'
 import { elegirAgenciaIa } from './elegir-agencia-ia'
 import { cuantoCuestaIaPyme } from './cuanto-cuesta-ia-pyme'
 import { consultoriaVsPlantilla } from './consultoria-vs-plantilla'
+import { iaAutonomos } from './ia-autonomos'
+import { iaComercios } from './ia-comercios'
+import { iaClinicas } from './ia-clinicas'
 
 export type { KnowledgeDoc, Chapter, Block, Level } from './types'
 
@@ -23,6 +26,9 @@ export const docs: KnowledgeDoc[] = [
   elegirAgenciaIa,
   cuantoCuestaIaPyme,
   consultoriaVsPlantilla,
+  iaAutonomos,
+  iaComercios,
+  iaClinicas,
 ]
 
 export const getDoc = (slug: string | undefined) => docs.find((d) => d.slug === slug)
