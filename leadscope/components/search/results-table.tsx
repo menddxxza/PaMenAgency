@@ -2,7 +2,7 @@
 
 import { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Star, Phone, Mail, MapPin, ExternalLink } from 'lucide-react';
+import { Star, Phone, Mail, MapPin, ExternalLink, MessageCircle } from 'lucide-react';
 import { WebsiteStatusBadge, OpportunityBadge } from '@/components/search/status-badges';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Business } from '@/lib/types';
@@ -89,7 +89,18 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                       <span className="truncate">{b.email}</span>
                     </div>
                   )}
-                  {!b.phone && !b.email && <span>—</span>}
+                  {b.socialLinks.whatsapp && (
+                    <a
+                      href={b.socialLinks.whatsapp}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1.5 hover:text-success"
+                    >
+                      <MessageCircle className="h-3 w-3 shrink-0" />
+                      <span className="truncate">WhatsApp</span>
+                    </a>
+                  )}
+                  {!b.phone && !b.email && !b.socialLinks.whatsapp && <span>—</span>}
                 </div>
 
                 <div className="flex items-center gap-1 text-xs text-fg">

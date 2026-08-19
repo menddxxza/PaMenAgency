@@ -12,6 +12,7 @@ export function filterBusinesses(
     if (filters.onlySocialOnly && b.websiteStatus !== 'social_only') return false;
     if (filters.withPhone && !b.phone) return false;
     if (filters.withEmail && !b.email) return false;
+    if (filters.withWhatsapp && !b.socialLinks.whatsapp) return false;
     if (filters.minReviews > 0 && b.reviewsCount < filters.minReviews) return false;
     if (filters.minRating > 0 && (b.rating ?? 0) < filters.minRating) return false;
 

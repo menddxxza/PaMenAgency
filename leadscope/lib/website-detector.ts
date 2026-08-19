@@ -1,11 +1,25 @@
 import type { WebsiteStatus } from '@/lib/types';
 
-const SOCIAL_HOSTS = ['facebook.com', 'instagram.com', 'm.facebook.com', 'fb.com'];
+const SOCIAL_HOSTS = [
+  'facebook.com',
+  'instagram.com',
+  'm.facebook.com',
+  'fb.com',
+  'wa.me',
+  'api.whatsapp.com',
+  'whatsapp.com',
+];
 const FETCH_TIMEOUT_MS = 6000;
+
+export interface SocialLinks {
+  facebook?: string;
+  instagram?: string;
+  whatsapp?: string;
+}
 
 export interface WebsiteCheckResult {
   status: WebsiteStatus;
-  socialLinks: { facebook?: string; instagram?: string };
+  socialLinks: SocialLinks;
   finalUrl: string | null;
   email: string | null;
   html: string | null;
@@ -14,6 +28,7 @@ export interface WebsiteCheckResult {
 const MAILTO_RE = /mailto:([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 const GENERIC_EMAIL_DOMAINS = ['sentry.io', 'wixpress.com', 'example.com'];
+const WHATSAPP_LINK_RE = /https?:\/\/(?:api\.)?(?:wa\.me|whatsapp\.com)\/[^\s"'<>)]+/i;
 
 function extractEmail(html: string): string | null {
   const mailto = html.match(MAILTO_RE);
@@ -24,6 +39,12 @@ function extractEmail(html: string): string | null {
     return plain[0];
   }
   return null;
+}
+
+/** Busca un enlace de WhatsApp (wa.me / api.whatsapp.com) en el HTML de la web. */
+function extractWhatsapp(html: string): string | null {
+  const match = html.match(WHATSAPP_LINK_RE);
+  return match ? match[0] : null;
 }
 
 function hostnameOf(url: string): string | null {
@@ -39,11 +60,12 @@ function isSocialUrl(url: string): boolean {
   return !!host && SOCIAL_HOSTS.some((social) => host.includes(social));
 }
 
-function extractSocialLinks(url: string): { facebook?: string; instagram?: string } {
+function extractSocialLinks(url: string): SocialLinks {
   const host = hostnameOf(url);
   if (!host) return {};
   if (host.includes('facebook.com') || host.includes('fb.com')) return { facebook: url };
   if (host.includes('instagram.com')) return { instagram: url };
+  if (host.includes('wa.me') || host.includes('whatsapp.com')) return { whatsapp: url };
   return {};
 }
 
@@ -100,7 +122,14 @@ export async function checkWebsite(website: string | null): Promise<WebsiteCheck
     }
 
     const html = (await res.text()).slice(0, 20000);
-    return { status: 'active', socialLinks: {}, finalUrl: res.url, email: extractEmail(html), html };
+    const whatsapp = extractWhatsapp(html);
+    return {
+      status: 'active',
+      socialLinks: whatsapp ? { whatsapp } : {},
+      finalUrl: res.url,
+      email: extractEmail(html),
+      html,
+    };
   } catch {
     return { status: 'broken', socialLinks: {}, finalUrl: website, email: null, html: null };
   }

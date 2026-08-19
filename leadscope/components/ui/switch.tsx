@@ -18,13 +18,14 @@ export function Switch({ checked, onChange, label, className }: SwitchProps) {
         aria-checked={checked}
         onClick={() => onChange(!checked)}
         className={cn(
-          'relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200',
-          checked ? 'bg-brand-600' : 'bg-surface-hover border border-border'
+          'relative h-6 w-10 shrink-0 rounded-full transition-colors duration-200 ease-out',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
+          checked ? 'bg-brand-600' : 'bg-border'
         )}
       >
         <span
           className={cn(
-            'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200',
+            'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.35)] transition-transform duration-200 ease-out',
             checked ? 'translate-x-[18px]' : 'translate-x-0.5'
           )}
         />

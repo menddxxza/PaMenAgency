@@ -22,6 +22,7 @@ export interface SearchFilters {
   minRating: number;
   withPhone: boolean;
   withEmail: boolean;
+  withWhatsapp: boolean;
 }
 
 export const DEFAULT_FILTERS: SearchFilters = {
@@ -31,6 +32,7 @@ export const DEFAULT_FILTERS: SearchFilters = {
   minRating: 0,
   withPhone: false,
   withEmail: false,
+  withWhatsapp: false,
 };
 
 export interface OpeningHours {
@@ -53,7 +55,7 @@ export interface Business {
   openingHours: OpeningHours | null;
   mapsUrl: string;
   website: string | null;
-  socialLinks: { facebook?: string; instagram?: string };
+  socialLinks: { facebook?: string; instagram?: string; whatsapp?: string };
   websiteStatus: WebsiteStatus;
   opportunity: Opportunity;
   opportunityScore: number;
