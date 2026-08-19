@@ -28,7 +28,16 @@ export default function SearchPage() {
       <Topbar title="Buscador de negocios" />
 
       <main className="flex-1 space-y-5 p-4 sm:p-6">
-        <SearchForm onSearch={runSearch} loading={loading} />
+        <div className="space-y-5 rounded-2xl border border-border bg-surface p-5">
+          <SearchForm onSearch={runSearch} loading={loading} />
+          <hr className="border-border" />
+          <FiltersPanel
+            filters={filters}
+            onChange={setFilters}
+            query={query}
+            onQueryChange={setQuery}
+          />
+        </div>
 
         {results.length > 0 && (
           <>
@@ -41,12 +50,6 @@ export default function SearchPage() {
             </div>
 
             <StatsBar businesses={results} />
-            <FiltersPanel
-              filters={filters}
-              onChange={setFilters}
-              query={query}
-              onQueryChange={setQuery}
-            />
           </>
         )}
 

@@ -23,7 +23,9 @@ export function HistoryResults({ businesses }: { businesses: Business[] }) {
         <ExportMenu businesses={filtered} />
       </div>
       <StatsBar businesses={businesses} />
-      <FiltersPanel filters={filters} onChange={setFilters} query={query} onQueryChange={setQuery} />
+      <div className="rounded-2xl border border-border bg-surface p-5">
+        <FiltersPanel filters={filters} onChange={setFilters} query={query} onQueryChange={setQuery} />
+      </div>
       <ResultsTable businesses={filtered} loading={false} />
     </div>
   );

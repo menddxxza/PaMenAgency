@@ -20,8 +20,21 @@ export function FiltersPanel({
     onChange({ ...filters, [key]: value });
   }
 
+  // "Solo sin web" y "Solo redes sociales" describen el mismo campo
+  // (websiteStatus) — un negocio nunca puede cumplir los dos a la vez, así
+  // que activar uno desactiva el otro para no acabar con un filtro
+  // imposible que nunca devuelve resultados.
+  function setWebsiteStatusFilter(key: 'onlyNoWebsite' | 'onlySocialOnly', value: boolean) {
+    onChange({
+      ...filters,
+      onlyNoWebsite: key === 'onlyNoWebsite' ? value : value ? false : filters.onlyNoWebsite,
+      onlySocialOnly: key === 'onlySocialOnly' ? value : value ? false : filters.onlySocialOnly,
+    });
+  }
+
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-4">
+    <div className="flex flex-col gap-4">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted">Filtros</p>
       <div className="relative">
         <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
         <Input
@@ -35,12 +48,12 @@ export function FiltersPanel({
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <Switch
           checked={filters.onlyNoWebsite}
-          onChange={(v) => set('onlyNoWebsite', v)}
+          onChange={(v) => setWebsiteStatusFilter('onlyNoWebsite', v)}
           label="Solo sin web"
         />
         <Switch
           checked={filters.onlySocialOnly}
-          onChange={(v) => set('onlySocialOnly', v)}
+          onChange={(v) => setWebsiteStatusFilter('onlySocialOnly', v)}
           label="Solo redes sociales"
         />
         <Switch
