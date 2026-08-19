@@ -24,20 +24,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function load() {
-      const {
-        data: { user: current },
-      } = await supabase.auth.getUser();
-      setUser(current);
+      try {
+        const {
+          data: { user: current },
+        } = await supabase.auth.getUser();
+        setUser(current);
 
-      if (current) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('plan, full_name, email')
-          .eq('id', current.id)
-          .single();
-        setProfile(data);
+        if (current) {
+          const { data } = await supabase
+            .from('profiles')
+            .select('plan, full_name, email')
+            .eq('id', current.id)
+            .single();
+          setProfile(data);
+        }
+      } catch {
+        // Supabase no disponible: se sigue como visitante anónimo.
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     load();
 
