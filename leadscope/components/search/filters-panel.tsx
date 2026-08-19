@@ -49,6 +49,11 @@ export function FiltersPanel({
           label="Con teléfono"
         />
         <Switch checked={filters.withEmail} onChange={(v) => set('withEmail', v)} label="Con email" />
+        <Switch
+          checked={filters.withWhatsapp}
+          onChange={(v) => set('withWhatsapp', v)}
+          label="Con WhatsApp"
+        />
 
         <div className="flex items-center gap-2">
           <label className="text-sm text-muted">Reseñas mín.</label>

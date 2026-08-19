@@ -13,6 +13,7 @@ function toRow(b: Business) {
     Nombre: b.name,
     Teléfono: b.phone ?? '',
     Email: b.email ?? '',
+    WhatsApp: b.socialLinks.whatsapp ?? '',
     Dirección: b.address,
     Rating: b.rating ?? '',
     Reseñas: b.reviewsCount,
@@ -77,7 +78,7 @@ export async function exportToPdf(businesses: Business[], filename = 'leadscope-
       b.opportunity,
     ]),
     styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [79, 70, 229] },
+    headStyles: { fillColor: [209, 143, 34] },
   });
 
   doc.save(filename);
