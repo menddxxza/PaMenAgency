@@ -1,20 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Download } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/components/providers/auth-provider';
 import { Badge } from '@/components/ui/badge';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 
 export function Topbar({ title }: { title?: string }) {
   const { profile } = useAuth();
+  const { canInstall, promptInstall } = useInstallPrompt();
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-border px-4 sm:px-6">
       <h1 className="text-base font-semibold text-fg">{title}</h1>
 
       <div className="flex items-center gap-3">
+        {canInstall && (
+          <Button variant="secondary" size="sm" onClick={promptInstall}>
+            <Download className="h-3.5 w-3.5" />
+            Instalar app
+          </Button>
+        )}
         {profile?.plan === 'free' && (
           <Link
             href="/dashboard/billing"
