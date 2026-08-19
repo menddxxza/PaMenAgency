@@ -5,6 +5,7 @@ import { erroresComunes } from './errores-comunes'
 import { detectarOportunidades } from './detectar-oportunidades'
 import { elegirAgenciaIa } from './elegir-agencia-ia'
 import { cuantoCuestaIaPyme } from './cuanto-cuesta-ia-pyme'
+import { consultoriaVsPlantilla } from './consultoria-vs-plantilla'
 
 export type { KnowledgeDoc, Chapter, Block, Level } from './types'
 
@@ -21,6 +22,7 @@ export const docs: KnowledgeDoc[] = [
   detectarOportunidades,
   elegirAgenciaIa,
   cuantoCuestaIaPyme,
+  consultoriaVsPlantilla,
 ]
 
 export const getDoc = (slug: string | undefined) => docs.find((d) => d.slug === slug)
