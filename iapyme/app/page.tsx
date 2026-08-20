@@ -59,16 +59,9 @@ export default async function Home() {
             abstracto (red de nodos, no cerebro ni robot) en el hueco a la
             derecha del titular en escritorio — decorativo, aria-hidden,
             se omite entero con prefers-reduced-motion. ---- */}
-        <section className="relative overflow-hidden border-b border-ink/10 bg-ink text-white">
-          <div
-            className="pointer-events-none absolute -right-24 top-1/2 hidden h-[34rem] w-[34rem]
-                       -translate-y-1/2 lg:block"
-            aria-hidden
-          >
-            <EscenaHeroLazy />
-          </div>
-
-          <div className="container-page relative py-14 sm:py-20 lg:py-24">
+        <section className="border-b border-ink/10 bg-ink text-white">
+          <div className="container-page py-14 sm:py-20 lg:py-24">
+            <div className="lg:grid lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-10">
             <div className="max-w-2xl">
               {/* 17ch parte el titular en dos líneas limpias en vez de dejar
                   "usar" huérfano en una tercera. */}
@@ -120,6 +113,15 @@ export default async function Home() {
                   Publícalo gratis
                 </Link>
               </p>
+            </div>
+
+            {/* Celda de grid propia, con su propio alto acotado — nada de
+                posición absoluta contra toda la sección, que era lo que
+                hacía que la figura se recortara por los bordes y se
+                solapara con el catálogo de debajo. */}
+            <div className="pointer-events-none relative mt-10 hidden h-[24rem] lg:mt-0 lg:block" aria-hidden>
+              <EscenaHeroLazy />
+            </div>
             </div>
 
             {/* Escaparate real: el propio catálogo, no una maqueta. Franja
