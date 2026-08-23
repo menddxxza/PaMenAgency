@@ -79,9 +79,8 @@ h1, h2, h3, p { margin: 0; }
 .blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(var(--blob-blur, 70px));
   opacity: var(--blob-opacity, 0.4);
-  background: var(--blob-color, var(--color-accent-soft));
+  background: radial-gradient(closest-side, var(--blob-color, var(--color-accent-soft)), transparent);
   animation: blob-drift var(--blob-dur, 20s) var(--ease-in-out) infinite alternate;
   animation-delay: var(--blob-delay, 0s);
   will-change: transform;
