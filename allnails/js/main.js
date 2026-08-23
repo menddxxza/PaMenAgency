@@ -13,6 +13,31 @@
     window.addEventListener('scroll', setScrolled, { passive: true });
   }
 
+  /* ---- Hero parallax on scroll (Apple-style recede) ---- */
+  const heroSection = document.querySelector('.hero');
+  const heroContent = document.querySelector('.hero__content');
+  const heroCollage = document.querySelector('.hero__collage');
+  if (heroSection && heroContent && heroCollage && !reduceMotion) {
+    let ticking = false;
+    const update = () => {
+      const progress = Math.min(Math.max(window.scrollY / heroSection.offsetHeight, 0), 1);
+      heroContent.style.transform = `translateY(${(progress * -36).toFixed(1)}px)`;
+      heroContent.style.opacity = String(Math.max(1 - progress * 1.3, 0));
+      heroCollage.style.transform = `translateY(${(progress * 46).toFixed(1)}px) scale(${(1 - progress * 0.07).toFixed(3)})`;
+      heroCollage.style.opacity = String(Math.max(1 - progress * 1.1, 0));
+      ticking = false;
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+  }
+
   /* ---- Reveal on scroll ---- */
   const revealEls = document.querySelectorAll('.reveal');
   if (revealEls.length) {
