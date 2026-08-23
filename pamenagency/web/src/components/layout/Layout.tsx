@@ -5,6 +5,7 @@ import { Footer } from './Footer'
 import { CookieBanner } from '@/components/cookies/CookieBanner'
 import { CustomCursor } from '@/components/ui/CustomCursor'
 import { AmbientParticles } from '@/components/ui/AmbientParticles'
+import { BackToTop } from '@/components/ui/BackToTop'
 import { AssistantWidget } from '@/components/chat/AssistantWidget'
 
 /** Cada navegación empieza arriba, salvo que se navegue a un ancla. */
@@ -55,6 +56,7 @@ export function Layout() {
       </main>
       <Footer />
       <CookieBanner />
+      <BackToTop />
       <AssistantWidget />
     </>
   )

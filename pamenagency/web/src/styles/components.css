@@ -884,6 +884,46 @@
 
 .pm-card:hover .pm-card__cover { color: var(--pm-gold); }
 
+/* ----------------------------- Volver arriba ---------------------------- */
+
+.pm-backtotop {
+  position: fixed;
+  left: clamp(1rem, 3vw, 1.75rem);
+  bottom: clamp(1rem, 3vw, 1.75rem);
+  z-index: var(--z-assistant);
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--pm-line-strong);
+  background: var(--pm-surface-2);
+  color: var(--pm-text-soft);
+  box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out),
+    visibility var(--dur), color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+
+.pm-backtotop[data-visible='true'] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.pm-backtotop:hover {
+  color: var(--pm-gold);
+  border-color: var(--pm-gold-line);
+}
+
+.pm-backtotop__icon { transform: rotate(-90deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-backtotop { transition: opacity var(--dur) linear, visibility var(--dur); }
+}
+
 /* --------------------------- Asistente de IA --------------------------- */
 
 .pm-assistant__launcher {
