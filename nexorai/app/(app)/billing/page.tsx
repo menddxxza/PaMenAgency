@@ -7,18 +7,25 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export default async function BillingPage() {
-  const { organization } = await requireOrgContext();
+  const { organization, isComplimentary } = await requireOrgContext();
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div>
         <p className="font-mono text-xs uppercase tracking-widest text-brand-400">Facturación</p>
         <h1 className="mt-1 text-2xl font-semibold text-fg">Tu plan</h1>
-        <p className="mt-1 text-sm text-muted">
-          Estás en el plan <span className="capitalize text-fg">{organization.plan}</span>. El cobro real
-          todavía no está activo en este entorno de demostración — para cambiar de plan, contacta con
-          PaMenAgency.
-        </p>
+        {isComplimentary ? (
+          <p className="mt-1 text-sm text-muted">
+            Tienes <span className="text-fg">acceso completo sin coste</span> — cuenta interna con todos los
+            planes y agentes desbloqueados.
+          </p>
+        ) : (
+          <p className="mt-1 text-sm text-muted">
+            Estás en el plan <span className="capitalize text-fg">{organization.plan}</span>. El cobro real
+            todavía no está activo en este entorno de demostración — para cambiar de plan, contacta con
+            PaMenAgency.
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

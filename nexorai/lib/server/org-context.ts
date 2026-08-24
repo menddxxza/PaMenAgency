@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { isComplimentaryAccess } from '@/lib/access';
 import type { Business, Organization } from '@/lib/types';
 
 export interface OrgContext {
@@ -7,6 +8,7 @@ export interface OrgContext {
   userEmail: string;
   organization: Organization;
   business: Business | null;
+  isComplimentary: boolean;
 }
 
 /**
@@ -52,11 +54,14 @@ export async function requireOrgContext(): Promise<OrgContext> {
     .eq('organization_id', membership.organization_id)
     .maybeSingle();
 
+  const complimentary = isComplimentaryAccess(user.email);
+
   return {
     userId: user.id,
     userEmail: user.email ?? '',
-    organization,
+    organization: complimentary ? { ...organization, plan: 'performance' } : organization,
     business: business ?? null,
+    isComplimentary: complimentary,
   };
 }
 

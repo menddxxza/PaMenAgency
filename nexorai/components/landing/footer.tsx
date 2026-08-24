@@ -39,6 +39,12 @@ export function Footer() {
               . Encontramos dónde está el dinero en tu negocio y ponemos agentes a trabajar para
               conseguirlo.
             </p>
+            <p className="mt-3 text-sm text-muted">
+              ¿Dudas?{' '}
+              <a href="mailto:soporte.atiende@gmail.com" className="text-fg hover:underline">
+                soporte.atiende@gmail.com
+              </a>
+            </p>
             <div className="mt-5 flex items-center gap-3">
               {SOCIALS.map((s) => (
                 <a
