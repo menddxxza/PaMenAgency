@@ -41,9 +41,11 @@ Aplica las migraciones de `supabase/migrations/` sobre tu proyecto Supabase (SQL
 `supabase db push`) antes de usar la app — sin ellas, el registro y el resto del flujo
 fallarán al no existir las tablas.
 
-Sin `AI_PROVIDER`/`ANTHROPIC_API_KEY`/`OPENAI_API_KEY`, el resumen ejecutivo del AI Business
-Audit usa una plantilla local determinista (etiquetada como tal en la UI); los cálculos de
-potencial de ingresos **nunca** dependen de un proveedor de IA.
+El proveedor por defecto es Groq (gratis: clave en https://console.groq.com/keys). Sin
+`GROQ_API_KEY` configurada — o sin `AI_PROVIDER`/`ANTHROPIC_API_KEY`/`OPENAI_API_KEY` si se usa
+otro proveedor —, el resumen ejecutivo del AI Business Audit cae automáticamente a una plantilla
+local determinista (etiquetada como tal en la UI); los cálculos de potencial de ingresos **nunca**
+dependen de un proveedor de IA.
 
 ## Estructura
 

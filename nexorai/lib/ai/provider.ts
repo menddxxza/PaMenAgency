@@ -28,7 +28,7 @@ export interface AISummaryResult {
   provider: AIProviderId;
 }
 
-export type AIProviderId = 'anthropic' | 'openai' | 'mock';
+export type AIProviderId = 'anthropic' | 'openai' | 'groq' | 'mock';
 
 export interface AIProvider {
   readonly id: AIProviderId;
@@ -126,6 +126,34 @@ class OpenAIProvider implements AIProvider {
   }
 }
 
+class GroqProvider implements AIProvider {
+  readonly id: AIProviderId = 'groq';
+
+  async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) return new MockAIProvider().summarizeAudit(input);
+
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 220,
+          messages: [{ role: 'user', content: buildPrompt(input) }],
+        }),
+      });
+      if (!res.ok) return new MockAIProvider().summarizeAudit(input);
+      const data = await res.json();
+      const text = data?.choices?.[0]?.message?.content?.trim();
+      if (!text) return new MockAIProvider().summarizeAudit(input);
+      return { text, generatedByModel: true, provider: this.id };
+    } catch {
+      return new MockAIProvider().summarizeAudit(input);
+    }
+  }
+}
+
 function buildPrompt(input: AuditSummaryInput): string {
   return (
     `Eres un analista de crecimiento B2B. Te doy cifras YA CALCULADAS de un negocio; ` +
@@ -139,8 +167,9 @@ function buildPrompt(input: AuditSummaryInput): string {
 }
 
 export function getAIProvider(): AIProvider {
-  const configured = (process.env.AI_PROVIDER ?? 'mock').toLowerCase();
+  const configured = (process.env.AI_PROVIDER ?? 'groq').toLowerCase();
   if (configured === 'anthropic') return new AnthropicAIProvider();
   if (configured === 'openai') return new OpenAIProvider();
+  if (configured === 'groq') return new GroqProvider();
   return new MockAIProvider();
 }
