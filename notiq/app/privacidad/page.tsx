@@ -11,9 +11,18 @@ export default function PrivacidadPage() {
   return (
     <LegalLayout titulo="Política de privacidad" actualizado="11 de agosto de 2026">
       <p>
-        Notiq es un servicio de notas, tareas y asistente de IA operado por Pablo Angel
-        Piñeiro Mendoza, como persona física, con domicilio en España. Para cualquier
-        cuestión sobre tus datos personales puedes escribir a{' '}
+        Notiq es un servicio de notas, tareas y asistente de IA, parte de{' '}
+        <a
+          href="https://pamenagency.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-brand-600 hover:underline"
+        >
+          PaMenAgency
+        </a>
+        , operado por Pablo Angel Piñeiro Mendoza, como persona física, con domicilio
+        en España. Para cualquier cuestión sobre tus datos personales puedes escribir
+        a{' '}
         <EmailContacto className="font-semibold text-brand-600 hover:underline" />.
       </p>
 

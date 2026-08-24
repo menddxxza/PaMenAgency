@@ -192,7 +192,17 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="container-page mt-8 flex flex-col gap-4 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-ink/40">© {new Date().getFullYear()} Notiq</p>
+            <p className="text-xs text-ink/40">
+              © {new Date().getFullYear()} Notiq — un producto de{' '}
+              <a
+                href="https://pamenagency.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-ink/55 hover:text-ink"
+              >
+                PaMenAgency
+              </a>
+            </p>
             <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-ink/40">
               <Link href="/privacidad" className="hover:text-ink/70">
                 Política de privacidad

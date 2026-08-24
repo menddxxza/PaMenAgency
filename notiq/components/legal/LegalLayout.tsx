@@ -70,7 +70,15 @@ export default function LegalLayout({
           </div>
         </div>
         <div className="container-page mt-8 border-t border-ink/10 pt-6 text-xs text-ink/40">
-          © {new Date().getFullYear()} Notiq
+          © {new Date().getFullYear()} Notiq — un producto de{' '}
+          <a
+            href="https://pamenagency.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-ink/55 hover:text-ink"
+          >
+            PaMenAgency
+          </a>
         </div>
       </footer>
     </div>

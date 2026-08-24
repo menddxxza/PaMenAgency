@@ -11,9 +11,17 @@ export default function TerminosPage() {
   return (
     <LegalLayout titulo="Términos y condiciones" actualizado="11 de agosto de 2026">
       <p>
-        Estos términos regulan el uso de Notiq, un servicio operado por Pablo Angel Piñeiro
-        Mendoza. Al crear una cuenta aceptas estas condiciones. Si no estás de acuerdo, no uses
-        el servicio.
+        Estos términos regulan el uso de Notiq, un servicio parte de{' '}
+        <a
+          href="https://pamenagency.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-brand-600 hover:underline"
+        >
+          PaMenAgency
+        </a>
+        , operado por Pablo Angel Piñeiro Mendoza. Al crear una cuenta aceptas estas
+        condiciones. Si no estás de acuerdo, no uses el servicio.
       </p>
 
       <section>
