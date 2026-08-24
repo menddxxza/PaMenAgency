@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useStageTrigger } from '@/lib/use-stage-trigger';
+import { ParticleCanvas } from '@/components/landing/particle-canvas';
 import type { JourneyState } from '@/components/landing/system-scene';
 
 export function Hero({
@@ -17,6 +18,8 @@ export function Hero({
 
   return (
     <section ref={sectionRef} className="relative h-[100dvh] min-h-[640px] w-full overflow-hidden">
+      <ParticleCanvas className="absolute inset-0 h-full w-full" />
+
       <div aria-hidden="true" className="hero-aurora pointer-events-none absolute inset-0" />
 
       <div
