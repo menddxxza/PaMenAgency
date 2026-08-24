@@ -8,7 +8,7 @@ import { Footer } from '@/components/landing/footer';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="bg-void min-h-screen">
       <LandingNav />
       <main>
         <Hero />

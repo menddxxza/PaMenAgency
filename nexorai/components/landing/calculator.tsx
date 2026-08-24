@@ -1,20 +1,60 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import gsap from 'gsap';
 import { ArrowRight } from 'lucide-react';
 import { runAuditEngine } from '@/lib/ai/audit-engine';
 import { prioritizeOpportunities } from '@/lib/ai/opportunity-engine';
 import { SECTORS } from '@/lib/sectors';
 import type { BusinessInput, GoalInput } from '@/lib/types';
-import { Card } from '@/components/ui/card';
-import { Label, Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { EstimateNote } from '@/components/ui/demo-tag';
 import { formatCurrency } from '@/lib/utils';
 
 const EMPLOYEE_RANGES = ['1-5', '6-15', '16-50', '50+'];
+
+function ConsoleField({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-white/35">{label}</span>
+      <div className="mt-1.5">{children}</div>
+    </label>
+  );
+}
+
+const fieldClass =
+  'w-full border-0 border-b border-white/10 bg-transparent py-1.5 font-mono text-sm text-white outline-none transition-colors focus:border-gold-400';
+
+/** Cifra que se anima suavemente hacia el nuevo valor en cada recálculo, en vez de saltar. */
+function AnimatedCurrency({ value }: { value: number }) {
+  const [display, setDisplay] = useState(value);
+  const ref = useRef({ v: value });
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplay(value);
+      return;
+    }
+    const tween = gsap.to(ref.current, {
+      v: value,
+      duration: 0.6,
+      ease: 'power2.out',
+      onUpdate: () => setDisplay(Math.round(ref.current.v)),
+    });
+    return () => {
+      tween.kill();
+    };
+  }, [value]);
+
+  return <>{formatCurrency(display)}</>;
+}
 
 export function Calculator({ defaultSector }: { defaultSector?: string } = {}) {
   const [sector, setSector] = useState(defaultSector ?? SECTORS[0].slug);
@@ -47,108 +87,113 @@ export function Calculator({ defaultSector }: { defaultSector?: string } = {}) {
   }, [sector, monthlyRevenue, currentCustomers, avgTicket, monthlyLeads, conversionRate, employeesRange]);
 
   return (
-    <section id="calculadora" className="mx-auto max-w-6xl px-4 py-24">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="font-mono text-xs uppercase tracking-widest text-brand-400">Calculadora</p>
-        <h2 className="mt-3 text-balance font-display text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
-          ¿Cuánto dinero se está quedando sobre la mesa?
+    <section id="calculadora" className="bg-void relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8">
+      <div className="max-w-xl">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Calculadora</p>
+        <h2 className="mt-4 font-display text-3xl font-semibold uppercase tracking-tight text-white sm:text-4xl">
+          Cuánto dinero se está quedando sobre la mesa
         </h2>
-        <p className="mt-3 text-sm text-muted">
-          Cifras orientativas calculadas con la misma fórmula que usa el AI Business Audit real.
+        <p className="mt-3 max-w-md text-sm text-white/45">
+          Misma fórmula que usa el AI Business Audit real. Cambia los valores y el motor recalcula al
+          instante.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[1fr_1fr]">
-        <Card className="p-6">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <Label htmlFor="calc-sector">Sector</Label>
-              <Select id="calc-sector" value={sector} onChange={(e) => setSector(e.target.value)}>
+      <div className="landing-hairline mt-14 grid grid-cols-1 border lg:grid-cols-[1.1fr_1fr]">
+        <div className="landing-hairline border-b p-6 sm:p-8 lg:border-b-0 lg:border-r">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-white/30">Input</p>
+          <div className="mt-5 grid gap-6 sm:grid-cols-2">
+            <ConsoleField label="Sector">
+              <select
+                value={sector}
+                onChange={(e) => setSector(e.target.value)}
+                className={fieldClass}
+              >
                 {SECTORS.map((s) => (
-                  <option key={s.slug} value={s.slug}>
+                  <option key={s.slug} value={s.slug} className="bg-[#0b0b0c]">
                     {s.namePlural}
                   </option>
                 ))}
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="calc-revenue">Facturación mensual (€)</Label>
-              <Input
-                id="calc-revenue"
+              </select>
+            </ConsoleField>
+            <ConsoleField label="Empleados">
+              <select
+                value={employeesRange}
+                onChange={(e) => setEmployeesRange(e.target.value)}
+                className={fieldClass}
+              >
+                {EMPLOYEE_RANGES.map((r) => (
+                  <option key={r} value={r} className="bg-[#0b0b0c]">
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </ConsoleField>
+            <ConsoleField label="Facturación mensual (€)">
+              <input
                 type="number"
                 min={0}
                 value={monthlyRevenue}
                 onChange={(e) => setMonthlyRevenue(Number(e.target.value) || 0)}
+                className={fieldClass}
               />
-            </div>
-            <div>
-              <Label htmlFor="calc-customers">Clientes actuales</Label>
-              <Input
-                id="calc-customers"
+            </ConsoleField>
+            <ConsoleField label="Clientes actuales">
+              <input
                 type="number"
                 min={0}
                 value={currentCustomers}
                 onChange={(e) => setCurrentCustomers(Number(e.target.value) || 0)}
+                className={fieldClass}
               />
-            </div>
-            <div>
-              <Label htmlFor="calc-ticket">Ticket medio (€)</Label>
-              <Input
-                id="calc-ticket"
+            </ConsoleField>
+            <ConsoleField label="Ticket medio (€)">
+              <input
                 type="number"
                 min={0}
                 value={avgTicket}
                 onChange={(e) => setAvgTicket(Number(e.target.value) || 0)}
+                className={fieldClass}
               />
-            </div>
-            <div>
-              <Label htmlFor="calc-leads">Leads mensuales</Label>
-              <Input
-                id="calc-leads"
+            </ConsoleField>
+            <ConsoleField label="Leads mensuales">
+              <input
                 type="number"
                 min={0}
                 value={monthlyLeads}
                 onChange={(e) => setMonthlyLeads(Number(e.target.value) || 0)}
+                className={fieldClass}
               />
-            </div>
-            <div>
-              <Label htmlFor="calc-conversion">Conversión actual (%)</Label>
-              <Input
-                id="calc-conversion"
+            </ConsoleField>
+            <ConsoleField label="Conversión actual (%)">
+              <input
                 type="number"
                 min={0}
                 max={100}
                 value={conversionRate}
                 onChange={(e) => setConversionRate(Number(e.target.value) || 0)}
+                className={fieldClass}
               />
-            </div>
-            <div>
-              <Label htmlFor="calc-employees">Empleados</Label>
-              <Select id="calc-employees" value={employeesRange} onChange={(e) => setEmployeesRange(e.target.value)}>
-                {EMPLOYEE_RANGES.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </Select>
-            </div>
+            </ConsoleField>
           </div>
-        </Card>
+        </div>
 
-        <Card className="flex flex-col justify-between bg-gradient-to-b from-brand-500/10 to-transparent p-6">
+        <div className="flex flex-col justify-between p-6 sm:p-8">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">Potencial detectado</p>
-            <p className="mt-2 font-display text-4xl font-semibold text-fg">
-              {formatCurrency(result.totalPotentialMin)} – {formatCurrency(result.totalPotentialMax)}
-              <span className="ml-1 text-base font-normal text-muted">/mes</span>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-white/30">Potencial detectado</p>
+            <p className="mt-3 font-display text-4xl font-semibold text-white sm:text-5xl">
+              <AnimatedCurrency value={result.totalPotentialMin} />
+              <span className="mx-1.5 text-white/25">–</span>
+              <AnimatedCurrency value={result.totalPotentialMax} />
             </p>
-            <EstimateNote className="mt-2" />
+            <p className="mt-1 font-mono text-xs text-white/30">/ mes</p>
+            <EstimateNote className="mt-3 text-white/35" />
 
-            <ul className="mt-6 space-y-3">
+            <ul className="landing-hairline mt-7 divide-y divide-white/[0.06] border-t">
               {result.prioritized.map((o) => (
-                <li key={o.category} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="text-muted">{o.name}</span>
-                  <span className="font-mono text-fg">
+                <li key={o.category} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                  <span className="text-white/50">{o.name}</span>
+                  <span className="font-mono text-gold-300">
                     {formatCurrency(o.potentialMin)}–{formatCurrency(o.potentialMax)}
                   </span>
                 </li>
@@ -157,12 +202,16 @@ export function Calculator({ defaultSector }: { defaultSector?: string } = {}) {
           </div>
 
           <Link href="/signup" className="mt-8">
-            <Button className="w-full" size="lg">
+            <Button
+              variant="secondary"
+              className="w-full border-0 bg-white text-[#0b0b0c] shadow-none hover:bg-white/90"
+              size="lg"
+            >
               Ver mi auditoría completa
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-        </Card>
+        </div>
       </div>
     </section>
   );

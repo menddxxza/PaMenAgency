@@ -1,112 +1,60 @@
 import Link from 'next/link';
-import { ArrowRight, PlayCircle, Radar, Bot, Target, LineChart } from 'lucide-react';
-import { TechCubeField } from '@/components/landing/tech-cube-field';
+import { ArrowRight } from 'lucide-react';
+import { HeroScene } from '@/components/landing/hero-scene';
 import { Button } from '@/components/ui/button';
-
-const CARDS = [
-  {
-    icon: Radar,
-    title: 'Analiza tu negocio',
-    description: 'Conecta tu empresa y responde 10 preguntas. Nada de configurar modelos ni prompts.',
-  },
-  {
-    icon: Target,
-    title: 'Detecta oportunidades',
-    description: 'El motor calcula, con tus propios datos, dónde hay ingreso sin explotar y cuánto vale.',
-  },
-  {
-    icon: Bot,
-    title: 'Activa agentes',
-    description: 'Cada oportunidad tiene un agente especializado listo para trabajarla en cuanto la actives.',
-  },
-  {
-    icon: LineChart,
-    title: 'Mide resultados',
-    description: 'Dashboard en vivo: qué se ha encontrado, qué se ha activado y qué ha generado.',
-  },
-];
 
 export function Hero() {
   return (
-    <>
-      <section className="bg-hero-tech relative overflow-hidden pt-16 sm:pt-24">
-        <div className="bg-grid-tech bg-fade-mask pointer-events-none absolute inset-0 -z-10" />
+    <section className="bg-void relative h-[100dvh] min-h-[640px] w-full overflow-hidden">
+      <HeroScene className="absolute inset-0" />
 
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-20 lg:grid-cols-[1fr_1fr] lg:gap-4">
-          <div className="animate-slide-up max-w-xl">
-            <span className="glass-panel inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-[#94A3B8]">
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: 'linear-gradient(90deg, #ae36fb, #3b87ff)' }}
-              />
-              Un producto de PaMenAgency
-            </span>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/40"
+      />
 
-            <h1 className="mt-6 font-display text-4xl font-bold uppercase leading-[1.1] tracking-wide text-white sm:text-5xl lg:text-[3.1rem]">
-              <span className="block">Tu próxima</span>
-              <span className="block">fuente de ingresos</span>
-            </h1>
+      <div className="relative z-10 flex h-full flex-col justify-end px-4 pb-16 sm:px-8 sm:pb-24">
+        <div className="mx-auto w-full max-w-6xl">
+          <p className="animate-fade-in font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">
+            Revenue Intelligence Engine
+          </p>
 
-            <p
-              className="mt-4 bg-clip-text font-display text-xl font-semibold text-transparent sm:text-2xl"
-              style={{ backgroundImage: 'linear-gradient(90deg, #c584ff, #6ea8ff)' }}
+          <h1 className="animate-slide-up mt-4 max-w-2xl font-display text-4xl font-semibold uppercase leading-[1.05] tracking-tight text-white sm:text-6xl">
+            Tu próxima
+            <br />
+            fuente de ingresos.
+          </h1>
+
+          <p className="animate-slide-up mt-5 max-w-lg text-sm leading-relaxed text-white/50 sm:text-base">
+            No vendemos IA. Encontramos dónde está el dinero que tu negocio está dejando sobre la
+            mesa, y activamos agentes para ir a por él.
+          </p>
+
+          <div className="animate-fade-in mt-9 flex items-center gap-5">
+            <Link href="/signup">
+              <Button
+                variant="secondary"
+                size="md"
+                className="border-0 bg-white px-5 text-[#0b0b0c] shadow-none hover:bg-white/90 focus-visible:ring-gold-400/50"
+              >
+                Analizar mi empresa
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+            <a
+              href="#como-funciona"
+              className="font-mono text-xs uppercase tracking-widest text-white/45 transition-colors hover:text-white"
             >
-              No vendemos IA. Vendemos resultados.
-            </p>
-
-            <p className="mt-4 max-w-md text-sm uppercase tracking-[0.05em] text-[#94A3B8]">
-              Conecta tu empresa. La IA encuentra oportunidades, crea estrategias y activa
-              agentes que las convierten en ingresos.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="/signup">
-                <Button
-                  size="lg"
-                  className="border-0 text-white hover:brightness-110 focus-visible:ring-[#3B82F6]/50"
-                  style={{
-                    backgroundImage: 'linear-gradient(115deg, #ae36fb, #3b87ff)',
-                    boxShadow: '0 0 30px rgba(174,54,251,0.35), 0 0 44px rgba(59,135,255,0.25)',
-                  }}
-                >
-                  Analizar mi empresa
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <a href="#como-funciona">
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="glass-panel text-white hover:brightness-125 focus-visible:ring-[#3B82F6]/50"
-                >
-                  <PlayCircle className="h-4 w-4" />
-                  Ver cómo funciona
-                </Button>
-              </a>
-            </div>
-          </div>
-
-          <div className="glass-panel relative mx-auto h-[380px] w-full max-w-xl animate-fade-in overflow-hidden rounded-[2rem] p-2 sm:h-[440px]">
-            <TechCubeField />
+              Cómo funciona
+            </a>
           </div>
         </div>
-      </section>
-
-      <div className="bg-bg mx-auto grid max-w-6xl grid-cols-1 gap-3 px-4 py-16 sm:grid-cols-2 lg:grid-cols-4">
-        {CARDS.map((card) => (
-          <div
-            key={card.title}
-            className="group rounded-2xl border border-border bg-surface/60 p-5 transition-colors hover:border-[#8b5cf6]/30 hover:bg-surface"
-          >
-            <card.icon
-              className="h-5 w-5 text-[#a78bfa] transition-colors group-hover:text-[#c4b5fd]"
-              strokeWidth={1.75}
-            />
-            <h3 className="mt-3 text-sm font-semibold text-fg">{card.title}</h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted">{card.description}</p>
-          </div>
-        ))}
       </div>
-    </>
+
+      <div className="pointer-events-none absolute bottom-6 right-4 z-10 hidden font-mono text-[10px] uppercase tracking-[0.2em] text-white/25 sm:right-8 sm:block">
+        <span>Sistema en vivo</span>
+        <span className="tabular-flicker ml-2 inline-block h-1.5 w-1.5 rounded-full bg-gold-400 align-middle" />
+      </div>
+    </section>
   );
 }

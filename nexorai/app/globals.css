@@ -77,89 +77,40 @@ body {
 }
 
 /*
-  Hero "tech dark 3D": paleta y textura propias de esta sección, con fondo
-  casi negro-azulado (deliberadamente muy cercano a --bg para no romper la
-  continuidad con el resto de la página). El degradado violeta→azul es el
-  mismo del logotipo (#ae36fb → #3b87ff) — es la identidad de marca, no un
-  morado/azul genérico de IA.
+  Sistema visual de la landing: negro casi absoluto + un único acento dorado
+  (lib/plans y tailwind.config ya definen la escala `gold`). Nada de
+  glassmorphism, nada de grid genérico, nada de degradado morado/azul aquí
+  — eso queda reservado a la app autenticada, que no forma parte de este
+  rediseño.
 */
-.bg-hero-tech {
-  background:
-    radial-gradient(60% 50% at 18% 12%, rgba(174, 54, 251, 0.16) 0%, transparent 65%),
-    radial-gradient(55% 45% at 88% 8%, rgba(59, 135, 255, 0.14) 0%, transparent 65%),
-    linear-gradient(160deg, #0a0e1c 0%, #120a28 45%, #0d1428 100%);
+.bg-void {
+  background: #050505;
 }
 
-.bg-grid-tech {
-  background-image:
-    linear-gradient(to right, rgba(190, 160, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(190, 160, 255, 0.06) 1px, transparent 1px);
-  background-size: 44px 44px;
+.bg-carbon {
+  background: #0b0b0c;
 }
 
-/* Aurora ambiental: dos manchas de degradado de marca desplazándose muy
-   lentamente detrás de la escena de cubos, para que el fondo se sienta vivo
-   sin competir con el texto. */
-.hero-aurora {
-  background:
-    radial-gradient(42% 38% at 25% 24%, rgba(174, 54, 251, 0.4), transparent 72%),
-    radial-gradient(38% 34% at 82% 18%, rgba(59, 135, 255, 0.36), transparent 72%),
-    radial-gradient(46% 40% at 62% 88%, rgba(139, 47, 224, 0.24), transparent 72%);
-  filter: blur(70px);
-  animation: aurora-drift 20s ease-in-out infinite alternate;
+.landing-hairline {
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
-@keyframes aurora-drift {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  100% {
-    transform: translate3d(3%, -4%, 0) scale(1.08);
-  }
+.text-glow-gold {
+  text-shadow: 0 0 24px rgba(201, 162, 77, 0.35);
 }
 
-@keyframes cube-glow-pulse {
+@keyframes count-flicker {
   0%,
   100% {
-    filter: drop-shadow(0 0 10px rgba(174, 54, 251, 0.32)) drop-shadow(0 0 16px rgba(59, 135, 255, 0.22));
+    opacity: 1;
   }
   50% {
-    filter: drop-shadow(0 0 22px rgba(174, 54, 251, 0.6)) drop-shadow(0 0 32px rgba(59, 135, 255, 0.4));
+    opacity: 0.72;
   }
 }
 
-.tech-cube--glow {
-  animation: cube-glow-pulse 3.6s ease-in-out infinite;
-}
-
-@keyframes cube-drift {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-12px) rotate(2deg);
-  }
-}
-
-.tech-cube--float {
-  animation: cube-drift 7s ease-in-out infinite;
-}
-
-/*
-  Liquid glass: aproximación honesta al material "Liquid Glass" de Apple
-  (no existe un paquete oficial para web) vía backdrop-filter + bordes en
-  capas + brillo interior. Se usa con moderación: nav, CTA secundaria y el
-  marco que envuelve la escena 3D.
-*/
-.glass-panel {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 8px 40px rgba(0, 0, 0, 0.35);
+.tabular-flicker {
+  animation: count-flicker 2.4s ease-in-out infinite;
 }
 
 @keyframes skeleton-shimmer {

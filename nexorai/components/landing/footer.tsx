@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 import { Logomark, Wordmark } from '@/components/logomark';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { SECTORS } from '@/lib/sectors';
 
 const LEGAL_LINKS = [
@@ -23,25 +21,30 @@ const SOCIALS = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto max-w-6xl px-4 py-16">
+    <footer className="bg-void landing-hairline border-t">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-8">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
           <div className="col-span-2">
             <div className="flex items-center gap-2">
-              <Logomark />
-              <Wordmark className="text-sm" />
+              <Logomark className="h-5" />
+              <Wordmark className="text-xs" />
             </div>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/40">
               Nexorai es un producto de{' '}
-              <a href="https://pamenagency.com" target="_blank" rel="noreferrer" className="text-fg hover:underline">
+              <a
+                href="https://pamenagency.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-white/70 hover:text-white"
+              >
                 PaMenAgency
               </a>
               . Encontramos dónde está el dinero en tu negocio y ponemos agentes a trabajar para
               conseguirlo.
             </p>
-            <p className="mt-3 text-sm text-muted">
+            <p className="mt-3 text-sm text-white/40">
               ¿Dudas?{' '}
-              <a href="mailto:soporte.atiende@gmail.com" className="text-fg hover:underline">
+              <a href="mailto:soporte.atiende@gmail.com" className="text-white/70 hover:text-white">
                 soporte.atiende@gmail.com
               </a>
             </p>
@@ -53,7 +56,7 @@ export function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={s.label}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted transition-colors hover:border-brand-500/40 hover:text-fg"
+                  className="landing-hairline flex h-8 w-8 items-center justify-center rounded-full border text-white/40 transition-colors hover:border-gold-400/40 hover:text-gold-300"
                 >
                   <s.icon className="h-4 w-4" />
                 </a>
@@ -62,20 +65,20 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Producto</p>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-white/30">Producto</p>
             <ul className="mt-3 space-y-2.5 text-sm">
               <li>
-                <a href="#como-funciona" className="text-muted hover:text-fg">
+                <a href="#como-funciona" className="text-white/50 hover:text-white">
                   Cómo funciona
                 </a>
               </li>
               <li>
-                <a href="#agentes" className="text-muted hover:text-fg">
+                <a href="#agentes" className="text-white/50 hover:text-white">
                   Agentes
                 </a>
               </li>
               <li>
-                <a href="#precios" className="text-muted hover:text-fg">
+                <a href="#precios" className="text-white/50 hover:text-white">
                   Precios
                 </a>
               </li>
@@ -83,11 +86,11 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Sectores</p>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-white/30">Sectores</p>
             <ul className="mt-3 space-y-2.5 text-sm">
               {SECTORS.slice(0, 4).map((s) => (
                 <li key={s.slug}>
-                  <Link href={`/sectores/${s.slug}`} className="text-muted hover:text-fg">
+                  <Link href={`/sectores/${s.slug}`} className="text-white/50 hover:text-white">
                     {s.namePlural}
                   </Link>
                 </li>
@@ -96,11 +99,11 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted">Legal</p>
+            <p className="font-mono text-[10px] uppercase tracking-widest text-white/30">Legal</p>
             <ul className="mt-3 space-y-2.5 text-sm">
               {LEGAL_LINKS.map((l) => (
                 <li key={l.href}>
-                  <a href={l.href} target="_blank" rel="noreferrer" className="text-muted hover:text-fg">
+                  <a href={l.href} target="_blank" rel="noreferrer" className="text-white/50 hover:text-white">
                     {l.label}
                   </a>
                 </li>
@@ -109,20 +112,11 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-border pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted">
+        <div className="landing-hairline mt-14 flex flex-col gap-4 border-t pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-white/30">
             © {new Date().getFullYear()} Nexorai — un producto de PaMenAgency (pamenagency.com). Todos los
             derechos reservados.
           </p>
-          <form
-            onSubmit={(e) => e.preventDefault()}
-            className="flex w-full max-w-xs items-center gap-2 sm:w-auto"
-          >
-            <Input type="email" placeholder="tu@empresa.com" className="h-9" required />
-            <Button type="submit" size="sm" variant="secondary">
-              Enviar
-            </Button>
-          </form>
         </div>
       </div>
     </footer>

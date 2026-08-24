@@ -1,47 +1,127 @@
-import { Search, Target, Bot, Zap, LineChart } from 'lucide-react';
+'use client';
 
-const STEPS = [
-  { icon: Search, title: 'Analiza empresa', detail: 'Lee tus métricas y tu objetivo' },
-  { icon: Target, title: 'Encuentra oportunidades', detail: '5 categorías con potencial estimado' },
-  { icon: Bot, title: 'Crea agentes', detail: 'Uno especializado por oportunidad' },
-  { icon: Zap, title: 'Ejecuta acciones', detail: 'Tareas de adquisición y seguimiento' },
-  { icon: LineChart, title: 'Mide resultados', detail: 'Dashboard y línea de tiempo en vivo' },
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+const STAGES = [
+  {
+    tag: '01',
+    label: 'Empresa',
+    detail: 'Conectas tu negocio: métricas, objetivo, contexto real. Nada de configurar modelos.',
+  },
+  {
+    tag: '02',
+    label: 'Datos',
+    detail: 'El motor procesa facturación, leads, conversión y ticket medio de tu negocio.',
+  },
+  {
+    tag: '03',
+    label: 'Oportunidades',
+    detail: 'Aparecen los tramos de ingreso sin explotar, cada uno con un importe estimado.',
+  },
+  {
+    tag: '04',
+    label: 'Agentes',
+    detail: 'Cada oportunidad activa su agente especializado, con herramientas y permisos propios.',
+  },
+  {
+    tag: '05',
+    label: 'Acciones',
+    detail: 'El agente ejecuta tareas de captación y seguimiento sobre esa oportunidad.',
+  },
+  {
+    tag: '06',
+    label: 'Ingresos',
+    detail: 'El resultado se mide y se atribuye en tiempo real en el dashboard.',
+  },
 ];
 
 export function DemoFlow() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const ctx = gsap.context(() => {
+      if (lineRef.current) {
+        gsap.fromTo(
+          lineRef.current,
+          { scaleY: 0 },
+          {
+            scaleY: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 70%',
+              end: 'bottom 60%',
+              scrub: 0.6,
+            },
+          }
+        );
+      }
+      rowRefs.current.forEach((row) => {
+        if (!row) return;
+        gsap.fromTo(
+          row,
+          { opacity: 0.25, x: -8 },
+          {
+            opacity: 1,
+            x: 0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: row,
+              start: 'top 78%',
+              end: 'top 45%',
+              scrub: 0.4,
+            },
+          }
+        );
+      });
+    }, sectionRef);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section id="como-funciona" className="mx-auto max-w-6xl px-4 py-24">
-      <div className="mx-auto max-w-2xl text-center">
-        <p className="font-mono text-xs uppercase tracking-widest text-brand-400">Cómo funciona</p>
-        <h2 className="mt-3 text-balance font-display text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
-          De un objetivo en una frase a agentes trabajando
+    <section
+      id="como-funciona"
+      ref={sectionRef}
+      className="bg-void relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
+    >
+      <div className="max-w-xl">
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Cómo funciona</p>
+        <h2 className="mt-4 font-display text-3xl font-semibold uppercase tracking-tight text-white sm:text-4xl">
+          De un objetivo a agentes trabajando
         </h2>
       </div>
 
-      <div className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-surface p-5">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">El negocio escribe</p>
-        <p className="mt-2 font-display text-lg text-fg">
-          &ldquo;Quiero conseguir 20.000&euro; adicionales al mes.&rdquo;
-        </p>
-      </div>
-
-      <div className="relative mt-14">
+      <div className="relative mt-16 pl-8 sm:pl-10">
+        <div className="landing-hairline absolute left-0 top-1 h-[calc(100%-0.25rem)] w-px border-l" />
         <div
-          aria-hidden="true"
-          className="absolute left-0 right-0 top-6 hidden h-px bg-gradient-to-r from-transparent via-border to-transparent md:block"
+          ref={lineRef}
+          className="absolute left-0 top-1 h-[calc(100%-0.25rem)] w-px origin-top bg-gold-400"
         />
-        <ol className="grid grid-cols-1 gap-8 md:grid-cols-5 md:gap-4">
-          {STEPS.map((step, i) => (
-            <li key={step.title} className="relative flex flex-col items-center text-center">
-              <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border border-brand-500/40 bg-surface shadow-glow">
-                <step.icon className="h-5 w-5 text-brand-400" strokeWidth={1.75} />
-              </div>
-              <span className="mt-3 font-mono text-[11px] text-muted">Paso {i + 1}</span>
-              <h3 className="mt-1 text-sm font-semibold text-fg">{step.title}</h3>
-              <p className="mt-1 text-xs leading-relaxed text-muted">{step.detail}</p>
-            </li>
+
+        <div className="flex flex-col gap-12 sm:gap-14">
+          {STAGES.map((stage, i) => (
+            <div
+              key={stage.tag}
+              ref={(el) => {
+                rowRefs.current[i] = el;
+              }}
+              className="relative grid grid-cols-1 gap-2 sm:grid-cols-[5rem_10rem_1fr] sm:items-baseline sm:gap-6"
+            >
+              <span className="absolute -left-8 top-1 h-2 w-2 -translate-x-1/2 rounded-full bg-gold-400 sm:-left-10" />
+              <span className="font-mono text-xs text-white/30">{stage.tag}</span>
+              <h3 className="font-display text-xl font-semibold uppercase tracking-tight text-white">
+                {stage.label}
+              </h3>
+              <p className="max-w-md text-sm leading-relaxed text-white/45">{stage.detail}</p>
+            </div>
           ))}
-        </ol>
+        </div>
       </div>
     </section>
   );

@@ -26,40 +26,45 @@ export default function SectorPage({ params }: { params: { slug: string } }) {
   if (!sector) notFound();
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="bg-void min-h-screen">
       <LandingNav />
       <main>
-        <section className="mx-auto max-w-4xl px-4 pb-16 pt-16 text-center sm:pt-24">
-          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted">
+        <section className="mx-auto max-w-4xl px-4 pb-16 pt-32 text-center sm:pt-40">
+          <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">
             Nexorai para {sector.namePlural.toLowerCase()}
           </span>
-          <h1 className="mt-5 text-balance font-display text-4xl font-semibold tracking-tight text-fg sm:text-5xl">
+          <h1 className="mt-5 text-balance font-display text-4xl font-semibold uppercase tracking-tight text-white sm:text-5xl">
             {sector.tagline}
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-balance text-base leading-relaxed text-muted sm:text-lg">
+          <p className="mx-auto mt-5 max-w-2xl text-balance text-base leading-relaxed text-white/45 sm:text-lg">
             {sector.description}
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-5">
             <Link href="/signup">
-              <Button size="lg">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="border-0 bg-white text-[#0b0b0c] shadow-none hover:bg-white/90"
+              >
                 Analizar mi {sector.name.toLowerCase()}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <a href="#calculadora">
-              <Button size="lg" variant="secondary">
-                Ver potencial estimado
-              </Button>
+            <a
+              href="#calculadora"
+              className="font-mono text-xs uppercase tracking-widest text-white/45 transition-colors hover:text-white"
+            >
+              Ver potencial estimado
             </a>
           </div>
 
-          <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-3 text-left sm:grid-cols-2">
-            <div className="flex items-start gap-2 rounded-xl border border-border bg-surface/60 p-4 text-sm text-muted">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
+          <div className="landing-hairline mx-auto mt-12 grid max-w-2xl grid-cols-1 border-t text-left sm:grid-cols-2">
+            <div className="landing-hairline flex items-start gap-2 border-b p-4 text-sm text-white/50 sm:border-b-0 sm:border-r">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
               Ticket medio habitual: {sector.avgTicketHint}
             </div>
-            <div className="flex items-start gap-2 rounded-xl border border-border bg-surface/60 p-4 text-sm text-muted">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
+            <div className="flex items-start gap-2 p-4 text-sm text-white/50">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
               Canales típicos: {sector.channels.join(', ')}
             </div>
           </div>
