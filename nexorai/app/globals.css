@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Nexorai es una consola de crecimiento, no una landing de IA genérica: tema oscuro
+  permanente, paleta esmeralda/oro (tomada del logo), sin gradientes violeta-cian de
+  stock ni glassmorphism excesivo.
+*/
+:root {
+  --bg: 220 26% 6%;
+  --surface: 220 22% 9%;
+  --surface-hover: 220 18% 13%;
+  --fg: 40 22% 96%;
+  --muted: 220 10% 62%;
+  --border: 220 16% 17%;
+  --ring: 152 46% 42%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background-color: hsl(var(--bg));
+  color: hsl(var(--fg));
+  font-feature-settings: 'cv11', 'ss01';
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: hsl(var(--ring) / 0.3);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted));
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.55) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.55) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.bg-fade-mask {
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 0%, black 40%, transparent 92%);
+}
+
+.bg-radial-signal {
+  background-image: radial-gradient(
+    ellipse 50% 45% at 50% 30%,
+    hsl(152 46% 42% / 0.16) 0%,
+    transparent 70%
+  );
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
