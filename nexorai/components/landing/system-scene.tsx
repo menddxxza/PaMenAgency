@@ -4,19 +4,36 @@ import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 /**
- * Motor visual del hero: una red de nodos y conexiones renderizada con
- * Three.js puro (sin fibras/abstracciones extra), pensada para leerse como
- * un sistema — no como una esfera 3D decorativa. La cámara no se mueve; el
- * grupo entero responde al cursor con inercia (lerp), y gira lentamente en
- * reposo para que nunca se sienta estático.
+ * El fondo persistente de todo el "viaje" por la web: una red de nodos y
+ * conexiones en Three.js puro, cuya cámara avanza (dolly) según en qué
+ * estación del recorrido está el usuario. Se monta UNA sola vez a nivel de
+ * página (ver journey.tsx) — no hay un canvas por sección, es el mismo
+ * mundo evolucionando mientras se hace scroll.
  */
 
-const DESKTOP_NODE_COUNT = 260;
-const MOBILE_NODE_COUNT = 90;
-const CONNECT_DISTANCE = 2.6;
-const MAX_CONNECTIONS_PER_NODE = 3;
-const SIGNAL_COUNT_DESKTOP = 10;
-const SIGNAL_COUNT_MOBILE = 4;
+const DESKTOP_NODE_COUNT = 420;
+const MOBILE_NODE_COUNT = 130;
+const CONNECT_DISTANCE = 2.4;
+const MAX_CONNECTIONS_PER_NODE = 4;
+const SIGNAL_COUNT_DESKTOP = 22;
+const SIGNAL_COUNT_MOBILE = 7;
+const GOLD = '#c9a24d';
+const GOLD_BRIGHT = '#e8c988';
+
+// Cámara: de dónde a dónde se mueve dentro de cada una de las 5 estaciones
+// del recorrido (Hero, Cómo funciona, Calculadora, Agentes, Precios).
+export const STAGE_CAMERA: Array<{ start: number; end: number }> = [
+  { start: 14, end: 11 },
+  { start: 11, end: 9 },
+  { start: 9, end: 7.4 },
+  { start: 7.4, end: 6.8 },
+  { start: 6.8, end: 9.5 },
+];
+
+export interface JourneyState {
+  index: number;
+  t: number;
+}
 
 function isLowPower(): boolean {
   if (typeof navigator === 'undefined') return false;
@@ -25,16 +42,13 @@ function isLowPower(): boolean {
   return (typeof cores === 'number' && cores <= 4) || (typeof mem === 'number' && mem <= 4);
 }
 
-// Nodos distribuidos en varias "capas" orbitales de radio y tilt distinto en
-// vez de una nube esférica uniforme: eso es lo que hace que se lea como un
-// sistema de anillos/circuitos y no como un planeta genérico.
 function buildNodePositions(count: number): Float32Array {
   const positions = new Float32Array(count * 3);
-  const shellCount = 4;
+  const shellCount = 6;
   for (let i = 0; i < count; i++) {
     const shell = i % shellCount;
-    const radius = 1.6 + shell * 0.85 + (Math.random() - 0.5) * 0.35;
-    const tilt = (shell / shellCount) * Math.PI * 0.55 + (Math.random() - 0.5) * 0.3;
+    const radius = 1.5 + shell * 0.78 + (Math.random() - 0.5) * 0.35;
+    const tilt = (shell / shellCount) * Math.PI * 0.6 + (Math.random() - 0.5) * 0.3;
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(1 - 2 * Math.random()) * 0.55 + tilt;
 
@@ -79,7 +93,6 @@ function buildConnections(positions: Float32Array, count: number): Float32Array 
   return new Float32Array(segments);
 }
 
-/** Textura de sprite circular con brillo suave, generada en canvas — evita cargar un PNG. */
 function makeGlowTexture(hex: string): THREE.Texture {
   const size = 64;
   const canvas = document.createElement('canvas');
@@ -97,7 +110,13 @@ function makeGlowTexture(hex: string): THREE.Texture {
   return texture;
 }
 
-export function HeroScene({ className }: { className?: string }) {
+export function SystemScene({
+  className,
+  journeyRef,
+}: {
+  className?: string;
+  journeyRef: React.MutableRefObject<JourneyState>;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -111,7 +130,7 @@ export function HeroScene({ className }: { className?: string }) {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, 0, 9);
+    camera.position.set(0, 0, STAGE_CAMERA[0].start);
 
     const renderer = new THREE.WebGLRenderer({ antialias: !lowPower, alpha: false });
     renderer.setClearColor(0x050505, 1);
@@ -126,10 +145,10 @@ export function HeroScene({ className }: { className?: string }) {
     const nodeGeometry = new THREE.BufferGeometry();
     nodeGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const nodeMaterial = new THREE.PointsMaterial({
-      size: 0.052,
-      map: makeGlowTexture('#9aa0a8'),
+      size: 0.055,
+      map: makeGlowTexture('#9a9690'),
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.58,
       depthWrite: false,
       sizeAttenuation: true,
     });
@@ -138,33 +157,30 @@ export function HeroScene({ className }: { className?: string }) {
 
     const lineGeometry = new THREE.BufferGeometry();
     lineGeometry.setAttribute('position', new THREE.BufferAttribute(buildConnections(positions, nodeCount), 3));
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x666666, transparent: true, opacity: 0.14 });
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x6a6560, transparent: true, opacity: 0.15 });
     const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
     group.add(lines);
 
-    // Un puñado de nodos "hub" en dorado, ligeramente más grandes — los
-    // puntos de datos que el sistema destaca, no decoración.
+    const hubCount = Math.min(28, Math.floor(nodeCount * 0.08));
     const hubIndices: number[] = [];
-    for (let i = 0; i < Math.min(14, nodeCount); i++) {
-      hubIndices.push(Math.floor((i / 14) * nodeCount));
+    for (let i = 0; i < hubCount; i++) {
+      hubIndices.push(Math.floor((i / hubCount) * nodeCount));
     }
     const hubPositions = new Float32Array(hubIndices.length * 3);
     hubIndices.forEach((idx, i) => hubPositions.set(positions.slice(idx * 3, idx * 3 + 3), i * 3));
     const hubGeometry = new THREE.BufferGeometry();
     hubGeometry.setAttribute('position', new THREE.BufferAttribute(hubPositions, 3));
     const hubMaterial = new THREE.PointsMaterial({
-      size: 0.09,
-      map: makeGlowTexture('#c9a24d'),
+      size: 0.095,
+      map: makeGlowTexture(GOLD),
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.85,
       depthWrite: false,
       sizeAttenuation: true,
     });
     const hubs = new THREE.Points(hubGeometry, hubMaterial);
     group.add(hubs);
 
-    // Señales que recorren segmentos de línea reales, como paquetes de datos
-    // moviéndose por el sistema — no partículas flotando sin sentido.
     const lineSegmentCount = lineGeometry.getAttribute('position').count / 2;
     const signals = Array.from({ length: Math.min(signalCount, lineSegmentCount) }, () => ({
       segment: Math.floor(Math.random() * lineSegmentCount),
@@ -175,8 +191,8 @@ export function HeroScene({ className }: { className?: string }) {
     const signalGeometry = new THREE.BufferGeometry();
     signalGeometry.setAttribute('position', new THREE.BufferAttribute(signalPositions, 3));
     const signalMaterial = new THREE.PointsMaterial({
-      size: 0.08,
-      map: makeGlowTexture('#e8c988'),
+      size: 0.085,
+      map: makeGlowTexture(GOLD_BRIGHT),
       transparent: true,
       opacity: 0.95,
       depthWrite: false,
@@ -231,21 +247,43 @@ export function HeroScene({ className }: { className?: string }) {
     window.addEventListener('pointermove', onPointerMove);
 
     let rafId = 0;
+    let running = true;
     let lastTime = performance.now();
+    let currentZ = STAGE_CAMERA[0].start;
+
+    function onVisibility() {
+      if (document.hidden) {
+        running = false;
+        cancelAnimationFrame(rafId);
+      } else if (!reducedMotion) {
+        running = true;
+        lastTime = performance.now();
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibility);
 
     function renderStaticFrame() {
       renderer.render(scene, camera);
     }
 
     function tick(now: number) {
+      if (!running) return;
       const delta = Math.min((now - lastTime) / 1000, 0.05);
       lastTime = now;
 
       currentX += (targetX - currentX) * 0.035;
       currentY += (targetY - currentY) * 0.035;
 
-      group.rotation.y += delta * 0.045 + currentX * 0.0009;
-      group.rotation.x = currentY * 0.18;
+      const { index, t } = journeyRef.current;
+      const stage = STAGE_CAMERA[Math.min(index, STAGE_CAMERA.length - 1)];
+      const targetZ = THREE.MathUtils.lerp(stage.start, stage.end, THREE.MathUtils.clamp(t, 0, 1));
+      currentZ += (targetZ - currentZ) * 0.06;
+      camera.position.z = currentZ;
+
+      const settleFactor = 1 - Math.min(index / (STAGE_CAMERA.length - 1), 1) * 0.45;
+      group.rotation.y += delta * 0.045 * settleFactor + currentX * 0.0009;
+      group.rotation.x = currentY * 0.16;
 
       if (!lowPower) updateSignals(delta);
 
@@ -260,9 +298,11 @@ export function HeroScene({ className }: { className?: string }) {
     }
 
     return () => {
+      running = false;
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('visibilitychange', onVisibility);
       nodeGeometry.dispose();
       nodeMaterial.dispose();
       lineGeometry.dispose();
@@ -274,7 +314,7 @@ export function HeroScene({ className }: { className?: string }) {
       renderer.dispose();
       container!.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [journeyRef]);
 
   return <div ref={containerRef} className={className} aria-hidden="true" />;
 }

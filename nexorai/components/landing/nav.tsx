@@ -42,6 +42,7 @@ export function LandingNav() {
             <a
               key={link.href}
               href={link.href}
+              data-cursor-hover
               className="font-mono text-[11px] uppercase tracking-widest text-white/45 transition-colors hover:text-white"
             >
               {link.label}
@@ -52,12 +53,14 @@ export function LandingNav() {
         <div className="hidden items-center gap-6 md:flex">
           <Link
             href="/login"
+            data-cursor-hover
             className="font-mono text-[11px] uppercase tracking-widest text-white/45 transition-colors hover:text-white"
           >
             Iniciar sesión
           </Link>
           <Link
             href="/signup"
+            data-cursor-hover
             className="group flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-white transition-colors hover:text-gold-400"
           >
             Analizar mi empresa

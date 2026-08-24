@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { AGENT_CATALOG } from '@/lib/agents/catalog';
 import { cn } from '@/lib/utils';
+import { useStageTrigger } from '@/lib/use-stage-trigger';
+import type { JourneyState } from '@/components/landing/system-scene';
 
 const RADIAL_POSITIONS = AGENT_CATALOG.map((_, i) => {
   const angle = (i / AGENT_CATALOG.length) * Math.PI * 2 - Math.PI / 2;
@@ -13,15 +15,26 @@ const RADIAL_POSITIONS = AGENT_CATALOG.map((_, i) => {
   };
 });
 
-export function AgentsPreview() {
+export function AgentsPreview({
+  stageIndex = -1,
+  journeyRef,
+}: {
+  stageIndex?: number;
+  journeyRef?: React.MutableRefObject<JourneyState>;
+} = {}) {
+  const sectionRef = useStageTrigger<HTMLElement>(stageIndex, journeyRef);
   const [selected, setSelected] = useState(0);
   const agent = AGENT_CATALOG[selected];
 
   return (
-    <section id="agentes" className="bg-void relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8">
+    <section
+      id="agentes"
+      ref={sectionRef}
+      className="relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
+    >
       <div className="max-w-xl">
         <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Agentes</p>
-        <h2 className="mt-4 font-display text-3xl font-semibold uppercase tracking-tight text-white sm:text-4xl">
+        <h2 className="mt-4 font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl">
           Una infraestructura, no seis herramientas sueltas
         </h2>
         <p className="mt-3 max-w-md text-sm text-white/45">
@@ -59,6 +72,7 @@ export function AgentsPreview() {
             <button
               key={a.key}
               onClick={() => setSelected(i)}
+              data-cursor-hover
               className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full p-1 transition-transform hover:scale-110"
               style={{ left: RADIAL_POSITIONS[i].left, top: RADIAL_POSITIONS[i].top }}
             >
@@ -86,6 +100,7 @@ export function AgentsPreview() {
             <button
               key={a.key}
               onClick={() => setSelected(i)}
+              data-cursor-hover
               className={cn(
                 'landing-hairline border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-colors',
                 i === selected ? 'border-gold-400/50 text-gold-300' : 'text-white/40'
@@ -96,7 +111,7 @@ export function AgentsPreview() {
           ))}
         </div>
 
-        <div className="landing-hairline border p-6 sm:p-8">
+        <div className="landing-hairline border bg-[#050505]/75 p-6 backdrop-blur-sm sm:p-8">
           <p className="font-mono text-[10px] uppercase tracking-widest text-white/30">{agent.key}</p>
           <h3 className="mt-2 font-display text-2xl font-semibold text-white">{agent.name}</h3>
           <p className="mt-3 text-sm leading-relaxed text-white/50">{agent.description}</p>

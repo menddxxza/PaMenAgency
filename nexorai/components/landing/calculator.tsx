@@ -11,6 +11,8 @@ import type { BusinessInput, GoalInput } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { EstimateNote } from '@/components/ui/demo-tag';
 import { formatCurrency } from '@/lib/utils';
+import { useStageTrigger } from '@/lib/use-stage-trigger';
+import type { JourneyState } from '@/components/landing/system-scene';
 
 const EMPLOYEE_RANGES = ['1-5', '6-15', '16-50', '50+'];
 
@@ -56,7 +58,16 @@ function AnimatedCurrency({ value }: { value: number }) {
   return <>{formatCurrency(display)}</>;
 }
 
-export function Calculator({ defaultSector }: { defaultSector?: string } = {}) {
+export function Calculator({
+  defaultSector,
+  stageIndex = -1,
+  journeyRef,
+}: {
+  defaultSector?: string;
+  stageIndex?: number;
+  journeyRef?: React.MutableRefObject<JourneyState>;
+} = {}) {
+  const sectionRef = useStageTrigger<HTMLElement>(stageIndex, journeyRef);
   const [sector, setSector] = useState(defaultSector ?? SECTORS[0].slug);
   const [monthlyRevenue, setMonthlyRevenue] = useState(8000);
   const [currentCustomers, setCurrentCustomers] = useState(40);
@@ -87,10 +98,14 @@ export function Calculator({ defaultSector }: { defaultSector?: string } = {}) {
   }, [sector, monthlyRevenue, currentCustomers, avgTicket, monthlyLeads, conversionRate, employeesRange]);
 
   return (
-    <section id="calculadora" className="bg-void relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8">
+    <section
+      id="calculadora"
+      ref={sectionRef}
+      className="relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
+    >
       <div className="max-w-xl">
         <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Calculadora</p>
-        <h2 className="mt-4 font-display text-3xl font-semibold uppercase tracking-tight text-white sm:text-4xl">
+        <h2 className="mt-4 font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl">
           Cuánto dinero se está quedando sobre la mesa
         </h2>
         <p className="mt-3 max-w-md text-sm text-white/45">
@@ -99,7 +114,7 @@ export function Calculator({ defaultSector }: { defaultSector?: string } = {}) {
         </p>
       </div>
 
-      <div className="landing-hairline mt-14 grid grid-cols-1 border lg:grid-cols-[1.1fr_1fr]">
+      <div className="landing-hairline mt-14 grid grid-cols-1 border bg-[#050505]/75 backdrop-blur-sm lg:grid-cols-[1.1fr_1fr]">
         <div className="landing-hairline border-b p-6 sm:p-8 lg:border-b-0 lg:border-r">
           <p className="font-mono text-[10px] uppercase tracking-widest text-white/30">Input</p>
           <div className="mt-5 grid gap-6 sm:grid-cols-2">
@@ -181,7 +196,7 @@ export function Calculator({ defaultSector }: { defaultSector?: string } = {}) {
         <div className="flex flex-col justify-between p-6 sm:p-8">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-widest text-white/30">Potencial detectado</p>
-            <p className="mt-3 font-display text-4xl font-semibold text-white sm:text-5xl">
+            <p className="text-glow mt-3 font-display text-5xl font-bold text-white sm:text-6xl">
               <AnimatedCurrency value={result.totalPotentialMin} />
               <span className="mx-1.5 text-white/25">–</span>
               <AnimatedCurrency value={result.totalPotentialMax} />
@@ -189,16 +204,31 @@ export function Calculator({ defaultSector }: { defaultSector?: string } = {}) {
             <p className="mt-1 font-mono text-xs text-white/30">/ mes</p>
             <EstimateNote className="mt-3 text-white/35" />
 
-            <ul className="landing-hairline mt-7 divide-y divide-white/[0.06] border-t">
-              {result.prioritized.map((o) => (
-                <li key={o.category} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                  <span className="text-white/50">{o.name}</span>
-                  <span className="font-mono text-gold-300">
-                    {formatCurrency(o.potentialMin)}–{formatCurrency(o.potentialMax)}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <div className="landing-hairline mt-7 space-y-4 border-t pt-5">
+              {result.prioritized.map((o) => {
+                const maxAcrossAll = Math.max(...result.prioritized.map((p) => p.potentialMax), 1);
+                const widthPct = Math.max(6, Math.round((o.potentialMax / maxAcrossAll) * 100));
+                return (
+                  <div key={o.category}>
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="text-white/55">{o.name}</span>
+                      <span className="font-mono text-gold-300">
+                        {formatCurrency(o.potentialMin)}–{formatCurrency(o.potentialMax)}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-1 w-full bg-white/[0.06]">
+                      <div
+                        className="h-full"
+                        style={{
+                          width: `${widthPct}%`,
+                          backgroundImage: 'linear-gradient(90deg, #93702c, #e8c988)',
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <Link href="/signup" className="mt-8">

@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useStageTrigger } from '@/lib/use-stage-trigger';
+import type { JourneyState } from '@/components/landing/system-scene';
 
 const STAGES = [
   {
@@ -37,8 +39,14 @@ const STAGES = [
   },
 ];
 
-export function DemoFlow() {
-  const sectionRef = useRef<HTMLElement>(null);
+export function DemoFlow({
+  stageIndex,
+  journeyRef,
+}: {
+  stageIndex: number;
+  journeyRef: React.MutableRefObject<JourneyState>;
+}) {
+  const sectionRef = useStageTrigger<HTMLElement>(stageIndex, journeyRef);
   const lineRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -82,17 +90,17 @@ export function DemoFlow() {
       });
     }, sectionRef);
     return () => ctx.revert();
-  }, []);
+  }, [sectionRef]);
 
   return (
     <section
       id="como-funciona"
       ref={sectionRef}
-      className="bg-void relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
+      className="relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
     >
       <div className="max-w-xl">
         <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Cómo funciona</p>
-        <h2 className="mt-4 font-display text-3xl font-semibold uppercase tracking-tight text-white sm:text-4xl">
+        <h2 className="mt-4 font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl">
           De un objetivo a agentes trabajando
         </h2>
       </div>
@@ -111,11 +119,17 @@ export function DemoFlow() {
               ref={(el) => {
                 rowRefs.current[i] = el;
               }}
-              className="relative grid grid-cols-1 gap-2 sm:grid-cols-[5rem_10rem_1fr] sm:items-baseline sm:gap-6"
+              className="relative grid grid-cols-1 gap-2 sm:grid-cols-[5rem_14rem_1fr] sm:items-baseline sm:gap-6"
             >
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-2 -top-8 select-none font-display text-7xl font-bold text-white/[0.04] sm:-top-10 sm:text-9xl"
+              >
+                {stage.tag}
+              </span>
               <span className="absolute -left-8 top-1 h-2 w-2 -translate-x-1/2 rounded-full bg-gold-400 sm:-left-10" />
               <span className="font-mono text-xs text-white/30">{stage.tag}</span>
-              <h3 className="font-display text-xl font-semibold uppercase tracking-tight text-white">
+              <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
                 {stage.label}
               </h3>
               <p className="max-w-md text-sm leading-relaxed text-white/45">{stage.detail}</p>

@@ -1,14 +1,30 @@
+'use client';
+
 import Link from 'next/link';
 import { PLANS } from '@/lib/plans';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useStageTrigger } from '@/lib/use-stage-trigger';
+import type { JourneyState } from '@/components/landing/system-scene';
 
-export function PricingSection() {
+export function PricingSection({
+  stageIndex = -1,
+  journeyRef,
+}: {
+  stageIndex?: number;
+  journeyRef?: React.MutableRefObject<JourneyState>;
+} = {}) {
+  const sectionRef = useStageTrigger<HTMLElement>(stageIndex, journeyRef);
+
   return (
-    <section id="precios" className="bg-void relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8">
+    <section
+      id="precios"
+      ref={sectionRef}
+      className="relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
+    >
       <div className="max-w-xl">
         <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Precios</p>
-        <h2 className="mt-4 font-display text-3xl font-semibold uppercase tracking-tight text-white sm:text-4xl">
+        <h2 className="mt-4 font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl">
           Empieza pequeño, escala con resultados
         </h2>
         <p className="mt-3 max-w-md text-sm text-white/45">
@@ -16,18 +32,16 @@ export function PricingSection() {
         </p>
       </div>
 
-      <div className="landing-hairline mt-16 grid grid-cols-1 border-t sm:grid-cols-2 lg:grid-cols-4">
+      <div className="landing-hairline mt-16 grid grid-cols-1 border-t bg-[#050505]/70 backdrop-blur-sm sm:grid-cols-2 lg:grid-cols-4">
         {PLANS.map((plan) => (
           <div
             key={plan.id}
             className={cn(
               'landing-hairline flex flex-col border-b border-r px-6 py-8 last:border-r-0 sm:px-7',
-              plan.highlighted && 'bg-white/[0.02]'
+              plan.highlighted && 'bg-white/[0.03]'
             )}
           >
-            {plan.highlighted && (
-              <span className="h-px w-full bg-gold-400" />
-            )}
+            {plan.highlighted && <span className="h-px w-full bg-gold-400" />}
             <p
               className={cn(
                 'mt-6 font-mono text-[10px] uppercase tracking-widest',
@@ -61,6 +75,7 @@ export function PricingSection() {
             <Link href="/signup" className="mt-7">
               <Button
                 variant="secondary"
+                data-cursor-hover
                 className={cn(
                   'w-full',
                   plan.highlighted

@@ -4,8 +4,9 @@
 
 /*
   Nexorai es una consola de crecimiento, no una landing de IA genérica: tema oscuro
-  permanente, paleta esmeralda/oro (tomada del logo), sin gradientes violeta-cian de
-  stock ni glassmorphism excesivo.
+  permanente. La app autenticada usa esmeralda/violeta (marca, tomada del logo); la
+  landing usa negro + oro (ver .hero-aurora / .text-glow y la escala `gold` de
+  Tailwind) — sin gradientes violeta-cian de stock ni glassmorphism excesivo ahí.
 */
 :root {
   --bg: 220 26% 6%;
@@ -77,11 +78,10 @@ body {
 }
 
 /*
-  Sistema visual de la landing: negro casi absoluto + un único acento dorado
-  (lib/plans y tailwind.config ya definen la escala `gold`). Nada de
-  glassmorphism, nada de grid genérico, nada de degradado morado/azul aquí
-  — eso queda reservado a la app autenticada, que no forma parte de este
-  rediseño.
+  Sistema visual de la landing: negro casi absoluto + el degradado real del
+  logotipo (violeta #ae36fb → azul #3b87ff) como único acento — nada de
+  glassmorphism, nada de grid genérico. Densidad y escala deliberadamente
+  altas (maximalista dentro de este sistema, no genérico).
 */
 .bg-void {
   background: #050505;
@@ -95,8 +95,32 @@ body {
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-.text-glow-gold {
-  text-shadow: 0 0 24px rgba(201, 162, 77, 0.35);
+.cursor-none-desktop,
+.cursor-none-desktop * {
+  cursor: none;
+}
+
+.text-glow {
+  text-shadow:
+    0 0 40px rgba(201, 162, 77, 0.35),
+    0 0 70px rgba(232, 201, 136, 0.2);
+}
+
+.hero-aurora {
+  background:
+    radial-gradient(38% 32% at 22% 20%, rgba(201, 162, 77, 0.22), transparent 70%),
+    radial-gradient(34% 30% at 80% 75%, rgba(232, 201, 136, 0.16), transparent 70%);
+  filter: blur(90px);
+  animation: aurora-drift 24s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(2.5%, -3%, 0) scale(1.06);
+  }
 }
 
 @keyframes count-flicker {
