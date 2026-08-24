@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export function Login() {
+  usePageTitle('Iniciar sesión')
   const { session, signInWithPassword } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -42,7 +44,7 @@ export function Login() {
           ¿Olvidaste tu contraseña?
         </Link>
         <Link to="/signup" style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
-          ¿No tenés cuenta? Creála
+          ¿No tienes cuenta? Créala
         </Link>
       </form>
     </div>

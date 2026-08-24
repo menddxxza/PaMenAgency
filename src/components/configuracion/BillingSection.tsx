@@ -14,7 +14,7 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 export function BillingSection({ businessId }: { businessId: string }) {
-  const { subscription, isActive, loading } = useSubscription()
+  const { subscription, isActive, isTrialing, trialDaysLeft, loading } = useSubscription()
   const { showToast } = useToast()
   const [openingPortal, setOpeningPortal] = useState(false)
 
@@ -40,7 +40,10 @@ export function BillingSection({ businessId }: { businessId: string }) {
         <div className="mini-list__item">
           <span>Plan actual</span>
           <span>
-            <strong>{plan.name}</strong> · {plan.priceLabel}
+            {/* Durante la prueba no se está pagando nada: enseñar el precio
+                del plan al lado de "Plan actual" haría pensar que ya se está
+                cobrando. */}
+            <strong>{plan.name}</strong> · {isTrialing ? 'gratis durante la prueba' : plan.priceLabel}
           </span>
         </div>
         <div className="mini-list__item">
@@ -49,6 +52,12 @@ export function BillingSection({ businessId }: { businessId: string }) {
             {STATUS_LABEL[subscription?.status ?? 'incomplete']}
           </span>
         </div>
+        {isTrialing && trialDaysLeft !== null && (
+          <div className="mini-list__item">
+            <span>Prueba</span>
+            <span>{trialDaysLeft < 1 ? 'Termina hoy' : `Quedan ${trialDaysLeft} día${trialDaysLeft === 1 ? '' : 's'}`}</span>
+          </div>
+        )}
       </div>
       <div className="modal__footer" style={{ justifyContent: 'flex-start', marginTop: '1rem' }}>
         {isActive && subscription?.stripe_customer_id && (
@@ -56,8 +65,12 @@ export function BillingSection({ businessId }: { businessId: string }) {
             {openingPortal ? 'Abriendo…' : 'Gestionar facturación'}
           </button>
         )}
-        <Link to="/suscripcion" className="btn" style={{ textDecoration: 'none' }}>
-          {isActive ? 'Cambiar de plan' : 'Ver planes'}
+        <Link
+          to="/suscripcion"
+          className={`btn ${isTrialing ? 'btn--primary' : ''}`}
+          style={{ textDecoration: 'none' }}
+        >
+          {isTrialing ? 'Elegir plan' : isActive ? 'Cambiar de plan' : 'Ver planes'}
         </Link>
       </div>
     </div>

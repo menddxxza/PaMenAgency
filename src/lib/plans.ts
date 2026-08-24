@@ -9,13 +9,15 @@ export interface PlanDefinition {
   maxBusinesses: number
   hasClientes: boolean
   hasEstadisticas: boolean
+  hasFacturacion: boolean
+  hasInventario: boolean
   features: string[]
 }
 
 // Única fuente de verdad para nombres/precios/límites que se muestran en la
 // landing, el paywall y el gating de navegación. Los Price ID reales de
 // Stripe viven como secretos de Supabase (STRIPE_PRICE_STARTER, etc.), no
-// acá — así cambiar un precio en Stripe no obliga a tocar código.
+// aquí — así cambiar un precio en Stripe no obliga a tocar código.
 export const PLANS: Record<PlanTier, PlanDefinition> = {
   starter: {
     id: 'starter',
@@ -26,6 +28,8 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     maxBusinesses: 1,
     hasClientes: false,
     hasEstadisticas: false,
+    hasFacturacion: false,
+    hasInventario: false,
     features: ['Citas (hasta 50/mes)', 'Conversaciones + bot de WhatsApp', '1 usuario', '1 negocio'],
   },
   pro: {
@@ -37,7 +41,17 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     maxBusinesses: 1,
     hasClientes: true,
     hasEstadisticas: true,
-    features: ['Citas ilimitadas', 'Clientes (CRM)', 'Estadísticas', 'Hasta 5 usuarios', '1 negocio'],
+    hasFacturacion: true,
+    hasInventario: true,
+    features: [
+      'Citas ilimitadas',
+      'Clientes (CRM)',
+      'Facturación',
+      'Inventario',
+      'Estadísticas',
+      'Hasta 5 usuarios',
+      '1 negocio',
+    ],
   },
   agencia: {
     id: 'agencia',
@@ -48,9 +62,19 @@ export const PLANS: Record<PlanTier, PlanDefinition> = {
     maxBusinesses: Infinity,
     hasClientes: true,
     hasEstadisticas: true,
+    hasFacturacion: true,
+    hasInventario: true,
     features: ['Todo lo de Pro', 'Negocios ilimitados', 'Equipo ilimitado', 'Soporte prioritario'],
   },
 }
 
 export const PLAN_ORDER: PlanTier[] = ['starter', 'pro', 'agencia']
 export const PLANS_LIST = PLAN_ORDER.map((id) => PLANS[id])
+
+// Duración de la prueba gratis. El valor real que decide el acceso lo pone
+// la base de datos (create_business, en 0011_free_trial.sql); esta constante
+// es solo para el texto que ve el cliente — si se cambia una, cambiar la otra.
+export const TRIAL_DAYS = 5
+
+// Plan con el que se prueba: durante la prueba se ve el producto completo.
+export const TRIAL_PLAN: PlanTier = 'pro'

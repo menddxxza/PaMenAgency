@@ -1,10 +1,15 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useConversations } from '@/hooks/useConversations'
 import { useMessages } from '@/hooks/useMessages'
 import { useClients } from '@/hooks/useClients'
+import { useToast } from '@/context/ToastContext'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import { sendStaffMessage, toggleConversationStatus } from '@/lib/mutations'
 import { sendWhatsappMessageViaN8n } from '@/lib/n8n'
 import { useTenant } from '@/context/TenantContext'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { SkeletonRows } from '@/components/ui/Skeleton'
+import { IconInbox } from '@/components/layout/NavIcons'
 
 const SENDER_LABEL: Record<string, string> = {
   client: 'Cliente',
@@ -13,17 +18,31 @@ const SENDER_LABEL: Record<string, string> = {
 }
 
 export function Conversaciones() {
+  usePageTitle('Conversaciones')
   const { activeBusinessId } = useTenant()
   const { conversations, loading } = useConversations()
   const { clients } = useClients()
+  const { showToast } = useToast()
   const [activeId, setActiveId] = useState<string | null>(null)
-  const { messages } = useMessages(activeId)
+  const { messages, loading: loadingMessages } = useMessages(activeId)
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
   const [deliveryWarning, setDeliveryWarning] = useState<string | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients])
   const activeConversation = conversations.find((c) => c.id === activeId) ?? null
+
+  // Un chat que no baja solo al último mensaje no sirve: los que entraban por
+  // Realtime quedaban fuera de pantalla y parecía que no había respuesta.
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ block: 'end' })
+  }, [messages])
+
+  function clientLabel(clientId: string) {
+    const client = clientById.get(clientId)
+    return client?.name || client?.phone || 'Cliente'
+  }
 
   async function handleSend(e: FormEvent) {
     e.preventDefault()
@@ -48,9 +67,11 @@ export function Conversaciones() {
           // El mensaje ya quedó guardado en Supabase; si n8n no está
           // configurado (webhook aún no enlazado) solo avisamos, no
           // bloqueamos el envío desde el panel.
-          setDeliveryWarning('Guardado, pero no se pudo reenviar por WhatsApp (revisa la config. de n8n).')
+          setDeliveryWarning('Guardado en el panel, pero no se ha podido reenviar por WhatsApp (revisa la config. de n8n).')
         }
       }
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'No se pudo enviar el mensaje', 'error')
     } finally {
       setSending(false)
     }
@@ -58,32 +79,55 @@ export function Conversaciones() {
 
   async function handleToggleStatus() {
     if (!activeConversation) return
-    await toggleConversationStatus(activeConversation.id, activeConversation.status === 'open' ? 'closed' : 'open')
+    const next = activeConversation.status === 'open' ? 'closed' : 'open'
+    try {
+      await toggleConversationStatus(activeConversation.id, next)
+      showToast(next === 'closed' ? 'Conversación cerrada' : 'Conversación reabierta')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'No se pudo cambiar el estado', 'error')
+    }
+  }
+
+  if (!loading && conversations.length === 0) {
+    return (
+      <div className="page">
+        <div className="page__header">
+          <div>
+            <h1>Conversaciones</h1>
+            <p>Los chats de WhatsApp de tu negocio, en directo.</p>
+          </div>
+        </div>
+        <div className="card">
+          <EmptyState
+            icon={<IconInbox />}
+            title="Aún no ha escrito nadie"
+            description="Cuando un cliente escriba al WhatsApp del negocio, la conversación aparecerá aquí. El bot responde solo, y tú puedes tomar el control del chat en cualquier momento."
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="page conversaciones">
-      <aside className={`conversaciones__list ${activeConversation ? 'has-active' : ''}`}>
-        {loading && <p className="empty-state">Cargando…</p>}
-        {!loading && conversations.length === 0 && <p className="empty-state">Sin conversaciones todavía.</p>}
-        {conversations.map((c) => {
-          const client = clientById.get(c.client_id)
-          return (
-            <button
-              key={c.id}
-              className={`conversaciones__item ${c.id === activeId ? 'is-active' : ''}`}
-              onClick={() => setActiveId(c.id)}
-            >
-              <span className="conversaciones__item-top">
-                <span>{client?.name || client?.phone || 'Cliente'}</span>
-                <span className={`badge badge--${c.status}`}>{c.status === 'open' ? 'Abierta' : 'Cerrada'}</span>
-              </span>
-              <span className="conversaciones__item-time">
-                {new Date(c.last_message_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
-              </span>
-            </button>
-          )
-        })}
+      <aside className={`conversaciones__list ${activeConversation ? 'has-active' : ''}`} aria-label="Conversaciones">
+        {loading && <SkeletonRows rows={6} />}
+        {conversations.map((c) => (
+          <button
+            key={c.id}
+            className={`conversaciones__item ${c.id === activeId ? 'is-active' : ''}`}
+            onClick={() => setActiveId(c.id)}
+            aria-current={c.id === activeId}
+          >
+            <span className="conversaciones__item-top">
+              <span>{clientLabel(c.client_id)}</span>
+              <span className={`badge badge--${c.status}`}>{c.status === 'open' ? 'Abierta' : 'Cerrada'}</span>
+            </span>
+            <span className="conversaciones__item-time">
+              {new Date(c.last_message_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+            </span>
+          </button>
+        ))}
       </aside>
 
       <section className={`conversaciones__thread ${!activeConversation ? 'is-hidden' : ''}`}>
@@ -101,11 +145,7 @@ export function Conversaciones() {
                 >
                   ←
                 </button>
-                <strong>
-                  {clientById.get(activeConversation.client_id)?.name ||
-                    clientById.get(activeConversation.client_id)?.phone ||
-                    'Cliente'}
-                </strong>
+                <strong>{clientLabel(activeConversation.client_id)}</strong>
               </div>
               <button className="btn btn--sm" onClick={handleToggleStatus}>
                 {activeConversation.status === 'open' ? 'Cerrar conversación' : 'Reabrir'}
@@ -113,6 +153,7 @@ export function Conversaciones() {
             </div>
 
             <div className="conversaciones__messages">
+              {loadingMessages && <SkeletonRows rows={4} />}
               {messages.map((m) => (
                 <div key={m.id} className={`message message--${m.sender}`}>
                   {m.content}
@@ -122,18 +163,28 @@ export function Conversaciones() {
                   </span>
                 </div>
               ))}
+              <div ref={messagesEndRef} />
             </div>
 
-            {deliveryWarning && <p className="form-error" style={{ padding: '0 1.1rem' }}>{deliveryWarning}</p>}
+            {deliveryWarning && (
+              <p className="form-error" style={{ padding: '0 1.1rem' }} role="alert">
+                {deliveryWarning}
+              </p>
+            )}
             <form className="conversaciones__composer" onSubmit={handleSend}>
+              <label className="sr-only" htmlFor="composer">
+                Escribe una respuesta
+              </label>
               <input
+                id="composer"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Escribe una respuesta…"
                 disabled={sending}
+                autoComplete="off"
               />
               <button type="submit" className="btn btn--primary" disabled={sending || !draft.trim()}>
-                Enviar
+                {sending ? 'Enviando…' : 'Enviar'}
               </button>
             </form>
           </>
