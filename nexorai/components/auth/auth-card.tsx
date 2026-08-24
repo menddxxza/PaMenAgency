@@ -13,7 +13,8 @@ export function AuthCard({
   footer: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-grid bg-fade-mask px-4">
+    <div className="relative flex min-h-screen items-center justify-center px-4">
+      <div className="bg-grid bg-fade-mask pointer-events-none absolute inset-0 -z-10" />
       <div className="w-full max-w-sm animate-slide-up">
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
           <Logomark />

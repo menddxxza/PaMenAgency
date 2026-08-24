@@ -1,9 +1,11 @@
 import { cn } from '@/lib/utils';
 
 /**
- * Marca de Nexorai: hexágono formado por tres bandas entrelazadas (esmeralda,
- * verde oscuro y oro) — la identidad visual del producto ("crecimiento
- * estratégico entrelazado"), no un icono de IA genérico.
+ * Marca de Nexorai: hexágono con dos triángulos entrelazados (esmeralda y
+ * oro) — la identidad visual del producto ("crecimiento estratégico
+ * entrelazado"), no un icono de IA genérico. Los vértices de los triángulos
+ * coinciden con los del hexágono exterior, por lo que su cruce dibuja un
+ * hexágono más pequeño en el centro: un nudo, no una forma aislada.
  */
 export function Logomark({ className }: { className?: string }) {
   return (
@@ -20,28 +22,20 @@ export function Logomark({ className }: { className?: string }) {
         fill="hsl(var(--surface))"
       />
       <path
-        d="M24 8 12 27h9l-4 13L36 21h-9l4-13Z"
+        d="M24 3 43 34.5 5 34.5Z"
         fill="none"
         stroke="#39bd8a"
-        strokeWidth="2.4"
+        strokeWidth="2.6"
         strokeLinejoin="round"
-        strokeLinecap="round"
       />
       <path
-        d="M15 34 24 8"
+        d="M43 13.5 24 45 5 13.5Z"
+        fill="none"
         stroke="#c9a24d"
-        strokeWidth="2"
-        strokeLinecap="round"
-        opacity="0.9"
+        strokeWidth="2.6"
+        strokeLinejoin="round"
       />
-      <path
-        d="M33 34 24 8"
-        stroke="#135f46"
-        strokeWidth="2"
-        strokeLinecap="round"
-        opacity="0.85"
-      />
-      <circle cx="24" cy="8" r="2.1" fill="#c9a24d" />
+      <circle cx="24" cy="24" r="2.1" fill="#eafbf3" />
     </svg>
   );
 }

@@ -15,7 +15,8 @@ export function OnboardingCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-grid bg-fade-mask px-4 py-12">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
+      <div className="bg-grid bg-fade-mask pointer-events-none absolute inset-0 -z-10" />
       <div className="w-full max-w-lg animate-slide-up">
         <div className="mb-8 flex items-center justify-center gap-2">
           <Logomark />
