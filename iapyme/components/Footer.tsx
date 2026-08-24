@@ -88,7 +88,20 @@ export default async function Footer() {
         </div>
 
         <div className="flex flex-col gap-4 border-t border-white/10 py-7 text-xs sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-white/45">© {new Date().getFullYear()} IAPyme</p>
+          <p className="text-white/45">
+            © {new Date().getFullYear()} IAPyme · un producto de{' '}
+            <a
+              href="https://pamenagency.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="whitespace-nowrap text-white/45 underline decoration-white/20
+                         underline-offset-2 transition-colors duration-fast ease-out
+                         hover:text-white focus:outline-none focus-visible:ring-2
+                         focus-visible:ring-white/60"
+            >
+              PaMenAgency
+            </a>
+          </p>
           <nav aria-label="Legal">
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
               {LEGAL.map((enlace) => (
