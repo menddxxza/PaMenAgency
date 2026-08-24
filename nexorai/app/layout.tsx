@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   keywords: ['crecimiento empresarial', 'IA para negocios', 'generación de leads', 'agentes de IA', 'PaMenAgency'],
   authors: [{ name: 'PaMenAgency', url: 'https://pamenagency.com' }],
   icons: {
-    icon: '/icon.svg',
+    icon: '/favicon.png',
   },
   openGraph: {
     type: 'website',
