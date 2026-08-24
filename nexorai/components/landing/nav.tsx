@@ -42,7 +42,12 @@ export function LandingNav() {
             Iniciar sesión
           </Link>
           <Link href="/signup">
-            <Button size="sm">Analizar mi empresa</Button>
+            <Button
+              size="sm"
+              className="bg-[#2F6FED] text-white shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:bg-[#3B82F6] focus-visible:ring-[#3B82F6]/50"
+            >
+              Analizar mi empresa
+            </Button>
           </Link>
         </div>
 
@@ -76,7 +81,10 @@ export function LandingNav() {
           Iniciar sesión
         </Link>
         <Link href="/signup" className="p-1">
-          <Button className="w-full" size="sm">
+          <Button
+            className="w-full bg-[#2F6FED] text-white shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:bg-[#3B82F6] focus-visible:ring-[#3B82F6]/50"
+            size="sm"
+          >
             Analizar mi empresa
           </Button>
         </Link>
