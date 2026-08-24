@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { track } from '@/lib/analytics';
+import { isComplimentaryAccess } from '@/lib/access';
+import { getBusinessLimit } from '@/lib/plans';
+import { ACTIVE_BUSINESS_COOKIE } from '@/lib/server/active-business';
 
 const bodySchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -36,7 +39,9 @@ export async function POST(request: Request) {
   }
   const input = parsed.data;
 
-  // Un negocio por organización en el MVP: si ya existe, se reutiliza la organización.
+  // Cada organización puede tener varios negocios (según el límite de su plan);
+  // si el usuario ya tiene una organización, esta llamada añade un negocio más
+  // a esa misma organización en vez de crear una nueva.
   const { data: existingMembership } = await supabase
     .from('memberships')
     .select('organization_id')
@@ -67,28 +72,45 @@ export async function POST(request: Request) {
       console.error('[businesses] memberships insert failed', membershipError);
       return NextResponse.json({ error: 'No se pudo asociar el usuario a la organización.' }, { status: 500 });
     }
+  } else {
+    const { data: organization } = await supabase
+      .from('organizations')
+      .select('plan')
+      .eq('id', organizationId)
+      .single();
+
+    const limit = isComplimentaryAccess(user.email) ? Infinity : getBusinessLimit(organization?.plan ?? 'starter');
+
+    const { count } = await supabase
+      .from('businesses')
+      .select('id', { count: 'exact', head: true })
+      .eq('organization_id', organizationId);
+
+    if ((count ?? 0) >= limit) {
+      return NextResponse.json(
+        { error: `Tu plan permite hasta ${limit} negocio${limit === 1 ? '' : 's'} conectado${limit === 1 ? '' : 's'}. Actualiza tu plan para añadir más.` },
+        { status: 403 }
+      );
+    }
   }
 
   const { data: business, error: businessError } = await supabase
     .from('businesses')
-    .upsert(
-      {
-        organization_id: organizationId,
-        name: input.name,
-        sector: input.sector,
-        location: input.location || null,
-        website: input.website || null,
-        employees_range: input.employeesRange || null,
-        main_problem: input.mainProblem || null,
-        acquisition_channels: input.acquisitionChannels,
-      },
-      { onConflict: 'organization_id' }
-    )
+    .insert({
+      organization_id: organizationId,
+      name: input.name,
+      sector: input.sector,
+      location: input.location || null,
+      website: input.website || null,
+      employees_range: input.employeesRange || null,
+      main_problem: input.mainProblem || null,
+      acquisition_channels: input.acquisitionChannels,
+    })
     .select('id')
     .single();
 
   if (businessError || !business) {
-    console.error('[businesses] businesses upsert failed', businessError);
+    console.error('[businesses] businesses insert failed', businessError);
     return NextResponse.json({ error: 'No se pudo guardar el negocio.' }, { status: 500 });
   }
 
@@ -108,5 +130,13 @@ export async function POST(request: Request) {
     metadata: { businessId: business.id, sector: input.sector },
   });
 
-  return NextResponse.json({ organizationId, businessId: business.id });
+  const response = NextResponse.json({ organizationId, businessId: business.id });
+  // El negocio recién creado pasa a ser el activo en esta sesión.
+  response.cookies.set(ACTIVE_BUSINESS_COOKIE, business.id, {
+    path: '/',
+    httpOnly: false,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 365,
+  });
+  return response;
 }

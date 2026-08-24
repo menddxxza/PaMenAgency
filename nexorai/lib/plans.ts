@@ -11,6 +11,8 @@ export interface PlanConfig {
   description: string;
   features: string[];
   highlighted?: boolean;
+  /** Nº máximo de negocios conectados que permite este plan (Infinity = ilimitado). */
+  businessLimit: number;
 }
 
 export const PLANS: PlanConfig[] = [
@@ -26,6 +28,7 @@ export const PLANS: PlanConfig[] = [
       '2 agentes activos',
       'Dashboard de resultados',
     ],
+    businessLimit: 1,
   },
   {
     id: 'pro',
@@ -40,6 +43,7 @@ export const PLANS: PlanConfig[] = [
       'Soporte prioritario',
     ],
     highlighted: true,
+    businessLimit: 3,
   },
   {
     id: 'business',
@@ -53,6 +57,7 @@ export const PLANS: PlanConfig[] = [
       'Onboarding asistido',
       'Acceso a API (próximamente)',
     ],
+    businessLimit: Infinity,
   },
   {
     id: 'performance',
@@ -66,5 +71,11 @@ export const PLANS: PlanConfig[] = [
       'Revisión mensual de atribución',
       'A medida según volumen',
     ],
+    businessLimit: Infinity,
   },
 ];
+
+/** Nº máximo de negocios conectados para un plan dado (fallback: límite de Starter). */
+export function getBusinessLimit(planId: string): number {
+  return PLANS.find((p) => p.id === planId)?.businessLimit ?? PLANS[0].businessLimit;
+}

@@ -1,9 +1,14 @@
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 import { requireOrgContext } from '@/lib/server/org-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label, Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export default async function SettingsPage() {
-  const { organization, business, userEmail } = await requireOrgContext();
+  const { organization, business, businesses, businessLimit, userEmail } = await requireOrgContext();
+  const canAddBusiness = businesses.length < businessLimit;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -32,20 +37,48 @@ export default async function SettingsPage() {
         </CardContent>
       </Card>
 
-      {business && (
+      {businesses.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle>Negocio</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle>
+              Negocios
+              <span className="ml-2 font-normal text-muted">
+                ({businesses.length}/{businessLimit === Infinity ? '∞' : businessLimit})
+              </span>
+            </CardTitle>
+            {canAddBusiness ? (
+              <Link href="/onboarding/business">
+                <Button variant="ghost" size="sm">
+                  <Plus className="h-4 w-4" />
+                  Añadir negocio
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/billing">
+                <Button variant="ghost" size="sm">
+                  Ampliar plan
+                </Button>
+              </Link>
+            )}
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Nombre del negocio</Label>
-              <Input value={business.name} disabled />
-            </div>
-            <div>
-              <Label>Sector</Label>
-              <Input value={business.sector} disabled />
-            </div>
+          <CardContent className="space-y-3">
+            {businesses.map((b) => (
+              <div
+                key={b.id}
+                className="flex items-center justify-between rounded-xl border border-border px-4 py-3"
+              >
+                <div>
+                  <p className="text-sm font-medium text-fg">{b.name}</p>
+                  <p className="text-xs text-muted">{b.sector}</p>
+                </div>
+                {b.id === business?.id && <Badge variant="brand">Activo</Badge>}
+              </div>
+            ))}
+            {!canAddBusiness && (
+              <p className="text-xs text-muted">
+                Has alcanzado el límite de negocios de tu plan actual. Amplía tu plan para conectar más.
+              </p>
+            )}
           </CardContent>
         </Card>
       )}

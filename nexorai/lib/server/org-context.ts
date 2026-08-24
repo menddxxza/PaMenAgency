@@ -1,13 +1,21 @@
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { isComplimentaryAccess } from '@/lib/access';
+import { getBusinessLimit } from '@/lib/plans';
+import { ACTIVE_BUSINESS_COOKIE, resolveActiveBusiness } from '@/lib/server/active-business';
 import type { Business, Organization } from '@/lib/types';
 
 export interface OrgContext {
   userId: string;
   userEmail: string;
   organization: Organization;
+  /** Negocio activo en esta sesión (ver ACTIVE_BUSINESS_COOKIE). */
   business: Business | null;
+  /** Todos los negocios de la organización, más recientes al final. */
+  businesses: Business[];
+  /** Nº máximo de negocios que permite el plan actual (Infinity = ilimitado). */
+  businessLimit: number;
   isComplimentary: boolean;
 }
 
@@ -48,19 +56,25 @@ export async function requireOrgContext(): Promise<OrgContext> {
     redirect('/onboarding/business');
   }
 
-  const { data: business } = await supabase
+  const { data: businesses } = await supabase
     .from('businesses')
     .select('*')
     .eq('organization_id', membership.organization_id)
-    .maybeSingle();
+    .order('created_at', { ascending: true });
 
   const complimentary = isComplimentaryAccess(user.email);
+  const effectivePlan = complimentary ? 'performance' : organization.plan;
+
+  const activeBusinessId = cookies().get(ACTIVE_BUSINESS_COOKIE)?.value;
+  const business = resolveActiveBusiness(businesses ?? [], activeBusinessId);
 
   return {
     userId: user.id,
     userEmail: user.email ?? '',
-    organization: complimentary ? { ...organization, plan: 'performance' } : organization,
-    business: business ?? null,
+    organization: complimentary ? { ...organization, plan: effectivePlan } : organization,
+    business,
+    businesses: businesses ?? [],
+    businessLimit: getBusinessLimit(effectivePlan),
     isComplimentary: complimentary,
   };
 }

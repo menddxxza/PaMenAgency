@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
@@ -6,6 +7,7 @@ import { runAuditEngine } from '@/lib/ai/audit-engine';
 import { prioritizeOpportunities } from '@/lib/ai/opportunity-engine';
 import { getAIProvider } from '@/lib/ai/provider';
 import { getSector } from '@/lib/sectors';
+import { ACTIVE_BUSINESS_COOKIE, resolveActiveBusiness } from '@/lib/server/active-business';
 import type { BusinessInput, GoalInput } from '@/lib/types';
 
 const bodySchema = z.object({
@@ -45,11 +47,14 @@ export async function POST(request: Request) {
   }
   const organizationId = membership.organization_id;
 
-  const { data: business } = await supabase
+  const { data: businesses } = await supabase
     .from('businesses')
     .select('*')
     .eq('organization_id', organizationId)
-    .maybeSingle();
+    .order('created_at', { ascending: true });
+
+  const activeBusinessId = cookies().get(ACTIVE_BUSINESS_COOKIE)?.value;
+  const business = resolveActiveBusiness(businesses ?? [], activeBusinessId);
 
   if (!business) {
     return NextResponse.json({ error: 'Primero crea tu negocio.' }, { status: 400 });

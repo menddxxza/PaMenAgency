@@ -5,8 +5,22 @@ import { LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BusinessSwitcher } from '@/components/dashboard/business-switcher';
+import type { Business } from '@/lib/types';
 
-export function Topbar({ organizationName, plan }: { organizationName: string; plan: string }) {
+export function Topbar({
+  organizationName,
+  plan,
+  businesses,
+  activeBusinessId,
+  canAddBusiness,
+}: {
+  organizationName: string;
+  plan: string;
+  businesses: Business[];
+  activeBusinessId: string | null;
+  canAddBusiness: boolean;
+}) {
   const router = useRouter();
 
   async function handleLogout() {
@@ -18,11 +32,20 @@ export function Topbar({ organizationName, plan }: { organizationName: string; p
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-border px-4 sm:px-6">
-      <div>
-        <p className="text-sm font-medium text-fg">{organizationName}</p>
-        <Badge variant="brand" className="mt-0.5 capitalize">
-          Plan {plan}
-        </Badge>
+      <div className="flex items-center gap-3">
+        <div>
+          <p className="text-sm font-medium text-fg">{organizationName}</p>
+          <Badge variant="brand" className="mt-0.5 capitalize">
+            Plan {plan}
+          </Badge>
+        </div>
+        {activeBusinessId && (
+          <BusinessSwitcher
+            businesses={businesses}
+            activeBusinessId={activeBusinessId}
+            canAddBusiness={canAddBusiness}
+          />
+        )}
       </div>
       <Button variant="ghost" size="sm" onClick={handleLogout}>
         <LogOut className="h-4 w-4" />
