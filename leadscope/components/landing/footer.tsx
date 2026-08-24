@@ -11,6 +11,16 @@ export function Footer() {
         </Link>
         <p className="text-sm text-muted">
           © {new Date().getFullYear()} LeadScope. Todos los derechos reservados.
+          {' · '}
+          Parte de{' '}
+          <a
+            href="https://pamenagency.com"
+            target="_blank"
+            rel="noreferrer"
+            className="font-medium text-fg hover:text-brand-600"
+          >
+            PaMenAgency
+          </a>
         </p>
         <div className="flex gap-6 text-sm text-muted">
           <a href="#features" className="hover:text-fg">
