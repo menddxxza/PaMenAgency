@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Nexorai es una consola de crecimiento, no una landing de IA genérica: tema oscuro
+  permanente. Tanto la app autenticada como la landing usan el degradado real del
+  logotipo (violeta #ae36fb → azul #3b87ff, escala `brand` de Tailwind) como acento —
+  ver .hero-aurora / .text-glow. El oro (`gold`) queda como acento secundario para
+  detalles puntuales de alto valor (precios, resultados).
+*/
+:root {
+  --bg: 220 26% 6%;
+  --surface: 220 22% 9%;
+  --surface-hover: 220 18% 13%;
+  --fg: 40 22% 96%;
+  --muted: 220 10% 62%;
+  --border: 220 16% 17%;
+  --ring: 152 46% 42%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background-color: hsl(var(--bg));
+  color: hsl(var(--fg));
+  font-feature-settings: 'cv11', 'ss01';
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: hsl(var(--ring) / 0.3);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted));
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.55) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.55) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+.bg-fade-mask {
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 0%, black 40%, transparent 92%);
+}
+
+.bg-radial-signal {
+  background-image: radial-gradient(
+    ellipse 50% 45% at 50% 30%,
+    hsl(152 46% 42% / 0.16) 0%,
+    transparent 70%
+  );
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/*
+  Sistema visual de la landing: negro casi absoluto + el degradado real del
+  logotipo (violeta #ae36fb → azul #3b87ff) como único acento — nada de
+  glassmorphism, nada de grid genérico. Densidad y escala deliberadamente
+  altas (maximalista dentro de este sistema, no genérico).
+*/
+.bg-void {
+  background: #050505;
+}
+
+.bg-carbon {
+  background: #0b0b0c;
+}
+
+.landing-hairline {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.cursor-none-desktop,
+.cursor-none-desktop * {
+  cursor: none;
+}
+
+.text-glow {
+  text-shadow:
+    0 0 40px rgba(174, 54, 251, 0.32),
+    0 0 70px rgba(59, 135, 255, 0.2);
+}
+
+.hero-aurora {
+  background:
+    radial-gradient(38% 32% at 22% 20%, rgba(174, 54, 251, 0.26), transparent 70%),
+    radial-gradient(34% 30% at 80% 75%, rgba(59, 135, 255, 0.22), transparent 70%);
+  filter: blur(90px);
+  animation: aurora-drift 24s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    transform: translate3d(2.5%, -3%, 0) scale(1.06);
+  }
+}
+
+@keyframes count-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+.tabular-flicker {
+  animation: count-flicker 2.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
