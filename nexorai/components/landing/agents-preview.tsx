@@ -33,7 +33,7 @@ export function AgentsPreview({
       className="relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
     >
       <div className="max-w-xl">
-        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Agentes</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-brand-400">Agentes</p>
         <h2 className="mt-4 font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl">
           Una infraestructura, no seis herramientas sueltas
         </h2>
@@ -54,7 +54,7 @@ export function AgentsPreview({
                 y1="50%"
                 x2={pos.left}
                 y2={pos.top}
-                stroke={i === selected ? '#c9a24d' : 'rgba(255,255,255,0.1)'}
+                stroke={i === selected ? '#ae36fb' : 'rgba(255,255,255,0.1)'}
                 strokeWidth={1}
               />
             ))}
@@ -79,13 +79,13 @@ export function AgentsPreview({
               <span
                 className={cn(
                   'block h-3 w-3 rounded-full transition-all',
-                  i === selected ? 'bg-gold-400 shadow-[0_0_16px_rgba(201,162,77,0.7)]' : 'bg-white/25'
+                  i === selected ? 'bg-brand-400 shadow-[0_0_16px_rgba(174,54,251,0.7)]' : 'bg-white/25'
                 )}
               />
               <span
                 className={cn(
                   'absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] uppercase tracking-widest transition-colors',
-                  i === selected ? 'text-gold-300' : 'text-white/35'
+                  i === selected ? 'text-brand-300' : 'text-white/35'
                 )}
               >
                 {a.name}
@@ -103,7 +103,7 @@ export function AgentsPreview({
               data-cursor-hover
               className={cn(
                 'landing-hairline border px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-colors',
-                i === selected ? 'border-gold-400/50 text-gold-300' : 'text-white/40'
+                i === selected ? 'border-brand-400/50 text-brand-300' : 'text-white/40'
               )}
             >
               {a.name}

@@ -32,7 +32,7 @@ function ConsoleField({
 }
 
 const fieldClass =
-  'w-full border-0 border-b border-white/10 bg-transparent py-1.5 font-mono text-sm text-white outline-none transition-colors focus:border-gold-400';
+  'w-full border-0 border-b border-white/10 bg-transparent py-1.5 font-mono text-sm text-white outline-none transition-colors focus:border-brand-400';
 
 /** Cifra que se anima suavemente hacia el nuevo valor en cada recálculo, en vez de saltar. */
 function AnimatedCurrency({ value }: { value: number }) {
@@ -104,7 +104,7 @@ export function Calculator({
       className="relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
     >
       <div className="max-w-xl">
-        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Calculadora</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-brand-400">Calculadora</p>
         <h2 className="mt-4 font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl">
           Cuánto dinero se está quedando sobre la mesa
         </h2>
@@ -212,7 +212,7 @@ export function Calculator({
                   <div key={o.category}>
                     <div className="flex items-center justify-between gap-3 text-sm">
                       <span className="text-white/55">{o.name}</span>
-                      <span className="font-mono text-gold-300">
+                      <span className="font-mono text-brand-300">
                         {formatCurrency(o.potentialMin)}–{formatCurrency(o.potentialMax)}
                       </span>
                     </div>
@@ -221,7 +221,7 @@ export function Calculator({
                         className="h-full"
                         style={{
                           width: `${widthPct}%`,
-                          backgroundImage: 'linear-gradient(90deg, #93702c, #e8c988)',
+                          backgroundImage: 'linear-gradient(90deg, #7e17c7, #3b87ff)',
                         }}
                       />
                     </div>

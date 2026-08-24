@@ -23,7 +23,7 @@ export function PricingSection({
       className="relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
     >
       <div className="max-w-xl">
-        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Precios</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-brand-400">Precios</p>
         <h2 className="mt-4 font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl">
           Empieza pequeño, escala con resultados
         </h2>
@@ -41,15 +41,15 @@ export function PricingSection({
               plan.highlighted && 'bg-white/[0.03]'
             )}
           >
-            {plan.highlighted && <span className="h-px w-full bg-gold-400" />}
+            {plan.highlighted && <span className="h-px w-full bg-brand-400" />}
             <p
               className={cn(
                 'mt-6 font-mono text-[10px] uppercase tracking-widest',
-                plan.highlighted ? 'text-gold-400' : 'text-white/35'
+                plan.highlighted ? 'text-brand-400' : 'text-white/35'
               )}
             >
               {plan.name}
-              {plan.highlighted && <span className="ml-2 text-gold-300">· recomendado</span>}
+              {plan.highlighted && <span className="ml-2 text-brand-300">· recomendado</span>}
             </p>
 
             <p

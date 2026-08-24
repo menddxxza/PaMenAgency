@@ -61,10 +61,10 @@ export function LandingNav() {
           <Link
             href="/signup"
             data-cursor-hover
-            className="group flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-white transition-colors hover:text-gold-400"
+            className="group flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest text-white transition-colors hover:text-brand-400"
           >
             Analizar mi empresa
-            <span className="h-1 w-1 rounded-full bg-gold-400 transition-transform group-hover:scale-150" />
+            <span className="h-1 w-1 rounded-full bg-brand-400 transition-transform group-hover:scale-150" />
           </Link>
         </div>
 
@@ -104,7 +104,7 @@ export function LandingNav() {
         <Link
           href="/signup"
           onClick={() => setOpen(false)}
-          className="rounded px-1 py-3 font-mono text-xs uppercase tracking-widest text-gold-400"
+          className="rounded px-1 py-3 font-mono text-xs uppercase tracking-widest text-brand-400"
         >
           Analizar mi empresa
         </Link>

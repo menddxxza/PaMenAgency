@@ -17,8 +17,8 @@ const CONNECT_DISTANCE = 2.4;
 const MAX_CONNECTIONS_PER_NODE = 4;
 const SIGNAL_COUNT_DESKTOP = 22;
 const SIGNAL_COUNT_MOBILE = 7;
-const GOLD = '#c9a24d';
-const GOLD_BRIGHT = '#e8c988';
+const BRAND = '#ae36fb';
+const BRAND_BRIGHT = '#3b87ff';
 
 // Cámara: de dónde a dónde se mueve dentro de cada una de las 5 estaciones
 // del recorrido (Hero, Cómo funciona, Calculadora, Agentes, Precios).
@@ -172,7 +172,7 @@ export function SystemScene({
     hubGeometry.setAttribute('position', new THREE.BufferAttribute(hubPositions, 3));
     const hubMaterial = new THREE.PointsMaterial({
       size: 0.095,
-      map: makeGlowTexture(GOLD),
+      map: makeGlowTexture(BRAND),
       transparent: true,
       opacity: 0.85,
       depthWrite: false,
@@ -192,7 +192,7 @@ export function SystemScene({
     signalGeometry.setAttribute('position', new THREE.BufferAttribute(signalPositions, 3));
     const signalMaterial = new THREE.PointsMaterial({
       size: 0.085,
-      map: makeGlowTexture(GOLD_BRIGHT),
+      map: makeGlowTexture(BRAND_BRIGHT),
       transparent: true,
       opacity: 0.95,
       depthWrite: false,

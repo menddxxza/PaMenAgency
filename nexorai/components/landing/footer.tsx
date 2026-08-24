@@ -56,7 +56,7 @@ export function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={s.label}
-                  className="landing-hairline flex h-8 w-8 items-center justify-center rounded-full border text-white/40 transition-colors hover:border-gold-400/40 hover:text-gold-300"
+                  className="landing-hairline flex h-8 w-8 items-center justify-center rounded-full border text-white/40 transition-colors hover:border-brand-400/40 hover:text-brand-300"
                 >
                   <s.icon className="h-4 w-4" />
                 </a>

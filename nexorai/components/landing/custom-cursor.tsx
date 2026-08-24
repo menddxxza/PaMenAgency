@@ -22,12 +22,20 @@ export function CustomCursor() {
     let my = window.innerHeight / 2;
     let rx = mx;
     let ry = my;
+    let revealed = false;
 
     function onMove(e: PointerEvent) {
       mx = e.clientX;
       my = e.clientY;
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+      }
+      if (!revealed) {
+        revealed = true;
+        rx = mx;
+        ry = my;
+        dotRef.current?.classList.remove('opacity-0');
+        ringRef.current?.classList.remove('opacity-0');
       }
     }
 
@@ -73,12 +81,12 @@ export function CustomCursor() {
       <div
         ref={dotRef}
         aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold-400 [@media(pointer:fine)]:block"
+        className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400 opacity-0 transition-opacity duration-150 [@media(pointer:fine)]:block"
       />
       <div
         ref={ringRef}
         aria-hidden="true"
-        className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-gold-400/50 transition-[transform,opacity] duration-150 ease-out [@media(pointer:fine)]:block"
+        className="pointer-events-none fixed left-0 top-0 z-[100] hidden h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-brand-400/50 opacity-0 transition-[transform,opacity] duration-150 ease-out [@media(pointer:fine)]:block"
       />
     </>
   );

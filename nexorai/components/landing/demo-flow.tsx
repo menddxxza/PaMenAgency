@@ -99,7 +99,7 @@ export function DemoFlow({
       className="relative mx-auto max-w-6xl scroll-mt-20 px-4 py-28 sm:px-8"
     >
       <div className="max-w-xl">
-        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">Cómo funciona</p>
+        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-brand-400">Cómo funciona</p>
         <h2 className="mt-4 font-display text-4xl font-bold uppercase tracking-tight text-white sm:text-6xl">
           De un objetivo a agentes trabajando
         </h2>
@@ -109,7 +109,7 @@ export function DemoFlow({
         <div className="landing-hairline absolute left-0 top-1 h-[calc(100%-0.25rem)] w-px border-l" />
         <div
           ref={lineRef}
-          className="absolute left-0 top-1 h-[calc(100%-0.25rem)] w-px origin-top bg-gold-400"
+          className="absolute left-0 top-1 h-[calc(100%-0.25rem)] w-px origin-top bg-brand-400"
         />
 
         <div className="flex flex-col gap-12 sm:gap-14">
@@ -127,7 +127,7 @@ export function DemoFlow({
               >
                 {stage.tag}
               </span>
-              <span className="absolute -left-8 top-1 h-2 w-2 -translate-x-1/2 rounded-full bg-gold-400 sm:-left-10" />
+              <span className="absolute -left-8 top-1 h-2 w-2 -translate-x-1/2 rounded-full bg-brand-400 sm:-left-10" />
               <span className="font-mono text-xs text-white/30">{stage.tag}</span>
               <h3 className="font-display text-2xl font-bold uppercase tracking-tight text-white sm:text-3xl">
                 {stage.label}

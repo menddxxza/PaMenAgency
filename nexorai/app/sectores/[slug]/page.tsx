@@ -30,7 +30,7 @@ export default function SectorPage({ params }: { params: { slug: string } }) {
       <LandingNav />
       <main>
         <section className="mx-auto max-w-4xl px-4 pb-16 pt-32 text-center sm:pt-40">
-          <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-gold-400">
+          <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-brand-400">
             Nexorai para {sector.namePlural.toLowerCase()}
           </span>
           <h1 className="mt-5 text-balance font-display text-4xl font-semibold uppercase tracking-tight text-white sm:text-5xl">
@@ -60,11 +60,11 @@ export default function SectorPage({ params }: { params: { slug: string } }) {
 
           <div className="landing-hairline mx-auto mt-12 grid max-w-2xl grid-cols-1 border-t text-left sm:grid-cols-2">
             <div className="landing-hairline flex items-start gap-2 border-b p-4 text-sm text-white/50 sm:border-b-0 sm:border-r">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
               Ticket medio habitual: {sector.avgTicketHint}
             </div>
             <div className="flex items-start gap-2 p-4 text-sm text-white/50">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-gold-400" />
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
               Canales típicos: {sector.channels.join(', ')}
             </div>
           </div>

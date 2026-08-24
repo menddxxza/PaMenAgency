@@ -26,7 +26,7 @@ export function Hero({
 
       <div className="relative z-10 flex h-full flex-col justify-end px-4 pb-16 sm:px-8 sm:pb-24">
         <div className="mx-auto w-full max-w-6xl">
-          <p className="animate-fade-in font-mono text-[11px] uppercase tracking-[0.32em] text-gold-400">
+          <p className="animate-fade-in font-mono text-[11px] uppercase tracking-[0.32em] text-brand-400">
             Revenue Intelligence Engine
           </p>
 
@@ -46,7 +46,7 @@ export function Hero({
               <Button
                 variant="secondary"
                 size="lg"
-                className="border-0 bg-white px-6 text-[#0b0b0c] shadow-none hover:bg-white/90 focus-visible:ring-gold-400/50"
+                className="border-0 bg-white px-6 text-[#0b0b0c] shadow-none hover:bg-white/90 focus-visible:ring-brand-400/50"
                 data-cursor-hover
               >
                 Analizar mi empresa
@@ -67,7 +67,7 @@ export function Hero({
       <div className="pointer-events-none absolute bottom-6 right-4 z-10 hidden text-right font-mono text-[10px] uppercase tracking-[0.2em] text-white/30 sm:right-8 sm:block">
         <p className="flex items-center justify-end gap-2 text-white/45">
           Sistema en vivo
-          <span className="tabular-flicker inline-block h-1.5 w-1.5 rounded-full bg-gold-400" />
+          <span className="tabular-flicker inline-block h-1.5 w-1.5 rounded-full bg-brand-400" />
         </p>
         <p className="mt-1">420 nodos · 22 señales activas</p>
       </div>
