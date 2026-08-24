@@ -19,7 +19,7 @@ export function LandingNav() {
 
   return (
     <header className="sticky top-4 z-50 mx-auto w-full max-w-6xl px-4">
-      <div className="flex items-center justify-between rounded-full border border-border bg-surface/80 px-4 py-2.5 backdrop-blur-md">
+      <div className="glass-panel flex items-center justify-between rounded-full px-4 py-2.5">
         <Link href="/" className="flex items-center gap-2 pl-1">
           <Logomark />
           <Wordmark className="text-sm" />
@@ -44,7 +44,11 @@ export function LandingNav() {
           <Link href="/signup">
             <Button
               size="sm"
-              className="bg-[#2F6FED] text-white shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:bg-[#3B82F6] focus-visible:ring-[#3B82F6]/50"
+              className="border-0 text-white hover:brightness-110 focus-visible:ring-[#3B82F6]/50"
+              style={{
+                backgroundImage: 'linear-gradient(115deg, #ae36fb, #3b87ff)',
+                boxShadow: '0 0 20px rgba(174,54,251,0.3), 0 0 28px rgba(59,135,255,0.2)',
+              }}
             >
               Analizar mi empresa
             </Button>
@@ -62,7 +66,7 @@ export function LandingNav() {
 
       <div
         className={cn(
-          'mt-2 grid gap-1 overflow-hidden rounded-2xl border border-border bg-surface/95 p-2 backdrop-blur-md transition-all duration-200 md:hidden',
+          'glass-panel mt-2 grid gap-1 overflow-hidden rounded-2xl p-2 transition-all duration-200 md:hidden',
           open ? 'max-h-96 opacity-100' : 'pointer-events-none max-h-0 border-transparent p-0 opacity-0'
         )}
       >
@@ -82,8 +86,12 @@ export function LandingNav() {
         </Link>
         <Link href="/signup" className="p-1">
           <Button
-            className="w-full bg-[#2F6FED] text-white shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:bg-[#3B82F6] focus-visible:ring-[#3B82F6]/50"
+            className="w-full border-0 text-white hover:brightness-110 focus-visible:ring-[#3B82F6]/50"
             size="sm"
+            style={{
+              backgroundImage: 'linear-gradient(115deg, #ae36fb, #3b87ff)',
+              boxShadow: '0 0 20px rgba(174,54,251,0.3), 0 0 28px rgba(59,135,255,0.2)',
+            }}
           >
             Analizar mi empresa
           </Button>

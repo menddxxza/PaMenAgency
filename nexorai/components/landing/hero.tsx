@@ -34,8 +34,11 @@ export function Hero() {
 
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-20 lg:grid-cols-[1fr_1fr] lg:gap-4">
           <div className="animate-slide-up max-w-xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-[#94A3B8]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" />
+            <span className="glass-panel inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium text-[#94A3B8]">
+              <span
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ background: 'linear-gradient(90deg, #ae36fb, #3b87ff)' }}
+              />
               Un producto de PaMenAgency
             </span>
 
@@ -44,7 +47,10 @@ export function Hero() {
               <span className="block">fuente de ingresos</span>
             </h1>
 
-            <p className="mt-4 font-display text-xl font-semibold text-[#3B82F6] sm:text-2xl">
+            <p
+              className="mt-4 bg-clip-text font-display text-xl font-semibold text-transparent sm:text-2xl"
+              style={{ backgroundImage: 'linear-gradient(90deg, #c584ff, #6ea8ff)' }}
+            >
               No vendemos IA. Vendemos resultados.
             </p>
 
@@ -57,7 +63,11 @@ export function Hero() {
               <Link href="/signup">
                 <Button
                   size="lg"
-                  className="bg-[#2F6FED] text-white shadow-[0_0_30px_rgba(59,130,246,0.4)] hover:bg-[#3B82F6] focus-visible:ring-[#3B82F6]/50"
+                  className="border-0 text-white hover:brightness-110 focus-visible:ring-[#3B82F6]/50"
+                  style={{
+                    backgroundImage: 'linear-gradient(115deg, #ae36fb, #3b87ff)',
+                    boxShadow: '0 0 30px rgba(174,54,251,0.35), 0 0 44px rgba(59,135,255,0.25)',
+                  }}
                 >
                   Analizar mi empresa
                   <ArrowRight className="h-4 w-4" />
@@ -67,7 +77,7 @@ export function Hero() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="border-white/15 bg-white/10 text-white backdrop-blur-md hover:bg-white/15 focus-visible:ring-[#3B82F6]/50"
+                  className="glass-panel text-white hover:brightness-125 focus-visible:ring-[#3B82F6]/50"
                 >
                   <PlayCircle className="h-4 w-4" />
                   Ver cómo funciona
@@ -76,7 +86,7 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="relative mx-auto h-[380px] w-full max-w-xl animate-fade-in sm:h-[440px]">
+          <div className="glass-panel relative mx-auto h-[380px] w-full max-w-xl animate-fade-in overflow-hidden rounded-[2rem] p-2 sm:h-[440px]">
             <TechCubeField />
           </div>
         </div>
@@ -86,9 +96,12 @@ export function Hero() {
         {CARDS.map((card) => (
           <div
             key={card.title}
-            className="rounded-2xl border border-border bg-surface/60 p-5 transition-colors hover:border-brand-500/30 hover:bg-surface"
+            className="group rounded-2xl border border-border bg-surface/60 p-5 transition-colors hover:border-[#8b5cf6]/30 hover:bg-surface"
           >
-            <card.icon className="h-5 w-5 text-brand-400" strokeWidth={1.75} />
+            <card.icon
+              className="h-5 w-5 text-[#a78bfa] transition-colors group-hover:text-[#c4b5fd]"
+              strokeWidth={1.75}
+            />
             <h3 className="mt-3 text-sm font-semibold text-fg">{card.title}</h3>
             <p className="mt-1.5 text-sm leading-relaxed text-muted">{card.description}</p>
           </div>

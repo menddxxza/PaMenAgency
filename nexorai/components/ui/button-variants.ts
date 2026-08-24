@@ -5,7 +5,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-brand-500 text-[#04120c] shadow-glow hover:bg-brand-400',
+        primary: 'bg-brand-500 text-white shadow-glow hover:bg-brand-400',
         gold: 'bg-gold-400 text-[#1a1305] shadow-glow-gold hover:bg-gold-300',
         secondary: 'bg-surface text-fg border border-border hover:bg-surface-hover',
         ghost: 'text-fg hover:bg-surface-hover',

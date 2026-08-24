@@ -18,18 +18,20 @@ const config: Config = {
         'surface-hover': 'hsl(var(--surface-hover))',
         fg: 'hsl(var(--fg))',
         muted: 'hsl(var(--muted))',
-        // Verde esmeralda — color primario de marca (hoja del logo Nexorai).
+        // Violeta — color primario de marca, tomado directamente del
+        // degradado del logotipo (#ae36fb → #3b87ff). brand-400 es el propio
+        // violeta del logo, sin reinterpretar.
         brand: {
-          50: '#eafbf3',
-          100: '#cdf5e2',
-          200: '#9de9c8',
-          300: '#66d6a8',
-          400: '#39bd8a',
-          500: '#1f9c6f',
-          600: '#167a58',
-          700: '#135f46',
-          800: '#124a38',
-          900: '#0f3c2e',
+          50: '#f8eeff',
+          100: '#efd9ff',
+          200: '#ddb6fe',
+          300: '#c589fd',
+          400: '#ae36fb',
+          500: '#9b1ff0',
+          600: '#7e17c7',
+          700: '#631390',
+          800: '#4a0e6b',
+          900: '#330a4a',
         },
         // Oro — acento secundario (trenza dorada del logo), reservado para
         // detalles de alto valor: precios, resultados, plan premium.
@@ -61,7 +63,7 @@ const config: Config = {
       boxShadow: {
         card: '0 1px 2px 0 rgb(0 0 0 / 0.24), 0 1px 3px 0 rgb(0 0 0 / 0.28)',
         'card-hover': '0 8px 24px -6px rgb(0 0 0 / 0.45)',
-        glow: '0 0 0 1px rgb(31 156 111 / 0.25), 0 8px 28px -10px rgb(31 156 111 / 0.45)',
+        glow: '0 0 0 1px rgb(155 31 240 / 0.28), 0 8px 28px -10px rgb(155 31 240 / 0.5)',
         'glow-gold': '0 0 0 1px rgb(201 162 77 / 0.3), 0 8px 28px -10px rgb(201 162 77 / 0.4)',
       },
       transitionTimingFunction: {
