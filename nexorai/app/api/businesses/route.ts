@@ -54,6 +54,7 @@ export async function POST(request: Request) {
       .single();
 
     if (orgError || !org) {
+      console.error('[businesses] organizations insert failed', orgError);
       return NextResponse.json({ error: 'No se pudo crear la organización.' }, { status: 500 });
     }
     organizationId = org.id;
@@ -63,6 +64,7 @@ export async function POST(request: Request) {
       .insert({ organization_id: organizationId, user_id: user.id, role: 'owner' });
 
     if (membershipError) {
+      console.error('[businesses] memberships insert failed', membershipError);
       return NextResponse.json({ error: 'No se pudo asociar el usuario a la organización.' }, { status: 500 });
     }
   }
@@ -86,6 +88,7 @@ export async function POST(request: Request) {
     .single();
 
   if (businessError || !business) {
+    console.error('[businesses] businesses upsert failed', businessError);
     return NextResponse.json({ error: 'No se pudo guardar el negocio.' }, { status: 500 });
   }
 
