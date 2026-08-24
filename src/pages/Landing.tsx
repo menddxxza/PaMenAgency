@@ -291,6 +291,9 @@ export function Landing() {
         <Link to="/privacidad">Política de privacidad</Link>
         <Link to="/cookies">Política de cookies</Link>
         <Link to="/terminos">Términos y condiciones</Link>
+        <a href="https://pamenagency.com" target="_blank" rel="noreferrer">
+          Atiende forma parte de PaMen Agency
+        </a>
       </footer>
     </div>
   )

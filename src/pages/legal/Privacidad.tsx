@@ -12,7 +12,10 @@ export function Privacidad() {
       <h2>1. Responsable del tratamiento</h2>
       <ul>
         <li>
-          <strong>Nombre:</strong> Pablo Ángel
+          <strong>Nombre:</strong> Pablo Ángel, operando bajo el nombre comercial{' '}
+          <a href="https://pamenagency.com" target="_blank" rel="noreferrer">
+            PaMen Agency
+          </a>
         </li>
         <li>
           <strong>NIF:</strong> [pendiente de completar]
@@ -24,6 +27,12 @@ export function Privacidad() {
           <strong>Email de contacto:</strong> <a href="mailto:soporte.Atiende@gmail.com">soporte.Atiende@gmail.com</a>
         </li>
       </ul>
+      <p>
+        Atiende es un producto de PaMen Agency (<a href="https://pamenagency.com" target="_blank" rel="noreferrer">
+          pamenagency.com
+        </a>
+        ), nombre comercial bajo el que opera el responsable indicado arriba — no una sociedad mercantil distinta.
+      </p>
 
       <h2>2. Dos papeles distintos frente a los datos</h2>
       <p>

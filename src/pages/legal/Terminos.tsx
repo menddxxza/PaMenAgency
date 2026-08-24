@@ -6,10 +6,18 @@ export function Terminos() {
     <LegalLayout title="Términos y condiciones" updatedAt="agosto de 2026">
       <p>
         Estas condiciones regulan el uso de Atiende, un servicio de gestión de citas, clientes y conversaciones de
-        WhatsApp para negocios, prestado por Pablo Ángel (NIF [pendiente de completar]), con domicilio en Jerez de
-        la Frontera (Cádiz), España, y contacto en{' '}
+        WhatsApp para negocios, prestado por Pablo Ángel (NIF [pendiente de completar]), operando bajo el nombre
+        comercial{' '}
+        <a href="https://pamenagency.com" target="_blank" rel="noreferrer">
+          PaMen Agency
+        </a>
+        , con domicilio en Jerez de la Frontera (Cádiz), España, y contacto en{' '}
         <a href="mailto:soporte.Atiende@gmail.com">soporte.Atiende@gmail.com</a>. Al crear una cuenta aceptas estas
-        condiciones.
+        condiciones. Atiende forma parte del catálogo de productos de PaMen Agency (
+        <a href="https://pamenagency.com" target="_blank" rel="noreferrer">
+          pamenagency.com
+        </a>
+        ).
       </p>
 
       <h2>1. Qué es el servicio</h2>
