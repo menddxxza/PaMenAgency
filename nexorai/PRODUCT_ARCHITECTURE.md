@@ -1,9 +1,9 @@
-# PRODUCT_ARCHITECTURE.md — Nexorai
+# PRODUCT_ARCHITECTURE.md — Revynai
 
 > "Conecta tu empresa. Dile cuánto quieres crecer. La IA encuentra dónde está el dinero y
 > pone agentes a trabajar para conseguirlo."
 
-Nexorai es un producto de **PaMenAgency** (pamenagency.com). No vende IA: vende resultados
+Revynai es un producto de **PaMenAgency** (pamenagency.com). No vende IA: vende resultados
 comerciales. El usuario nunca interactúa con "modelos" o "prompts" — interactúa con un
 objetivo de crecimiento, una auditoría de su negocio, oportunidades priorizadas por ingreso
 potencial, y agentes que trabajan esas oportunidades.

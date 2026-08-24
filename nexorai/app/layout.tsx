@@ -6,13 +6,13 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Nexorai — Tu próxima fuente de ingresos, dentro de tu propio negocio',
-    template: '%s — Nexorai',
+    default: 'Revynai — Tu próxima fuente de ingresos, dentro de tu propio negocio',
+    template: '%s — Revynai',
   },
   description:
-    'Nexorai analiza tu empresa, detecta oportunidades de ingreso reales y pone agentes de IA a trabajar para convertirlas en clientes. Un producto de PaMenAgency.',
+    'Revynai analiza tu empresa, detecta oportunidades de ingreso reales y pone agentes de IA a trabajar para convertirlas en clientes. Un producto de PaMenAgency.',
   metadataBase: new URL(SITE_URL),
-  applicationName: 'Nexorai',
+  applicationName: 'Revynai',
   keywords: ['crecimiento empresarial', 'IA para negocios', 'generación de leads', 'agentes de IA', 'PaMenAgency'],
   authors: [{ name: 'PaMenAgency', url: 'https://pamenagency.com' }],
   icons: {
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    siteName: 'Nexorai',
-    title: 'Nexorai — Tu próxima fuente de ingresos, dentro de tu propio negocio',
+    siteName: 'Revynai',
+    title: 'Revynai — Tu próxima fuente de ingresos, dentro de tu propio negocio',
     description:
       'Conecta tu empresa. Dile cuánto quieres crecer. La IA encuentra dónde está el dinero y pone agentes a trabajar para conseguirlo.',
     url: SITE_URL,
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Nexorai — Estrategia de crecimiento ejecutada por agentes de IA',
+    title: 'Revynai — Estrategia de crecimiento ejecutada por agentes de IA',
     description: 'Analiza tu negocio, detecta oportunidades y activa agentes que las convierten en ingresos.',
   },
 };

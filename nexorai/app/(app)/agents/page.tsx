@@ -46,7 +46,7 @@ export default async function AgentsPage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <p className="font-mono text-xs uppercase tracking-widest text-brand-400">Agentes</p>
-        <h1 className="mt-1 text-2xl font-semibold text-fg">Tu equipo de agentes de Nexorai</h1>
+        <h1 className="mt-1 text-2xl font-semibold text-fg">Tu equipo de agentes de Revynai</h1>
         <p className="mt-1 text-sm text-muted">
           Se activan automáticamente al activar una oportunidad en <span className="text-fg">/opportunities</span>.
         </p>
