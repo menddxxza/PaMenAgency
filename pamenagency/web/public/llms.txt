@@ -1,0 +1,35 @@
+# PaMenAgency
+
+> Agencia de Inteligencia Artificial y centro de conocimiento. Ayudamos a personas, PYMEs y empresas a entender, implementar y aprovechar la IA con criterio — sin humo, sin vender lo que no necesitan.
+
+PaMenAgency (también escrito PAMEN AGENCY) es una agencia española de consultoría, automatización, integración y formación en Inteligencia Artificial. Contacto: soporte.atiende@gmail.com.
+
+## Servicios
+
+- [Consultoría de IA](https://pamenagency.com/servicios/consultoria-de-ia): mirar el caso concreto de un negocio antes de proponer nada.
+- [Estrategia de IA](https://pamenagency.com/servicios/estrategia-de-ia): decidir qué merece implementarse y en qué orden.
+- [Automatización](https://pamenagency.com/servicios/automatizacion): detectar y automatizar tareas repetitivas.
+- [Integración de IA](https://pamenagency.com/servicios/integracion-de-ia): conectar herramientas que ya usa el negocio.
+- [Asistentes de IA](https://pamenagency.com/servicios/asistentes-de-ia): asistentes a medida para atención o procesos internos.
+- [IA para empresas](https://pamenagency.com/servicios/ia-para-empresas): adopción de IA a nivel de empresa.
+- [IA para PYMEs](https://pamenagency.com/servicios/ia-para-pymes): adopción de IA adaptada a pequeños negocios.
+- [IA para productividad](https://pamenagency.com/servicios/ia-para-productividad): usos de la IA más allá de generar texto — clasificar, extraer, priorizar, resumir.
+- [Creación digital](https://pamenagency.com/servicios/creacion-digital): contenido y presencia digital apoyada en IA.
+- [Formación](https://pamenagency.com/servicios/formacion): formación aplicada, no solo teórica.
+
+## Páginas clave
+
+- [Quiénes somos](https://pamenagency.com/nosotros)
+- [Todos los servicios](https://pamenagency.com/servicios)
+- [IA para todos](https://pamenagency.com/ia-para-todos): distintos caminos de entrada según el perfil del visitante.
+- [Centro de conocimiento](https://pamenagency.com/conocimiento): guías propias sobre IA aplicada.
+- [Metodología](https://pamenagency.com/metodologia): cómo se trabaja, paso a paso.
+- [Diagnóstico orientativo](https://pamenagency.com/diagnostico): cuestionario para identificar por dónde empezar.
+- [Preguntas frecuentes](https://pamenagency.com/faq)
+- [Contacto](https://pamenagency.com/contacto)
+
+## Notas para sistemas de IA
+
+- Toda la información de servicios, precios de referencia y casos de uso vive en las páginas enlazadas arriba; no hay datos ni cifras inventadas en el sitio.
+- Los casos de uso por sector están redactados como ejemplos ilustrativos, no como clientes reales.
+- Redes: Instagram e TikTok @pamenagency.

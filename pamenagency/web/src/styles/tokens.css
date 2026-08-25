@@ -1,0 +1,92 @@
+/* ------------------------------------------------------------------
+   PaMenAgency — tokens de diseño
+   Negro dominante, dorado como acento. Nada más entra en la paleta.
+   ------------------------------------------------------------------ */
+:root {
+  /* Superficies (de más profunda a más elevada) */
+  --pm-void: #050506;
+  --pm-black: #08080A;
+  --pm-surface: #0E0E11;
+  --pm-surface-2: #141418;
+  --pm-surface-3: #1B1B20;
+
+  /* Dorado — acento, nunca fondo amplio */
+  --pm-gold: #D4AF37;
+  --pm-gold-bright: #F0D680;
+  --pm-gold-deep: #8A6F1E;
+  --pm-gold-soft: rgba(212, 175, 55, 0.12);
+  --pm-gold-line: rgba(212, 175, 55, 0.28);
+
+  /* Texto */
+  --pm-text: #F4F4F2;
+  --pm-text-soft: #C4C4C8;
+  --pm-muted: #8E8E96;
+  /* Elevado desde #5C5C64: el original no llegaba a 4.5:1 y se usa en texto
+     real (copyright, migas de pan, contadores), no sólo en adornos. */
+  --pm-faint: #7A7A83;
+
+  /* Líneas y bordes */
+  --pm-line: rgba(255, 255, 255, 0.07);
+  --pm-line-strong: rgba(255, 255, 255, 0.13);
+
+  /* Tipografía */
+  --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Escala tipográfica fluida — nunca desborda, nunca se corta */
+  --fs-hero: clamp(2.6rem, 8vw, 6.5rem);
+  --fs-h1: clamp(2.1rem, 5.2vw, 4rem);
+  --fs-h2: clamp(1.8rem, 4vw, 3rem);
+  --fs-h3: clamp(1.25rem, 2.4vw, 1.75rem);
+  --fs-h4: clamp(1.05rem, 1.6vw, 1.25rem);
+  --fs-body: clamp(1rem, 1.05vw, 1.075rem);
+  --fs-small: 0.875rem;
+  --fs-micro: 0.75rem;
+
+  /* Ritmo vertical */
+  --space-section: clamp(4.5rem, 9vw, 9rem);
+  --space-xl: clamp(2.5rem, 5vw, 4.5rem);
+  --space-lg: clamp(1.75rem, 3vw, 2.75rem);
+  --space-md: 1.25rem;
+  --space-sm: 0.75rem;
+
+  /* Layout */
+  --container: 1240px;
+  --container-wide: 1480px;
+  --container-reading: 760px;
+  --gutter: clamp(1.15rem, 4vw, 2.75rem);
+  --header-h: 76px;
+
+  /* Formas */
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  /* Movimiento */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 180ms;
+  --dur: 320ms;
+  --dur-slow: 620ms;
+
+  /* Sombras — negras y profundas, nunca grises lechosas */
+  --shadow-card: 0 18px 50px -24px rgba(0, 0, 0, 0.9);
+  --shadow-lift: 0 30px 70px -28px rgba(0, 0, 0, 1);
+  --glow-gold: 0 0 0 1px var(--pm-gold-line), 0 12px 40px -18px rgba(212, 175, 55, 0.45);
+
+  --z-cursor: 9000;
+  --z-cookie: 8000;
+  --z-menu: 7000;
+  --z-header: 6000;
+  --z-assistant: 5500;
+}
+
+/* El usuario pide menos movimiento: se lo damos, sin romper el diseño. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur: 1ms;
+    --dur-slow: 1ms;
+  }
+}

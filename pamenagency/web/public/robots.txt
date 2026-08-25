@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Las páginas legales no aportan nada en buscadores.
+Disallow: /legal/
+
+Sitemap: https://pamenagency.com/sitemap.xml

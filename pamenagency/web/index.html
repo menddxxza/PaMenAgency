@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#050506" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Metadatos por defecto. Cada ruta los reescribe al montarse, pero así
+         un rastreador que no ejecute JavaScript no encuentra la cabecera vacía. -->
+    <title>PaMenAgency — Convierte la Inteligencia Artificial en una ventaja real</title>
+    <meta
+      name="description"
+      content="Agencia de Inteligencia Artificial y centro de conocimiento. Ayudamos a personas, PYMEs y empresas a entender, implementar y aprovechar la IA con criterio."
+    />
+    <link rel="canonical" href="https://pamenagency.com/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PaMenAgency" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:title" content="PaMenAgency — Convierte la Inteligencia Artificial en una ventaja real" />
+    <meta
+      property="og:description"
+      content="Agencia de Inteligencia Artificial y centro de conocimiento. Consultoría, automatización, integración y formación."
+    />
+    <meta property="og:url" content="https://pamenagency.com/" />
+    <meta property="og:image" content="https://pamenagency.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Tipografías: preconexión para que no bloqueen la primera pintura. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+    />
+
+    <style>
+      /* Pantalla de carga en línea: se ve antes de que llegue el JavaScript y
+         evita el destello blanco sobre un sitio íntegramente oscuro. */
+      html { background: #050506; }
+      #pm-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 9500;
+        display: grid;
+        place-items: center;
+        background: #050506;
+        transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
+      }
+      #pm-boot[data-done='true'] { opacity: 0; visibility: hidden; }
+      #pm-boot .pm-boot__inner {
+        display: grid;
+        gap: 1.25rem;
+        justify-items: center;
+        padding: 1.5rem;
+      }
+      #pm-boot .pm-boot__name {
+        font-family: 'Space Grotesk', system-ui, sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        font-size: 0.85rem;
+        color: #8e8e96;
+        text-align: center;
+      }
+      #pm-boot .pm-boot__name b { color: #d4af37; font-weight: 700; }
+      #pm-boot .pm-boot__bar {
+        width: min(200px, 55vw);
+        height: 2px;
+        background: rgba(255, 255, 255, 0.13);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      #pm-boot .pm-boot__fill {
+        height: 100%;
+        background: linear-gradient(90deg, #8a6f1e, #f0d680);
+        transform-origin: left;
+        animation: pm-boot-load 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      @keyframes pm-boot-load {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #pm-boot .pm-boot__fill { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="pm-boot" role="status" aria-live="polite">
+      <div class="pm-boot__inner">
+        <p class="pm-boot__name">PAMEN <b>AGENCY</b></p>
+        <div class="pm-boot__bar"><div class="pm-boot__fill"></div></div>
+        <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Cargando</span>
+      </div>
+    </div>
+
+    <div id="root"></div>
+
+    <noscript>
+      <div style="max-width:44rem;margin:6rem auto;padding:2rem;font-family:system-ui,sans-serif;color:#f4f4f2">
+        <h1 style="font-size:1.5rem">PaMenAgency</h1>
+        <p style="color:#8e8e96;margin-top:1rem">
+          Convierte la Inteligencia Artificial en una ventaja real. Esta web necesita JavaScript
+          para funcionar. Si no puedes activarlo, escríbenos a soporte.atiende@gmail.com.
+        </p>
+      </div>
+    </noscript>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
