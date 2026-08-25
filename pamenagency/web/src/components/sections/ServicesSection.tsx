@@ -2,6 +2,7 @@ import { Section, SectionHead, Reveal } from '@/components/ui/Section'
 import { Button } from '@/components/ui/Button'
 import { services } from '@/content/services'
 import { ServiceCard } from './ServiceCard'
+import ScrollStack, { ScrollStackItem } from '@/components/ui/ScrollStack'
 
 export function ServicesSection({ limit }: { limit?: number }) {
   const shown = limit ? services.slice(0, limit) : services
@@ -14,13 +15,13 @@ export function ServicesSection({ limit }: { limit?: number }) {
         lead="Diez formas de trabajar la IA, desde entender qué te conviene hasta dejarlo funcionando. Casi siempre se empieza por una sola."
       />
 
-      <div className="pm-grid pm-grid--cards">
-        {shown.map((service, i) => (
-          <Reveal key={service.slug} delay={(i % 3) * 90}>
+      <ScrollStack useWindowScroll itemDistance={70} itemStackDistance={22} baseScale={0.92}>
+        {shown.map((service) => (
+          <ScrollStackItem key={service.slug}>
             <ServiceCard service={service} />
-          </Reveal>
+          </ScrollStackItem>
         ))}
-      </div>
+      </ScrollStack>
 
       {limit && limit < services.length && (
         <Reveal delay={120}>
