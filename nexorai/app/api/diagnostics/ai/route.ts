@@ -15,6 +15,7 @@ export async function GET() {
   const groqKey = process.env.GROQ_API_KEY;
 
   let groqTest: unknown = 'GROQ_API_KEY no configurada, no se probó.';
+  let groqModels: unknown = 'GROQ_API_KEY no configurada, no se listaron modelos.';
 
   if (groqKey) {
     try {
@@ -36,6 +37,18 @@ export async function GET() {
     } catch (err) {
       groqTest = { error: String(err) };
     }
+
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/models', {
+        headers: { Authorization: `Bearer ${groqKey}` },
+      });
+      const data = await res.json();
+      groqModels = res.ok
+        ? (data?.data ?? []).map((m: { id: string }) => m.id)
+        : { status_http: res.status, respuesta: JSON.stringify(data).slice(0, 500) };
+    } catch (err) {
+      groqModels = { error: String(err) };
+    }
   }
 
   return NextResponse.json({
@@ -44,5 +57,6 @@ export async function GET() {
     OPENAI_API_KEY_presente: Boolean(process.env.OPENAI_API_KEY),
     ANTHROPIC_API_KEY_presente: Boolean(process.env.ANTHROPIC_API_KEY),
     prueba_real_groq: groqTest,
+    modelos_disponibles_groq: groqModels,
   });
 }
