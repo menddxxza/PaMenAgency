@@ -146,7 +146,11 @@ class OpenAIProvider implements AIProvider {
   }
 }
 
-const GROQ_MODEL_FALLBACKS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+// llama-3.1-8b-instant y llama-3.3-70b-versatile pasaron a plan Enterprise
+// de Groq (404 model_not_found en cuentas gratuitas) — confirmado en
+// console.groq.com/docs/models el 2026-08-25. Los modelos openai/gpt-oss-*
+// siguen en el plan gratuito/pay-as-you-go normal.
+const GROQ_MODEL_FALLBACKS = ['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'groq/compound-mini'];
 
 class GroqProvider implements AIProvider {
   readonly id: AIProviderId = 'groq';
