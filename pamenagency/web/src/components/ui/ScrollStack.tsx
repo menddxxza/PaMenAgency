@@ -136,7 +136,13 @@ export default function ScrollStack({
 
       const scaleProgress = calculateProgress(scrollTop, triggerStart, triggerEnd);
       const targetScale = baseScale + i * itemScale;
-      const scale = 1 - scaleProgress * (1 - targetScale);
+      // Con muchas tarjetas y/o baseScale alto, baseScale + i*itemScale puede
+      // superar 1 para índices altos, lo que hace que una tarjeta que se
+      // supone "detrás" acabe renderizando MÁS GRANDE que su tamaño natural
+      // (bordes que sobresalen por los lados, posible scroll horizontal).
+      // Una tarjeta que se aleja nunca debería crecer más allá de su tamaño
+      // real, así que se acota a 1 pase lo que pase con los props.
+      const scale = Math.min(1, 1 - scaleProgress * (1 - targetScale));
       const rotation = rotationAmount ? i * rotationAmount * scaleProgress : 0;
 
       // Una tarjeta se difumina/atenúa en sincronía exacta con el avance de

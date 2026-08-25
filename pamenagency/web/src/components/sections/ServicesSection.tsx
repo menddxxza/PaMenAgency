@@ -19,7 +19,8 @@ export function ServicesSection({ limit }: { limit?: number }) {
         useWindowScroll
         itemDistance={70}
         itemStackDistance={10}
-        baseScale={0.92}
+        baseScale={0.9}
+        itemScale={0.01}
         blurAmount={4}
         fadeAmount={0.55}
         minOpacity={0.12}
