@@ -1,6 +1,7 @@
 import { PageHead } from '@/components/ui/PageHead'
-import { Section, Reveal } from '@/components/ui/Section'
+import { Section } from '@/components/ui/Section'
 import { ServiceCard } from '@/components/sections/ServiceCard'
+import ScrollStack, { ScrollStackItem } from '@/components/ui/ScrollStack'
 import { CtaBand } from '@/components/sections/CtaBand'
 import { MethodologySection } from '@/components/sections/MethodologySection'
 import { services } from '@/content/services'
@@ -43,13 +44,22 @@ export default function Servicios() {
       />
 
       <Section divided={false}>
-        <div className="pm-grid pm-grid--cards">
-          {services.map((service, i) => (
-            <Reveal key={service.slug} delay={(i % 3) * 80}>
+        <ScrollStack
+          useWindowScroll
+          itemDistance={60}
+          itemStackDistance={10}
+          baseScale={0.9}
+          itemScale={0.01}
+          blurAmount={4}
+          fadeAmount={0.55}
+          minOpacity={0.12}
+        >
+          {services.map((service) => (
+            <ScrollStackItem key={service.slug}>
               <ServiceCard service={service} />
-            </Reveal>
+            </ScrollStackItem>
           ))}
-        </div>
+        </ScrollStack>
       </Section>
 
       <MethodologySection compact />
