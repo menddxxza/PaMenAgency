@@ -105,7 +105,7 @@ function buildTemplateAgentWork(input: AgentWorkInput): AgentTaskDraft[] {
   }));
 }
 
-function buildAgentWorkPrompt(input: AgentWorkInput): string {
+export function buildAgentWorkPrompt(input: AgentWorkInput): string {
   return (
     `Eres "${input.agentName}", un agente de crecimiento B2B cuyo objetivo es: ${input.agentObjective}\n\n` +
     `Negocio: ${input.businessName} (sector: ${input.sectorName})\n` +
