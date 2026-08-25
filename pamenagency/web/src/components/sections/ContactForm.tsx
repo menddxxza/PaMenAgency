@@ -13,6 +13,7 @@ type Fields = {
   sector: string
   necesidad: string
   presupuesto: string
+  urgencia: string
   mensaje: string
   consentimiento: boolean
 }
@@ -25,8 +26,38 @@ const empty: Fields = {
   sector: '',
   necesidad: '',
   presupuesto: '',
+  urgencia: '',
   mensaje: '',
   consentimiento: false,
+}
+
+const urgencias = [
+  { value: '1', label: '1 — Sin prisa, voy explorando' },
+  { value: '2', label: '2 — En las próximas semanas' },
+  { value: '3', label: '3 — Este mes' },
+  { value: '4', label: '4 — Cuanto antes' },
+  { value: '5', label: '5 — Es urgente' },
+]
+
+/** Cada opción de presupuesto se traduce a un punto en la misma escala 1-5
+ *  que la urgencia, para poder combinarlas en una sola puntuación. */
+const PUNTUACION_PRESUPUESTO: Record<string, number> = {
+  'Todavía no lo sé': 1,
+  'Quiero empezar por algo pequeño': 2,
+  'Prefiero comentarlo primero': 3,
+  'Tengo un presupuesto definido': 5,
+}
+
+/**
+ * Puntuación del lead (1-5): media de urgencia declarada y presupuesto.
+ * >= 4 se avisa a ventas de inmediato (ver api/lead.ts); < 4 solo recibe la
+ * respuesta automática — no es una promesa de menor prioridad, es solo el
+ * criterio para no saturar a ventas con cada visita exploratoria.
+ */
+function leadScore(values: Fields): number {
+  const urgencia = Number(values.urgencia) || 0
+  const presupuesto = PUNTUACION_PRESUPUESTO[values.presupuesto] ?? 0
+  return Math.round((urgencia + presupuesto) / 2)
 }
 
 const sectores = [
@@ -76,6 +107,8 @@ function validate(values: Fields): Partial<Record<keyof Fields, string>> {
   if (values.mensaje.trim().length < 10)
     errors.mensaje = 'Cuéntanos algo más, aunque sean dos líneas.'
 
+  if (!values.urgencia) errors.urgencia = 'Indica cuánta prisa tienes, aunque sea aproximado.'
+
   if (!values.consentimiento)
     errors.consentimiento = 'Necesitamos tu consentimiento para poder responderte.'
 
@@ -104,13 +137,15 @@ export function ContactForm() {
       return
     }
 
+    const score = leadScore(values)
+
     if (ENDPOINT) {
       setStatus('sending')
       try {
         const res = await fetch(ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
+          body: JSON.stringify({ ...values, score }),
         })
         if (!res.ok) throw new Error(String(res.status))
         setStatus('sent')
@@ -122,7 +157,30 @@ export function ContactForm() {
       }
     }
 
-    // Sin endpoint configurado: se abre el cliente de correo con todo relleno.
+    // Sin VITE_CONTACT_ENDPOINT: se intenta nuestro propio backend de leads
+    // (api/lead.ts), que puntúa y avisa a ventas o envía la respuesta
+    // automática según corresponda. Si falla por lo que sea —incluida la
+    // falta de RESEND_API_KEY, que es el estado por defecto hasta que se
+    // configure— cae al mailto de siempre, sin mostrar ningún error: el
+    // lead nunca debe perderse en silencio.
+    setStatus('sending')
+    try {
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...values, score }),
+      })
+      if (res.ok) {
+        setStatus('sent')
+        setValues(empty)
+        return
+      }
+    } catch {
+      // sigue al mailto de abajo
+    }
+
+    // Ni backend propio ni endpoint externo: se abre el cliente de correo
+    // con todo relleno.
     const cuerpo = [
       `Nombre: ${values.nombre}`,
       values.empresa && `Empresa: ${values.empresa}`,
@@ -131,6 +189,7 @@ export function ContactForm() {
       values.sector && `Sector: ${values.sector}`,
       values.necesidad && `Necesidad: ${values.necesidad}`,
       values.presupuesto && `Presupuesto: ${values.presupuesto}`,
+      values.urgencia && `Urgencia (1-5): ${values.urgencia}`,
       '',
       values.mensaje,
     ]
@@ -249,7 +308,14 @@ export function ContactForm() {
         </Field>
       </div>
 
-      <div style={{ marginTop: '1.1rem' }}>
+      <div
+        className="pm-grid"
+        style={{
+          marginTop: '1.1rem',
+          gap: '1.1rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+        }}
+      >
         <Field id="presupuesto" label="Presupuesto aproximado" error={errors.presupuesto}>
           <select
             id="pm-presupuesto"
@@ -261,6 +327,24 @@ export function ContactForm() {
             {presupuestos.map((p) => (
               <option key={p} value={p}>
                 {p}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field id="urgencia" label="¿Cuánta prisa tienes?" required error={errors.urgencia}>
+          <select
+            id="pm-urgencia"
+            className="pm-select"
+            value={values.urgencia}
+            aria-invalid={!!errors.urgencia}
+            aria-describedby={errors.urgencia ? 'pm-urgencia-err' : undefined}
+            onChange={(e) => set('urgencia', e.target.value)}
+          >
+            <option value="">Selecciona…</option>
+            {urgencias.map((u) => (
+              <option key={u.value} value={u.value}>
+                {u.label}
               </option>
             ))}
           </select>
