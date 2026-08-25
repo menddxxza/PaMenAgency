@@ -24,7 +24,8 @@ export async function GET() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${groqKey}` },
         body: JSON.stringify({
           model: 'openai/gpt-oss-20b',
-          max_tokens: 10,
+          max_tokens: 700,
+          reasoning_effort: 'low',
           messages: [{ role: 'user', content: 'Responde solo con la palabra: ok' }],
         }),
       });

@@ -149,8 +149,15 @@ class OpenAIProvider implements AIProvider {
 // llama-3.1-8b-instant y llama-3.3-70b-versatile pasaron a plan Enterprise
 // de Groq (404 model_not_found en cuentas gratuitas) — confirmado en
 // console.groq.com/docs/models el 2026-08-25. Los modelos openai/gpt-oss-*
-// siguen en el plan gratuito/pay-as-you-go normal.
-const GROQ_MODEL_FALLBACKS = ['openai/gpt-oss-20b', 'openai/gpt-oss-120b', 'groq/compound-mini'];
+// siguen en el plan gratuito/pay-as-you-go normal, pero son modelos de
+// "razonamiento": gastan tokens pensando antes de escribir la respuesta
+// final, así que necesitan reasoning_effort bajo + más margen de tokens o
+// el content vuelve vacío (finish_reason "length") con max_tokens chico.
+const GROQ_MODEL_FALLBACKS: { model: string; reasoningEffort?: 'low' | 'medium' | 'high' }[] = [
+  { model: 'openai/gpt-oss-20b', reasoningEffort: 'low' },
+  { model: 'openai/gpt-oss-120b', reasoningEffort: 'low' },
+  { model: 'groq/compound-mini' },
+];
 
 class GroqProvider implements AIProvider {
   readonly id: AIProviderId = 'groq';
@@ -162,14 +169,15 @@ class GroqProvider implements AIProvider {
       return new MockAIProvider().summarizeAudit(input);
     }
 
-    for (const model of GROQ_MODEL_FALLBACKS) {
+    for (const { model, reasoningEffort } of GROQ_MODEL_FALLBACKS) {
       try {
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
             model,
-            max_tokens: 220,
+            max_tokens: 700,
+            ...(reasoningEffort ? { reasoning_effort: reasoningEffort } : {}),
             messages: [{ role: 'user', content: buildPrompt(input) }],
           }),
         });
