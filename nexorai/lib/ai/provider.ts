@@ -71,7 +71,10 @@ class AnthropicAIProvider implements AIProvider {
 
   async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) return new MockAIProvider().summarizeAudit(input);
+    if (!apiKey) {
+      console.error('[ai/provider] anthropic: ANTHROPIC_API_KEY no está configurada, cayendo a plantilla local.');
+      return new MockAIProvider().summarizeAudit(input);
+    }
 
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -87,12 +90,19 @@ class AnthropicAIProvider implements AIProvider {
           messages: [{ role: 'user', content: buildPrompt(input) }],
         }),
       });
-      if (!res.ok) return new MockAIProvider().summarizeAudit(input);
+      if (!res.ok) {
+        console.error('[ai/provider] anthropic: respuesta no OK', res.status, await res.text().catch(() => ''));
+        return new MockAIProvider().summarizeAudit(input);
+      }
       const data = await res.json();
       const text = data?.content?.[0]?.text?.trim();
-      if (!text) return new MockAIProvider().summarizeAudit(input);
+      if (!text) {
+        console.error('[ai/provider] anthropic: respuesta sin texto', JSON.stringify(data));
+        return new MockAIProvider().summarizeAudit(input);
+      }
       return { text, generatedByModel: true, provider: this.id };
-    } catch {
+    } catch (err) {
+      console.error('[ai/provider] anthropic: excepción', err);
       return new MockAIProvider().summarizeAudit(input);
     }
   }
@@ -103,7 +113,10 @@ class OpenAIProvider implements AIProvider {
 
   async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return new MockAIProvider().summarizeAudit(input);
+    if (!apiKey) {
+      console.error('[ai/provider] openai: OPENAI_API_KEY no está configurada, cayendo a plantilla local.');
+      return new MockAIProvider().summarizeAudit(input);
+    }
 
     try {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -115,42 +128,64 @@ class OpenAIProvider implements AIProvider {
           messages: [{ role: 'user', content: buildPrompt(input) }],
         }),
       });
-      if (!res.ok) return new MockAIProvider().summarizeAudit(input);
+      if (!res.ok) {
+        console.error('[ai/provider] openai: respuesta no OK', res.status, await res.text().catch(() => ''));
+        return new MockAIProvider().summarizeAudit(input);
+      }
       const data = await res.json();
       const text = data?.choices?.[0]?.message?.content?.trim();
-      if (!text) return new MockAIProvider().summarizeAudit(input);
+      if (!text) {
+        console.error('[ai/provider] openai: respuesta sin texto', JSON.stringify(data));
+        return new MockAIProvider().summarizeAudit(input);
+      }
       return { text, generatedByModel: true, provider: this.id };
-    } catch {
+    } catch (err) {
+      console.error('[ai/provider] openai: excepción', err);
       return new MockAIProvider().summarizeAudit(input);
     }
   }
 }
+
+const GROQ_MODEL_FALLBACKS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
 
 class GroqProvider implements AIProvider {
   readonly id: AIProviderId = 'groq';
 
   async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
     const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) return new MockAIProvider().summarizeAudit(input);
-
-    try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 220,
-          messages: [{ role: 'user', content: buildPrompt(input) }],
-        }),
-      });
-      if (!res.ok) return new MockAIProvider().summarizeAudit(input);
-      const data = await res.json();
-      const text = data?.choices?.[0]?.message?.content?.trim();
-      if (!text) return new MockAIProvider().summarizeAudit(input);
-      return { text, generatedByModel: true, provider: this.id };
-    } catch {
+    if (!apiKey) {
+      console.error('[ai/provider] groq: GROQ_API_KEY no está configurada, cayendo a plantilla local.');
       return new MockAIProvider().summarizeAudit(input);
     }
+
+    for (const model of GROQ_MODEL_FALLBACKS) {
+      try {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model,
+            max_tokens: 220,
+            messages: [{ role: 'user', content: buildPrompt(input) }],
+          }),
+        });
+        if (!res.ok) {
+          console.error('[ai/provider] groq: respuesta no OK', model, res.status, await res.text().catch(() => ''));
+          continue;
+        }
+        const data = await res.json();
+        const text = data?.choices?.[0]?.message?.content?.trim();
+        if (!text) {
+          console.error('[ai/provider] groq: respuesta sin texto', model, JSON.stringify(data));
+          continue;
+        }
+        return { text, generatedByModel: true, provider: this.id };
+      } catch (err) {
+        console.error('[ai/provider] groq: excepción', model, err);
+      }
+    }
+
+    return new MockAIProvider().summarizeAudit(input);
   }
 }
 

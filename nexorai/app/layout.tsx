@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { spaceGrotesk, inter, jetbrainsMono } from '@/lib/fonts';
+import { PwaRegister } from '@/components/pwa-register';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
@@ -15,8 +16,15 @@ export const metadata: Metadata = {
   applicationName: 'Revynai',
   keywords: ['crecimiento empresarial', 'IA para negocios', 'generación de leads', 'agentes de IA', 'PaMenAgency'],
   authors: [{ name: 'PaMenAgency', url: 'https://pamenagency.com' }],
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Revynai',
   },
   openGraph: {
     type: 'website',
@@ -35,7 +43,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: '#0a0e14',
+  themeColor: '#050505',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -44,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
+        <PwaRegister />
         {children}
       </body>
     </html>
