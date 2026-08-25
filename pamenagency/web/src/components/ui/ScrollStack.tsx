@@ -81,8 +81,19 @@ export default function ScrollStack({
   const getElementOffset = useCallback(
     (element: HTMLElement) => {
       if (useWindowScroll) {
-        const rect = element.getBoundingClientRect();
-        return rect.top + window.scrollY;
+        // offsetTop/offsetParent no se ven afectados por `transform`, a
+        // diferencia de getBoundingClientRect(): este último incluye el
+        // transform que el propio bucle ya escribió en el frame anterior,
+        // lo que crea una realimentación entre frames (la posición medida
+        // depende del último desplazamiento aplicado) y se traduce en
+        // parpadeo/saltos de la tarjeta al hacer scroll.
+        let top = 0;
+        let node: HTMLElement | null = element;
+        while (node) {
+          top += node.offsetTop;
+          node = node.offsetParent as HTMLElement | null;
+        }
+        return top;
       }
       return element.offsetTop;
     },
