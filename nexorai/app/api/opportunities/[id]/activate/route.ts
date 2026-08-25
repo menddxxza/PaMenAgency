@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { track } from '@/lib/analytics';
 import { agentForCategory } from '@/lib/agents/catalog';
-import { simulateAgentWork } from '@/lib/agents/simulate';
+import { planAgentWork, distributePotentialRevenue } from '@/lib/agents/plan';
+import { goalLabel } from '@/lib/ai/provider';
+import { getSector } from '@/lib/sectors';
 import type { OpportunityEstimate } from '@/lib/ai/audit-engine';
 
 function addDays(days: number): string {
@@ -84,34 +86,42 @@ export async function POST(_request: Request, { params }: { params: { id: string
     assumption: opportunity.assumption,
   };
 
-  const plan = simulateAgentWork(estimate);
+  const [{ data: business }, { data: goal }] = await Promise.all([
+    supabase.from('businesses').select('*').eq('id', opportunity.business_id).maybeSingle(),
+    supabase
+      .from('goals')
+      .select('*')
+      .eq('business_id', opportunity.business_id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const sector = business ? getSector(business.sector) : null;
+  const plan = await planAgentWork(estimate, agentDef, {
+    businessName: business?.name ?? 'el negocio',
+    sectorName: sector?.name ?? business?.sector ?? '',
+    mainProblem: business?.main_problem ?? '',
+    goalLabel: goal
+      ? goalLabel({ goalType: goal.goal_type, targetValue: goal.target_value, timeframeDays: goal.timeframe_days })
+      : 'crecer',
+  });
 
   await supabase.from('agent_tasks').insert(
     plan.tasks.map((t) => ({
       organization_id: opportunity.organization_id,
       agent_id: agent.id,
       title: t.title,
+      result_summary: t.detail,
       status: t.dayOffset === 0 ? 'done' : 'pending',
-      is_simulated: true,
+      is_simulated: !plan.generatedByModel,
       scheduled_for: addDays(t.dayOffset),
       completed_at: t.dayOffset === 0 ? new Date().toISOString() : null,
     }))
   );
 
-  await supabase.from('leads').insert(
-    plan.leads.map((l) => ({
-      organization_id: opportunity.organization_id,
-      business_id: opportunity.business_id,
-      agent_id: agent.id,
-      name: l.name,
-      source: l.source,
-      estimated_value: l.estimatedValue,
-      is_simulated: true,
-    }))
-  );
-
   await supabase.from('revenue_events').insert(
-    plan.potentialRevenueByDay.map((r) => ({
+    distributePotentialRevenue(estimate).map((r) => ({
       organization_id: opportunity.organization_id,
       business_id: opportunity.business_id,
       opportunity_id: opportunity.id,
@@ -136,12 +146,7 @@ export async function POST(_request: Request, { params }: { params: { id: string
   await track(supabase, 'agent_started', {
     organizationId: opportunity.organization_id,
     userId: user.id,
-    metadata: { agentId: agent.id, key: agent.key },
-  });
-  await track(supabase, 'lead_created', {
-    organizationId: opportunity.organization_id,
-    userId: user.id,
-    metadata: { count: plan.leads.length, isSimulated: true },
+    metadata: { agentId: agent.id, key: agent.key, generatedByModel: plan.generatedByModel, provider: plan.provider },
   });
 
   return NextResponse.json({ ok: true, agentId: agent.id });

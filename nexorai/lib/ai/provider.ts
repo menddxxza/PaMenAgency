@@ -28,14 +28,42 @@ export interface AISummaryResult {
   provider: AIProviderId;
 }
 
+/** Contexto real de negocio/oportunidad para que el agente redacte trabajo específico. */
+export interface AgentWorkInput {
+  businessName: string;
+  sectorName: string;
+  mainProblem: string;
+  agentName: string;
+  agentObjective: string;
+  opportunityName: string;
+  opportunityDescription: string;
+  opportunityAssumption: string;
+  goalLabel: string;
+}
+
+export interface AgentTaskDraft {
+  /** Título corto de la tarea (para la línea de tiempo). */
+  title: string;
+  /** Contenido real: borrador de mensaje, guion o análisis listo para revisar/usar. */
+  detail: string;
+}
+
+export interface AgentWorkResult {
+  tasks: AgentTaskDraft[];
+  /** false cuando es la plantilla local de respaldo (sin proveedor o fallo de IA). */
+  generatedByModel: boolean;
+  provider: AIProviderId;
+}
+
 export type AIProviderId = 'anthropic' | 'openai' | 'groq' | 'mock';
 
 export interface AIProvider {
   readonly id: AIProviderId;
   summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult>;
+  generateAgentWork(input: AgentWorkInput): Promise<AgentWorkResult>;
 }
 
-function goalLabel(goal: AuditSummaryInput['goal']): string {
+export function goalLabel(goal: AuditSummaryInput['goal']): string {
   switch (goal.goalType) {
     case 'new_customers':
       return `${goal.targetValue} clientes nuevos en ${goal.timeframeDays} días`;
@@ -58,24 +86,82 @@ function buildTemplateSummary(input: AuditSummaryInput): string {
   );
 }
 
+const WORK_TIMELINE_DAYS = [0, 1, 3, 5, 10, 15];
+
+function buildTemplateAgentWork(input: AgentWorkInput): AgentTaskDraft[] {
+  const steps = [
+    `Revisa la situación actual de "${input.opportunityName}" en ${input.businessName}`,
+    `Prepara el primer borrador de trabajo para ${input.agentObjective.toLowerCase()}`,
+    'Ajusta el enfoque según los primeros resultados',
+    'Da seguimiento a lo iniciado en el paso anterior',
+    'Consolida avances y detecta el siguiente cuello de botella',
+    `Deja el resultado listo para revisar antes del cierre del objetivo: ${input.goalLabel}`,
+  ];
+  return WORK_TIMELINE_DAYS.map((_, i) => ({
+    title: steps[i],
+    detail:
+      'Plantilla local: activa un proveedor de IA (GROQ_API_KEY, ANTHROPIC_API_KEY u OPENAI_API_KEY) ' +
+      'para que este agente redacte trabajo real y específico de tu negocio.',
+  }));
+}
+
+function buildAgentWorkPrompt(input: AgentWorkInput): string {
+  return (
+    `Eres "${input.agentName}", un agente de crecimiento B2B cuyo objetivo es: ${input.agentObjective}\n\n` +
+    `Negocio: ${input.businessName} (sector: ${input.sectorName})\n` +
+    `Problema principal declarado por el negocio: ${input.mainProblem || 'no especificado'}\n` +
+    `Oportunidad que estás trabajando: ${input.opportunityName} — ${input.opportunityDescription}\n` +
+    `Base de la estimación (no la repitas ni inventes cifras nuevas): ${input.opportunityAssumption}\n` +
+    `Objetivo de crecimiento del negocio: ${input.goalLabel}\n\n` +
+    `Genera un plan de trabajo real de exactamente 6 pasos, repartidos desde hoy hasta el día 15, ` +
+    `que este agente ejecutaría de verdad. Para cada paso escribe:\n` +
+    `- "title": acción corta (máx 10 palabras)\n` +
+    `- "detail": el contenido real y específico de esa acción — si implica contactar a alguien, ` +
+    `escribe el borrador de mensaje completo listo para usar (en español, tono profesional, sin inventar ` +
+    `nombres de personas ni empresas reales, sin prometer resultados garantizados); si es análisis, ` +
+    `escribe el análisis o los criterios reales que aplicarías con los datos de este negocio.\n\n` +
+    `Responde ÚNICAMENTE con JSON válido, sin texto adicional ni markdown, con esta forma exacta:\n` +
+    `{"tasks":[{"title":"...","detail":"..."}, ... 6 elementos ...]}`
+  );
+}
+
+function parseAgentWorkResponse(raw: string): AgentTaskDraft[] | null {
+  const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '');
+  try {
+    const parsed = JSON.parse(cleaned);
+    const tasks = parsed?.tasks;
+    if (!Array.isArray(tasks) || tasks.length === 0) return null;
+    const valid = tasks
+      .filter((t): t is { title: unknown; detail: unknown } => typeof t === 'object' && t !== null)
+      .map((t) => ({ title: String(t.title ?? '').trim(), detail: String(t.detail ?? '').trim() }))
+      .filter((t) => t.title && t.detail);
+    return valid.length > 0 ? valid : null;
+  } catch {
+    return null;
+  }
+}
+
 class MockAIProvider implements AIProvider {
   readonly id: AIProviderId = 'mock';
 
   async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
     return { text: buildTemplateSummary(input), generatedByModel: false, provider: this.id };
   }
+
+  async generateAgentWork(input: AgentWorkInput): Promise<AgentWorkResult> {
+    return { tasks: buildTemplateAgentWork(input), generatedByModel: false, provider: this.id };
+  }
 }
 
 class AnthropicAIProvider implements AIProvider {
   readonly id: AIProviderId = 'anthropic';
 
-  async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
+  private async complete(prompt: string, maxTokens: number): Promise<string | null> {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       console.error('[ai/provider] anthropic: ANTHROPIC_API_KEY no está configurada, cayendo a plantilla local.');
-      return new MockAIProvider().summarizeAudit(input);
+      return null;
     }
-
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -86,63 +172,88 @@ class AnthropicAIProvider implements AIProvider {
         },
         body: JSON.stringify({
           model: 'claude-haiku-4-5-20251001',
-          max_tokens: 220,
-          messages: [{ role: 'user', content: buildPrompt(input) }],
+          max_tokens: maxTokens,
+          messages: [{ role: 'user', content: prompt }],
         }),
       });
       if (!res.ok) {
         console.error('[ai/provider] anthropic: respuesta no OK', res.status, await res.text().catch(() => ''));
-        return new MockAIProvider().summarizeAudit(input);
+        return null;
       }
       const data = await res.json();
       const text = data?.content?.[0]?.text?.trim();
       if (!text) {
         console.error('[ai/provider] anthropic: respuesta sin texto', JSON.stringify(data));
-        return new MockAIProvider().summarizeAudit(input);
+        return null;
       }
-      return { text, generatedByModel: true, provider: this.id };
+      return text;
     } catch (err) {
       console.error('[ai/provider] anthropic: excepción', err);
-      return new MockAIProvider().summarizeAudit(input);
+      return null;
     }
+  }
+
+  async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
+    const text = await this.complete(buildPrompt(input), 220);
+    if (!text) return new MockAIProvider().summarizeAudit(input);
+    return { text, generatedByModel: true, provider: this.id };
+  }
+
+  async generateAgentWork(input: AgentWorkInput): Promise<AgentWorkResult> {
+    const raw = await this.complete(buildAgentWorkPrompt(input), 1400);
+    const tasks = raw ? parseAgentWorkResponse(raw) : null;
+    if (!tasks) return new MockAIProvider().generateAgentWork(input);
+    return { tasks, generatedByModel: true, provider: this.id };
   }
 }
 
 class OpenAIProvider implements AIProvider {
   readonly id: AIProviderId = 'openai';
 
-  async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
+  private async complete(prompt: string, maxTokens: number): Promise<string | null> {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       console.error('[ai/provider] openai: OPENAI_API_KEY no está configurada, cayendo a plantilla local.');
-      return new MockAIProvider().summarizeAudit(input);
+      return null;
     }
-
     try {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          max_tokens: 220,
-          messages: [{ role: 'user', content: buildPrompt(input) }],
+          max_tokens: maxTokens,
+          messages: [{ role: 'user', content: prompt }],
         }),
       });
       if (!res.ok) {
         console.error('[ai/provider] openai: respuesta no OK', res.status, await res.text().catch(() => ''));
-        return new MockAIProvider().summarizeAudit(input);
+        return null;
       }
       const data = await res.json();
       const text = data?.choices?.[0]?.message?.content?.trim();
       if (!text) {
         console.error('[ai/provider] openai: respuesta sin texto', JSON.stringify(data));
-        return new MockAIProvider().summarizeAudit(input);
+        return null;
       }
-      return { text, generatedByModel: true, provider: this.id };
+      return text;
     } catch (err) {
       console.error('[ai/provider] openai: excepción', err);
-      return new MockAIProvider().summarizeAudit(input);
+      return null;
     }
+  }
+
+  async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
+    const text = await this.complete(buildPrompt(input), 220);
+    if (!text) return new MockAIProvider().summarizeAudit(input);
+    return { text, generatedByModel: true, provider: this.id };
+  }
+
+  async generateAgentWork(input: AgentWorkInput): Promise<AgentWorkResult> {
+    const raw = await this.complete(buildAgentWorkPrompt(input), 1400);
+    const tasks = raw ? parseAgentWorkResponse(raw) : null;
+    if (!tasks) return new MockAIProvider().generateAgentWork(input);
+    return { tasks, generatedByModel: true, provider: this.id };
   }
 }
 
@@ -162,11 +273,11 @@ const GROQ_MODEL_FALLBACKS: { model: string; reasoningEffort?: 'low' | 'medium' 
 class GroqProvider implements AIProvider {
   readonly id: AIProviderId = 'groq';
 
-  async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
+  private async complete(prompt: string, maxTokens: number): Promise<string | null> {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       console.error('[ai/provider] groq: GROQ_API_KEY no está configurada, cayendo a plantilla local.');
-      return new MockAIProvider().summarizeAudit(input);
+      return null;
     }
 
     for (const { model, reasoningEffort } of GROQ_MODEL_FALLBACKS) {
@@ -176,9 +287,9 @@ class GroqProvider implements AIProvider {
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
           body: JSON.stringify({
             model,
-            max_tokens: 700,
+            max_tokens: maxTokens,
             ...(reasoningEffort ? { reasoning_effort: reasoningEffort } : {}),
-            messages: [{ role: 'user', content: buildPrompt(input) }],
+            messages: [{ role: 'user', content: prompt }],
           }),
         });
         if (!res.ok) {
@@ -191,13 +302,26 @@ class GroqProvider implements AIProvider {
           console.error('[ai/provider] groq: respuesta sin texto', model, JSON.stringify(data));
           continue;
         }
-        return { text, generatedByModel: true, provider: this.id };
+        return text;
       } catch (err) {
         console.error('[ai/provider] groq: excepción', model, err);
       }
     }
 
-    return new MockAIProvider().summarizeAudit(input);
+    return null;
+  }
+
+  async summarizeAudit(input: AuditSummaryInput): Promise<AISummaryResult> {
+    const text = await this.complete(buildPrompt(input), 700);
+    if (!text) return new MockAIProvider().summarizeAudit(input);
+    return { text, generatedByModel: true, provider: this.id };
+  }
+
+  async generateAgentWork(input: AgentWorkInput): Promise<AgentWorkResult> {
+    const raw = await this.complete(buildAgentWorkPrompt(input), 2200);
+    const tasks = raw ? parseAgentWorkResponse(raw) : null;
+    if (!tasks) return new MockAIProvider().generateAgentWork(input);
+    return { tasks, generatedByModel: true, provider: this.id };
   }
 }
 

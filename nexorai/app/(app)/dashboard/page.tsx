@@ -83,7 +83,12 @@ export default async function DashboardPage() {
           accent="gold"
           note={`desde ${formatCurrency(revenuePotentialMin)}`}
         />
-        <KpiCard label="Leads found" value={String(leadsFound)} icon={Users} />
+        <KpiCard
+          label="Leads found"
+          value={String(leadsFound)}
+          icon={Users}
+          note={leadsFound === 0 ? 'Sin fuente de leads conectada todavía' : undefined}
+        />
         <KpiCard label="Leads contacted" value={String(leadsContacted)} icon={PhoneCall} />
         <KpiCard label="Conversions" value={String(conversions)} icon={Handshake} />
         <KpiCard label="ROI" value={roi} icon={Percent} />

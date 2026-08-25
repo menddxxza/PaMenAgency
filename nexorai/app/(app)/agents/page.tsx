@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { AGENT_CATALOG } from '@/lib/agents/catalog';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { DemoTag } from '@/components/ui/demo-tag';
+import { DemoTag, AIDraftTag } from '@/components/ui/demo-tag';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { Agent, AgentTask } from '@/lib/types';
 
@@ -81,16 +81,18 @@ export default async function AgentsPage() {
               <p className="mt-3 text-sm text-muted">{def.description}</p>
 
               {tasks.length > 0 && (
-                <div className="mt-4 space-y-1.5 border-t border-border pt-3">
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs font-medium text-muted">Tareas recientes</p>
-                    <DemoTag />
-                  </div>
-                  <ul className="space-y-1">
+                <div className="mt-4 space-y-2 border-t border-border pt-3">
+                  <p className="text-xs font-medium text-muted">Tareas recientes</p>
+                  <ul className="space-y-2">
                     {tasks.slice(0, 3).map((t) => (
-                      <li key={t.id} className="flex items-center justify-between text-xs text-muted">
-                        <span className={t.status === 'done' ? 'text-fg' : ''}>{t.title}</span>
-                        <span>{formatDate(t.scheduled_for)}</span>
+                      <li key={t.id} className="text-xs text-muted">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={t.status === 'done' ? 'text-fg' : ''}>{t.title}</span>
+                          <span className="shrink-0">{formatDate(t.scheduled_for)}</span>
+                        </div>
+                        <div className="mt-0.5 flex items-center gap-2">
+                          {t.is_simulated ? <DemoTag /> : <AIDraftTag />}
+                        </div>
                       </li>
                     ))}
                   </ul>
