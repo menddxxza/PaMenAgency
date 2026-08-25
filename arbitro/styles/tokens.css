@@ -1,0 +1,101 @@
+/* Hallmark · tokens · theme: custom
+ * vibe: "noche de focos, gráficos de retransmisión, ámbar arbitral"
+ * axes: paper=dark · display=condensed-sans · accent=warm
+ * Sistema de diseño portable de Silbato Cero. Ningún color ni fuente
+ * debe escribirse fuera de este archivo.
+ */
+
+:root {
+  /* --- Papel: azul de noche bajo focos, no gris neutro --- */
+  --color-paper:     oklch(15% 0.018 250);
+  --color-paper-2:   oklch(19.5% 0.021 250);
+  --color-paper-3:   oklch(24% 0.024 252);
+  --color-paper-4:   oklch(29% 0.026 252);
+  --color-scrim:     oklch(11% 0.016 250 / 0.88);
+
+  /* --- Tinta --- */
+  --color-ink:       oklch(96% 0.008 250);
+  --color-ink-2:     oklch(84% 0.012 250);
+  --color-muted:     oklch(68% 0.022 252);
+  --color-faint:     oklch(52% 0.02 252);
+
+  /* --- Acento: el ámbar del silbato --- */
+  --color-accent:    oklch(80% 0.15 78);
+  --color-accent-dim:oklch(62% 0.12 78);
+  --color-accent-ink:oklch(18% 0.05 78);
+
+  /* --- Señales del juego --- */
+  --color-turf:      oklch(64% 0.14 152);
+  --color-yellow:    oklch(85% 0.17 92);
+  --color-red:       oklch(62% 0.21 27);
+  --color-info:      oklch(68% 0.15 248);
+  --color-var:       oklch(74% 0.13 195);
+
+  /* --- Calificaciones --- */
+  --color-correct:   oklch(76% 0.16 150);
+  --color-mostly:    oklch(80% 0.14 125);
+  --color-debatable: oklch(83% 0.16 88);
+  --color-incorrect: oklch(65% 0.2 25);
+
+  /* --- Líneas --- */
+  --rule-hair:  1px solid oklch(100% 0 0 / 0.09);
+  --rule-soft:  1px solid oklch(100% 0 0 / 0.14);
+  --rule-accent:1px solid oklch(80% 0.15 78 / 0.4);
+
+  /* --- Tipografía: 2+1. Stacks del sistema, sin red. --- */
+  --font-display: "Archivo Narrow", "Roboto Condensed", "Liberation Sans Narrow",
+                  "Arial Narrow", "Helvetica Neue", ui-sans-serif, system-ui, sans-serif;
+  --font-body:    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-num:     ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+
+  --text-display: clamp(2.6rem, 7vw, 4.4rem);
+  --text-3xl: clamp(1.7rem, 3.4vw, 2.3rem);
+  --text-2xl: 1.375rem;
+  --text-xl:  1.125rem;
+  --text-md:  0.9375rem;
+  --text-sm:  0.8125rem;
+  --text-xs:  0.6875rem;
+
+  --tracking-display: -0.02em;
+  --tracking-label: 0.14em;
+
+  /* --- Espacio: escala de 4 pt --- */
+  --space-2xs: 4px;
+  --space-xs:  8px;
+  --space-sm:  12px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 72px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* --- Movimiento --- */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in:     cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+
+  /* --- Profundidad: sombra + luz de focos, nunca sombra genérica --- */
+  --shadow-panel: 0 1px 0 oklch(100% 0 0 / 0.05) inset,
+                  0 18px 44px oklch(0% 0 0 / 0.5);
+  --shadow-raised: 0 1px 0 oklch(100% 0 0 / 0.07) inset,
+                   0 10px 26px oklch(0% 0 0 / 0.45);
+  --glow-accent: 0 0 0 1px oklch(80% 0.15 78 / 0.35),
+                 0 8px 30px oklch(80% 0.15 78 / 0.18);
+}
+
+/* El motor de render lee estos valores para pintar el campo en canvas,
+   de modo que el césped y la interfaz nunca se desincronizan. */
+:root {
+  --canvas-turf:      #1c6533;
+  --canvas-turf-dark: #155228;
+  --canvas-line:      rgba(238, 246, 240, 0.86);
+  --canvas-night:     #0c1118;
+}
