@@ -18,6 +18,7 @@ interface CardTransform {
   scale: number;
   rotation: number;
   blur: number;
+  opacity: number;
 }
 
 export interface ScrollStackProps {
@@ -31,6 +32,13 @@ export interface ScrollStackProps {
   baseScale?: number;
   rotationAmount?: number;
   blurAmount?: number;
+  /** Opacidad que pierde cada tarjeta por nivel de profundidad al quedar
+   *  detrás de otra. Sin esto (y sin blurAmount), la tarjeta de detrás se ve
+   *  nítida hasta el borde exacto donde la de delante la tapa — un corte
+   *  duro en vez de una transición suave. */
+  fadeAmount?: number;
+  /** Suelo de opacidad para las tarjetas más profundas del apilado. */
+  minOpacity?: number;
   useWindowScroll?: boolean;
   onStackComplete?: () => void;
 }
@@ -46,6 +54,8 @@ export default function ScrollStack({
   baseScale = 0.85,
   rotationAmount = 0,
   blurAmount = 0,
+  fadeAmount = 0,
+  minOpacity = 1,
   useWindowScroll = false,
   onStackComplete,
 }: ScrollStackProps) {
@@ -129,20 +139,23 @@ export default function ScrollStack({
       const scale = 1 - scaleProgress * (1 - targetScale);
       const rotation = rotationAmount ? i * rotationAmount * scaleProgress : 0;
 
+      // Una tarjeta se difumina/atenúa en sincronía exacta con el avance de
+      // la que viene justo detrás (su propio scaleProgress) — no con un
+      // escalón brusco de "ya hay otra tarjeta fijada en algún punto". Así
+      // el desvanecimiento empieza en el mismo instante en que la siguiente
+      // tarjeta empieza a solaparla, y nunca hay un frame con dos tarjetas
+      // opacas superpuestas sin transición (que se veía como un corte).
       let blur = 0;
-      if (blurAmount) {
-        let topCardIndex = 0;
-        for (let j = 0; j < cardsRef.current.length; j++) {
-          const jCardTop = getElementOffset(cardsRef.current[j]);
-          const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
-          if (scrollTop >= jTriggerStart) {
-            topCardIndex = j;
-          }
-        }
-
-        if (i < topCardIndex) {
-          const depthInStack = topCardIndex - i;
-          blur = Math.max(0, depthInStack * blurAmount);
+      let opacity = 1;
+      if ((blurAmount || fadeAmount) && i < cardsRef.current.length - 1) {
+        const nextCard = cardsRef.current[i + 1];
+        if (nextCard) {
+          const nextCardTop = getElementOffset(nextCard);
+          const nextTriggerStart = nextCardTop - stackPositionPx - itemStackDistance * (i + 1);
+          const nextTriggerEnd = nextCardTop - scaleEndPositionPx;
+          const incomingProgress = calculateProgress(scrollTop, nextTriggerStart, nextTriggerEnd);
+          if (blurAmount) blur = incomingProgress * blurAmount;
+          if (fadeAmount) opacity = 1 - incomingProgress * (1 - minOpacity);
         }
       }
 
@@ -160,6 +173,7 @@ export default function ScrollStack({
         scale: Math.round(scale * 1000) / 1000,
         rotation: Math.round(rotation * 100) / 100,
         blur: Math.round(blur * 100) / 100,
+        opacity: Math.round(opacity * 1000) / 1000,
       };
 
       const lastTransform = lastTransformsRef.current.get(i);
@@ -168,7 +182,8 @@ export default function ScrollStack({
         Math.abs(lastTransform.translateY - newTransform.translateY) > 0.1 ||
         Math.abs(lastTransform.scale - newTransform.scale) > 0.001 ||
         Math.abs(lastTransform.rotation - newTransform.rotation) > 0.1 ||
-        Math.abs(lastTransform.blur - newTransform.blur) > 0.1;
+        Math.abs(lastTransform.blur - newTransform.blur) > 0.1 ||
+        Math.abs(lastTransform.opacity - newTransform.opacity) > 0.001;
 
       if (hasChanged) {
         const transform = `translate3d(0, ${newTransform.translateY}px, 0) scale(${newTransform.scale}) rotate(${newTransform.rotation}deg)`;
@@ -176,6 +191,7 @@ export default function ScrollStack({
 
         card.style.transform = transform;
         card.style.filter = filter;
+        card.style.opacity = String(newTransform.opacity);
 
         lastTransformsRef.current.set(i, newTransform);
       }
@@ -200,6 +216,8 @@ export default function ScrollStack({
     baseScale,
     rotationAmount,
     blurAmount,
+    fadeAmount,
+    minOpacity,
     useWindowScroll,
     onStackComplete,
     calculateProgress,
@@ -293,6 +311,8 @@ export default function ScrollStack({
     baseScale,
     rotationAmount,
     blurAmount,
+    fadeAmount,
+    minOpacity,
     useWindowScroll,
     onStackComplete,
     setupLenis,

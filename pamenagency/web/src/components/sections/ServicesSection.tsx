@@ -15,7 +15,15 @@ export function ServicesSection({ limit }: { limit?: number }) {
         lead="Diez formas de trabajar la IA, desde entender qué te conviene hasta dejarlo funcionando. Casi siempre se empieza por una sola."
       />
 
-      <ScrollStack useWindowScroll itemDistance={70} itemStackDistance={22} baseScale={0.92}>
+      <ScrollStack
+        useWindowScroll
+        itemDistance={70}
+        itemStackDistance={10}
+        baseScale={0.92}
+        blurAmount={4}
+        fadeAmount={0.55}
+        minOpacity={0.12}
+      >
         {shown.map((service) => (
           <ScrollStackItem key={service.slug}>
             <ServiceCard service={service} />

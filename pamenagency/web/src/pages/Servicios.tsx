@@ -44,7 +44,15 @@ export default function Servicios() {
       />
 
       <Section divided={false}>
-        <ScrollStack useWindowScroll itemDistance={60} itemStackDistance={20} baseScale={0.92}>
+        <ScrollStack
+          useWindowScroll
+          itemDistance={60}
+          itemStackDistance={10}
+          baseScale={0.92}
+          blurAmount={4}
+          fadeAmount={0.55}
+          minOpacity={0.12}
+        >
           {services.map((service) => (
             <ScrollStackItem key={service.slug}>
               <ServiceCard service={service} />
