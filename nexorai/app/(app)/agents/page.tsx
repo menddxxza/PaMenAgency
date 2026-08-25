@@ -5,6 +5,7 @@ import { AGENT_CATALOG } from '@/lib/agents/catalog';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DemoTag, AIDraftTag } from '@/components/ui/demo-tag';
+import { AgentRegenerateButton } from '@/components/dashboard/agent-regenerate-button';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { Agent, AgentTask } from '@/lib/types';
 
@@ -100,9 +101,14 @@ export default async function AgentsPage() {
               )}
 
               {row && (
-                <p className="mt-3 text-xs text-muted">
-                  Coste acumulado: <span className="text-fg">{formatCurrency(row.cost_to_date)}</span>
-                </p>
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted">
+                    Coste acumulado: <span className="text-fg">{formatCurrency(row.cost_to_date)}</span>
+                  </p>
+                  {row.status === 'active' && row.opportunity_id && (
+                    <AgentRegenerateButton agentId={row.id} agentName={def.name} />
+                  )}
+                </div>
               )}
             </Card>
           );
