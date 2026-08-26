@@ -1,4 +1,4 @@
-const CACHE_NAME = 'revynai-shell-v1';
+const CACHE_NAME = 'revynai-shell-v2';
 const SHELL_ASSETS = ['/manifest.webmanifest', '/icon-192.png', '/icon-512.png', '/favicon.png'];
 
 self.addEventListener('install', (event) => {

@@ -3,7 +3,7 @@ import './globals.css';
 import { spaceGrotesk, inter, jetbrainsMono } from '@/lib/fonts';
 import { PwaRegister } from '@/components/pwa-register';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://revynai.es';
 
 export const metadata: Metadata = {
   title: {
