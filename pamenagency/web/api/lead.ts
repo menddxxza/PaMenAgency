@@ -2,16 +2,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 /**
  * Recibe el formulario de contacto ya puntuado (ver `leadScore` en
- * ContactForm.tsx) y decide qué hacer con el lead:
- *
- * - Puntuación >= 4 ("caliente"): se avisa a ventas por email de inmediato.
- *   Ese aviso es lo único que de verdad no puede fallar en silencio — es la
- *   razón por la que existe esta función.
- * - Puntuación < 4 ("frío"): no se molesta a ventas; solo se envía la
- *   respuesta automática de la banda fría.
- * - En ambos casos se intenta además enviar una respuesta automática al
- *   propio lead (plantillas en src/content/leadTemplates.ts) — esto es
- *   "mejor si sale", nunca bloquea la respuesta.
+ * ContactForm.tsx) y avisa por email de un lead nuevo — nada más. No envía
+ * ninguna respuesta automática al lead ni a ningún sitio: solo notifica, y
+ * la persona responde a mano desde su propio correo.
  *
  * Variables de entorno (Vercel → Settings → Environment Variables):
  * - RESEND_API_KEY: clave de https://resend.com/api-keys. Sin ella, esta
@@ -19,32 +12,18 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
  *   propio fallback a mailto: — así el lead nunca se pierde en silencio.
  * - RESEND_FROM (opcional): remitente, p. ej. "PamenAgency <hola@pamenagency.com>".
  *   IMPORTANTE: con el dominio de pruebas de Resend (onboarding@resend.dev)
- *   solo se puede enviar a la propia cuenta de Resend, no a un lead
- *   cualquiera. Para que los correos lleguen de verdad a los leads hace
- *   falta verificar un dominio propio en Resend y apuntar esta variable ahí.
- * - LEADS_EMAIL (opcional): a quién avisar de un lead nuevo. Por defecto,
- *   el correo de contacto general de la agencia.
- * - ZAPIER_WEBHOOK_URL (opcional): si se rellena, cada lead también se
- *   reenvía ahí en bruto (best-effort) — es el punto de enganche para la
- *   herramienta de automatización (Zapier, Make/Integromat, HubSpot…) que
- *   se elija; configurarla de verdad requiere la cuenta correspondiente,
- *   que esta función no tiene ni puede crear.
+ *   solo se puede enviar a la propia cuenta de Resend. Para que el aviso
+ *   llegue de verdad, verifica un dominio propio en Resend y apunta esta
+ *   variable ahí.
+ * - LEADS_EMAIL (opcional): a qué email se avisa de cada lead nuevo. Por
+ *   defecto, el correo de contacto general de la agencia.
  *
- * No pasa por Vite, así que no puede usar el alias `@/` del frontend — de
- * ahí la ruta relativa a src/content.
+ * No pasa por Vite, así que no puede usar el alias `@/` del frontend.
  */
-
-import {
-  aplicarPlantilla,
-  REMITENTE_POR_DEFECTO,
-  respuestaInicial,
-} from '../src/content/leadTemplates'
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails'
 const DEFAULT_FROM = 'PamenAgency <onboarding@resend.dev>'
 const DEFAULT_LEADS_EMAIL = 'soporte.atiende@gmail.com'
-const URL_DIAGNOSTICO = 'https://pamenagency.com/diagnostico'
-const URL_GUIA = 'https://pamenagency.com/conocimiento/como-elegir-tu-primera-automatizacion'
 
 const ALLOWED_ORIGINS = ['https://pamenagency.com', 'https://www.pamenagency.com']
 
@@ -84,14 +63,21 @@ function isValidLead(body: unknown): body is LeadPayload {
   )
 }
 
-async function sendEmail(apiKey: string, from: string, to: string, subject: string, text: string) {
+async function sendEmail(
+  apiKey: string,
+  from: string,
+  to: string,
+  subject: string,
+  text: string,
+  replyTo?: string,
+) {
   const res = await fetch(RESEND_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ from, to, subject, text }),
+    body: JSON.stringify({ from, to, subject, text, reply_to: replyTo }),
   })
   return res.ok
 }
@@ -119,7 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!apiKey) {
     // A propósito, no es un 200 con "ok" falso: ContactForm interpreta
     // cualquier respuesta no-ok como "usa el mailto de siempre", que es
-    // justo lo que debe pasar si no hay forma de enviar el aviso a ventas.
+    // justo lo que debe pasar si no hay forma de enviar el aviso.
     res.status(501).json({ error: 'not_configured' })
     return
   }
@@ -150,17 +136,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .filter(Boolean)
     .join('\n')
 
-  // El aviso interno es lo único que no puede fallar en silencio: si esto no
-  // sale, respondemos no-ok para que el formulario recurra a mailto y la
-  // persona vea el lead de todos modos en su propio cliente de correo.
-  const asuntoInterno =
+  const asunto =
     routed === 'ventas'
       ? `Lead caliente (${lead.score}/5) — ${lead.nombre}`
       : `Nuevo lead (${lead.score}/5) — ${lead.nombre}`
 
   let avisoEnviado = false
   try {
-    avisoEnviado = await sendEmail(apiKey, from, leadsEmail, asuntoInterno, detalle)
+    // reply_to al propio lead: al pulsar "responder" en el aviso, se
+    // contesta directamente a la persona, no al remitente automático.
+    avisoEnviado = await sendEmail(apiKey, from, leadsEmail, asunto, detalle, lead.email)
   } catch {
     avisoEnviado = false
   }
@@ -170,37 +155,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return
   }
 
-  // Respuesta automática al propio lead — mejor si sale, pero no crítica.
-  let autoReplySent = false
-  try {
-    const plantilla = routed === 'ventas' ? respuestaInicial.caliente : respuestaInicial.fria
-    const datos = {
-      nombre: lead.nombre,
-      remitente: REMITENTE_POR_DEFECTO,
-      urlDiagnostico: URL_DIAGNOSTICO,
-      urlGuia: URL_GUIA,
-    }
-    autoReplySent = await sendEmail(
-      apiKey,
-      from,
-      lead.email,
-      aplicarPlantilla(plantilla.asunto ?? '', datos),
-      aplicarPlantilla(plantilla.cuerpo, datos),
-    )
-  } catch {
-    autoReplySent = false
-  }
-
-  // Reenvío best-effort a la herramienta de automatización, si se ha
-  // configurado — nunca condiciona la respuesta al formulario.
-  const zapierUrl = process.env.ZAPIER_WEBHOOK_URL
-  if (zapierUrl) {
-    fetch(zapierUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...lead, routed }),
-    }).catch(() => {})
-  }
-
-  res.status(200).json({ ok: true, routed, autoReplySent })
+  res.status(200).json({ ok: true, routed })
 }
