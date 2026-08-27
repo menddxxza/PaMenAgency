@@ -12,7 +12,7 @@ export const metadata = {
 export default function EntrarPage({
   searchParams,
 }: {
-  searchParams: { volver?: string; registro?: string };
+  searchParams: { volver?: string; registro?: string; error?: string };
 }) {
   return (
     <main className="grid min-h-screen lg:grid-cols-2">
@@ -34,6 +34,7 @@ export default function EntrarPage({
               <FormularioAcceso
                 volver={searchParams.volver ?? '/'}
                 registroInicial={Boolean(searchParams.registro)}
+                errorInicial={searchParams.error}
               />
             ) : (
               <AvisoSinSupabase />

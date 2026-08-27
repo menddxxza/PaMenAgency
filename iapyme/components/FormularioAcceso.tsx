@@ -9,9 +9,11 @@ type Modo = 'entrar' | 'registro' | 'recuperar';
 export default function FormularioAcceso({
   volver,
   registroInicial,
+  errorInicial,
 }: {
   volver: string;
   registroInicial: boolean;
+  errorInicial?: string;
 }) {
   const router = useRouter();
   const [modo, setModo] = useState<Modo>(registroInicial ? 'registro' : 'entrar');
@@ -19,8 +21,17 @@ export default function FormularioAcceso({
   const [password, setPassword] = useState('');
   const [nombre, setNombre] = useState('');
   const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    errorInicial ? traducirError(errorInicial) : null,
+  );
   const [aviso, setAviso] = useState<string | null>(null);
+
+  if (errorInicial) {
+    // Mensaje sin traducir en consola: el de la UI está simplificado a propósito,
+    // pero para diagnosticar un fallo real (redirect URL no permitida, provider
+    // caído, etc.) hace falta el texto exacto que devolvió Supabase.
+    console.error('Error de autenticación (sin traducir):', errorInicial);
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
