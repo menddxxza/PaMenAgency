@@ -83,7 +83,7 @@ export const reactivacion = {
     asunto: 'Novedades en PamenAgency para [Empresa]',
     cuerpo: `Estimado/a [Nombre],
 
-Hace tiempo que no colaboramos y nos gustaría presentarle nuestras soluciones actualizadas, que pueden incrementar la visibilidad de su negocio.
+Hace tiempo que no colaboramos y nos gustaría presentarle nuevas ofertas que se adaptan a sus necesidades. En PamenAgency tenemos soluciones actualizadas que pueden incrementar la visibilidad de su negocio.
 
 ¿Podríamos agendar una llamada de 15 minutos esta semana?
 
@@ -92,6 +92,6 @@ Saludos cordiales,
 PamenAgency`,
   },
   sms: {
-    cuerpo: `Hola [Nombre], es [Tu Nombre] de PamenAgency. ¿Tiene 15 min para hablar sobre nuevas oportunidades de visibilidad? Responda 1 para confirmar.`,
+    cuerpo: `Hola [Nombre], es [Tu Nombre] de PamenAgency. ¿Tiene 15 min para hablar sobre nuevas oportunidades de visibilidad? Responda 1 para confirmar. Saludos.`,
   },
 } satisfies Record<string, PlantillaMensaje>
