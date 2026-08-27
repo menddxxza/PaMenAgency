@@ -63,23 +63,39 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // getUser() revalida el token contra Supabase; getSession() se fía de la cookie
-  // y por eso no sirve para proteger rutas. Con límite de tiempo: si Supabase no
-  // responde en TIMEOUT_AUTH_MS, tratamos la sesión como no verificada en vez de
-  // dejar la petición colgada (eso es lo que provocaba el 504 de todo el sitio).
-  let user = null;
+  // getSession() no hace ninguna llamada de red aquí (createServerClient desactiva
+  // autoRefreshToken), solo decodifica el token que ya viene en la cookie.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  let user: { id: string } | null = null;
   let supabaseLento = false;
-  try {
-    const { data } = await Promise.race([
-      supabase.auth.getUser(),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('timeout auth')), TIMEOUT_AUTH_MS),
-      ),
-    ]);
-    user = data.user;
-  } catch {
-    user = null;
-    supabaseLento = true;
+
+  if (session?.access_token) {
+    // OJO: aquí NO usamos supabase.auth.getUser(). Se comprobó en producción que esa
+    // llamada se queda colgada sin más dentro del Edge Middleware de Vercel — pegándole
+    // directamente al mismo endpoint de Supabase desde fuera responde en <300ms, así que
+    // el problema no es que Supabase vaya lento, es algo del propio SDK en este entorno.
+    // Hacemos la misma verificación a mano con fetch + AbortController, que sí cancela
+    // la petición de verdad si no contesta a tiempo (Promise.race solo deja de esperar,
+    // no cancela la llamada colgada por debajo).
+    const controlador = new AbortController();
+    const temporizador = setTimeout(() => controlador.abort(), TIMEOUT_AUTH_MS);
+    try {
+      const respuesta = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        signal: controlador.signal,
+      });
+      if (respuesta.ok) user = await respuesta.json();
+    } catch {
+      supabaseLento = true;
+    } finally {
+      clearTimeout(temporizador);
+    }
   }
 
   if (!user) {
