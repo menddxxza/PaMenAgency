@@ -11,3 +11,17 @@ export function isComplimentaryAccess(email: string | null | undefined): boolean
   if (!email) return false;
   return COMPLIMENTARY_EMAILS.includes(email.toLowerCase());
 }
+
+/**
+ * Cuentas con acceso al panel de administrador de la plataforma (/admin),
+ * que ve datos agregados de todas las organizaciones vía el cliente de
+ * service role. No hay un rol "platform admin" en base de datos todavía
+ * (no hace falta migración para esto) — mismo mecanismo que
+ * `isComplimentaryAccess`.
+ */
+const PLATFORM_ADMIN_EMAILS = ['mendozitadjerez@gmail.com'];
+
+export function isPlatformAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return PLATFORM_ADMIN_EMAILS.includes(email.toLowerCase());
+}

@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Search, ListFilter, MessageSquareText, Bell, RefreshCw, BarChart3 } from 'lucide-react';
 import { requireBusinessContext } from '@/lib/server/org-context';
 import { createClient } from '@/lib/supabase/server';
@@ -6,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { DemoTag, AIDraftTag } from '@/components/ui/demo-tag';
 import { AgentRegenerateButton } from '@/components/dashboard/agent-regenerate-button';
+import { RealtimeStatus } from '@/components/live/realtime-status';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { Agent, AgentTask } from '@/lib/types';
 
@@ -21,7 +23,7 @@ const ICONS = {
 const STATUS_DOT = { active: '🟢', idle: '⚪️', paused: '🟡', error: '🔴' } as const;
 
 export default async function AgentsPage() {
-  const { business } = await requireBusinessContext();
+  const { business, organization } = await requireBusinessContext();
   const supabase = createClient();
 
   const { data: agentRows } = await supabase.from('agents').select('*').eq('business_id', business.id);
@@ -45,12 +47,19 @@ export default async function AgentsPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-widest text-brand-400">Agentes</p>
-        <h1 className="mt-1 text-2xl font-semibold text-fg">Tu equipo de agentes de Revynai</h1>
-        <p className="mt-1 text-sm text-muted">
-          Se activan automáticamente al activar una oportunidad en <span className="text-fg">/opportunities</span>.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-400">Agentes</p>
+          <h1 className="mt-1 text-2xl font-semibold text-fg">Tu equipo de agentes de Revynai</h1>
+          <p className="mt-1 text-sm text-muted">
+            Se activan al activar una oportunidad en{' '}
+            <Link href="/opportunities" className="text-brand-400 hover:underline">
+              /opportunities
+            </Link>
+            .
+          </p>
+        </div>
+        <RealtimeStatus organizationId={organization.id} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
