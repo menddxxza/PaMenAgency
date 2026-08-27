@@ -16,8 +16,8 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const sector = getSector(params.slug);
   if (!sector) return {};
   return {
-    title: `Nexorai para ${sector.namePlural.toLowerCase()}`,
-    description: `${sector.tagline} Nexorai analiza tu ${sector.name.toLowerCase()} y activa agentes de IA que convierten oportunidades en ingresos.`,
+    title: `Revynai para ${sector.namePlural.toLowerCase()}`,
+    description: `${sector.tagline} Revynai analiza tu ${sector.name.toLowerCase()} y activa agentes de IA que convierten oportunidades en ingresos.`,
   };
 }
 
@@ -31,7 +31,7 @@ export default function SectorPage({ params }: { params: { slug: string } }) {
       <main>
         <section className="mx-auto max-w-4xl px-4 pb-16 pt-32 text-center sm:pt-40">
           <span className="font-mono text-[11px] uppercase tracking-[0.28em] text-brand-400">
-            Nexorai para {sector.namePlural.toLowerCase()}
+            Revynai para {sector.namePlural.toLowerCase()}
           </span>
           <h1 className="mt-5 text-balance font-display text-4xl font-semibold uppercase tracking-tight text-white sm:text-5xl">
             {sector.tagline}

@@ -4,6 +4,7 @@ import type { Database } from '@/types/database.types';
 export const ANALYTICS_EVENTS = [
   'signup',
   'business_created',
+  'business_deleted',
   'audit_started',
   'audit_completed',
   'opportunity_viewed',

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Target, Bot, FileSearch, CreditCard, Settings } from 'lucide-react';
+import { LayoutDashboard, Target, Bot, FileSearch, Users2, CreditCard, Settings } from 'lucide-react';
 import { Logomark, Wordmark } from '@/components/logomark';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +11,7 @@ const NAV = [
   { href: '/audit', label: 'AI Audit', icon: FileSearch },
   { href: '/opportunities', label: 'Oportunidades', icon: Target },
   { href: '/agents', label: 'Agentes', icon: Bot },
+  { href: '/leads', label: 'Leads', icon: Users2 },
   { href: '/billing', label: 'Facturación', icon: CreditCard },
   { href: '/settings', label: 'Configuración', icon: Settings },
 ];

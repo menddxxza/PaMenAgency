@@ -1,9 +1,9 @@
-# PRODUCT_ARCHITECTURE.md — Nexorai
+# PRODUCT_ARCHITECTURE.md — Revynai
 
 > "Conecta tu empresa. Dile cuánto quieres crecer. La IA encuentra dónde está el dinero y
 > pone agentes a trabajar para conseguirlo."
 
-Nexorai es un producto de **PaMenAgency** (pamenagency.com). No vende IA: vende resultados
+Revynai es un producto de **PaMenAgency** (pamenagency.com). No vende IA: vende resultados
 comerciales. El usuario nunca interactúa con "modelos" o "prompts" — interactúa con un
 objetivo de crecimiento, una auditoría de su negocio, oportunidades priorizadas por ingreso
 potencial, y agentes que trabajan esas oportunidades.
@@ -27,8 +27,11 @@ LANDING → REGISTRO → CREAR EMPRESA → DEFINIR OBJETIVO → AI AUDIT
 6. **Opportunities** (`/opportunities`): lista de oportunidades con
    nombre/potencial/dificultad/probabilidad/ROI/prioridad y botón `[ACTIVAR]`.
 7. **Activar agente**: activar una oportunidad crea/activa el `Agent` correspondiente del
-   catálogo, genera `AgentTask` iniciales y (en modo simulación, claramente etiquetado) datos
-   de demostración progresivos (`Lead`, eventos de timeline).
+   catálogo y pide al proveedor de IA configurado un plan de trabajo real y específico del
+   negocio (`AgentTask.result_summary`: borradores de mensaje, análisis, pasos concretos),
+   repartido en el tiempo. No se fabrican `Lead` con nombres inventados (no hay fuente de
+   datos de contactos real conectada); el potencial de ingreso que alimenta el timeline sigue
+   siendo el rango real calculado por el audit engine, sólo repartido en el tiempo.
 8. **Dashboard** (`/dashboard`): KPIs (Revenue Generated / Potential, Leads Found/Contacted,
    Conversions, ROI), gráfico de evolución, agentes activos, Action Center.
 9. **Resultados / Revenue Timeline** (`/dashboard#timeline`): línea de tiempo Hoy → Día 15
@@ -133,13 +136,25 @@ permisos, tipo de oportunidad que atiende):
 | Revenue Analyst | Analizar resultados y ROI | (transversal, siempre activo) |
 
 Activar una `Opportunity` crea/activa el `Agent` correspondiente y llama a
-`lib/agents/simulate.ts`, que genera `AgentTask` + `Lead` + `RevenueEvent(kind='potential',
-is_simulated=true)` distribuidos en el tiempo (hoy, día 1, 3, 5, 10, 15) para alimentar el
-Revenue Timeline. **Ninguna acción externa irreversible ocurre sin autorización explícita**:
-en el MVP no hay conectores externos reales conectados (WhatsApp/email), así que no hay nada
-que autorizar todavía — el botón `[ACTIVAR]` sólo activa trabajo simulado y claramente
-etiquetado; el día que se conecte un canal real, esa activación pasará a requerir un paso de
-confirmación explícito adicional (ya contemplado en el campo `Agent.requires_approval`).
+`lib/agents/plan.ts` (`planAgentWork`), que pide al `AIProvider` configurado (Groq por
+defecto) un plan de trabajo real de 6 pasos, específico del negocio y la oportunidad activa
+(borradores de mensaje, análisis, criterios de segmentación — nunca cifras de negocio
+inventadas, esas siguen viniendo del audit engine). Cada paso se guarda como `AgentTask` con
+`result_summary` = el contenido real generado, repartido en el tiempo (hoy, día 1, 3, 5, 10,
+15). `AgentTask.is_simulated` sólo es `true` cuando la llamada de IA falla o no hay proveedor
+configurado y se usa la plantilla local de respaldo — en ese caso la UI lo etiqueta
+claramente; el resto del tiempo es trabajo real de IA marcado como "Borrador de IA · sin
+enviar". `RevenueEvent(kind='potential', is_simulated=true)` sigue distribuyendo en el tiempo
+el mismo potencial real calculado por el audit engine (no se inventa ingreso nuevo). No se
+generan `Lead` con nombres de personas/empresas inventados: no hay fuente de datos de
+contactos real conectada en el MVP, así que fabricarlos sería presentar datos ficticios como
+reales — las métricas de leads del dashboard quedan en 0 hasta conectar una fuente real (subir
+un CSV de contactos, o una API de prospección), con una nota explicándolo. **Ninguna acción
+externa irreversible ocurre sin autorización explícita**: en el MVP no hay conectores externos
+reales conectados (WhatsApp/email), así que no hay nada que enviar todavía — el botón
+`[ACTIVAR]` genera trabajo real en modo borrador, pendiente de revisión humana; el día que se
+conecte un canal real de envío, esa activación pasará a requerir un paso de confirmación
+explícito adicional (ya contemplado en el campo `Agent.requires_approval`).
 
 ## 6. Seguridad y privacidad
 
