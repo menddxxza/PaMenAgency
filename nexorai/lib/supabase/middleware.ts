@@ -7,6 +7,19 @@ const AUTH_PAGES = ['/login', '/signup'];
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  const pathname = request.nextUrl.pathname;
+  const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  const isAuthPage = AUTH_PAGES.includes(pathname);
+
+  // El landing, las páginas de sector, la API, etc. no dependen de la
+  // sesión: no tocar Supabase Auth ahí evita que una lentitud/caída puntual
+  // de Supabase tumbe páginas públicas que ni siquiera la necesitan (fue
+  // exactamente lo que causó un MIDDLEWARE_INVOCATION_TIMEOUT en todo el
+  // sitio, incluida la home, el 26/08/2026).
+  if (!isProtected && !isAuthPage) {
+    return response;
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -31,22 +44,24 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const user = await supabase.auth
-    .getUser()
-    .then(({ data }) => data.user)
-    .catch(() => null);
-
-  const isProtected = PROTECTED_PREFIXES.some((prefix) =>
-    request.nextUrl.pathname.startsWith(prefix)
-  );
+  // Nunca dejar que una llamada lenta a Supabase Auth cuelgue el middleware
+  // hasta el timeout duro de Vercel: pasados 5s se trata como visitante
+  // anónimo (peor caso: redirige a /login de más, no un 504 para todos).
+  const user = await Promise.race([
+    supabase.auth
+      .getUser()
+      .then(({ data }) => data.user)
+      .catch(() => null),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+  ]);
 
   if (isProtected && !user) {
     const redirectUrl = new URL('/login', request.url);
-    redirectUrl.searchParams.set('redirectTo', request.nextUrl.pathname);
+    redirectUrl.searchParams.set('redirectTo', pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user && AUTH_PAGES.includes(request.nextUrl.pathname)) {
+  if (user && isAuthPage) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
