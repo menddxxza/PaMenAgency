@@ -79,7 +79,15 @@ async function sendEmail(
     },
     body: JSON.stringify({ from, to, subject, text, reply_to: replyTo }),
   })
-  return res.ok
+  if (!res.ok) {
+    // Diagnóstico temporal: Resend explica el motivo exacto del rechazo
+    // (dominio no verificado del todo, remitente mal formado, etc.) en el
+    // cuerpo de la respuesta — nunca incluye la clave, así que es seguro
+    // devolverlo mientras se resuelve la puesta en marcha.
+    const detalle = await res.text().catch(() => '')
+    return { ok: false, detalle: detalle.slice(0, 500) }
+  }
+  return { ok: true, detalle: '' }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -141,17 +149,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ? `Lead caliente (${lead.score}/5) — ${lead.nombre}`
       : `Nuevo lead (${lead.score}/5) — ${lead.nombre}`
 
-  let avisoEnviado = false
+  let resultado: { ok: boolean; detalle: string } = { ok: false, detalle: '' }
   try {
     // reply_to al propio lead: al pulsar "responder" en el aviso, se
     // contesta directamente a la persona, no al remitente automático.
-    avisoEnviado = await sendEmail(apiKey, from, leadsEmail, asunto, detalle, lead.email)
-  } catch {
-    avisoEnviado = false
+    resultado = await sendEmail(apiKey, from, leadsEmail, asunto, detalle, lead.email)
+  } catch (e) {
+    resultado = { ok: false, detalle: String(e).slice(0, 500) }
   }
 
-  if (!avisoEnviado) {
-    res.status(502).json({ error: 'send_failed' })
+  if (!resultado.ok) {
+    res.status(502).json({ error: 'send_failed', detalle: resultado.detalle })
     return
   }
 
