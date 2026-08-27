@@ -2,6 +2,7 @@ import { Hero } from '@/components/sections/Hero'
 import { Problem } from '@/components/sections/Problem'
 import { About } from '@/components/sections/About'
 import { Advantage } from '@/components/sections/Advantage'
+import { ProductsSection } from '@/components/sections/ProductsSection'
 import { ServicesSection } from '@/components/sections/ServicesSection'
 import { MethodologySection } from '@/components/sections/MethodologySection'
 import { ForEveryone } from '@/components/sections/ForEveryone'
@@ -52,6 +53,7 @@ export default function Home() {
       <Problem />
       <About />
       <Advantage />
+      <ProductsSection />
       <ServicesSection limit={6} />
       <MethodologySection compact />
       <ForEveryone limit={3} />
