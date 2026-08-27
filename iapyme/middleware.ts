@@ -30,11 +30,21 @@ function candadoDeSitio(request: NextRequest): NextResponse | null {
   });
 }
 
+/** Cuánto esperamos como máximo a que Supabase confirme la sesión antes de seguir. */
+const TIMEOUT_AUTH_MS = 5000;
+
 export async function middleware(request: NextRequest) {
   const bloqueado = candadoDeSitio(request);
   if (bloqueado) return bloqueado;
 
-  if (!supabaseConfigurado()) return NextResponse.next();
+  const { pathname } = request.nextUrl;
+  const esPrivada = RUTAS_PRIVADAS.some((ruta) => pathname.startsWith(ruta));
+
+  // Solo consultamos sesión en rutas privadas: la portada, el catálogo, etc. son
+  // públicas y no necesitan saber si hay usuario. Antes se llamaba a Supabase Auth
+  // en cada petición (incluida la portada); un pico de lentitud de Supabase colgaba
+  // esa llamada y tumbaba el sitio entero. Ver también el timeout de abajo.
+  if (!esPrivada || !supabaseConfigurado()) return NextResponse.next();
 
   let response = NextResponse.next({ request });
 
@@ -54,15 +64,23 @@ export async function middleware(request: NextRequest) {
   });
 
   // getUser() revalida el token contra Supabase; getSession() se fía de la cookie
-  // y por eso no sirve para proteger rutas.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // y por eso no sirve para proteger rutas. Con límite de tiempo: si Supabase no
+  // responde en TIMEOUT_AUTH_MS, tratamos la sesión como no verificada en vez de
+  // dejar la petición colgada (eso es lo que provocaba el 504 de todo el sitio).
+  let user = null;
+  try {
+    const { data } = await Promise.race([
+      supabase.auth.getUser(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('timeout auth')), TIMEOUT_AUTH_MS),
+      ),
+    ]);
+    user = data.user;
+  } catch {
+    user = null;
+  }
 
-  const { pathname } = request.nextUrl;
-  const esPrivada = RUTAS_PRIVADAS.some((ruta) => pathname.startsWith(ruta));
-
-  if (esPrivada && !user) {
+  if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = '/entrar';
     url.searchParams.set('volver', pathname);
