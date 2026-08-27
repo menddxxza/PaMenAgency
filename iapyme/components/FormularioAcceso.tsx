@@ -10,10 +10,12 @@ export default function FormularioAcceso({
   volver,
   registroInicial,
   errorInicial,
+  avisoInicial,
 }: {
   volver: string;
   registroInicial: boolean;
   errorInicial?: string;
+  avisoInicial?: string;
 }) {
   const router = useRouter();
   const [modo, setModo] = useState<Modo>(registroInicial ? 'registro' : 'entrar');
@@ -24,7 +26,7 @@ export default function FormularioAcceso({
   const [error, setError] = useState<string | null>(
     errorInicial ? traducirError(errorInicial) : null,
   );
-  const [aviso, setAviso] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(avisoInicial ?? null);
 
   if (errorInicial) {
     // Mensaje sin traducir en consola: el de la UI está simplificado a propósito,

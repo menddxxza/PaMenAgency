@@ -31,7 +31,7 @@ function candadoDeSitio(request: NextRequest): NextResponse | null {
 }
 
 /** Cuánto esperamos como máximo a que Supabase confirme la sesión antes de seguir. */
-const TIMEOUT_AUTH_MS = 5000;
+const TIMEOUT_AUTH_MS = 8000;
 
 export async function middleware(request: NextRequest) {
   const bloqueado = candadoDeSitio(request);
@@ -68,6 +68,7 @@ export async function middleware(request: NextRequest) {
   // responde en TIMEOUT_AUTH_MS, tratamos la sesión como no verificada en vez de
   // dejar la petición colgada (eso es lo que provocaba el 504 de todo el sitio).
   let user = null;
+  let supabaseLento = false;
   try {
     const { data } = await Promise.race([
       supabase.auth.getUser(),
@@ -78,12 +79,17 @@ export async function middleware(request: NextRequest) {
     user = data.user;
   } catch {
     user = null;
+    supabaseLento = true;
   }
 
   if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = '/entrar';
     url.searchParams.set('volver', pathname);
+    // Distinguimos "no has iniciado sesión" (normal, sin aviso) de "Supabase no
+    // respondió a tiempo" (avisamos, si no el usuario ve un login que parece no
+    // hacer nada aunque su contraseña era correcta).
+    if (supabaseLento) url.searchParams.set('aviso', 'supabase_lento');
     return NextResponse.redirect(url);
   }
 
