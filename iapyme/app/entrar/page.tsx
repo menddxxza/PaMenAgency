@@ -12,13 +12,8 @@ export const metadata = {
 export default function EntrarPage({
   searchParams,
 }: {
-  searchParams: { volver?: string; registro?: string; error?: string; aviso?: string };
+  searchParams: { volver?: string; registro?: string; error?: string };
 }) {
-  const avisoLento =
-    searchParams.aviso === 'supabase_lento'
-      ? 'Supabase está respondiendo muy lento ahora mismo y no hemos podido confirmar tu sesión a tiempo. Tu contraseña era correcta — vuelve a intentarlo en unos segundos.'
-      : undefined;
-
   return (
     <main className="grid min-h-screen lg:grid-cols-2">
       <div className="flex flex-col justify-center px-6 py-16 sm:px-12">
@@ -40,7 +35,6 @@ export default function EntrarPage({
                 volver={searchParams.volver ?? '/'}
                 registroInicial={Boolean(searchParams.registro)}
                 errorInicial={searchParams.error}
-                avisoInicial={avisoLento}
               />
             ) : (
               <AvisoSinSupabase />

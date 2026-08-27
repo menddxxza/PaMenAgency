@@ -1,12 +1,4 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-// Ruta relativa a propósito, no el alias `@/`: en Vercel, con el proyecto
-// viviendo en una subcarpeta del repositorio, el bundler del Edge Function
-// del middleware no resolvía el alias y marcaba el módulo como "no soportado".
-import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigurado } from './lib/supabase/config';
-
-/** Rutas que exigen sesión iniciada. */
-const RUTAS_PRIVADAS = ['/dashboard', '/admin'];
 
 /**
  * Candado temporal de sitio completo. Si SITE_LOCK_PASSWORD está configurada,
@@ -30,86 +22,22 @@ function candadoDeSitio(request: NextRequest): NextResponse | null {
   });
 }
 
-/** Cuánto esperamos como máximo a que Supabase confirme la sesión antes de seguir. */
-const TIMEOUT_AUTH_MS = 8000;
-
-export async function middleware(request: NextRequest) {
+// El middleware corre siempre en el Edge Runtime de Vercel (no se puede elegir
+// para middleware.ts en Next 14). Se comprobó en producción que, desde ese
+// entorno concreto, cualquier llamada de red a Supabase Auth se queda colgada
+// sin resolverse nunca — ni con el SDK ni con un fetch manual con
+// AbortController — mientras que la misma llamada desde fuera (curl) o desde
+// una función Node.js normal responde en milisegundos. Por eso el middleware
+// ya NO verifica la sesión contra Supabase: solo hace el candado de sitio
+// (que no necesita red). La comprobación real de sesión para /dashboard y
+// /admin vive en sus propios layout/page (Server Components, runtime Node.js),
+// que ya redirigen a /entrar si no hay sesión — ver app/dashboard/layout.tsx
+// y app/admin/*/page.tsx.
+export function middleware(request: NextRequest) {
   const bloqueado = candadoDeSitio(request);
   if (bloqueado) return bloqueado;
 
-  const { pathname } = request.nextUrl;
-  const esPrivada = RUTAS_PRIVADAS.some((ruta) => pathname.startsWith(ruta));
-
-  // Solo consultamos sesión en rutas privadas: la portada, el catálogo, etc. son
-  // públicas y no necesitan saber si hay usuario. Antes se llamaba a Supabase Auth
-  // en cada petición (incluida la portada); un pico de lentitud de Supabase colgaba
-  // esa llamada y tumbaba el sitio entero. Ver también el timeout de abajo.
-  if (!esPrivada || !supabaseConfigurado()) return NextResponse.next();
-
-  let response = NextResponse.next({ request });
-
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          response.cookies.set(name, value, options),
-        );
-      },
-    },
-  });
-
-  // getSession() no hace ninguna llamada de red aquí (createServerClient desactiva
-  // autoRefreshToken), solo decodifica el token que ya viene en la cookie.
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  let user: { id: string } | null = null;
-  let supabaseLento = false;
-
-  if (session?.access_token) {
-    // OJO: aquí NO usamos supabase.auth.getUser(). Se comprobó en producción que esa
-    // llamada se queda colgada sin más dentro del Edge Middleware de Vercel — pegándole
-    // directamente al mismo endpoint de Supabase desde fuera responde en <300ms, así que
-    // el problema no es que Supabase vaya lento, es algo del propio SDK en este entorno.
-    // Hacemos la misma verificación a mano con fetch + AbortController, que sí cancela
-    // la petición de verdad si no contesta a tiempo (Promise.race solo deja de esperar,
-    // no cancela la llamada colgada por debajo).
-    const controlador = new AbortController();
-    const temporizador = setTimeout(() => controlador.abort(), TIMEOUT_AUTH_MS);
-    try {
-      const respuesta = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-        headers: {
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        signal: controlador.signal,
-      });
-      if (respuesta.ok) user = await respuesta.json();
-    } catch {
-      supabaseLento = true;
-    } finally {
-      clearTimeout(temporizador);
-    }
-  }
-
-  if (!user) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/entrar';
-    url.searchParams.set('volver', pathname);
-    // Distinguimos "no has iniciado sesión" (normal, sin aviso) de "Supabase no
-    // respondió a tiempo" (avisamos, si no el usuario ve un login que parece no
-    // hacer nada aunque su contraseña era correcta).
-    if (supabaseLento) url.searchParams.set('aviso', 'supabase_lento');
-    return NextResponse.redirect(url);
-  }
-
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
