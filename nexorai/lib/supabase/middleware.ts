@@ -44,16 +44,20 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Nunca dejar que una llamada lenta a Supabase Auth cuelgue el middleware
-  // hasta el timeout duro de Vercel: pasados 5s se trata como visitante
-  // anónimo (peor caso: redirige a /login de más, no un 504 para todos).
-  const user = await Promise.race([
-    supabase.auth
-      .getUser()
-      .then(({ data }) => data.user)
-      .catch(() => null),
-    new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
-  ]);
+  // getSession() lee la sesión de las cookies sin llamar a la red (a
+  // diferencia de getUser(), que revalida el JWT contra Supabase en cada
+  // petición). Aquí sólo decide si mostrar /login o dejar pasar — no es el
+  // límite de seguridad real: cada Route Handler vuelve a llamar a
+  // getUser() antes de tocar datos, y RLS protege la base de datos
+  // independientemente de lo que diga el middleware. Usar getUser() aquí
+  // hacía que una lentitud de Supabase Auth (aunque fuera de sólo unos
+  // segundos) bloqueara el login de usuarios reales con sesión válida,
+  // devolviéndolos a /login en bucle — reportado en producción el
+  // 26/08/2026 justo después de introducir el chequeo con getUser().
+  const {
+    data: { session },
+  } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+  const user = session?.user ?? null;
 
   if (isProtected && !user) {
     const redirectUrl = new URL('/login', request.url);
