@@ -118,8 +118,10 @@ export default async function Home() {
             {/* Celda de grid propia, con su propio alto acotado — nada de
                 posición absoluta contra toda la sección, que era lo que
                 hacía que la figura se recortara por los bordes y se
-                solapara con el catálogo de debajo. */}
-            <div className="pointer-events-none relative mt-10 hidden h-[24rem] lg:mt-0 lg:block" aria-hidden>
+                solapara con el catálogo de debajo. Sin pointer-events-none:
+                la escena de Spline sigue el cursor, y bloquear el puntero
+                aquí lo dejaba sin efecto. */}
+            <div className="relative mt-10 hidden h-[24rem] lg:mt-0 lg:block" aria-hidden>
               <SplineHeroLazy />
             </div>
             </div>
