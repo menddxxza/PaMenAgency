@@ -7,7 +7,7 @@ import AvisoSinSupabase from '@/components/AvisoSinSupabase';
 import Reveal from '@/components/Reveal';
 import Icono, { type NombreIcono } from '@/components/Icono';
 import Estrellas from '@/components/Estrellas';
-import EscenaHeroLazy from '@/components/EscenaHeroLazy';
+import SplineHeroLazy from '@/components/SplineHeroLazy';
 import { getCategorias, getConteoPorCategoria, getDestacados, getProductos } from '@/lib/queries';
 import { supabaseConfigurado } from '@/lib/supabase/config';
 import { precioResumido, tiempoInstalacion } from '@/lib/formato';
@@ -55,10 +55,10 @@ export default async function Home() {
       <main>
         {/* ---- Portada: fondo oscuro a todo lo ancho (mismo tono que el
             footer y "entrar" — no es un color nuevo en el sistema), titular
-            arriba, catálogo real como franja horizontal debajo. Motivo 3D
-            abstracto (red de nodos, no cerebro ni robot) en el hueco a la
-            derecha del titular en escritorio — decorativo, aria-hidden,
-            se omite entero con prefers-reduced-motion. ---- */}
+            arriba, catálogo real como franja horizontal debajo. Escena 3D
+            (Spline) en el hueco a la derecha del titular en escritorio —
+            decorativa, aria-hidden, se omite entero con
+            prefers-reduced-motion. ---- */}
         <section className="border-b border-ink/10 bg-ink text-white">
           <div className="container-page py-14 sm:py-20 lg:py-24">
             <div className="lg:grid lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-10">
@@ -120,7 +120,7 @@ export default async function Home() {
                 hacía que la figura se recortara por los bordes y se
                 solapara con el catálogo de debajo. */}
             <div className="pointer-events-none relative mt-10 hidden h-[24rem] lg:mt-0 lg:block" aria-hidden>
-              <EscenaHeroLazy />
+              <SplineHeroLazy />
             </div>
             </div>
 

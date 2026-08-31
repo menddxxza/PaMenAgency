@@ -166,6 +166,20 @@
   .regla {
     @apply h-px w-full bg-ink/10;
   }
+
+  /* Spinner mientras carga la escena 3D de Spline (bundle pesado, en su
+     propio chunk). Sin @apply animate-spin: aquí queremos un giro continuo
+     que sí se recorte con prefers-reduced-motion, no que se salte del todo. */
+  .loader {
+    @apply block h-8 w-8 rounded-full border-2 border-white/20 border-t-white/70;
+    animation: girar 800ms linear infinite;
+  }
+
+  @keyframes girar {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }
 
 @layer utilities {
