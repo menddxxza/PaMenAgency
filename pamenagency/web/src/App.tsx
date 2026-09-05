@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { Layout } from '@/components/layout/Layout'
 import Home from '@/pages/Home'
 
@@ -33,33 +34,39 @@ const PreferenciasCookies = lazy(() => import('@/pages/legal/PreferenciasCookies
 
 export function App() {
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="nosotros" element={<Nosotros />} />
-        <Route path="servicios" element={<Servicios />} />
-        <Route path="servicios/:slug" element={<ServicioDetalle />} />
-        <Route path="ia-para-todos" element={<IaParaTodos />} />
-        <Route path="conocimiento" element={<Conocimiento />} />
-        <Route path="conocimiento/:slug" element={<Documento />} />
-        <Route path="grietas-de-la-ia" element={<Grietas />} />
-        <Route path="metodologia" element={<Metodologia />} />
-        <Route path="diagnostico" element={<Diagnostico />} />
-        <Route path="faq" element={<Faq />} />
-        <Route path="contacto" element={<Contacto />} />
+    <>
+      {/* Sin coste ni cuenta nueva: incluido en el plan Hobby de Vercel
+          (hasta 2.500 eventos/mes), y solo cuenta mientras esté activado
+          en el panel del proyecto (Analytics → Enable). */}
+      <Analytics />
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="nosotros" element={<Nosotros />} />
+          <Route path="servicios" element={<Servicios />} />
+          <Route path="servicios/:slug" element={<ServicioDetalle />} />
+          <Route path="ia-para-todos" element={<IaParaTodos />} />
+          <Route path="conocimiento" element={<Conocimiento />} />
+          <Route path="conocimiento/:slug" element={<Documento />} />
+          <Route path="grietas-de-la-ia" element={<Grietas />} />
+          <Route path="metodologia" element={<Metodologia />} />
+          <Route path="diagnostico" element={<Diagnostico />} />
+          <Route path="faq" element={<Faq />} />
+          <Route path="contacto" element={<Contacto />} />
 
-        <Route path="legal">
-          <Route index element={<LegalIndex />} />
-          <Route path="aviso-legal" element={<AvisoLegal />} />
-          <Route path="privacidad" element={<Privacidad />} />
-          <Route path="cookies" element={<Cookies />} />
-          <Route path="terminos" element={<Terminos />} />
-          <Route path="tratamiento-de-datos" element={<TratamientoDatos />} />
-          <Route path="preferencias-cookies" element={<PreferenciasCookies />} />
+          <Route path="legal">
+            <Route index element={<LegalIndex />} />
+            <Route path="aviso-legal" element={<AvisoLegal />} />
+            <Route path="privacidad" element={<Privacidad />} />
+            <Route path="cookies" element={<Cookies />} />
+            <Route path="terminos" element={<Terminos />} />
+            <Route path="tratamiento-de-datos" element={<TratamientoDatos />} />
+            <Route path="preferencias-cookies" element={<PreferenciasCookies />} />
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Route>
-
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </>
   )
 }
