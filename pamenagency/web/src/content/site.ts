@@ -13,13 +13,11 @@ export const site = {
   locale: 'es_ES',
   lang: 'es',
   email: 'soporte.atiende@gmail.com',
-  /** Sin número confirmado: la web no muestra teléfono hasta que exista. */
-  phone: null as string | null,
+  phone: '+34 600 366 395' as string | null,
   whatsapp: null as string | null,
   social: [
     { name: 'Instagram', url: 'https://www.instagram.com/pamenagency' as string | null },
     { name: 'TikTok', url: 'https://www.tiktok.com/@pamenagency' as string | null },
-    { name: 'LinkedIn', url: null as string | null },
   ],
 } as const
 
