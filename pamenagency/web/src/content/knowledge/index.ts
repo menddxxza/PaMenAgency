@@ -9,6 +9,7 @@ import { consultoriaVsPlantilla } from './consultoria-vs-plantilla'
 import { iaAutonomos } from './ia-autonomos'
 import { iaComercios } from './ia-comercios'
 import { iaClinicas } from './ia-clinicas'
+import { iaPymes } from './ia-pymes'
 import { iaQuitaTrabajo } from './ia-quita-trabajo'
 import { quePasaConTusDatos } from './que-pasa-con-tus-datos'
 
@@ -31,6 +32,7 @@ export const docs: KnowledgeDoc[] = [
   iaAutonomos,
   iaComercios,
   iaClinicas,
+  iaPymes,
   iaQuitaTrabajo,
   quePasaConTusDatos,
 ]
@@ -90,7 +92,6 @@ export function getCategories(): string[] {
 export const upcomingTopics: string[] = [
   'Cómo utilizar varias IA juntas',
   'IA para empresas',
-  'IA para PYMEs',
   'IA para emprendedores',
   'Productividad con IA',
   'Cómo ahorrar tiempo con IA',
