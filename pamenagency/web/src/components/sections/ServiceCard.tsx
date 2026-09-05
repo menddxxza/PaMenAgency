@@ -8,9 +8,14 @@ export function ServiceCard({ service }: { service: Service }) {
 
   return (
     <article className="pm-card pm-card--link" {...spotlight}>
-      <span className="pm-card__icon" aria-hidden="true">
-        <Icon name={service.icon} size={22} />
-      </span>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
+        <span className="pm-card__icon" aria-hidden="true">
+          <Icon name={service.icon} size={22} />
+        </span>
+        <span className="pm-badge pm-badge--gold" style={{ flex: 'none' }}>
+          {service.priceFrom}
+        </span>
+      </div>
 
       <h3 className="pm-card__title">
         {/* El enlace cubre toda la tarjeta, pero sigue siendo un enlace real:
