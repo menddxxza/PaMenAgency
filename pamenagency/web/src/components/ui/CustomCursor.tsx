@@ -11,6 +11,7 @@ export function CustomCursor() {
   const [enabled, setEnabled] = useState(false)
   const dotRef = useRef<HTMLDivElement>(null)
   const ringRef = useRef<HTMLDivElement>(null)
+  const labelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fine = window.matchMedia('(pointer: fine)').matches
@@ -41,6 +42,15 @@ export function CustomCursor() {
       const target = e.target as HTMLElement | null
       const hot = !!target?.closest('a, button, input, textarea, select, [role="tab"]')
       ringRef.current?.setAttribute('data-hot', String(hot))
+
+      // Etiqueta contextual: solo aparece si el elemento la pide explícitamente
+      // (`data-cursor-label`), nunca por defecto — ver `SceneProducts.tsx`.
+      const labelSource = target?.closest<HTMLElement>('[data-cursor-label]')
+      const label = labelSource?.getAttribute('data-cursor-label') ?? ''
+      if (labelRef.current) {
+        labelRef.current.textContent = label
+        labelRef.current.setAttribute('data-visible', String(!!label))
+      }
     }
 
     // El anillo persigue al punto con inercia: es lo que da la sensación de peso.
@@ -50,12 +60,16 @@ export function CustomCursor() {
       if (ringRef.current) {
         ringRef.current.style.transform = `translate3d(${ringX.toFixed(2)}px, ${ringY.toFixed(2)}px, 0)`
       }
+      if (labelRef.current) {
+        labelRef.current.style.transform = `translate3d(${ringX.toFixed(2)}px, ${ringY.toFixed(2)}px, 0)`
+      }
       frame = requestAnimationFrame(loop)
     }
 
     const onLeave = () => {
       if (dotRef.current) dotRef.current.style.opacity = '0'
       if (ringRef.current) ringRef.current.style.opacity = '0'
+      labelRef.current?.setAttribute('data-visible', 'false')
     }
     const onEnter = () => {
       if (dotRef.current) dotRef.current.style.opacity = '1'
@@ -81,6 +95,7 @@ export function CustomCursor() {
     <>
       <div ref={dotRef} className="pm-cursor pm-cursor__dot" aria-hidden="true" />
       <div ref={ringRef} className="pm-cursor pm-cursor__ring" aria-hidden="true" />
+      <div ref={labelRef} className="pm-cursor pm-cursor__label" aria-hidden="true" />
     </>
   )
 }

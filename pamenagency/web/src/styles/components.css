@@ -872,6 +872,31 @@
   border-color: var(--pm-gold);
 }
 
+/* Etiqueta contextual (p. ej. "Ver proyecto" en la galería de productos del
+   viaje cinematográfico) — invisible salvo que el elemento bajo el puntero
+   la pida explícitamente vía `data-cursor-label`. */
+.pm-cursor__label {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin: -48px 0 0 -48px;
+  border-radius: 50%;
+  background: var(--pm-black);
+  border: 1px solid var(--pm-gold-line);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pm-gold-bright);
+  text-align: center;
+  opacity: 0;
+  mix-blend-mode: normal;
+  transition: opacity 180ms var(--ease-out), transform 60ms linear;
+}
+
+.pm-cursor__label[data-visible='true'] { opacity: 1; }
+
 /* ------------------------- Pantalla de carga ------------------------- */
 
 .pm-loader {

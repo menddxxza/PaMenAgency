@@ -8,6 +8,7 @@ import './styles/tokens.css'
 import './styles/base.css'
 import './styles/components.css'
 import './styles/sections.css'
+import './styles/journey.css'
 
 // La pantalla de carga vive en index.html para aparecer antes que el bundle.
 // Se retira siempre, incluso si algo falla al arrancar: sin esto, un error no

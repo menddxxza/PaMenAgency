@@ -1,9 +1,4 @@
-import { Hero } from '@/components/sections/Hero'
-import { Problem } from '@/components/sections/Problem'
-import { About } from '@/components/sections/About'
-import { Advantage } from '@/components/sections/Advantage'
-import { ProductsSection } from '@/components/sections/ProductsSection'
-import { ServicesSection } from '@/components/sections/ServicesSection'
+import { CinematicJourney } from '@/components/sections/journey/CinematicJourney'
 import { MethodologySection } from '@/components/sections/MethodologySection'
 import { ForEveryone } from '@/components/sections/ForEveryone'
 import { KnowledgeSection } from '@/components/sections/KnowledgeSection'
@@ -49,12 +44,7 @@ export default function Home() {
 
   return (
     <>
-      <Hero />
-      <Problem />
-      <About />
-      <Advantage />
-      <ProductsSection />
-      <ServicesSection limit={6} />
+      <CinematicJourney />
       <MethodologySection compact />
       <ForEveryone limit={3} />
       <KnowledgeSection limit={3} />

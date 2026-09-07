@@ -1,0 +1,214 @@
+/* ------------------------------------------------------------------
+   Viaje cinematográfico de la Home (Intro → Servicios).
+   Ni un color nuevo: todo son las variables de tokens.css.
+   ------------------------------------------------------------------ */
+
+.pm-journey { position: relative; }
+
+.pm-journey__track { position: relative; }
+
+.pm-journey__stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--pm-void);
+}
+
+.pm-journey__world {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  filter: blur(calc(var(--vel, 0) * 3px));
+  transition: filter 140ms linear;
+}
+
+/* Fondo decorativo detrás del mundo 3D — mismo halo/rejilla que el resto
+   del sitio, para que el viaje no empiece sobre un negro plano si el WebGL
+   tarda un frame en aparecer o si se sirve el fallback estático. */
+.pm-journey__stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 30%, rgba(212, 175, 55, 0.08), transparent 70%),
+    var(--pm-void);
+}
+
+.pm-journey__scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  will-change: transform, opacity;
+}
+
+.pm-journey__inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container-wide);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* --------------------------- Motor de entrada --------------------------- */
+
+/* `--enter` lo escribe JS en `.pm-journey__scene` en cada frame de scroll
+   (0..1, cuánto ha entrado esta escena). Al no tocarse (modo apilado en
+   móvil/reducido) cae al valor por defecto: todo visible, sin desfase. La
+   transición es la que da el "peso": cada elemento persigue el valor con
+   su propio retardo (`--i`), igual que ya hace `.pm-words__w` en el Hero. */
+.pm-journey__el,
+.pm-stagger > * {
+  opacity: var(--enter, 1);
+  transform: translateY(calc((1 - var(--enter, 1)) * 18px));
+  transition: opacity 320ms var(--ease-out), transform 320ms var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 55ms);
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-journey__el,
+  .pm-stagger > * { transition: none; opacity: 1; transform: none; }
+}
+
+/* ------------------------------ Tipografía ------------------------------ */
+
+.pm-journey__title {
+  font-size: var(--fs-h1);
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  margin-bottom: 1.35rem;
+  max-width: 18ch;
+}
+
+.pm-journey__title--xl {
+  font-size: clamp(3.2rem, 11vw, 8.5rem);
+  line-height: 0.9;
+}
+
+.pm-journey__subtitle {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.2rem, 2.6vw, 1.85rem);
+  color: var(--pm-text);
+  max-width: 26ch;
+  margin-bottom: 2.25rem;
+}
+
+.pm-journey__lead {
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  color: var(--pm-text-soft);
+  max-width: 56ch;
+  line-height: 1.55;
+  margin-bottom: 1.75rem;
+}
+
+.pm-journey__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.5rem; }
+
+/* --------------------------- Escena: Problema --------------------------- */
+
+.pm-journey__list { display: grid; gap: 1.1rem; margin-top: 1.75rem; max-width: 620px; }
+
+.pm-journey__problem { display: flex; gap: 0.75rem; align-items: flex-start; }
+.pm-journey__problem svg { flex: none; margin-top: 3px; color: rgba(196, 84, 74, 0.85); }
+.pm-journey__problem-text { color: var(--pm-text); font-size: 0.98rem; margin-bottom: 0.3rem; }
+.pm-journey__problem-fix { color: var(--pm-muted); font-size: 0.87rem; margin-bottom: 0.4rem; }
+
+/* ------------------------- Escena: Quiénes somos ------------------------- */
+
+.pm-journey__checklist { display: grid; gap: 0.75rem; margin: 0.25rem 0 1.75rem; max-width: 540px; }
+.pm-journey__checklist li { display: flex; gap: 0.7rem; align-items: flex-start; color: var(--pm-text-soft); font-size: 0.97rem; }
+.pm-journey__checklist li svg { flex: none; margin-top: 4px; color: var(--pm-gold); }
+
+/* --------------------------- Escena: Ventaja --------------------------- */
+
+.pm-journey__pipeline { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 1.5rem 0; max-width: 640px; }
+
+.pm-journey__pipenode {
+  padding: 0.5rem 1.05rem;
+  border: 1px solid var(--pm-gold-line);
+  border-radius: var(--radius-pill);
+  background: var(--pm-gold-soft);
+}
+
+.pm-journey__pipelabel {
+  font-family: var(--font-display);
+  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pm-gold);
+}
+
+.pm-journey__steps { display: grid; gap: 0.65rem; margin-bottom: 1.75rem; max-width: 460px; }
+.pm-journey__steps li { display: flex; align-items: center; gap: 0.9rem; font-size: 0.95rem; color: var(--pm-text-soft); }
+.pm-journey__stepnum { font-family: var(--font-display); font-size: 0.85rem; color: var(--pm-gold); flex: none; width: 1.8rem; }
+
+/* --------------------------- Escena: Productos --------------------------- */
+
+.pm-journey__gallery { display: grid; gap: 0.2rem; margin-top: 1.5rem; max-width: 760px; }
+
+.pm-journey__gallery-link {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 1.1rem;
+  padding: 1.15rem 0.2rem;
+  border-bottom: 1px solid var(--pm-line);
+  transition: border-color var(--dur) var(--ease-out);
+}
+
+.pm-journey__gallery-link:hover,
+.pm-journey__gallery-link:focus-visible { border-color: var(--pm-gold-line); }
+
+.pm-journey__gallery-icon { color: var(--pm-gold); align-self: center; }
+
+.pm-journey__gallery-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+  letter-spacing: -0.02em;
+  transition: transform var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+.pm-journey__gallery-link:hover .pm-journey__gallery-name,
+.pm-journey__gallery-link:focus-visible .pm-journey__gallery-name {
+  color: var(--pm-gold);
+  transform: translateX(8px);
+}
+
+.pm-journey__gallery-tagline { font-size: 0.85rem; color: var(--pm-muted); text-align: right; align-self: center; }
+
+@media (max-width: 640px) {
+  .pm-journey__gallery-link { grid-template-columns: auto 1fr; }
+  .pm-journey__gallery-tagline { display: none; }
+}
+
+/* --------------------------- Escena: Servicios --------------------------- */
+
+/* Fila con scroll horizontal propio: seis servicios sin forzar overflow
+   vertical dentro de una escena fijada a 100vh. */
+.pm-journey__services {
+  display: flex;
+  gap: 1rem;
+  margin: 1.75rem 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding-bottom: 0.75rem;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pm-journey__services > * { flex: 0 0 min(78vw, 300px); scroll-snap-align: start; }
+
+/* ------------------------------ Responsive ------------------------------ */
+
+/* Por debajo de este ancho el viaje ya se sirve en modo apilado (ver
+   `useCanRender3D`), así que estas reglas solo afinan el propio modo
+   apilado: sin altura fija de escena, título algo más contenido. */
+@media (max-width: 900px) {
+  .pm-journey__title--xl { font-size: clamp(2.6rem, 13vw, 4.5rem); }
+}
