@@ -46,6 +46,11 @@ interface LeadPayload {
   urgencia?: string
   mensaje: string
   score: number
+  utm_source?: string
+  utm_medium?: string
+  utm_campaign?: string
+  utm_term?: string
+  utm_content?: string
 }
 
 function isValidLead(body: unknown): body is LeadPayload {
@@ -130,6 +135,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     lead.necesidad && `Necesidad: ${lead.necesidad}`,
     lead.presupuesto && `Presupuesto: ${lead.presupuesto}`,
     lead.urgencia && `Urgencia (1-5): ${lead.urgencia}`,
+    lead.utm_source && `Origen (utm_source): ${lead.utm_source}`,
+    lead.utm_medium && `Medio (utm_medium): ${lead.utm_medium}`,
+    lead.utm_campaign && `Campaña (utm_campaign): ${lead.utm_campaign}`,
+    lead.utm_term && `Término (utm_term): ${lead.utm_term}`,
+    lead.utm_content && `Contenido (utm_content): ${lead.utm_content}`,
     '',
     lead.mensaje,
   ]

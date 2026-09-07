@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { services } from '@/content/services'
 import { site } from '@/content/site'
+import { obtenerUtm } from '@/lib/utm'
 
 type Fields = {
   nombre: string
@@ -138,6 +139,7 @@ export function ContactForm() {
     }
 
     const score = leadScore(values)
+    const utm = obtenerUtm()
 
     if (ENDPOINT) {
       setStatus('sending')
@@ -145,7 +147,7 @@ export function ContactForm() {
         const res = await fetch(ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...values, score }),
+          body: JSON.stringify({ ...values, score, ...utm }),
         })
         if (!res.ok) throw new Error(String(res.status))
         setStatus('sent')
@@ -168,7 +170,7 @@ export function ContactForm() {
       const res = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, score }),
+        body: JSON.stringify({ ...values, score, ...utm }),
       })
       if (res.ok) {
         setStatus('sent')
@@ -190,6 +192,9 @@ export function ContactForm() {
       values.necesidad && `Necesidad: ${values.necesidad}`,
       values.presupuesto && `Presupuesto: ${values.presupuesto}`,
       values.urgencia && `Urgencia (1-5): ${values.urgencia}`,
+      utm.utm_source && `Origen (utm_source): ${utm.utm_source}`,
+      utm.utm_medium && `Medio (utm_medium): ${utm.utm_medium}`,
+      utm.utm_campaign && `Campaña (utm_campaign): ${utm.utm_campaign}`,
       '',
       values.mensaje,
     ]

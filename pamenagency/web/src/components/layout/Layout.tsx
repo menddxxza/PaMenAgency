@@ -7,6 +7,7 @@ import { CustomCursor } from '@/components/ui/CustomCursor'
 import { AmbientParticles } from '@/components/ui/AmbientParticles'
 import { BackToTop } from '@/components/ui/BackToTop'
 import { AssistantWidget } from '@/components/chat/AssistantWidget'
+import { capturarUtm } from '@/lib/utm'
 
 /** Cada navegación empieza arriba, salvo que se navegue a un ancla. */
 function ScrollToTop() {
@@ -37,6 +38,13 @@ function PageFade({ children }: { children: React.ReactNode }) {
 }
 
 export function Layout() {
+  // Solo lee la URL de entrada, no la de cada navegación interna — captura
+  // el origen de la visita, no de cada clic dentro del sitio.
+  useEffect(() => {
+    capturarUtm()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <>
       <a className="pm-skip-link" href="#contenido">

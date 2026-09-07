@@ -1,5 +1,6 @@
 import { Section, SectionHead, Reveal } from '@/components/ui/Section'
 import { Icon } from '@/components/ui/Icon'
+import { CopyButton } from '@/components/ui/CopyButton'
 import { site } from '@/content/site'
 import { ContactForm } from './ContactForm'
 
@@ -21,14 +22,20 @@ export function ContactSection() {
           <div style={{ display: 'grid', gap: '1.5rem' }}>
             <div>
               <p className="pm-eyebrow">Otras vías</p>
-              <a className="pm-link" href={`mailto:${site.email}`} style={{ marginTop: '1rem' }}>
-                <Icon name="mail" size={16} />
-                {site.email}
-              </a>
-              {site.phone && (
-                <a className="pm-link" href={`tel:${site.phone}`} style={{ marginTop: '0.5rem' }}>
-                  {site.phone}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
+                <a className="pm-link" href={`mailto:${site.email}`}>
+                  <Icon name="mail" size={16} />
+                  {site.email}
                 </a>
+                <CopyButton value={site.email} label="Email" />
+              </div>
+              {site.phone && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  <a className="pm-link" href={`tel:${site.phone}`}>
+                    {site.phone}
+                  </a>
+                  <CopyButton value={site.phone} label="Teléfono" />
+                </div>
               )}
             </div>
 

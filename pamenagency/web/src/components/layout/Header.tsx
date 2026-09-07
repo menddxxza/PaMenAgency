@@ -2,14 +2,30 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { mainNav, site } from '@/content/site'
 import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui/Icon'
 import { Logo } from './Logo'
 import { MobileMenu } from './MobileMenu'
+import { SearchOverlay } from './SearchOverlay'
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const burgerRef = useRef<HTMLButtonElement>(null)
   const location = useLocation()
+
+  // Ctrl/Cmd+K abre el buscador desde cualquier página, como en la mayoría
+  // de sitios que tienen uno.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -18,18 +34,22 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Cambiar de página cierra el menú.
-  useEffect(() => setMenuOpen(false), [location.pathname])
-
-  // Con el menú abierto, la página de detrás no debe poder desplazarse.
+  // Cambiar de página cierra el menú y el buscador.
   useEffect(() => {
-    if (!menuOpen) return
+    setMenuOpen(false)
+    setSearchOpen(false)
+  }, [location.pathname])
+
+  // Con el menú o el buscador abiertos, la página de detrás no debe poder
+  // desplazarse.
+  useEffect(() => {
+    if (!menuOpen && !searchOpen) return
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = previous
     }
-  }, [menuOpen])
+  }, [menuOpen, searchOpen])
 
   const closeMenu = () => {
     setMenuOpen(false)
@@ -57,6 +77,14 @@ export function Header() {
           </nav>
 
           <div className="pm-header__actions">
+            <button
+              type="button"
+              className="pm-header__iconbtn"
+              aria-label="Buscar en el sitio (Ctrl+K)"
+              onClick={() => setSearchOpen(true)}
+            >
+              <Icon name="search" size={18} />
+            </button>
             <div className="pm-header__cta">
               <Button to="/contacto" size="sm" arrow>
                 Hablemos
@@ -82,6 +110,7 @@ export function Header() {
       </header>
 
       {menuOpen && <MobileMenu onClose={closeMenu} email={site.email} />}
+      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
     </>
   )
 }

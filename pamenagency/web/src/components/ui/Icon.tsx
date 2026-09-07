@@ -124,6 +124,18 @@ const paths: Record<string, JSX.Element> = {
       <path d="m10 4 2 5-3 3 4 3-2 5" />
     </>
   ),
+  search: (
+    <>
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="m20 20-4.35-4.35" />
+    </>
+  ),
+  copy: (
+    <>
+      <rect x="4" y="8" width="12" height="12" rx="2" />
+      <path d="M8 8V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-2" />
+    </>
+  ),
 }
 
 export type IconName = keyof typeof paths

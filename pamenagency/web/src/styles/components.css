@@ -353,6 +353,29 @@
 .pm-burger[aria-expanded='true'] .pm-burger__lines span:nth-child(2) { opacity: 0; }
 .pm-burger[aria-expanded='true'] .pm-burger__lines span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 
+/* A diferencia de .pm-burger, este botón se ve en cualquier ancho de
+   pantalla: buscar tiene sentido tanto en móvil como en escritorio. */
+.pm-header__iconbtn {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--pm-line-strong);
+  border-radius: 50%;
+  color: var(--pm-text-soft);
+  background: none;
+  transition: border-color var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out),
+    color var(--dur) var(--ease-out);
+}
+
+.pm-header__iconbtn:hover,
+.pm-header__iconbtn:focus-visible {
+  border-color: var(--pm-gold-line);
+  background: var(--pm-gold-soft);
+  color: var(--pm-gold);
+}
+
 /* --------------------------- Menú móvil --------------------------- */
 
 .pm-mobilemenu {
@@ -403,6 +426,142 @@
 }
 
 .pm-mobilemenu__footer { margin-top: auto; padding-top: 2rem; display: grid; gap: 1rem; }
+
+/* ------------------------- Botón de copiar ------------------------- */
+
+.pm-copybtn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--pm-faint);
+  background: none;
+  border: 1px solid var(--pm-line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out),
+    background-color var(--dur) var(--ease-out);
+}
+
+.pm-copybtn:hover,
+.pm-copybtn:focus-visible {
+  color: var(--pm-gold);
+  border-color: var(--pm-gold-line);
+  background: var(--pm-gold-soft);
+}
+
+/* ----------------------------- Buscador ----------------------------- */
+
+.pm-search {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-menu);
+  background: rgba(5, 5, 6, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  padding: 12vh 1.25rem 2rem;
+  animation: pm-menu-in var(--dur) var(--ease-out) both;
+}
+
+.pm-search__panel {
+  width: 100%;
+  max-width: 560px;
+  height: fit-content;
+  background: var(--pm-surface-2);
+  border: 1px solid var(--pm-line-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+}
+
+.pm-search__field {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--pm-line);
+  color: var(--pm-faint);
+}
+
+.pm-search__input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--pm-text);
+  font-size: 1rem;
+  font-family: var(--font-body);
+}
+.pm-search__input::placeholder { color: var(--pm-faint); }
+/* Quita la "x" nativa de Chrome/Safari para type="search": ya hay una propia. */
+.pm-search__input::-webkit-search-cancel-button { display: none; }
+
+.pm-search__close {
+  flex: none;
+  color: var(--pm-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0.3rem;
+  transition: color var(--dur) var(--ease-out);
+}
+.pm-search__close:hover,
+.pm-search__close:focus-visible { color: var(--pm-text); }
+
+.pm-search__results {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.pm-search__result {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.75rem 0.85rem;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease-out);
+}
+.pm-search__result:hover,
+.pm-search__result:focus-visible {
+  background: var(--pm-surface-3);
+  outline: none;
+}
+
+.pm-search__title {
+  display: block;
+  font-weight: 600;
+  color: var(--pm-text);
+}
+
+.pm-search__text {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--pm-muted);
+  margin-top: 0.15rem;
+}
+
+.pm-search__empty {
+  padding: 1rem 0.85rem;
+  color: var(--pm-faint);
+  font-size: 0.9rem;
+}
 
 /* ------------------------------ Footer ------------------------------ */
 
