@@ -87,7 +87,13 @@ function PinnedJourney() {
       trigger: track,
       start: 'top top',
       end: 'bottom bottom',
-      scrub: 0.85,
+      // Lenis ya suaviza el scroll en sí — un `scrub` numérico aquí añade un
+      // SEGUNDO retraso encima del de Lenis. Con los dos apilados, a
+      // velocidad de scroll normal la animación siempre iba muy por detrás
+      // de la posición real y las escenas se cortaban antes de llegar a
+      // verse (solo se apreciaban bien scrolleando muy despacio). `true`
+      // sigue la posición ya suavizada de Lenis sin sumar un retraso propio.
+      scrub: true,
       pin: stage,
       // `Layout.tsx` envuelve cada página en `.pm-pagefade`, que anima
       // `transform` en su entrada (`animation: ... both`) — eso convierte a
