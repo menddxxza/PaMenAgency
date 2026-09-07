@@ -407,7 +407,7 @@
 .pm-mobilemenu__wheel {
   position: relative;
   flex: 1 1 auto;
-  min-height: 16rem;
+  min-height: 20rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -422,8 +422,18 @@
   letter-spacing: -0.02em;
 }
 
+/* La rueda fija su tamaño de letra por rem vía estilo en línea (prop
+   fontSize de OptionWheel), lo que no se adapta a móviles muy angostos:
+   con las opciones más largas ("Quiénes somos", "IA para todos") a 2.75rem
+   se cortaban contra el borde derecho en 360px. Se sobreescribe con un
+   clamp atado al ancho de viewport — el !important es necesario porque
+   un estilo en línea por elemento solo lo puede ganar otro !important. */
+.pm-mobilemenu .option-wheel {
+  --ow-font-size: clamp(1.85rem, 8.5vw, 2.75rem) !important;
+}
+
 .pm-mobilemenu__wheel-index {
-  font-size: 0.7rem;
+  font-size: 0.9rem;
   color: var(--pm-faint);
   letter-spacing: 0.15em;
   flex: none;

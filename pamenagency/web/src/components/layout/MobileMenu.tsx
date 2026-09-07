@@ -81,12 +81,19 @@ export function MobileMenu({ onClose, email }: { onClose: () => void; email: str
         <OptionWheel
           items={items}
           defaultSelected={defaultSelected}
-          onItemActivate={(index) => navigate(mainNav[index].to)}
+          onItemActivate={(index) => {
+            // Siempre navega y cierra el menú, incluso si ya estás en esa
+            // sección: sin esto, tocar la opción activa no hacía nada
+            // visible (el efecto que cierra el menú solo escucha cambios
+            // de ruta) y parecía que el tap no funcionaba.
+            navigate(mainNav[index].to)
+            onClose()
+          }}
           textColor="#F4F4F2"
           activeColor="#D4AF37"
           side="left"
-          fontSize={1.85}
-          spacing={1.15}
+          fontSize={2.75}
+          spacing={1.05}
           curve={0.5}
           tilt={4}
           blur={1}
