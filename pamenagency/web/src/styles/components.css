@@ -310,16 +310,14 @@
 
 .pm-header__actions { display: flex; align-items: center; gap: 0.6rem; }
 
-/* Por debajo de 1080px la navegación completa no cabe con holgura:
-   pasamos al menú hamburguesa antes de que algo se comprima. */
+/* Por debajo de 1240px la navegación completa no cabe con holgura:
+   pasamos al menú hamburguesa antes de que algo se comprima. El corte
+   estaba antes en 1080px, con margen justo para el logo + 7 enlaces +
+   CTA — al añadir el icono de búsqueda dejó de caber (se veían el menú
+   completo y el hamburguesa a la vez, "HABLEMOS" partido en dos
+   líneas). 1240px deja hueco de sobra. */
 .pm-header__nav,
 .pm-header__cta { display: none; }
-
-@media (min-width: 1080px) {
-  .pm-header__nav,
-  .pm-header__cta { display: flex; }
-  .pm-burger { display: none; }
-}
 
 .pm-burger {
   width: 44px;
@@ -329,6 +327,12 @@
   border: 1px solid var(--pm-line-strong);
   border-radius: 50%;
   transition: border-color var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
+}
+
+@media (min-width: 1240px) {
+  .pm-header__nav,
+  .pm-header__cta { display: flex; }
+  .pm-burger { display: none; }
 }
 
 .pm-burger:hover { border-color: var(--pm-gold-line); background: var(--pm-gold-soft); }
