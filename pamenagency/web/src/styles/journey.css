@@ -78,12 +78,16 @@
 
 /* ------------------------------ Tipografía ------------------------------ */
 
+/* Antes usaba var(--fs-h1) (hasta 4rem): en un scroll rápido, con la
+   escena en pantalla apenas una fracción de segundo, ese tamaño no se
+   registraba a tiempo. Se sube a una escala mucho más cercana al titular
+   de la Intro para que el título se lea de un vistazo pase lo que pase. */
 .pm-journey__title {
-  font-size: var(--fs-h1);
+  font-size: clamp(2.8rem, 7.5vw, 6rem);
   letter-spacing: -0.03em;
   line-height: 0.98;
   margin-bottom: 1.35rem;
-  max-width: 18ch;
+  max-width: 16ch;
 }
 
 .pm-journey__title--xl {
