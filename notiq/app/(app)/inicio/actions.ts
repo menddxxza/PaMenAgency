@@ -60,9 +60,15 @@ export async function obtenerResumen(): Promise<Resumen | null> {
       select count(*)::int as total from attachments where user_id = ${userId}::uuid
     `,
     sql<NotaResumen[]>`
-      select id, titulo, content, favorita, folder_id, updated_at from notes
-      where user_id = ${userId}::uuid and deleted_at is null
-      order by updated_at desc limit 5
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+        coalesce((
+          select array_agg(t.nombre order by t.nombre)
+          from note_tags nt join tags t on t.id = nt.tag_id
+          where nt.note_id = n.id
+        ), '{}') as etiquetas
+      from notes n
+      where n.user_id = ${userId}::uuid and n.deleted_at is null
+      order by n.updated_at desc limit 5
     `,
     sql<Tarea[]>`
       select id, titulo, estado, prioridad, vence::text, note_id, origen, folder_id from tasks
@@ -115,9 +121,15 @@ export async function obtenerContenidoCarpeta(id: string): Promise<ContenidoCarp
 
   const [notas, tareas] = await Promise.all([
     sql<NotaResumen[]>`
-      select id, titulo, content, favorita, folder_id, updated_at from notes
-      where folder_id = ${id}::uuid and user_id = ${sesion.userId}::uuid and deleted_at is null
-      order by favorita desc, updated_at desc
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+        coalesce((
+          select array_agg(t.nombre order by t.nombre)
+          from note_tags nt join tags t on t.id = nt.tag_id
+          where nt.note_id = n.id
+        ), '{}') as etiquetas
+      from notes n
+      where n.folder_id = ${id}::uuid and n.user_id = ${sesion.userId}::uuid and n.deleted_at is null
+      order by n.favorita desc, n.updated_at desc
     `,
     sql<Tarea[]>`
       select id, titulo, estado, prioridad, vence::text, note_id, origen, folder_id from tasks

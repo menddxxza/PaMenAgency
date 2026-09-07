@@ -51,10 +51,10 @@ repositorio; el resto es el plan.
 ## Semanas 9-10 · Pulido
 
 - [ ] Onboarding con una nota de ejemplo ya escrita
-- [ ] Etiquetas en la interfaz (el esquema ya las soporta)
+- [x] Etiquetas en la interfaz — chips en la nota (con sugerencias) y filtro en la lista
 - [ ] Imágenes en las notas (Neon no tiene Storage propio; haría falta S3, R2 o similar)
 - [ ] Paleta de comandos y atajos de teclado
-- [ ] Papelera para recuperar notas borradas
+- [x] Papelera para recuperar notas borradas — vista dentro de Notas, con restaurar y borrado definitivo
 - [ ] Enlace mágico (login sin contraseña), si aparece un proveedor de email
 
 ## Semanas 11-12 · Lanzamiento

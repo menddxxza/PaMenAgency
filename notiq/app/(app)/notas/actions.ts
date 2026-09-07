@@ -9,6 +9,7 @@ import { fechaValidaONull } from '@/lib/tareas';
 import { aTextoPlano, comoBloques, type Bloque } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
 import { verificarCarpetaPropia } from '@/lib/carpetas';
+import { etiquetasDeNota, ponerEtiquetas } from '@/lib/etiquetas';
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
@@ -50,6 +51,7 @@ export type NotaCompleta = {
   favorita: boolean;
   resumen_ia: string | null;
   deleted_at: string | null;
+  etiquetas: string[];
 };
 
 export type TareaDeNota = { id: string; titulo: string; estado: string };
@@ -63,19 +65,38 @@ export async function obtenerNota(
   if (!esUuid(id)) return null;
 
   const sql = db();
-  const [nota] = await sql<NotaCompleta[]>`
-    select id, titulo, content, favorita, resumen_ia, deleted_at
-    from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
-  `;
+  const [[nota], etiquetas, tareas] = await Promise.all([
+    sql<Omit<NotaCompleta, 'etiquetas'>[]>`
+      select id, titulo, content, favorita, resumen_ia, deleted_at
+      from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+    `,
+    etiquetasDeNota(id, sesion.userId),
+    sql<TareaDeNota[]>`
+      select id, titulo, estado from tasks
+      where note_id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+      order by created_at desc limit 10
+    `,
+  ]);
   if (!nota || nota.deleted_at) return null;
 
-  const tareas = await sql<TareaDeNota[]>`
-    select id, titulo, estado from tasks
-    where note_id = ${id}::uuid and user_id = ${sesion.userId}::uuid
-    order by created_at desc limit 10
-  `;
+  return { nota: { ...nota, etiquetas: etiquetas.map((e) => e.nombre) }, tareas };
+}
 
-  return { nota, tareas };
+/** Sustituye las etiquetas de una nota por la lista de nombres dada. */
+export async function guardarEtiquetas(id: string, nombres: string[]): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(id)) return { ok: false, error: 'Nota no válida.' };
+
+  try {
+    await ponerEtiquetas(id, sesion.userId, nombres);
+  } catch (fallo) {
+    console.error('[notiq] no se han podido guardar las etiquetas', fallo);
+    return { ok: false, error: 'No se han podido guardar las etiquetas.' };
+  }
+
+  revalidatePath('/notas');
+  return { ok: true };
 }
 
 /** Igual que `borrarNota`, pero sin redirigir: el panel ya está donde tiene que estar. */
@@ -159,6 +180,56 @@ export async function borrarNota(formData: FormData) {
 
   revalidatePath('/notas');
   redirect('/notas');
+}
+
+export type NotaBorrada = { id: string; titulo: string; deleted_at: string };
+
+/** Notas borradas (borrado suave) del usuario, para la papelera. */
+export async function obtenerPapelera(): Promise<NotaBorrada[] | null> {
+  const sesion = await getSesion();
+  if (!sesion) return null;
+
+  const sql = db();
+  return sql<NotaBorrada[]>`
+    select id, titulo, deleted_at from notes
+    where user_id = ${sesion.userId}::uuid and deleted_at is not null
+    order by deleted_at desc limit 100
+  `;
+}
+
+export async function restaurarNota(id: string): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(id)) return { ok: false, error: 'Nota no válida.' };
+
+  const sql = db();
+  await sql`
+    update notes set deleted_at = null
+    where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+  `;
+
+  revalidatePath('/notas');
+  return { ok: true };
+}
+
+/**
+ * Borrado definitivo, sin vuelta atrás — a diferencia de borrarNota(EnPanel), que
+ * solo pone deleted_at. El `and deleted_at is not null` es cinturón y tirantes: una
+ * nota tiene que haber pasado por la papelera antes de poder borrarse para siempre.
+ */
+export async function eliminarNotaParaSiempre(id: string): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(id)) return { ok: false, error: 'Nota no válida.' };
+
+  const sql = db();
+  await sql`
+    delete from notes
+    where id = ${id}::uuid and user_id = ${sesion.userId}::uuid and deleted_at is not null
+  `;
+
+  revalidatePath('/notas');
+  return { ok: true };
 }
 
 export async function crearCarpeta(formData: FormData) {
@@ -268,24 +339,32 @@ export type NotaResumen = {
   favorita: boolean;
   folder_id: string | null;
   updated_at: string;
+  etiquetas: string[];
 };
 
 /**
  * La misma búsqueda/listado que antes vivía en `notas/page.tsx`, pero como acción
  * llamable desde el cliente: el panel único carga y filtra sin navegar, así que ya
  * no hay searchParams de los que leer `carpeta` y `q`.
+ *
+ * `carpeta` y `etiqueta` son excluyentes entre sí (como ya lo eran `carpeta` y `q`):
+ * un segundo filtro a la vez complicaría la consulta sin que el panel lo pida —
+ * elegir una etiqueta limpia la carpeta elegida, y viceversa.
  */
-export async function obtenerNotas(filtro: { carpeta?: string; q?: string }) {
+export async function obtenerNotas(filtro: { carpeta?: string; etiqueta?: string; q?: string }) {
   const sesion = await getSesion();
   if (!sesion) return null;
 
   const sql = db();
   const { userId, plan } = sesion;
-  const { carpeta, q } = filtro;
+  const { carpeta, etiqueta, q } = filtro;
 
-  const [carpetas, [{ total: totalNotas }]] = await Promise.all([
+  const [carpetas, etiquetas, [{ total: totalNotas }]] = await Promise.all([
     sql<{ id: string; nombre: string }[]>`
       select id, nombre from folders where user_id = ${userId}::uuid order by nombre
+    `,
+    sql<{ id: string; nombre: string }[]>`
+      select id, nombre from tags where user_id = ${userId}::uuid order by nombre
     `,
     sql<{ total: number }[]>`
       select count(*)::int as total from notes where user_id = ${userId}::uuid and deleted_at is null
@@ -302,8 +381,13 @@ export async function obtenerNotas(filtro: { carpeta?: string; q?: string }) {
 
     if (ids.length > 0) {
       const completas = await sql<NotaResumen[]>`
-        select id, titulo, content, favorita, folder_id, updated_at
-        from notes where id = any(${ids}::uuid[]) and user_id = ${userId}::uuid
+        select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+          coalesce((
+            select array_agg(t.nombre order by t.nombre)
+            from note_tags nt join tags t on t.id = nt.tag_id
+            where nt.note_id = n.id
+          ), '{}') as etiquetas
+        from notes n where n.id = any(${ids}::uuid[]) and n.user_id = ${userId}::uuid
       `;
       const porId = new Map(completas.map((n) => [n.id, n]));
       notas = ids.flatMap((id) => {
@@ -311,19 +395,44 @@ export async function obtenerNotas(filtro: { carpeta?: string; q?: string }) {
         return nota ? [nota] : [];
       });
     }
+  } else if (etiqueta && esUuid(etiqueta)) {
+    notas = await sql<NotaResumen[]>`
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+        coalesce((
+          select array_agg(t.nombre order by t.nombre)
+          from note_tags nt join tags t on t.id = nt.tag_id
+          where nt.note_id = n.id
+        ), '{}') as etiquetas
+      from notes n
+      where n.user_id = ${userId}::uuid and n.deleted_at is null
+        and exists (select 1 from note_tags nt where nt.note_id = n.id and nt.tag_id = ${etiqueta}::uuid)
+      order by n.favorita desc, n.updated_at desc limit 100
+    `;
   } else if (carpeta && esUuid(carpeta)) {
     notas = await sql<NotaResumen[]>`
-      select id, titulo, content, favorita, folder_id, updated_at from notes
-      where user_id = ${userId}::uuid and deleted_at is null and folder_id = ${carpeta}::uuid
-      order by favorita desc, updated_at desc limit 100
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+        coalesce((
+          select array_agg(t.nombre order by t.nombre)
+          from note_tags nt join tags t on t.id = nt.tag_id
+          where nt.note_id = n.id
+        ), '{}') as etiquetas
+      from notes n
+      where n.user_id = ${userId}::uuid and n.deleted_at is null and n.folder_id = ${carpeta}::uuid
+      order by n.favorita desc, n.updated_at desc limit 100
     `;
   } else {
     notas = await sql<NotaResumen[]>`
-      select id, titulo, content, favorita, folder_id, updated_at from notes
-      where user_id = ${userId}::uuid and deleted_at is null
-      order by favorita desc, updated_at desc limit 100
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+        coalesce((
+          select array_agg(t.nombre order by t.nombre)
+          from note_tags nt join tags t on t.id = nt.tag_id
+          where nt.note_id = n.id
+        ), '{}') as etiquetas
+      from notes n
+      where n.user_id = ${userId}::uuid and n.deleted_at is null
+      order by n.favorita desc, n.updated_at desc limit 100
     `;
   }
 
-  return { carpetas, totalNotas, notas, plan };
+  return { carpetas, etiquetas, totalNotas, notas, plan };
 }

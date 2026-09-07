@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getSesion } from '@/lib/sesion';
 import { db, esUuid } from '@/lib/db';
 import { comoBloques } from '@/lib/bloques';
+import { etiquetasDeNota, listarEtiquetas } from '@/lib/etiquetas';
 import NotaEditor from '@/components/NotaEditor';
 import { borrarNota } from '../actions';
 
@@ -26,11 +27,15 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
   if (!nota || nota.deleted_at) notFound();
 
   // Las tareas que salieron de esta nota, para poder volver a ellas desde aquí.
-  const tareas = await sql<{ id: string; titulo: string; estado: string }[]>`
-    select id, titulo, estado from tasks
-    where note_id = ${id}::uuid and user_id = ${sesion.userId}::uuid
-    order by created_at desc limit 10
-  `;
+  const [tareas, etiquetasNota, etiquetasConocidas] = await Promise.all([
+    sql<{ id: string; titulo: string; estado: string }[]>`
+      select id, titulo, estado from tasks
+      where note_id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+      order by created_at desc limit 10
+    `,
+    etiquetasDeNota(id, sesion.userId),
+    listarEtiquetas(sesion.userId),
+  ]);
 
   return (
     <div className="px-5 py-6 sm:px-8">
@@ -52,6 +57,8 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
         bloquesIniciales={comoBloques(nota.content)}
         favoritaInicial={nota.favorita}
         resumenInicial={nota.resumen_ia}
+        etiquetasIniciales={etiquetasNota.map((e) => e.nombre)}
+        etiquetasConocidas={etiquetasConocidas.map((e) => e.nombre)}
       />
 
       {tareas.length > 0 && (

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import EditorBloques from '@/components/EditorBloques';
+import EtiquetasNota from '@/components/EtiquetasNota';
 import PanelIa from '@/components/PanelIa';
 import Adjuntos from '@/components/panel/Adjuntos';
 import { aMarkdown, type Bloque } from '@/lib/bloques';
@@ -18,6 +19,8 @@ export default function NotaEditor({
   bloquesIniciales,
   favoritaInicial,
   resumenInicial,
+  etiquetasIniciales = [],
+  etiquetasConocidas = [],
   onFavoritaCambiada,
 }: {
   id: string;
@@ -25,6 +28,9 @@ export default function NotaEditor({
   bloquesIniciales: Bloque[];
   favoritaInicial: boolean;
   resumenInicial: string | null;
+  etiquetasIniciales?: string[];
+  /** Etiquetas ya usadas en otras notas del usuario, para sugerirlas al escribir. */
+  etiquetasConocidas?: string[];
   /** Se llama al marcar/desmarcar favorita. Sin esto (uso standalone en
    * /notas/[id]) se refresca la ruta del servidor; el panel único pasa aquí su
    * propio refetch, porque ahí no hay ruta de servidor que refrescar. */
@@ -157,7 +163,13 @@ export default function NotaEditor({
           placeholder="Sin título"
           maxLength={200}
           aria-label="Título de la nota"
-          className="mb-6 w-full bg-transparent text-4xl font-extrabold tracking-tight outline-none placeholder:text-ink/20"
+          className="mb-2 w-full bg-transparent text-4xl font-extrabold tracking-tight outline-none placeholder:text-ink/20"
+        />
+
+        <EtiquetasNota
+          noteId={id}
+          etiquetasIniciales={etiquetasIniciales}
+          etiquetasConocidas={etiquetasConocidas}
         />
 
         <EditorBloques

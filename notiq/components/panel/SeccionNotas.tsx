@@ -10,24 +10,38 @@ import {
   borrarNotaEnPanel,
   obtenerNota,
   obtenerNotas,
+  obtenerPapelera,
+  restaurarNota,
+  eliminarNotaParaSiempre,
+  type NotaBorrada,
   type NotaCompleta,
   type NotaResumen,
   type TareaDeNota,
 } from '@/app/(app)/notas/actions';
 
 type Carpeta = { id: string; nombre: string };
+type Etiqueta = { id: string; nombre: string };
 type NotaAbierta = { nota: NotaCompleta; tareas: TareaDeNota[] };
 
 export default function SeccionNotas() {
   const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
+  const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([]);
   const [notas, setNotas] = useState<NotaResumen[]>([]);
   const [totalNotas, setTotalNotas] = useState(0);
   const [plan, setPlan] = useState('free');
   const [carpeta, setCarpeta] = useState<string | undefined>(undefined);
+  const [etiqueta, setEtiqueta] = useState<string | undefined>(undefined);
   const [q, setQ] = useState('');
   const [cargando, setCargando] = useState(true);
   const [nombreCarpeta, setNombreCarpeta] = useState('');
   const [, empezar] = useTransition();
+
+  // Papelera: notas borradas, mostradas en una vista aparte dentro de la misma
+  // sección (no hace falta una pestaña nueva de navegación para algo que se usa
+  // de vez en cuando).
+  const [vistaPapelera, setVistaPapelera] = useState(false);
+  const [papelera, setPapelera] = useState<NotaBorrada[]>([]);
+  const [cargandoPapelera, setCargandoPapelera] = useState(false);
 
   // Nota abierta en el propio panel: sin esto NotaEditor no tiene nada que
   // mostrar mientras `obtenerNota` está en vuelo, así que la sección se queda
@@ -36,10 +50,11 @@ export default function SeccionNotas() {
   const [abriendoNota, setAbriendoNota] = useState(false);
   const [errorNota, setErrorNota] = useState<string | null>(null);
 
-  async function cargar(filtro: { carpeta?: string; q?: string }) {
+  async function cargar(filtro: { carpeta?: string; etiqueta?: string; q?: string }) {
     const datos = await obtenerNotas(filtro);
     if (!datos) return;
     setCarpetas(datos.carpetas);
+    setEtiquetas(datos.etiquetas);
     setNotas(datos.notas);
     setTotalNotas(datos.totalNotas);
     setPlan(datos.plan);
@@ -62,13 +77,24 @@ export default function SeccionNotas() {
 
   function elegirCarpeta(id: string | undefined) {
     setCarpeta(id);
+    setEtiqueta(undefined);
     setQ('');
     cargar({ carpeta: id });
   }
 
+  // Carpeta y etiqueta son excluyentes: elegir una limpia la otra, igual que ya
+  // pasaba con la búsqueda (ver el comentario en obtenerNotas).
+  function elegirEtiqueta(id: string | undefined) {
+    const siguiente = etiqueta === id ? undefined : id;
+    setEtiqueta(siguiente);
+    setCarpeta(undefined);
+    setQ('');
+    cargar({ etiqueta: siguiente });
+  }
+
   function buscar(valor: string) {
     setQ(valor);
-    if (!valor.trim()) cargar({ carpeta });
+    if (!valor.trim()) cargar({ carpeta, etiqueta });
   }
 
   async function crearCarpetaLocal(e: FormEvent<HTMLFormElement>) {
@@ -81,7 +107,7 @@ export default function SeccionNotas() {
     empezar(async () => {
       await crearCarpeta(fd);
       setNombreCarpeta('');
-      await cargar({ carpeta, q: q.trim() || undefined });
+      await cargar({ carpeta, etiqueta, q: q.trim() || undefined });
     });
   }
 
@@ -105,21 +131,49 @@ export default function SeccionNotas() {
       return;
     }
     setNotaAbierta({
-      nota: { id: resultado.id, titulo: '', content: [], favorita: false, resumen_ia: null, deleted_at: null },
+      nota: {
+        id: resultado.id,
+        titulo: '',
+        content: [],
+        favorita: false,
+        resumen_ia: null,
+        deleted_at: null,
+        etiquetas: [],
+      },
       tareas: [],
     });
   }
 
   function cerrarNota() {
     setNotaAbierta(null);
-    // El título, la carpeta o el estado de favorita pueden haber cambiado.
-    cargar({ carpeta, q: q.trim() || undefined });
+    // El título, la carpeta, las etiquetas o el estado de favorita pueden haber cambiado.
+    cargar({ carpeta, etiqueta, q: q.trim() || undefined });
   }
 
   async function borrar() {
     if (!notaAbierta) return;
     await borrarNotaEnPanel(notaAbierta.nota.id);
     cerrarNota();
+  }
+
+  async function abrirPapelera() {
+    setVistaPapelera(true);
+    setCargandoPapelera(true);
+    const datos = await obtenerPapelera();
+    setPapelera(datos ?? []);
+    setCargandoPapelera(false);
+  }
+
+  async function restaurar(id: string) {
+    setPapelera((actual) => actual.filter((n) => n.id !== id));
+    await restaurarNota(id);
+    cargar({ carpeta, etiqueta, q: q.trim() || undefined });
+  }
+
+  async function eliminarParaSiempre(id: string) {
+    if (!window.confirm('Esta nota se borrará para siempre y no se podrá recuperar. ¿Seguro?')) return;
+    setPapelera((actual) => actual.filter((n) => n.id !== id));
+    await eliminarNotaParaSiempre(id);
   }
 
   const limites = limitesDe(plan);
@@ -147,7 +201,9 @@ export default function SeccionNotas() {
           bloquesIniciales={comoBloques(notaAbierta.nota.content)}
           favoritaInicial={notaAbierta.nota.favorita}
           resumenInicial={notaAbierta.nota.resumen_ia}
-          onFavoritaCambiada={() => cargar({ carpeta, q: q.trim() || undefined })}
+          etiquetasIniciales={notaAbierta.nota.etiquetas}
+          etiquetasConocidas={etiquetas.map((e) => e.nombre)}
+          onFavoritaCambiada={() => cargar({ carpeta, etiqueta, q: q.trim() || undefined })}
         />
 
         {notaAbierta.tareas.length > 0 && (
@@ -171,6 +227,58 @@ export default function SeccionNotas() {
     );
   }
 
+  if (vistaPapelera) {
+    return (
+      <div className="px-5 py-6 sm:px-8">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <button type="button" onClick={() => setVistaPapelera(false)} className="btn-fantasma text-sm">
+            ← Notas
+          </button>
+          <h1 className="text-lg font-extrabold tracking-tight">Papelera</h1>
+        </div>
+
+        {cargandoPapelera ? (
+          <p className="text-sm text-ink/50">Cargando…</p>
+        ) : papelera.length === 0 ? (
+          <div className="card p-10 text-center">
+            <p className="text-lg font-semibold">La papelera está vacía</p>
+            <p className="mt-2 text-sm text-ink/60">Las notas que borres aparecerán aquí antes de irse para siempre.</p>
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {papelera.map((nota) => (
+              <li key={nota.id} className="card flex items-center justify-between gap-4 p-4">
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{nota.titulo || 'Sin título'}</p>
+                  <p className="text-xs text-ink/45">
+                    Borrada el{' '}
+                    {new Date(nota.deleted_at).toLocaleDateString('es-ES', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button type="button" onClick={() => restaurar(nota.id)} className="btn-fantasma text-sm">
+                    Restaurar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => eliminarParaSiempre(nota.id)}
+                    className="btn-fantasma text-sm text-red-600 hover:bg-red-50"
+                  >
+                    Eliminar para siempre
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="px-5 py-6 sm:px-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
@@ -182,9 +290,14 @@ export default function SeccionNotas() {
           </p>
         </div>
 
-        <button type="button" onClick={nuevaNota} className="btn-primary" disabled={cupoLleno}>
-          Nueva nota
-        </button>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={abrirPapelera} className="btn-fantasma text-sm">
+            🗑 Papelera
+          </button>
+          <button type="button" onClick={nuevaNota} className="btn-primary" disabled={cupoLleno}>
+            Nueva nota
+          </button>
+        </div>
       </header>
 
       {errorNota && (
@@ -218,7 +331,7 @@ export default function SeccionNotas() {
         <button
           type="button"
           onClick={() => elegirCarpeta(undefined)}
-          className={`chip ${!carpeta && !q ? 'border-brand-300 bg-brand-50 text-brand-700' : ''}`}
+          className={`chip ${!carpeta && !etiqueta && !q ? 'border-brand-300 bg-brand-50 text-brand-700' : ''}`}
         >
           Todas
         </button>
@@ -242,6 +355,21 @@ export default function SeccionNotas() {
           />
         </form>
       </div>
+
+      {etiquetas.length > 0 && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {etiquetas.map((e) => (
+            <button
+              key={e.id}
+              type="button"
+              onClick={() => elegirEtiqueta(e.id)}
+              className={`chip ${etiqueta === e.id ? 'border-brand-300 bg-brand-50 text-brand-700' : ''}`}
+            >
+              #{e.nombre}
+            </button>
+          ))}
+        </div>
+      )}
 
       {!cargando && notas.length === 0 ? (
         <div className="card mt-8 p-10 text-center">
@@ -275,6 +403,18 @@ export default function SeccionNotas() {
                   <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-ink/60">
                     {extracto(bloques, 220) || 'Nota vacía'}
                   </p>
+                  {nota.etiquetas.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      {nota.etiquetas.map((nombre) => (
+                        <span
+                          key={nombre}
+                          className="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-700"
+                        >
+                          #{nombre}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <p className="mt-4 text-xs text-ink/40">
                     {new Date(nota.updated_at).toLocaleDateString('es-ES', {
                       day: 'numeric',
