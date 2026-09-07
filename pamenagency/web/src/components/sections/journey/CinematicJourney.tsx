@@ -13,6 +13,18 @@ import { SceneServices } from './SceneServices'
 const SCENES = [SceneIntro, SceneProblem, SceneAbout, SceneAdvantage, SceneProducts, SceneServices]
 const SCENE_COUNT = SCENES.length
 
+// Alto de scroll por escena. Antes eran 100vh y la escena solo estaba
+// "sola" en el instante exacto del centro — el resto del tiempo ya se
+// estaba cruzando con la vecina (ver PLATEAU más abajo). Subirlo a 140vh
+// da más recorrido de scroll a cada escena.
+const VH_PER_SCENE = 140
+// Fracción del tramo entre dos escenas donde la activa se queda quieta a
+// opacidad 1, sin que la siguiente empiece a entrar todavía. Con 0.35 aún
+// quedaba una franja del 30% del tramo donde ambas se veían a la vez (el
+// texto de una se leía a través del otro). En 0.45 esa franja baja al 10%:
+// un cruce mucho más corto y limpio, casi un relevo en vez de una mezcla.
+const PLATEAU = 0.45
+
 /**
  * El "viaje" cinematográfico: Intro → El punto de partida → Quiénes somos →
  * La IA como ventaja → Productos → Servicios, fijado en pantalla mientras
@@ -72,7 +84,12 @@ function PinnedJourney() {
       sceneRefs.current.forEach((el, i) => {
         if (!el) return
         const raw = scaled - i
-        const linear = Math.max(0, 1 - Math.min(Math.abs(raw), 1))
+        const absRaw = Math.min(Math.abs(raw), 1)
+        // Meseta: dentro de ±PLATEAU la escena está sola, a opacidad 1.
+        // Fuera de ella (hasta ±1, el punto donde manda la vecina), se
+        // desvanece — en una franja más corta que el tramo completo, así
+        // que ya no pasa casi todo el scroll "a medias" entre dos escenas.
+        const linear = absRaw <= PLATEAU ? 1 : Math.max(0, 1 - (absRaw - PLATEAU) / (1 - PLATEAU))
         const eased = linear * linear * (3 - 2 * linear)
         el.style.setProperty('--enter', eased.toFixed(3))
         el.style.transform = `translate3d(0, ${(-raw * 30).toFixed(1)}px, 0) scale(${(0.965 + eased * 0.035).toFixed(3)})`
@@ -115,7 +132,7 @@ function PinnedJourney() {
 
   return (
     <div className="pm-journey">
-      <div className="pm-journey__track" ref={trackRef} style={{ height: `${SCENE_COUNT * 100}vh` }}>
+      <div className="pm-journey__track" ref={trackRef} style={{ height: `${SCENE_COUNT * VH_PER_SCENE}vh` }}>
         <div className="pm-journey__stage" ref={stageRef}>
           <JourneyCanvas ref={worldRef} sceneCount={SCENE_COUNT} className="pm-journey__world" />
           {SCENES.map((SceneComp, i) => (
