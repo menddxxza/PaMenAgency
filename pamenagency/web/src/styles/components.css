@@ -414,6 +414,21 @@
   .pm-mobilemenu { animation: none; opacity: 1; }
 }
 
+/* En horizontal hay poca altura disponible: la opción seleccionada se
+   ancla al 50% del alto de la rueda (ver OptionWheel.css), y con la
+   mayoría de las opciones por debajo de "Inicio" el contenido llegaba
+   hasta el borde inferior, pegado al pie con los botones. Subir el
+   ancla dentro de la rueda deja más aire abajo sin tocar el layout. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .pm-mobilemenu { padding-top: calc(var(--header-h) + 0.75rem); }
+  .pm-mobilemenu .option-wheel__item { top: 30%; }
+  /* La rueda queda forzada a su min-height en pantallas tan bajas, así que
+     su borde inferior (recortado por overflow:hidden) toca literalmente
+     el pie — de ahí el efecto de "corte". Un margen fijo separa ambos
+     aunque el contenido interno siga llegando cerca del borde. */
+  .pm-mobilemenu__wheel { margin-bottom: 1.5rem; }
+}
+
 .pm-mobilemenu__wheel-item {
   display: flex;
   align-items: baseline;
