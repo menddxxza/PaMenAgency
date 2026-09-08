@@ -21,14 +21,21 @@ export const site = {
   ],
 } as const
 
-/** Navegación principal. El orden es también el orden del relato de la home. */
+/**
+ * Navegación principal. El orden es también el orden del relato de la home.
+ *
+ * Se mantiene en siete elementos a propósito: el header conmuta al menú
+ * hamburguesa en 1240px y ese corte está calibrado justo para este ancho.
+ * Por eso la auditoría entra ocupando el hueco de FAQ, que sigue accesible
+ * desde el pie, desde /faq y desde el buscador.
+ */
 export const mainNav = [
   { label: 'Inicio', to: '/' },
   { label: 'Quiénes somos', to: '/nosotros' },
   { label: 'Servicios', to: '/servicios' },
   { label: 'IA para todos', to: '/ia-para-todos' },
   { label: 'Conocimiento', to: '/conocimiento' },
-  { label: 'FAQ', to: '/faq' },
+  { label: 'Auditoría', to: '/auditoria-ia' },
   { label: 'Contacto', to: '/contacto' },
 ] as const
 
@@ -38,6 +45,7 @@ export const footerNav = [
     title: 'Agencia',
     links: [
       { label: 'Quiénes somos', to: '/nosotros' },
+      { label: 'Auditoría de IA', to: '/auditoria-ia' },
       { label: 'Metodología', to: '/metodologia' },
       { label: 'Servicios', to: '/servicios' },
       { label: 'Diagnóstico', to: '/diagnostico' },

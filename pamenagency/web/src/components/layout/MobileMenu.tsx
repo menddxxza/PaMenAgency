@@ -107,10 +107,10 @@ export function MobileMenu({ onClose, email }: { onClose: () => void; email: str
 
       <div className="pm-mobilemenu__footer">
         <Button to="/diagnostico" variant="ghost" full>
-          Descubrir mi potencial
+          Diagnóstico gratuito
         </Button>
-        <Button to="/contacto" full arrow>
-          Hablar con PAMEN AGENCY
+        <Button to="/auditoria-ia" full arrow>
+          Solicitar auditoría de IA
         </Button>
         <a className="pm-link" href={`mailto:${email}`} style={{ justifyContent: 'center' }}>
           {email}

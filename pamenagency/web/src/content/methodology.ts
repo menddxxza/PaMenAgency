@@ -48,6 +48,14 @@ export const methodology: Step[] = [
       'Revisamos si lo implantado hace lo que debía con los criterios acordados en la fase de análisis. Lo que no funciona se corrige o se retira; mantener algo que no aporta también cuesta dinero.',
     entregables: ['Medición de resultados', 'Ajustes', 'Siguiente prioridad'],
   },
+  {
+    num: '06',
+    titulo: 'Escalar',
+    resumen: 'Extender lo que ya funciona.',
+    texto:
+      'Sólo se lleva a otras áreas lo que ya ha demostrado funcionar y se ha medido. Escalar antes de tener esa prueba es la forma más rápida de multiplicar un problema en vez de una mejora.',
+    entregables: ['Plan de extensión', 'Criterios de repetición', 'Formación al equipo'],
+  },
 ]
 
 /** Cadena visual PROBLEMA → RESULTADO. */

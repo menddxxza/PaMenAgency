@@ -44,6 +44,10 @@ interface LeadPayload {
   necesidad?: string
   presupuesto?: string
   urgencia?: string
+  /** Campos propios del formulario de auditoría (AuditForm.tsx). */
+  cargo?: string
+  tamano?: string
+  objetivo?: string
   mensaje: string
   score: number
   utm_source?: string
@@ -131,8 +135,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     lead.empresa && `Empresa: ${lead.empresa}`,
     `Email: ${lead.email}`,
     lead.telefono && `Teléfono: ${lead.telefono}`,
+    lead.cargo && `Cargo: ${lead.cargo}`,
+    lead.tamano && `Tamaño de empresa: ${lead.tamano}`,
     lead.sector && `Sector: ${lead.sector}`,
     lead.necesidad && `Necesidad: ${lead.necesidad}`,
+    lead.objetivo && `Objetivo declarado: ${lead.objetivo}`,
     lead.presupuesto && `Presupuesto: ${lead.presupuesto}`,
     lead.urgencia && `Urgencia (1-5): ${lead.urgencia}`,
     lead.utm_source && `Origen (utm_source): ${lead.utm_source}`,

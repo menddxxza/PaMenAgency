@@ -25,6 +25,7 @@ const staticRoutes = [
   ['/conocimiento', 0.9, 'weekly'],
   ['/grietas-de-la-ia', 0.8, 'monthly'],
   ['/metodologia', 0.7, 'monthly'],
+  ['/auditoria-ia', 0.9, 'monthly'],
   ['/diagnostico', 0.8, 'monthly'],
   ['/faq', 0.7, 'monthly'],
   ['/contacto', 0.7, 'yearly'],

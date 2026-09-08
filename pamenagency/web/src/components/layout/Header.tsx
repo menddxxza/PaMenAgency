@@ -86,8 +86,12 @@ export function Header() {
               <Icon name="search" size={18} />
             </button>
             <div className="pm-header__cta">
-              <Button to="/contacto" size="sm" arrow>
-                Hablemos
+              {/* El CTA global del sitio es la auditoría, no un contacto genérico.
+                  Ojo al ancho de la etiqueta: el corte a 1240px del header está
+                  calibrado justo para el logo + 7 enlaces + búsqueda + este botón
+                  (ver el comentario del breakpoint en components.css). */}
+              <Button to="/auditoria-ia" size="sm" arrow>
+                Auditoría
               </Button>
             </div>
             <button

@@ -1,4 +1,8 @@
 import { CinematicJourney } from '@/components/sections/journey/CinematicJourney'
+import { AreasSection } from '@/components/sections/AreasSection'
+import { SolutionsSection } from '@/components/sections/SolutionsSection'
+import { AuditBand } from '@/components/sections/AuditBand'
+import { WhySection } from '@/components/sections/WhySection'
 import { MethodologySection } from '@/components/sections/MethodologySection'
 import { ForEveryone } from '@/components/sections/ForEveryone'
 import { KnowledgeSection } from '@/components/sections/KnowledgeSection'
@@ -45,7 +49,11 @@ export default function Home() {
   return (
     <>
       <CinematicJourney />
+      <AreasSection />
+      <SolutionsSection />
+      <AuditBand />
       <MethodologySection compact />
+      <WhySection />
       <ForEveryone limit={3} />
       <KnowledgeSection limit={3} />
       <CracksSection limit={6} />
