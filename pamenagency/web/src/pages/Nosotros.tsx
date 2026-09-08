@@ -6,6 +6,13 @@ import { MethodologySection } from '@/components/sections/MethodologySection'
 import { Scene3D } from '@/components/three/Scene3D'
 import { breadcrumbJsonLd, organizationJsonLd, useSeo } from '@/lib/seo'
 
+const formacion = [
+  { curso: 'Domina ChatGPT: Automatiza, Crea y Ahorra Tiempo con IA', emisor: 'HoyAprendo' },
+  { curso: 'Domina VEO3: Guía Rápida para Principiantes', emisor: 'HoyAprendo' },
+  { curso: 'Claude: cómo utilizarlo como un profesional', emisor: 'HoyAprendo' },
+  { curso: 'Iniciación al Desarrollo con IA (Programa con Agentes)', emisor: 'BIG School × MoureDev' },
+]
+
 const diferencias = [
   {
     icon: 'shield' as const,
@@ -166,6 +173,26 @@ export default function Nosotros() {
             </div>
           </Reveal>
         </div>
+      </Section>
+
+      <Section>
+        <SectionHead
+          eyebrow="Formación"
+          title="Seguimos formándonos"
+          lead="La IA cambia rápido. Estos son algunos de los cursos que hemos completado para mantenernos al día."
+        />
+        <Reveal>
+          <ul className="pm-checklist">
+            {formacion.map((f) => (
+              <li key={f.curso}>
+                <Icon name="book" size={17} />
+                <span>
+                  {f.curso} <span className="pm-muted">— {f.emisor}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </Section>
 
       <MethodologySection compact />
