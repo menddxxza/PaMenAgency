@@ -186,3 +186,39 @@ export function useCanRender3D(): boolean {
 
   return can
 }
+
+/**
+ * Decide si el viaje cinematográfico de la Home (pin + scroll-scrubbing)
+ * debe activarse. A propósito NO comprueba WebGL/memoria/núcleos como
+ * `useCanRender3D()`: el pin y el cruce entre escenas son solo CSS
+ * (transform/opacity) orquestados por scroll, nada de eso depende de la
+ * GPU. Si el dispositivo no puede con el mundo 3D, `JourneyCanvas` ya lo
+ * sustituye por su versión estática en SVG por su cuenta — el viaje en sí
+ * sigue funcionando igual. Con la comprobación de `useCanRender3D()`, un
+ * equipo de escritorio normal con la aceleración por hardware desactivada
+ * (política de empresa, modo ahorro de batería, WebGL bloqueado por el
+ * navegador) perdía el efecto entero en vez de solo el 3D — de ahí este
+ * hook aparte. Solo se respeta `prefers-reduced-motion` (accesibilidad) y
+ * el ancho mínimo (en móvil el viaje se sirve apilado, sin pin, a petición
+ * expresa).
+ */
+export function useCinematicScrollEnabled(): boolean {
+  const [enabled, setEnabled] = useState(false)
+
+  useEffect(() => {
+    const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const widthQuery = window.matchMedia('(min-width: 640px)')
+
+    const evaluate = () => setEnabled(!reducedQuery.matches && widthQuery.matches)
+    evaluate()
+
+    reducedQuery.addEventListener('change', evaluate)
+    widthQuery.addEventListener('change', evaluate)
+    return () => {
+      reducedQuery.removeEventListener('change', evaluate)
+      widthQuery.removeEventListener('change', evaluate)
+    }
+  }, [])
+
+  return enabled
+}

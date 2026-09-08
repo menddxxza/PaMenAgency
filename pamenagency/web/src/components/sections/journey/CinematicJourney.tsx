@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useCanRender3D } from '@/lib/motion'
+import { useCinematicScrollEnabled } from '@/lib/motion'
 import { createCinematicScroll, ScrollTrigger } from '@/lib/cinematicScroll'
 import { JourneyCanvas, type JourneyCanvasHandle } from '@/components/three/JourneyCanvas'
 import { Section, Reveal } from '@/components/ui/Section'
@@ -31,15 +31,21 @@ const PLATEAU = 0.45
  * dura el scroll y con un único mundo WebGL de fondo (`JourneyCanvas`) que
  * se transforma con el progreso en vez de reiniciarse en cada escena.
  *
- * Solo se activa si `useCanRender3D()` lo permite (desktop capaz, sin
- * `prefers-reduced-motion`, con WebGL real) — ese hook ya agrupa todas esas
- * condiciones. Si falla cualquiera, se sirve `StackedJourney`: el mismo
- * contenido, en el mismo orden, en flujo vertical normal con el
- * revelado-al-hacer-scroll que ya usa el resto del sitio. Nunca hay una
+ * El pin + scroll-scrubbing se activa con `useCinematicScrollEnabled()`
+ * (pantalla ≥640px y sin `prefers-reduced-motion`) — deliberadamente NO
+ * exige WebGL/memoria/núcleos, porque el pin y el cruce entre escenas son
+ * solo CSS por scroll, no dependen de la GPU. El mundo 3D de fondo
+ * (`JourneyCanvas`) se protege por su cuenta con `useCanRender3D()` y sirve
+ * su versión estática en SVG si el equipo no puede con WebGL — así un
+ * escritorio con la aceleración por hardware desactivada (política de
+ * empresa, ahorro de batería, WebGL bloqueado) sigue viendo el viaje
+ * completo, solo que con el fondo estático en vez del 3D. Si falla el
+ * ancho o `prefers-reduced-motion`, se sirve `StackedJourney`: el mismo
+ * contenido, en el mismo orden, en flujo vertical normal. Nunca hay una
  * versión rota o a medias.
  */
 export function CinematicJourney() {
-  const cinematic = useCanRender3D()
+  const cinematic = useCinematicScrollEnabled()
 
   if (!cinematic) return <StackedJourney />
   return <PinnedJourney />
