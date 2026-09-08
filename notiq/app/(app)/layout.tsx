@@ -34,7 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
      * arriba no mida justo esos píxeles (como pasaba antes con el asistente).
      */
     <div className="flex h-dvh flex-col overflow-hidden">
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white">{children}</main>
+      <main className="min-h-0 flex-1 overflow-y-auto bg-surface">{children}</main>
     </div>
   );
 }

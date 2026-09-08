@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition, type ChangeEvent } from 'react';
+import { useEffect, useState, useTransition, type ChangeEvent, type DragEvent } from 'react';
 import { borrarAdjunto, obtenerAdjuntos, subirAdjunto, type Adjunto } from '@/app/(app)/adjuntos/actions';
 
 function formatoTamano(bytes: number): string {
@@ -14,19 +14,14 @@ export default function Adjuntos({ noteId, taskId }: { noteId?: string; taskId?:
   const [adjuntos, setAdjuntos] = useState<Adjunto[]>([]);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [arrastrando, setArrastrando] = useState(false);
   const [, empezar] = useTransition();
 
   useEffect(() => {
     obtenerAdjuntos({ noteId, taskId }).then(setAdjuntos);
   }, [noteId, taskId]);
 
-  async function subir(e: ChangeEvent<HTMLInputElement>) {
-    const archivo = e.target.files?.[0];
-    // Sin esto, elegir el mismo archivo dos veces seguidas no dispara onChange
-    // la segunda vez, porque el valor del input no ha cambiado.
-    e.target.value = '';
-    if (!archivo) return;
-
+  async function subirArchivo(archivo: File) {
     setSubiendo(true);
     setError(null);
 
@@ -45,6 +40,21 @@ export default function Adjuntos({ noteId, taskId }: { noteId?: string; taskId?:
     if (resultado.adjunto) setAdjuntos((previos) => [resultado.adjunto!, ...previos]);
   }
 
+  function subir(e: ChangeEvent<HTMLInputElement>) {
+    const archivo = e.target.files?.[0];
+    // Sin esto, elegir el mismo archivo dos veces seguidas no dispara onChange
+    // la segunda vez, porque el valor del input no ha cambiado.
+    e.target.value = '';
+    if (archivo) void subirArchivo(archivo);
+  }
+
+  function alSoltar(e: DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setArrastrando(false);
+    const archivo = e.dataTransfer.files?.[0];
+    if (archivo && !subiendo) void subirArchivo(archivo);
+  }
+
   function borrar(id: string) {
     empezar(async () => {
       await borrarAdjunto(id);
@@ -53,7 +63,15 @@ export default function Adjuntos({ noteId, taskId }: { noteId?: string; taskId?:
   }
 
   return (
-    <div>
+    <div
+      onDragOver={(e) => {
+        e.preventDefault();
+        setArrastrando(true);
+      }}
+      onDragLeave={() => setArrastrando(false)}
+      onDrop={alSoltar}
+      className={`rounded-xl transition ${arrastrando ? 'bg-brand-50 ring-2 ring-brand-300 ring-offset-2' : ''}`}
+    >
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-xs font-bold uppercase tracking-wide text-ink/50">Adjuntos</h3>
         <label className="cursor-pointer text-xs font-semibold text-brand-600 hover:underline">
@@ -67,6 +85,12 @@ export default function Adjuntos({ noteId, taskId }: { noteId?: string; taskId?:
           />
         </label>
       </div>
+
+      {arrastrando && (
+        <p className="mt-2 rounded-lg border border-dashed border-brand-300 px-2.5 py-2 text-center text-xs font-semibold text-brand-600">
+          Suelta el archivo para subirlo
+        </p>
+      )}
 
       {error && (
         <p role="alert" className="mt-2 text-xs text-red-700">

@@ -104,7 +104,7 @@ export default function Asistente() {
               className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                 turno.role === 'user'
                   ? 'bg-brand-600 text-white'
-                  : 'border border-ink/10 bg-white text-ink/85 shadow-card'
+                  : 'border border-ink/10 bg-surface text-ink/85 shadow-card'
               }`}
             >
               {turno.role === 'assistant'
@@ -130,7 +130,7 @@ export default function Asistente() {
 
         {cargando && (
           <div className="flex justify-start">
-            <div className="rounded-2xl border border-ink/10 bg-white px-4 py-3 text-sm text-ink/45 shadow-card">
+            <div className="rounded-2xl border border-ink/10 bg-surface px-4 py-3 text-sm text-ink/45 shadow-card">
               Pensando…
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, useTransition, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition, type FormEvent } from 'react';
 import VistasTareas from '@/components/VistasTareas';
 import { PRIORIDADES, type Tarea } from '@/lib/tareas';
 import { crearTarea, obtenerTareas } from '@/app/(app)/tareas/actions';
@@ -12,6 +12,7 @@ export default function SeccionTareas() {
   const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
   const [cargando, setCargando] = useState(true);
   const [pendiente, empezar] = useTransition();
+  const inputTituloRef = useRef<HTMLInputElement>(null);
 
   const cargar = useCallback(async () => {
     const datos = await obtenerTareas();
@@ -25,6 +26,17 @@ export default function SeccionTareas() {
   useEffect(() => {
     cargar();
   }, [cargar]);
+
+  // Disparado desde la paleta de comandos (Ctrl/Cmd+K → "Nueva tarea") y desde el
+  // atajo de teclado "t". El título es obligatorio (ver el check de la tabla), así
+  // que aquí no se crea nada solo — se lleva el foco al campo para que se escriba.
+  useEffect(() => {
+    function alPedirNueva() {
+      inputTituloRef.current?.focus();
+    }
+    window.addEventListener('notiq:crear-tarea', alPedirNueva);
+    return () => window.removeEventListener('notiq:crear-tarea', alPedirNueva);
+  }, []);
 
   function crear(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,6 +62,7 @@ export default function SeccionTareas() {
 
       <form onSubmit={crear} className="card mt-6 flex flex-wrap gap-2 p-3">
         <input
+          ref={inputTituloRef}
           name="titulo"
           required
           maxLength={200}

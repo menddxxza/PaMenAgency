@@ -44,7 +44,7 @@ export default function LandingPage() {
         de tener z-index explícito.
       */}
       <div className="relative z-10">
-        <header className="sticky top-0 z-20 border-b border-ink/5 bg-white/70 backdrop-blur-md">
+        <header className="sticky top-0 z-20 border-b border-ink/5 bg-surface/70 backdrop-blur-md">
           <div className="container-page flex items-center justify-between py-4">
             <Logo />
             <nav className="flex items-center gap-2">

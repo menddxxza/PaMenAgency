@@ -52,10 +52,27 @@ repositorio; el resto es el plan.
 
 - [ ] Onboarding con una nota de ejemplo ya escrita
 - [x] Etiquetas en la interfaz — chips en la nota (con sugerencias) y filtro en la lista
-- [ ] Imágenes en las notas (Neon no tiene Storage propio; haría falta S3, R2 o similar)
-- [ ] Paleta de comandos y atajos de teclado
+- [x] Imágenes en las notas — arrastrar y soltar sobre Adjuntos (sigue guardando en
+      Postgres como bytea, no en S3/R2; sube al mismo sitio que el botón de siempre)
+- [x] Paleta de comandos (Ctrl/Cmd+K) y atajos de teclado (`n`, `t`)
 - [x] Papelera para recuperar notas borradas — vista dentro de Notas, con restaurar y borrado definitivo
 - [ ] Enlace mágico (login sin contraseña), si aparece un proveedor de email
+- [x] Modo oscuro — toggle en Ajustes, sin parpadeo al cargar (script inline + `.dark` en `<html>`)
+- [x] Plantillas de nota (reunión, lista de la compra, diario) al crear una nota nueva
+- [x] Exportar una nota a Markdown (.md) o a PDF vía "Imprimir" del navegador
+- [x] Notas relacionadas ("backlinks"): escribir `[[Título de otra nota]]` en el
+      texto la enlaza; se detecta buscando en caliente, sin tabla nueva
+- [x] "Recordar" en una nota crea una tarea con fecha de vencimiento enlazada a
+      ella — no es una notificación push (eso sigue sin existir, ver el cron de
+      arriba), solo aparece en Tareas con fecha
+
+## Compartir por enlace — código listo, pendiente de una migración
+
+- [ ] `migrations/0003_notas_compartidas.sql` añade `notes.compartir_publico`.
+      **No se ha ejecutado contra el Neon real** — hasta que no se ejecute, este
+      código no se despliega (una nota sin esa columna rompería cualquier
+      apertura de nota en producción). Ver el aviso en el propio fichero de
+      migración para el comando exacto.
 
 ## Semanas 11-12 · Lanzamiento
 

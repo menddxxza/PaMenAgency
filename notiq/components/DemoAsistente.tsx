@@ -25,7 +25,7 @@ export default function DemoAsistente() {
           </p>
         </div>
         <div className="flex justify-start">
-          <p className="max-w-[90%] rounded-2xl border border-ink/10 bg-white/80 px-3.5 py-2.5 text-xs leading-relaxed text-ink/80">
+          <p className="max-w-[90%] rounded-2xl border border-ink/10 bg-surface/80 px-3.5 py-2.5 text-xs leading-relaxed text-ink/80">
             Dos cosas: <strong className="font-semibold">«Enviar propuesta a Marta»</strong>{' '}
             (urgente) y <strong className="font-semibold">«Revisar maqueta»</strong>. Las dos
             vencen el viernes.

@@ -6,8 +6,15 @@ import EditorBloques from '@/components/EditorBloques';
 import EtiquetasNota from '@/components/EtiquetasNota';
 import PanelIa from '@/components/PanelIa';
 import Adjuntos from '@/components/panel/Adjuntos';
-import { aMarkdown, type Bloque } from '@/lib/bloques';
-import { alternarFavorita, guardarNota } from '@/app/(app)/notas/actions';
+import { aMarkdown, nuevoBloque, type Bloque } from '@/lib/bloques';
+import {
+  alternarFavorita,
+  crearRecordatorioDeNota,
+  guardarNota,
+  obtenerNotas,
+  obtenerNotasRelacionadas,
+  type NotaRelacionada,
+} from '@/app/(app)/notas/actions';
 
 const RETARDO_GUARDADO = 900;
 
@@ -41,6 +48,13 @@ export default function NotaEditor({
   const [bloques, setBloques] = useState(bloquesIniciales);
   const [favorita, setFavorita] = useState(favoritaInicial);
   const [estado, setEstado] = useState<Estado>('guardado');
+  const [menuExportar, setMenuExportar] = useState(false);
+  const [recordatorioAbierto, setRecordatorioAbierto] = useState(false);
+  const [mensajeRecordatorio, setMensajeRecordatorio] = useState<string | null>(null);
+  const [menuVincular, setMenuVincular] = useState(false);
+  const [qVincular, setQVincular] = useState('');
+  const [resultadosVincular, setResultadosVincular] = useState<{ id: string; titulo: string }[]>([]);
+  const [relacionadas, setRelacionadas] = useState<NotaRelacionada[]>([]);
 
   const sucio = useRef(false);
   const enVuelo = useRef(false);
@@ -111,6 +125,27 @@ export default function NotaEditor({
     };
   }, [guardar]);
 
+  // Notas que enlazan a esta (contienen "[[Título de esta nota]]" en su texto).
+  // Se recalcula al abrir una nota distinta, no en cada tecla: son enlaces de
+  // otras notas hacia esta, no algo que cambie por escribir aquí.
+  useEffect(() => {
+    obtenerNotasRelacionadas(id).then((r) => setRelacionadas(r ?? []));
+  }, [id]);
+
+  useEffect(() => {
+    if (!menuVincular || !qVincular.trim()) {
+      setResultadosVincular([]);
+      return;
+    }
+    const temporizador = setTimeout(async () => {
+      const datos = await obtenerNotas({ q: qVincular.trim() });
+      setResultadosVincular(
+        datos ? datos.notas.filter((n) => n.id !== id).slice(0, 6).map((n) => ({ id: n.id, titulo: n.titulo || 'Sin título' })) : [],
+      );
+    }, 200);
+    return () => clearTimeout(temporizador);
+  }, [qVincular, menuVincular, id]);
+
   // Ctrl/Cmd+S guarda ya, sin esperar al debounce.
   useEffect(() => {
     function atajo(evento: KeyboardEvent) {
@@ -124,10 +159,63 @@ export default function NotaEditor({
     return () => window.removeEventListener('keydown', atajo);
   }, [guardar]);
 
+  function descargarMarkdown() {
+    const nombreArchivo = `${(titulo || 'nota').slice(0, 60).replace(/[\\/:*?"<>|]+/g, '-')}.md`;
+    const contenido = `# ${titulo || 'Sin título'}\n\n${aMarkdown(bloques)}\n`;
+    const blob = new Blob([contenido], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = nombreArchivo;
+    document.body.appendChild(enlace);
+    enlace.click();
+    document.body.removeChild(enlace);
+    URL.revokeObjectURL(url);
+  }
+
+  function imprimirComoPdf() {
+    // No hay librería de PDF de por medio: el diálogo de impresión del propio
+    // navegador ya deja "Guardar como PDF" como destino, y .imprimir-nota (ver
+    // globals.css) oculta todo lo que no sea el título y el cuerpo de la nota.
+    window.print();
+  }
+
+  function vincularNota(tituloVinculado: string) {
+    // Un bloque de texto nuevo al final y no un enlace insertado en el cursor: el
+    // editor guarda un textarea por bloque (ver la decisión en ROADMAP.md), así
+    // que no hay una posición de cursor "actual" entre bloques a la que apuntar.
+    const nuevosBloques = [...bloques, nuevoBloque('texto', `[[${tituloVinculado}]]`)];
+    setBloques(nuevosBloques);
+    programarGuardado(titulo, nuevosBloques);
+    setMenuVincular(false);
+    setQVincular('');
+  }
+
+  /** Al panel único (con onFavoritaCambiada) le basta un evento; la ruta
+   * standalone /notas/[id] no tiene quien lo escuche, así que ahí navega. */
+  function abrirNotaRelacionada(idRelacionada: string) {
+    if (onFavoritaCambiada) {
+      window.dispatchEvent(new CustomEvent('notiq:abrir-nota', { detail: idRelacionada }));
+    } else {
+      router.push(`/notas/${idRelacionada}`);
+    }
+  }
+
+  async function crearRecordatorio(fecha: string) {
+    if (!fecha) return;
+    const resultado = await crearRecordatorioDeNota(id, fecha);
+    setRecordatorioAbierto(false);
+    setMensajeRecordatorio(
+      resultado.ok
+        ? `Añadida a Tareas con vencimiento el ${new Date(`${fecha}T00:00:00`).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}.`
+        : resultado.error,
+    );
+  }
+
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-      <div className="min-w-0">
-        <div className="mb-4 flex items-center gap-3 text-xs text-ink/45">
+      <div className="min-w-0 imprimir-nota">
+        <div className="mb-4 flex items-center gap-3 text-xs text-ink/45 no-imprimir">
           <span aria-live="polite">
             {estado === 'guardando'
               ? 'Guardando…'
@@ -152,7 +240,141 @@ export default function NotaEditor({
           >
             {favorita ? '⭐ Favorita' : '☆ Marcar favorita'}
           </button>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setRecordatorioAbierto((abierto) => !abierto)}
+              aria-expanded={recordatorioAbierto}
+              className="hover:text-ink"
+            >
+              📅 Recordar
+            </button>
+            {recordatorioAbierto && (
+              <>
+                <button
+                  type="button"
+                  aria-hidden
+                  tabIndex={-1}
+                  onClick={() => setRecordatorioAbierto(false)}
+                  className="fixed inset-0 z-10 cursor-default"
+                />
+                <div className="card absolute left-0 top-full z-20 mt-2 w-64 p-3.5 text-sm">
+                  <p className="mb-2 text-ink/70">
+                    Crea una tarea con esta nota y la fecha que elijas — la verás en Tareas.
+                  </p>
+                  <input
+                    type="date"
+                    autoFocus
+                    min={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => void crearRecordatorio(e.target.value)}
+                    aria-label="Fecha del recordatorio"
+                    className="campo text-sm"
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuVincular((abierto) => !abierto)}
+              aria-expanded={menuVincular}
+              className="hover:text-ink"
+            >
+              🔗 Vincular nota
+            </button>
+            {menuVincular && (
+              <>
+                <button
+                  type="button"
+                  aria-hidden
+                  tabIndex={-1}
+                  onClick={() => setMenuVincular(false)}
+                  className="fixed inset-0 z-10 cursor-default"
+                />
+                <div className="card absolute left-0 top-full z-20 mt-2 w-64 overflow-hidden p-2">
+                  <input
+                    autoFocus
+                    value={qVincular}
+                    onChange={(e) => setQVincular(e.target.value)}
+                    placeholder="Buscar una nota…"
+                    aria-label="Buscar nota a vincular"
+                    className="campo text-sm"
+                  />
+                  {qVincular.trim() && (
+                    <ul className="mt-1.5 max-h-52 overflow-y-auto">
+                      {resultadosVincular.length === 0 ? (
+                        <li className="px-2 py-2 text-xs text-ink/45">Sin resultados.</li>
+                      ) : (
+                        resultadosVincular.map((n) => (
+                          <li key={n.id}>
+                            <button
+                              type="button"
+                              onClick={() => vincularNota(n.titulo)}
+                              className="block w-full truncate rounded-lg px-2 py-1.5 text-left text-sm hover:bg-ink/[0.04]"
+                            >
+                              {n.titulo}
+                            </button>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="relative ml-auto">
+            <button
+              type="button"
+              onClick={() => setMenuExportar((abierto) => !abierto)}
+              aria-expanded={menuExportar}
+              className="hover:text-ink"
+            >
+              ⭳ Exportar
+            </button>
+            {menuExportar && (
+              <>
+                <button
+                  type="button"
+                  aria-hidden
+                  tabIndex={-1}
+                  onClick={() => setMenuExportar(false)}
+                  className="fixed inset-0 z-10 cursor-default"
+                />
+                <div className="card absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden py-1.5 text-sm text-ink/80">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuExportar(false);
+                      descargarMarkdown();
+                    }}
+                    className="flex w-full items-center gap-2 px-3.5 py-2 text-left hover:bg-ink/[0.04]"
+                  >
+                    <span aria-hidden>⬇️</span> Descargar en Markdown
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuExportar(false);
+                      imprimirComoPdf();
+                    }}
+                    className="flex w-full items-center gap-2 px-3.5 py-2 text-left hover:bg-ink/[0.04]"
+                  >
+                    <span aria-hidden>🖨️</span> Imprimir / Guardar como PDF
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
+
+        {mensajeRecordatorio && (
+          <p className="no-imprimir -mt-2 mb-4 text-xs text-brand-700">{mensajeRecordatorio}</p>
+        )}
 
         <input
           value={titulo}
@@ -192,6 +414,27 @@ export default function NotaEditor({
         <div className="card p-5">
           <Adjuntos noteId={id} />
         </div>
+
+        {relacionadas.length > 0 && (
+          <div className="card p-5">
+            <h3 className="text-xs font-bold uppercase tracking-wide text-ink/50">
+              Notas que enlazan aquí
+            </h3>
+            <ul className="mt-2 space-y-1">
+              {relacionadas.map((n) => (
+                <li key={n.id}>
+                  <button
+                    type="button"
+                    onClick={() => abrirNotaRelacionada(n.id)}
+                    className="block w-full truncate rounded-lg px-2 py-1 text-left text-sm text-brand-700 hover:bg-brand-50"
+                  >
+                    📄 {n.titulo || 'Sin título'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

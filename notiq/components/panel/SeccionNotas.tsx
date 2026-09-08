@@ -3,11 +3,13 @@
 import { useEffect, useState, useTransition, type FormEvent } from 'react';
 import { comoBloques, extracto } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
+import { PLANTILLAS } from '@/lib/plantillas';
 import NotaEditor from '@/components/NotaEditor';
 import {
   crearCarpeta,
   crearNotaEnPanel,
   borrarNotaEnPanel,
+  guardarNota,
   obtenerNota,
   obtenerNotas,
   obtenerPapelera,
@@ -42,6 +44,7 @@ export default function SeccionNotas() {
   const [vistaPapelera, setVistaPapelera] = useState(false);
   const [papelera, setPapelera] = useState<NotaBorrada[]>([]);
   const [cargandoPapelera, setCargandoPapelera] = useState(false);
+  const [menuPlantillas, setMenuPlantillas] = useState(false);
 
   // Nota abierta en el propio panel: sin esto NotaEditor no tiene nada que
   // mostrar mientras `obtenerNota` está en vuelo, así que la sección se queda
@@ -123,18 +126,26 @@ export default function SeccionNotas() {
     setNotaAbierta(datos);
   }
 
-  async function nuevaNota() {
+  async function nuevaNota(plantillaId?: string) {
     setErrorNota(null);
     const resultado = await crearNotaEnPanel(carpeta);
     if (!resultado.ok || !resultado.id) {
       setErrorNota(!resultado.ok ? resultado.error : 'No se ha podido crear la nota.');
       return;
     }
+
+    const plantilla = plantillaId ? PLANTILLAS.find((p) => p.id === plantillaId) : undefined;
+    // crearNotaEnPanel siempre deja la nota en blanco (así vale también para el
+    // botón de toda la vida); si hay plantilla, se rellena aparte con un segundo
+    // guardado — el mismo guardarNota que usa el autoguardado del editor.
+    const { titulo, bloques } = plantilla ? plantilla.crear() : { titulo: '', bloques: [] };
+    if (plantilla) await guardarNota(resultado.id, titulo, bloques);
+
     setNotaAbierta({
       nota: {
         id: resultado.id,
-        titulo: '',
-        content: [],
+        titulo,
+        content: bloques,
         favorita: false,
         resumen_ia: null,
         deleted_at: null,
@@ -149,6 +160,28 @@ export default function SeccionNotas() {
     // El título, la carpeta, las etiquetas o el estado de favorita pueden haber cambiado.
     cargar({ carpeta, etiqueta, q: q.trim() || undefined });
   }
+
+  // Disparados desde la paleta de comandos (Ctrl/Cmd+K) y el atajo "n": crean o
+  // abren una nota sin pasar por la lista. `carpeta` en las dependencias evita
+  // que una nota nueva creada así ignore el filtro de carpeta activo en ese
+  // momento (ver el comentario de PaletaComandos.tsx sobre por qué el evento
+  // llega con un pequeño retardo la primera vez que se abre esta sección).
+  useEffect(() => {
+    function alPedirNueva() {
+      void nuevaNota();
+    }
+    function alPedirAbrir(e: Event) {
+      const id = (e as CustomEvent<string>).detail;
+      if (typeof id === 'string') void abrirNota(id);
+    }
+    window.addEventListener('notiq:crear-nota', alPedirNueva);
+    window.addEventListener('notiq:abrir-nota', alPedirAbrir);
+    return () => {
+      window.removeEventListener('notiq:crear-nota', alPedirNueva);
+      window.removeEventListener('notiq:abrir-nota', alPedirAbrir);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [carpeta]);
 
   async function borrar() {
     if (!notaAbierta) return;
@@ -290,13 +323,70 @@ export default function SeccionNotas() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="relative flex items-center gap-2">
           <button type="button" onClick={abrirPapelera} className="btn-fantasma text-sm">
             🗑 Papelera
           </button>
-          <button type="button" onClick={nuevaNota} className="btn-primary" disabled={cupoLleno}>
-            Nueva nota
-          </button>
+          <div className="flex">
+            <button
+              type="button"
+              onClick={() => nuevaNota()}
+              className="btn-primary rounded-r-none"
+              disabled={cupoLleno}
+            >
+              Nueva nota
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuPlantillas((abierto) => !abierto)}
+              disabled={cupoLleno}
+              aria-label="Elegir plantilla"
+              aria-expanded={menuPlantillas}
+              className="btn-primary rounded-l-none border-l border-white/25 px-2"
+            >
+              ▾
+            </button>
+          </div>
+
+          {menuPlantillas && (
+            <>
+              {/* Capa para cerrar el menú al hacer clic fuera, sin depender de un
+                  listener global de document — coherente con cómo ya se cierra la
+                  paleta de comandos (clic en el fondo). */}
+              <button
+                type="button"
+                aria-hidden
+                tabIndex={-1}
+                onClick={() => setMenuPlantillas(false)}
+                className="fixed inset-0 z-10 cursor-default"
+              />
+              <div className="card absolute right-0 top-full z-20 mt-2 w-56 overflow-hidden py-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuPlantillas(false);
+                    nuevaNota();
+                  }}
+                  className="flex w-full items-center gap-2 px-3.5 py-2 text-left text-sm hover:bg-ink/[0.04]"
+                >
+                  <span aria-hidden>📄</span> Nota en blanco
+                </button>
+                {PLANTILLAS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      setMenuPlantillas(false);
+                      nuevaNota(p.id);
+                    }}
+                    className="flex w-full items-center gap-2 px-3.5 py-2 text-left text-sm hover:bg-ink/[0.04]"
+                  >
+                    <span aria-hidden>{p.icono}</span> {p.nombre}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </header>
 

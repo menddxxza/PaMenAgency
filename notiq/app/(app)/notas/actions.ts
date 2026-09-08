@@ -232,6 +232,78 @@ export async function eliminarNotaParaSiempre(id: string): Promise<Resultado> {
   return { ok: true };
 }
 
+/**
+ * Convierte esta nota en una tarea con fecha de vencimiento, para tenerla en el
+ * tablero de Tareas. No es una notificación push — Notiq todavía no manda
+ * ninguna (el cron que las dispararía es trabajo futuro, ver ROADMAP.md) — así
+ * que esto es honesto sobre lo que hace: aparecer, con fecha, en Tareas.
+ */
+export async function crearRecordatorioDeNota(noteId: string, vence: string): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(noteId)) return { ok: false, error: 'Nota no válida.' };
+
+  const venceValida = fechaValidaONull(vence);
+  if (!venceValida) return { ok: false, error: 'Fecha no válida.' };
+
+  const sql = db();
+  const [nota] = await sql<{ titulo: string }[]>`
+    select titulo from notes
+    where id = ${noteId}::uuid and user_id = ${sesion.userId}::uuid and deleted_at is null
+  `;
+  if (!nota) return { ok: false, error: 'Esa nota ya no está disponible.' };
+
+  try {
+    await sql`
+      insert into tasks (user_id, note_id, titulo, vence, origen)
+      values (
+        ${sesion.userId}::uuid, ${noteId}::uuid,
+        ${(nota.titulo || 'Recordatorio').slice(0, 200)}, ${venceValida}, 'manual'
+      )
+    `;
+  } catch (fallo) {
+    console.error('[notiq] no se ha podido crear el recordatorio', fallo);
+    return { ok: false, error: 'No se ha podido crear el recordatorio.' };
+  }
+
+  revalidatePath('/tareas');
+  return { ok: true };
+}
+
+export type NotaRelacionada = { id: string; titulo: string };
+
+/**
+ * Notas que mencionan esta ("[[Título de esta nota]]" en su texto) — el enlace se
+ * escribe a mano (ver vincularNota en NotaEditor.tsx) y esto es lo que lo
+ * convierte en un backlink: en vez de guardar la relación en una tabla aparte
+ * (una migración más, y una que se puede desincronizar del título si la nota
+ * enlazada se renombra), se busca en caliente contra `notes.texto`. Con el
+ * volumen de una cuenta personal no hace falta más.
+ *
+ * `position(... in ...)` y no `ilike '%...%'`: así un título con `%` o `_` de
+ * verdad no se interpreta como comodín de patrón, se busca tal cual.
+ */
+export async function obtenerNotasRelacionadas(id: string): Promise<NotaRelacionada[] | null> {
+  const sesion = await getSesion();
+  if (!sesion) return null;
+  if (!esUuid(id)) return null;
+
+  const sql = db();
+  const [actual] = await sql<{ titulo: string }[]>`
+    select titulo from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+  `;
+  if (!actual || !actual.titulo.trim()) return [];
+
+  const marcador = `[[${actual.titulo}]]`;
+  return sql<NotaRelacionada[]>`
+    select id, titulo from notes
+    where user_id = ${sesion.userId}::uuid and deleted_at is null and id != ${id}::uuid
+      and position(lower(${marcador}) in lower(texto)) > 0
+    order by updated_at desc
+    limit 20
+  `;
+}
+
 export async function crearCarpeta(formData: FormData) {
   const sesion = await getSesion();
   if (!sesion) redirect('/entrar');

@@ -34,9 +34,29 @@ export const viewport: Viewport = {
   themeColor: '#6829e0',
 };
 
+/*
+ * Aplica la clase `.dark` (ver --color-* en globals.css) antes del primer pintado.
+ * Sin esto, React hidrataría en claro y luego la cambiaría a oscuro tras montar
+ * InterruptorTema.tsx — un parpadeo visible en cada carga para quien ya eligió
+ * oscuro. Un <script> normal (no un efecto de React) es la única forma de que esto
+ * corra antes de que el navegador pinte el primer frame.
+ */
+const SCRIPT_TEMA = `
+(function () {
+  try {
+    var guardado = localStorage.getItem('notiq-tema');
+    var oscuro = guardado ? guardado === 'oscuro' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (oscuro) document.documentElement.classList.add('dark');
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+      </head>
       <body>{children}</body>
     </html>
   );

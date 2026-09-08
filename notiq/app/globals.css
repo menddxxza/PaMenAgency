@@ -6,10 +6,28 @@
   :root {
     --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
       'Helvetica Neue', Arial, sans-serif;
+
+    /* Tokens de color en "R G B" (sin rgb(), sin comas): así tailwind.config.ts
+       les puede aplicar opacidad con rgb(var(--x) / <alpha-value>) y clases como
+       bg-ink/10 siguen funcionando igual que con un hex fijo. */
+    --color-ink: 20 19 25; /* #141319 */
+    --color-ink-soft: 60 58 69; /* #3c3a45 */
+    --color-paper: 250 249 247; /* #faf9f7 */
+    --color-surface: 255 255 255; /* blanco: tarjetas, campos, botones secundarios */
+  }
+
+  /* .dark y no solo prefers-color-scheme: el interruptor de Ajustes necesita
+     poder forzar un tema aunque no coincida con el del sistema operativo. Ver
+     components/InterruptorTema.tsx, que añade/quita esta clase en <html>. */
+  .dark {
+    --color-ink: 237 236 240; /* texto claro */
+    --color-ink-soft: 176 173 186;
+    --color-paper: 18 17 22; /* fondo de página, violeta muy oscuro */
+    --color-surface: 26 25 32; /* tarjetas y campos, un punto más claro que el fondo */
   }
 
   body {
-    @apply bg-white text-ink antialiased;
+    @apply bg-paper text-ink antialiased;
   }
 
   /* Salvaguarda de ancho: sin esto, un elemento que se pase de 100vw por poco
@@ -38,7 +56,7 @@
   }
 
   .btn-secondary {
-    @apply btn border border-ink/15 bg-white text-ink hover:border-ink/30 hover:bg-ink/[0.03];
+    @apply btn border border-ink/15 bg-surface text-ink hover:border-ink/30 hover:bg-ink/[0.03];
   }
 
   .btn-fantasma {
@@ -46,7 +64,7 @@
   }
 
   .card {
-    @apply rounded-2xl border border-ink/10 bg-white shadow-card;
+    @apply rounded-2xl border border-ink/10 bg-surface shadow-card;
   }
 
   /*
@@ -75,7 +93,7 @@
   }
 
   .campo {
-    @apply w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm
+    @apply w-full rounded-xl border border-ink/15 bg-surface px-3.5 py-2.5 text-sm
            outline-none transition placeholder:text-ink/35
            focus:border-brand-400 focus:ring-2 focus:ring-brand-100;
   }
@@ -114,6 +132,31 @@
   .bloque-vacio:empty::before {
     content: attr(data-marcador);
     @apply pointer-events-none text-ink/30;
+  }
+}
+
+/*
+ * "Imprimir / Guardar como PDF" de NotaEditor.tsx: sin esto, el diálogo de
+ * impresión del navegador imprimiría la cabecera del panel, la barra de
+ * pestañas y el panel de IA/adjuntos además del contenido de la nota. Oculta
+ * todo salvo `.imprimir-nota` (título + bloques) y, dentro de ella, la barrita
+ * de estado/exportar (`.no-imprimir`) — nadie necesita ver "Guardando…" en un PDF.
+ */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .imprimir-nota,
+  .imprimir-nota * {
+    visibility: visible;
+  }
+  .imprimir-nota .no-imprimir {
+    display: none;
+  }
+  .imprimir-nota {
+    position: absolute;
+    inset: 0;
+    padding: 1.5cm;
   }
 }
 

@@ -49,7 +49,7 @@ export default function VistasTareas({
             aria-selected={vista === v.id}
             onClick={() => setVista(v.id)}
             className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition ${
-              vista === v.id ? 'bg-white text-ink shadow-sm' : 'text-ink/55 hover:text-ink'
+              vista === v.id ? 'bg-surface text-ink shadow-sm' : 'text-ink/55 hover:text-ink'
             }`}
           >
             {v.etiqueta}

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Logo from '@/components/Logo';
 import Asistente from '@/components/Asistente';
 import type { Plan } from '@/lib/planes';
 import NavPestanas from './NavPestanas';
 import NavPestanasMovil from './NavPestanasMovil';
+import PaletaComandos from './PaletaComandos';
 import { PESTANAS, type Pestana } from './pestanas';
 import SeccionInicio from './SeccionInicio';
 import SeccionNotas from './SeccionNotas';
@@ -38,11 +39,42 @@ export default function PanelApp({
 }) {
   const [activa, setActiva] = useState<Pestana>(tabInicial);
   const [abiertas, setAbiertas] = useState<Set<Pestana>>(new Set([tabInicial]));
+  const [paletaAbierta, setPaletaAbierta] = useState(false);
 
   function cambiar(p: Pestana) {
     setActiva(p);
     setAbiertas((previas) => (previas.has(p) ? previas : new Set(previas).add(p)));
   }
+
+  // Ctrl/Cmd+K abre la paleta desde cualquier pestaña. Los atajos de una sola
+  // letra (n, t) solo cuentan si no se está escribiendo en ese momento — si no,
+  // teclear una nota que empezara por "n" crearía notas nuevas sin parar.
+  useEffect(() => {
+    function atajo(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletaAbierta((abierta) => !abierta);
+        return;
+      }
+
+      const objetivo = e.target as HTMLElement | null;
+      const escribiendo =
+        objetivo?.tagName === 'INPUT' ||
+        objetivo?.tagName === 'TEXTAREA' ||
+        objetivo?.isContentEditable;
+      if (escribiendo || e.metaKey || e.ctrlKey || e.altKey || paletaAbierta) return;
+
+      if (e.key === 'n') {
+        cambiar('notas');
+        setTimeout(() => window.dispatchEvent(new CustomEvent('notiq:crear-nota')), 0);
+      } else if (e.key === 't') {
+        cambiar('tareas');
+        setTimeout(() => window.dispatchEvent(new CustomEvent('notiq:crear-tarea')), 0);
+      }
+    }
+    window.addEventListener('keydown', atajo);
+    return () => window.removeEventListener('keydown', atajo);
+  }, [paletaAbierta]);
 
   const porcentaje = Math.min(100, Math.round((consumoIa.usadas / consumoIa.limite) * 100));
   const etiquetaActiva = PESTANAS.find((p) => p.id === activa)?.etiqueta ?? '';
@@ -69,6 +101,20 @@ export default function PanelApp({
         </div>
 
         <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+          <button
+            type="button"
+            onClick={() => setPaletaAbierta(true)}
+            className="hidden items-center gap-1.5 rounded-full border border-ink/10 px-3 py-1.5 text-xs font-semibold text-ink/55 transition hover:border-brand-300 hover:text-brand-700 sm:flex"
+          >
+            <span aria-hidden>⌕</span>
+            Buscar
+            {/* "Ctrl/⌘ K" y no uno de los dos: distinguir por navigator.platform
+                pintaría algo distinto en el cliente que en el HTML del servidor
+                (que no conoce el sistema operativo de quien lo pida) y React
+                marcaría un error de hidratación por el desajuste. */}
+            <kbd className="rounded border border-ink/15 px-1 font-sans text-[10px]">Ctrl/⌘ K</kbd>
+          </button>
+
           {/* Versión compacta (móvil Y tablet, hasta lg): el medidor con la barra de
               progreso completa necesita más ancho del que suele sobrar entre sm y
               lg, justo el rango donde antes se solapaba con el nav. */}
@@ -118,7 +164,7 @@ export default function PanelApp({
       {/* pb-16: en móvil deja hueco para la barra fija de pestañas de abajo, para
           que el final del contenido no quede tapado tras ella. sm:pb-0 porque en
           escritorio esa barra no existe (las pestañas viven en la cabecera). */}
-      <main className="min-h-0 flex-1 overflow-y-auto bg-white pb-16 sm:pb-0">
+      <main className="min-h-0 flex-1 overflow-y-auto bg-surface pb-16 sm:pb-0">
         {abiertas.has('inicio') && (
           <div className={activa === 'inicio' ? '' : 'hidden'}>
             <SeccionInicio email={email} />
@@ -161,6 +207,12 @@ export default function PanelApp({
       </main>
 
       <NavPestanasMovil activa={activa} onCambiar={cambiar} />
+
+      <PaletaComandos
+        abierta={paletaAbierta}
+        onCerrar={() => setPaletaAbierta(false)}
+        onCambiarPestana={cambiar}
+      />
     </div>
   );
 }
