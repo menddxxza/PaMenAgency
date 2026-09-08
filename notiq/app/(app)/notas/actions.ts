@@ -52,6 +52,7 @@ export type NotaCompleta = {
   resumen_ia: string | null;
   deleted_at: string | null;
   etiquetas: string[];
+  compartir_publico: boolean;
 };
 
 export type TareaDeNota = { id: string; titulo: string; estado: string };
@@ -67,7 +68,7 @@ export async function obtenerNota(
   const sql = db();
   const [[nota], etiquetas, tareas] = await Promise.all([
     sql<Omit<NotaCompleta, 'etiquetas'>[]>`
-      select id, titulo, content, favorita, resumen_ia, deleted_at
+      select id, titulo, content, favorita, resumen_ia, deleted_at, compartir_publico
       from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
     `,
     etiquetasDeNota(id, sesion.userId),
@@ -180,6 +181,31 @@ export async function borrarNota(formData: FormData) {
 
   revalidatePath('/notas');
   redirect('/notas');
+}
+
+/**
+ * Activa o desactiva el enlace público de solo lectura de una nota
+ * (app/compartido/[id]/page.tsx). Requiere notes.compartir_publico — ver
+ * migrations/0003_notas_compartidas.sql.
+ */
+export async function alternarCompartir(id: string, compartir: boolean): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(id)) return { ok: false, error: 'Nota no válida.' };
+
+  const sql = db();
+  try {
+    await sql`
+      update notes set compartir_publico = ${compartir}
+      where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+    `;
+  } catch (fallo) {
+    console.error('[notiq] no se ha podido cambiar si la nota se comparte', fallo);
+    return { ok: false, error: 'No se ha podido actualizar.' };
+  }
+
+  revalidatePath('/notas');
+  return { ok: true };
 }
 
 export type NotaBorrada = { id: string; titulo: string; deleted_at: string };

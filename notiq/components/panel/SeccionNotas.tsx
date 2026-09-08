@@ -150,6 +150,7 @@ export default function SeccionNotas() {
         resumen_ia: null,
         deleted_at: null,
         etiquetas: [],
+        compartir_publico: false,
       },
       tareas: [],
     });
@@ -236,6 +237,7 @@ export default function SeccionNotas() {
           resumenInicial={notaAbierta.nota.resumen_ia}
           etiquetasIniciales={notaAbierta.nota.etiquetas}
           etiquetasConocidas={etiquetas.map((e) => e.nombre)}
+          compartidaInicial={notaAbierta.nota.compartir_publico}
           onFavoritaCambiada={() => cargar({ carpeta, etiqueta, q: q.trim() || undefined })}
         />
 
