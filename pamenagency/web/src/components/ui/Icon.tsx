@@ -74,6 +74,7 @@ const paths: Record<string, JSX.Element> = {
     </>
   ),
   arrow: <path d="M4 12h15m-6-6 6 6-6 6" />,
+  chevron: <path d="m6 9 6 6 6-6" />,
   check: <path d="m4.5 12.5 5 5 10-11" />,
   close: <path d="M5 5l14 14M19 5 5 19" />,
   mail: (

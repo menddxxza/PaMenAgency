@@ -305,8 +305,81 @@
 
 .pm-navlink:hover { color: var(--pm-text); }
 .pm-navlink:hover::after,
-.pm-navlink[aria-current='page']::after { transform: scaleX(1); }
-.pm-navlink[aria-current='page'] { color: var(--pm-gold); }
+.pm-navlink[aria-current='page']::after,
+.pm-navlink[data-active='true']::after { transform: scaleX(1); }
+.pm-navlink[aria-current='page'],
+.pm-navlink[data-active='true'] { color: var(--pm-gold); }
+
+/* ------------------- Desplegables de la navegación ------------------- */
+
+/* El sitio tiene más destinos que huecos en la barra: los que no caben
+   cuelgan de aquí en vez de ensanchar el header (el corte a 1240px está
+   calibrado al milímetro, ver más abajo). */
+.pm-navgroup { position: relative; }
+
+.pm-navgroup__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.pm-navgroup__caret { transition: transform var(--dur) var(--ease-out); }
+.pm-navgroup[data-open='true'] .pm-navgroup__caret { transform: rotate(180deg); }
+.pm-navgroup[data-open='true'] .pm-navgroup__trigger { color: var(--pm-text); }
+
+.pm-navgroup__panel {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 15rem;
+  padding: 0.5rem;
+  border: 1px solid var(--pm-line-strong);
+  border-radius: var(--radius);
+  background: rgba(14, 14, 17, 0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-lift);
+  animation: pm-navgroup-in var(--dur-fast) var(--ease-out) both;
+}
+
+/* Puente invisible entre el botón y el panel: sin él, el hueco de 0.6rem
+   dispara el mouseleave y el desplegable se cierra al ir hacia sus
+   enlaces. */
+.pm-navgroup__panel::before {
+  content: '';
+  position: absolute;
+  inset: -0.7rem 0 100% 0;
+}
+
+@keyframes pm-navgroup-in {
+  from { opacity: 0; transform: translate(-50%, -6px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pm-navgroup__panel { animation: none; }
+  .pm-navgroup__caret { transition: none; }
+}
+
+.pm-navgroup__panel ul { display: grid; gap: 0.1rem; }
+
+.pm-navgroup__link {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.87rem;
+  color: var(--pm-text-soft);
+  transition: background-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+.pm-navgroup__link:hover { background: var(--pm-surface-2); color: var(--pm-text); }
+.pm-navgroup__link[aria-current='page'] { color: var(--pm-gold); background: var(--pm-gold-soft); }
+
+.pm-navgroup__hint { font-size: var(--fs-micro); color: var(--pm-faint); }
 
 .pm-header__actions { display: flex; align-items: center; gap: 0.6rem; }
 

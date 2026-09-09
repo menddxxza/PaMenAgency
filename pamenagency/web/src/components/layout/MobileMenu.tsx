@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { mainNav } from '@/content/site'
+import { mobileNav } from '@/content/site'
 import { Button } from '@/components/ui/Button'
 import OptionWheel from '@/components/ui/OptionWheel'
 
@@ -19,7 +19,7 @@ export function MobileMenu({ onClose, email }: { onClose: () => void; email: str
   const navigate = useNavigate()
 
   const defaultSelected = useMemo(() => {
-    const i = mainNav.findIndex((item) =>
+    const i = mobileNav.findIndex((item) =>
       item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to),
     )
     return i >= 0 ? i : 0
@@ -27,7 +27,7 @@ export function MobileMenu({ onClose, email }: { onClose: () => void; email: str
 
   const items = useMemo(
     () =>
-      mainNav.map((item, i) => (
+      mobileNav.map((item, i) => (
         <span className="pm-mobilemenu__wheel-item">
           <span className="pm-mobilemenu__wheel-index" aria-hidden="true">
             {String(i + 1).padStart(2, '0')}
@@ -86,7 +86,7 @@ export function MobileMenu({ onClose, email }: { onClose: () => void; email: str
             // sección: sin esto, tocar la opción activa no hacía nada
             // visible (el efecto que cierra el menú solo escucha cambios
             // de ruta) y parecía que el tap no funcionaba.
-            navigate(mainNav[index].to)
+            navigate(mobileNav[index].to)
             onClose()
           }}
           textColor="#F4F4F2"
