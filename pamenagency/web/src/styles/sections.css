@@ -874,6 +874,78 @@
 
 .pm-audit__nota svg { flex: none; margin-top: 3px; color: var(--pm-gold); }
 
+/* ---------------------------- Calculadora ---------------------------- */
+
+.pm-calc {
+  display: grid;
+  gap: var(--space-lg);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .pm-calc { grid-template-columns: 1fr; }
+}
+
+.pm-calc__campos { display: grid; gap: 1.15rem; }
+
+.pm-calc__entrada { display: flex; align-items: center; gap: 0.6rem; }
+.pm-calc__entrada .pm-input { max-width: 8rem; }
+
+.pm-calc__sufijo {
+  font-size: var(--fs-small);
+  color: var(--pm-muted);
+  white-space: nowrap;
+}
+
+.pm-calc__ayuda { font-size: var(--fs-small); color: var(--pm-faint); margin-top: 0.35rem; }
+
+/* El resultado se queda a la vista mientras se tocan los campos. */
+.pm-calc__resultado {
+  position: sticky;
+  top: calc(var(--header-h) + 1.5rem);
+  padding: clamp(1.35rem, 3vw, 2rem);
+  border: 1px solid var(--pm-gold-line);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 0%, rgba(212, 175, 55, 0.1), transparent 70%),
+    var(--pm-black);
+}
+
+.pm-calc__cifra {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--pm-gold);
+  margin-top: 1rem;
+}
+
+.pm-calc__cifra-label { font-size: var(--fs-small); color: var(--pm-muted); margin-top: 0.25rem; }
+
+.pm-calc__detalle {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--pm-line);
+  font-size: 0.95rem;
+}
+
+.pm-calc__detalle strong { color: var(--pm-text); font-variant-numeric: tabular-nums; }
+
+.pm-calc__nota {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  margin-top: 1.25rem;
+  font-size: var(--fs-small);
+  color: var(--pm-muted);
+  line-height: 1.5;
+}
+
+.pm-calc__nota svg { flex: none; margin-top: 3px; color: var(--pm-gold); }
+
 /* --------------------------- Página legal --------------------------- */
 
 .pm-legal { max-width: var(--container-reading); }

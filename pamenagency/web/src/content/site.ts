@@ -46,9 +46,9 @@ export const footerNav = [
     links: [
       { label: 'Quiénes somos', to: '/nosotros' },
       { label: 'Auditoría de IA', to: '/auditoria-ia' },
-      { label: 'Metodología', to: '/metodologia' },
+      { label: 'Soluciones', to: '/soluciones' },
       { label: 'Servicios', to: '/servicios' },
-      { label: 'Diagnóstico', to: '/diagnostico' },
+      { label: 'Metodología', to: '/metodologia' },
       { label: 'Contacto', to: '/contacto' },
     ],
   },
@@ -56,6 +56,8 @@ export const footerNav = [
     title: 'Conocimiento',
     links: [
       { label: 'Centro de conocimiento', to: '/conocimiento' },
+      { label: 'Diagnóstico gratuito', to: '/diagnostico' },
+      { label: 'Calculadora de coste', to: '/calculadora' },
       { label: 'IA para todos', to: '/ia-para-todos' },
       { label: 'Las grietas de la IA', to: '/grietas-de-la-ia' },
       { label: 'Preguntas frecuentes', to: '/faq' },

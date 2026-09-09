@@ -2,6 +2,7 @@ import { CinematicJourney } from '@/components/sections/journey/CinematicJourney
 import { AreasSection } from '@/components/sections/AreasSection'
 import { SolutionsSection } from '@/components/sections/SolutionsSection'
 import { AuditBand } from '@/components/sections/AuditBand'
+import { CalculatorSection } from '@/components/sections/CalculatorSection'
 import { WhySection } from '@/components/sections/WhySection'
 import { MethodologySection } from '@/components/sections/MethodologySection'
 import { ForEveryone } from '@/components/sections/ForEveryone'
@@ -52,6 +53,7 @@ export default function Home() {
       <AreasSection />
       <SolutionsSection />
       <AuditBand />
+      <CalculatorSection />
       <MethodologySection compact />
       <WhySection />
       <ForEveryone limit={3} />

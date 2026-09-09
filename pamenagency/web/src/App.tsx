@@ -21,6 +21,9 @@ const Grietas = lazy(() => import('@/pages/Grietas'))
 const Metodologia = lazy(() => import('@/pages/Metodologia'))
 const Diagnostico = lazy(() => import('@/pages/Diagnostico'))
 const AuditoriaIA = lazy(() => import('@/pages/AuditoriaIA'))
+const Soluciones = lazy(() => import('@/pages/Soluciones'))
+const SolucionDetalle = lazy(() => import('@/pages/SolucionDetalle'))
+const Calculadora = lazy(() => import('@/pages/Calculadora'))
 const Faq = lazy(() => import('@/pages/Faq'))
 const Contacto = lazy(() => import('@/pages/Contacto'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
@@ -53,6 +56,9 @@ export function App() {
           <Route path="metodologia" element={<Metodologia />} />
           <Route path="diagnostico" element={<Diagnostico />} />
           <Route path="auditoria-ia" element={<AuditoriaIA />} />
+          <Route path="soluciones" element={<Soluciones />} />
+          <Route path="soluciones/:slug" element={<SolucionDetalle />} />
+          <Route path="calculadora" element={<Calculadora />} />
           <Route path="faq" element={<Faq />} />
           <Route path="contacto" element={<Contacto />} />
 
