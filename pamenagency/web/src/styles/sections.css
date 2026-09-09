@@ -946,6 +946,32 @@
 
 .pm-calc__nota svg { flex: none; margin-top: 3px; color: var(--pm-gold); }
 
+/* ------------------------------ Escenarios ------------------------------ */
+
+.pm-scenario {
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  border: 1px solid var(--pm-line);
+  border-radius: var(--radius-lg);
+  background: var(--pm-surface);
+}
+
+.pm-scenario__head { display: flex; gap: 1rem; align-items: flex-start; }
+
+.pm-scenario__empresa {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+  font-size: var(--fs-small);
+  color: var(--pm-muted);
+}
+
+/* En los escenarios los pasos no llevan número: son fases con nombre
+   propio ("Semana 1-2"), y numerarlas encima sería redundante. */
+.pm-scenario .pm-step { grid-template-columns: 12px minmax(0, 1fr); }
+.pm-scenario .pm-step__marker { padding-top: 0.5rem; }
+
 /* --------------------------- Página legal --------------------------- */
 
 .pm-legal { max-width: var(--container-reading); }

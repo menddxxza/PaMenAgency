@@ -123,7 +123,10 @@ export function UseCasesSection() {
             </div>
 
             <div className="pm-row" style={{ marginTop: '1.75rem' }}>
-              <Button to="/diagnostico" variant="ghost" size="sm" arrow>
+              <Button to={`/sectores/${current.slug}`} size="sm" arrow>
+                Ver este sector en detalle
+              </Button>
+              <Button to="/diagnostico" variant="ghost" size="sm">
                 Ver el potencial de mi caso
               </Button>
             </div>

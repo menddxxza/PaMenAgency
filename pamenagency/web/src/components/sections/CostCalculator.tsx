@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import {
@@ -94,6 +95,13 @@ export function CostCalculator() {
               Ver qué parte es recuperable
             </Button>
           </div>
+
+          <p style={{ marginTop: '1rem' }}>
+            <Link to="/conocimiento/como-calcular-el-retorno-de-una-inversion-en-ia" className="pm-link">
+              Cómo se calcula el retorno de verdad
+              <Icon name="arrow" size={13} className="pm-btn__arrow" />
+            </Link>
+          </p>
         </div>
       </div>
     </div>

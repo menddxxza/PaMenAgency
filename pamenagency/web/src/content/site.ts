@@ -48,6 +48,8 @@ export const footerNav = [
       { label: 'Auditoría de IA', to: '/auditoria-ia' },
       { label: 'Soluciones', to: '/soluciones' },
       { label: 'Servicios', to: '/servicios' },
+      { label: 'Sectores', to: '/sectores' },
+      { label: 'Escenarios', to: '/escenarios' },
       { label: 'Metodología', to: '/metodologia' },
       { label: 'Contacto', to: '/contacto' },
     ],

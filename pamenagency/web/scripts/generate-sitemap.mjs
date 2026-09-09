@@ -27,6 +27,8 @@ const staticRoutes = [
   ['/metodologia', 0.7, 'monthly'],
   ['/auditoria-ia', 0.9, 'monthly'],
   ['/soluciones', 0.9, 'monthly'],
+  ['/sectores', 0.8, 'monthly'],
+  ['/escenarios', 0.8, 'monthly'],
   ['/calculadora', 0.8, 'monthly'],
   ['/diagnostico', 0.8, 'monthly'],
   ['/faq', 0.7, 'monthly'],
@@ -38,6 +40,7 @@ const slugsFrom = (source) => [...source.matchAll(/slug:\s*'([^']+)'/g)].map((m)
 async function collect() {
   const services = slugsFrom(await readFile(join(root, 'src/content/services.ts'), 'utf8'))
   const solutions = slugsFrom(await readFile(join(root, 'src/content/solutions.ts'), 'utf8'))
+  const sectors = slugsFrom(await readFile(join(root, 'src/content/useCases.ts'), 'utf8'))
 
   const knowledgeDir = join(root, 'src/content/knowledge')
   const files = (await readdir(knowledgeDir)).filter(
@@ -48,7 +51,7 @@ async function collect() {
     docs.push(...slugsFrom(await readFile(join(knowledgeDir, file), 'utf8')))
   }
 
-  return { services, solutions, docs }
+  return { services, solutions, sectors, docs }
 }
 
 const urlEntry = (path, priority, changefreq, lastmod) =>
@@ -61,12 +64,13 @@ const urlEntry = (path, priority, changefreq, lastmod) =>
     '  </url>',
   ].join('\n')
 
-const { services, solutions, docs } = await collect()
+const { services, solutions, sectors, docs } = await collect()
 const today = new Date().toISOString().slice(0, 10)
 
 const entries = [
   ...staticRoutes.map(([path, p, freq]) => urlEntry(path, p, freq, today)),
   ...solutions.map((slug) => urlEntry(`/soluciones/${slug}`, 0.8, 'monthly', today)),
+  ...sectors.map((slug) => urlEntry(`/sectores/${slug}`, 0.7, 'monthly', today)),
   ...services.map((slug) => urlEntry(`/servicios/${slug}`, 0.7, 'monthly', today)),
   ...docs.map((slug) => urlEntry(`/conocimiento/${slug}`, 0.8, 'monthly', today)),
 ]
@@ -85,6 +89,6 @@ if (!existsSync(dist)) {
 await writeFile(join(dist, 'sitemap.xml'), xml, 'utf8')
 console.log(
   `sitemap.xml generado con ${entries.length} URLs ` +
-    `(${staticRoutes.length} fijas, ${solutions.length} soluciones, ${services.length} servicios, ` +
-    `${docs.length} guías).`,
+    `(${staticRoutes.length} fijas, ${solutions.length} soluciones, ${sectors.length} sectores, ` +
+    `${services.length} servicios, ${docs.length} guías).`,
 )

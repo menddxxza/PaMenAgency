@@ -12,6 +12,7 @@ import { iaClinicas } from './ia-clinicas'
 import { iaPymes } from './ia-pymes'
 import { iaQuitaTrabajo } from './ia-quita-trabajo'
 import { quePasaConTusDatos } from './que-pasa-con-tus-datos'
+import { calcularRetornoIa } from './calcular-retorno-ia'
 
 export type { KnowledgeDoc, Chapter, Block, Level } from './types'
 
@@ -22,6 +23,7 @@ export type { KnowledgeDoc, Chapter, Block, Level } from './types'
  * que usa la navegación «anterior / siguiente» dentro de cada documento.
  */
 export const docs: KnowledgeDoc[] = [
+  calcularRetornoIa,
   ventajaReal,
   grietasDoc,
   erroresComunes,

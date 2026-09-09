@@ -24,6 +24,9 @@ const AuditoriaIA = lazy(() => import('@/pages/AuditoriaIA'))
 const Soluciones = lazy(() => import('@/pages/Soluciones'))
 const SolucionDetalle = lazy(() => import('@/pages/SolucionDetalle'))
 const Calculadora = lazy(() => import('@/pages/Calculadora'))
+const Sectores = lazy(() => import('@/pages/Sectores'))
+const SectorDetalle = lazy(() => import('@/pages/SectorDetalle'))
+const Escenarios = lazy(() => import('@/pages/Escenarios'))
 const Faq = lazy(() => import('@/pages/Faq'))
 const Contacto = lazy(() => import('@/pages/Contacto'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
@@ -59,6 +62,9 @@ export function App() {
           <Route path="soluciones" element={<Soluciones />} />
           <Route path="soluciones/:slug" element={<SolucionDetalle />} />
           <Route path="calculadora" element={<Calculadora />} />
+          <Route path="sectores" element={<Sectores />} />
+          <Route path="sectores/:slug" element={<SectorDetalle />} />
+          <Route path="escenarios" element={<Escenarios />} />
           <Route path="faq" element={<Faq />} />
           <Route path="contacto" element={<Contacto />} />
 
