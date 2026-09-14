@@ -9,7 +9,7 @@ import type { NextAuthConfig } from 'next-auth';
  * Components y Route Handlers (runtime de Node). Es el patrón que documenta
  * Auth.js para Next.js middleware con un provider que toca base de datos.
  */
-const RUTAS_PRIVADAS = ['/inicio', '/notas', '/tareas', '/asistente', '/ajustes'];
+const RUTAS_PRIVADAS = ['/inicio', '/notas', '/tareas', '/estudio', '/asistente', '/ajustes'];
 
 export const authConfig = {
   pages: { signIn: '/entrar' },

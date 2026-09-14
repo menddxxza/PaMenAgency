@@ -22,6 +22,7 @@ const BASE_URL_GROQ = 'https://api.groq.com/openai/v1';
 const BASE_URL = (process.env.OPENAI_BASE_URL ?? BASE_URL_GROQ).replace(/\/+$/, '');
 const ENDPOINT = `${BASE_URL}/chat/completions`;
 const ENDPOINT_RESPUESTAS = `${BASE_URL}/responses`;
+const ENDPOINT_TRANSCRIPCIONES = `${BASE_URL}/audio/transcriptions`;
 
 /** Solo la API real de OpenAI expone /responses con buscador integrado — Groq (el
  * proveedor por defecto) y cualquier servidor local resuelven el buscador de otra
@@ -41,6 +42,11 @@ export const MODELO = process.env.OPENAI_MODEL ?? (ES_GROQ ? 'openai/gpt-oss-120
  * MODELO y solo el chat usa este. Si no se define, usa el mismo que el resto. */
 export const MODELO_ASISTENTE =
   process.env.OPENAI_MODEL_ASISTENTE ?? (ES_GROQ ? 'groq/compound' : MODELO);
+
+/** Para "Grabar clase" (transcripción). Whisper vía Groq por defecto — mismo
+ * proveedor y clave que el resto, sin cuenta aparte. */
+export const MODELO_TRANSCRIPCION =
+  process.env.OPENAI_MODEL_TRANSCRIPCION ?? (ES_GROQ ? 'whisper-large-v3-turbo' : 'whisper-1');
 
 export type Mensaje = {
   role: 'system' | 'user' | 'assistant';
@@ -239,6 +245,47 @@ async function buscarConResponsesApi({
 
   if (!contenido) throw new ErrorIA('La IA ha devuelto una respuesta vacía.');
   return contenido;
+}
+
+/**
+ * Transcribe un audio a texto, para "Grabar clase" (SeccionEstudio.tsx). Mismo
+ * proveedor que el resto (Groq expone /audio/transcriptions con Whisper) — no
+ * hace falta una clave ni una cuenta aparte para esto.
+ */
+export async function transcribirAudio(archivo: Blob, nombreArchivo = 'audio.webm'): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new ErrorIA('La IA no está configurada en este despliegue.', 503);
+  }
+
+  const formulario = new FormData();
+  formulario.append('file', archivo, nombreArchivo);
+  formulario.append('model', MODELO_TRANSCRIPCION);
+  formulario.append('language', 'es');
+  formulario.append('response_format', 'text');
+
+  let respuesta: Response;
+  try {
+    respuesta = await fetch(ENDPOINT_TRANSCRIPCIONES, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: formulario,
+      // Una clase puede ser un audio largo de subir y transcribir; más margen
+      // que las llamadas de chat, que solo generan texto.
+      signal: AbortSignal.timeout(90_000),
+    });
+  } catch {
+    throw new ErrorIA('No se ha podido contactar con el proveedor de IA.', 504);
+  }
+
+  if (!respuesta.ok) {
+    const estado = respuesta.status === 429 ? 429 : 502;
+    throw new ErrorIA('El proveedor de IA no ha podido transcribir el audio.', estado);
+  }
+
+  const texto = (await respuesta.text()).trim();
+  if (!texto) throw new ErrorIA('La transcripción ha salido vacía — puede que el audio esté en silencio.');
+  return texto;
 }
 
 /** Igual que `completar`, pero devolviendo JSON ya parseado. */

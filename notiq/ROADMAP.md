@@ -93,6 +93,39 @@ repositorio; el resto es el plan.
       apertura de nota en producción). Ver el aviso en el propio fichero de
       migración para el comando exacto.
 
+## Estudio — pestaña nueva, código listo, pendiente de una migración
+
+A partir del documento de visión "todo lo que un estudiante necesita" —
+implementadas las piezas que se decidió construir primero; el resto (grabar
+clase, generador de exámenes, flashcards con dominio, modo examen) sí entró.
+
+- [ ] `migrations/0004_estudio.sql` añade tres tablas: `flashcards`,
+      `examenes`, `intentos_examen`. **No se ha ejecutado contra el Neon
+      real** — mismo aviso que "compartir por enlace": sin las tablas, la
+      pestaña Estudio (ya en la navegación) rompe en cuanto alguien la abre.
+- [x] Flashcards con dominio: 🔴 a repasar / 🟡 en progreso / 🟢 dominada,
+      repetición espaciada simple (acertar aleja la fecha del próximo
+      repaso, fallar la trae a hoy) — `responderFlashcard`, `app/(app)/estudio/actions.ts`
+- [x] "Repaso de hoy": hasta 15 flashcards, priorizando falladas > en
+      progreso atrasadas > nuevas
+- [x] Generador de exámenes tipo test (4 opciones, dificultad elegible) con
+      corrección en el servidor y análisis de fallos por tema
+- [x] "Repasar mis errores": las preguntas falladas de un examen se
+      convierten en flashcards nuevas, sin otra llamada a la IA (la
+      respuesta correcta ya estaba en el examen)
+- [x] Grabar clase → transcripción (Whisper vía Groq, mismo proveedor y
+      clave que el resto de la IA, sin cuenta aparte) → apuntes
+      estructurados guardados como nota normal → flashcards de la propia
+      transcripción
+- [x] Progreso por carpeta: recuento de flashcards en cada estado, usado
+      como "tema" en vez de crear una entidad "asignatura" aparte
+- [ ] Modo examen "de verdad" (cuenta atrás por fecha de examen, plan de
+      repaso día a día) — no entró en esta ronda: necesitaría una fecha de
+      examen por carpeta, que hoy no existe en ningún sitio
+- [ ] Buscar dentro de una clase grabada ("¿cuándo habló de la mitosis?") —
+      necesitaría guardar la transcripción con marcas de tiempo, hoy se
+      descarta el detalle temporal al convertirla en apuntes
+
 ## Semanas 11-12 · Lanzamiento
 
 - [ ] Landing definitiva con capturas reales

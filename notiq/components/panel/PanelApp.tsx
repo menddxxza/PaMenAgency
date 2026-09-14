@@ -11,6 +11,7 @@ import { PESTANAS, type Pestana } from './pestanas';
 import SeccionInicio from './SeccionInicio';
 import SeccionNotas from './SeccionNotas';
 import SeccionTareas from './SeccionTareas';
+import SeccionEstudio from './SeccionEstudio';
 import SeccionAjustes from './SeccionAjustes';
 
 /**
@@ -180,6 +181,12 @@ export default function PanelApp({
         {abiertas.has('tareas') && (
           <div className={activa === 'tareas' ? '' : 'hidden'}>
             <SeccionTareas />
+          </div>
+        )}
+
+        {abiertas.has('estudio') && (
+          <div className={activa === 'estudio' ? '' : 'hidden'}>
+            <SeccionEstudio />
           </div>
         )}
 
