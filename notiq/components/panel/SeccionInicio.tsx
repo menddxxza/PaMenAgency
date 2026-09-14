@@ -56,7 +56,7 @@ export default function SeccionInicio({ email }: { email: string | null }) {
     const abiertas = tareas.filter((t) => t.estado !== 'hecha');
 
     return (
-      <div className="max-w-5xl px-5 py-6 sm:px-8">
+      <div className="px-5 py-6 sm:px-8">
         <button
           type="button"
           onClick={() => setCarpetaAbierta(null)}
@@ -146,7 +146,7 @@ export default function SeccionInicio({ email }: { email: string | null }) {
   }
 
   return (
-    <div className="max-w-5xl px-5 py-6 sm:px-8">
+    <div className="px-5 py-6 sm:px-8">
       <header>
         <h1 className="text-2xl font-extrabold tracking-tight">Inicio</h1>
         <p className="mt-1 text-sm text-ink/55">{email}</p>
