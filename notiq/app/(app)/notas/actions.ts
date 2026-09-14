@@ -304,6 +304,59 @@ export async function obtenerNotasRelacionadas(id: string): Promise<NotaRelacion
   `;
 }
 
+/**
+ * Duplica una nota entera: título (con "(copia)"), bloques y etiquetas. No
+ * duplica los adjuntos (imágenes/PDF): seguirían apuntando al mismo archivo en
+ * la base de datos, que se borraría si se borra la nota original — duplicar el
+ * archivo de verdad es trabajo aparte que no entra en un "duplicar" rápido.
+ */
+export async function duplicarNota(id: string): Promise<Resultado & { id?: string }> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(id)) return { ok: false, error: 'Nota no válida.' };
+
+  const cupo = await puedeCrearNota(sesion.userId, sesion.plan);
+  if (!cupo.permitido) {
+    return { ok: false, error: `Límite de ${cupo.limite} notas del plan alcanzado.` };
+  }
+
+  const sql = db();
+  const [original] = await sql<
+    { titulo: string; content: unknown; texto: string; folder_id: string | null }[]
+  >`
+    select titulo, content, texto, folder_id from notes
+    where id = ${id}::uuid and user_id = ${sesion.userId}::uuid and deleted_at is null
+  `;
+  if (!original) return { ok: false, error: 'Esa nota ya no está disponible.' };
+
+  try {
+    const [copia] = await sql.begin(async (tx) => {
+      const [fila] = await tx<{ id: string }[]>`
+        insert into notes (user_id, titulo, content, texto, folder_id)
+        values (
+          ${sesion.userId}::uuid,
+          ${`${original.titulo || 'Sin título'} (copia)`.slice(0, 200)},
+          ${JSON.stringify(original.content)}::jsonb,
+          ${original.texto},
+          ${original.folder_id}::uuid
+        )
+        returning id
+      `;
+      await tx`
+        insert into note_tags (note_id, tag_id)
+        select ${fila.id}::uuid, tag_id from note_tags where note_id = ${id}::uuid
+      `;
+      return [fila];
+    });
+
+    revalidatePath('/notas');
+    return { ok: true, id: copia.id };
+  } catch (fallo) {
+    console.error('[notiq] no se ha podido duplicar la nota', fallo);
+    return { ok: false, error: 'No se ha podido duplicar la nota.' };
+  }
+}
+
 export async function crearCarpeta(formData: FormData) {
   const sesion = await getSesion();
   if (!sesion) redirect('/entrar');

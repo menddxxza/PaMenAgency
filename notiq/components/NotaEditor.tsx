@@ -10,6 +10,7 @@ import { aMarkdown, nuevoBloque, type Bloque } from '@/lib/bloques';
 import {
   alternarFavorita,
   crearRecordatorioDeNota,
+  duplicarNota,
   guardarNota,
   obtenerNotas,
   obtenerNotasRelacionadas,
@@ -55,6 +56,7 @@ export default function NotaEditor({
   const [qVincular, setQVincular] = useState('');
   const [resultadosVincular, setResultadosVincular] = useState<{ id: string; titulo: string }[]>([]);
   const [relacionadas, setRelacionadas] = useState<NotaRelacionada[]>([]);
+  const [duplicando, setDuplicando] = useState(false);
 
   const sucio = useRef(false);
   const enVuelo = useRef(false);
@@ -201,6 +203,21 @@ export default function NotaEditor({
     }
   }
 
+  /** Abre la copia igual que abrirNotaRelacionada: evento en el panel, navegación
+   * en la ruta standalone. */
+  async function duplicar() {
+    setDuplicando(true);
+    const resultado = await duplicarNota(id);
+    setDuplicando(false);
+    if (!resultado.ok || !resultado.id) return;
+
+    if (onFavoritaCambiada) {
+      window.dispatchEvent(new CustomEvent('notiq:abrir-nota', { detail: resultado.id }));
+    } else {
+      router.push(`/notas/${resultado.id}`);
+    }
+  }
+
   async function crearRecordatorio(fecha: string) {
     if (!fecha) return;
     const resultado = await crearRecordatorioDeNota(id, fecha);
@@ -327,7 +344,11 @@ export default function NotaEditor({
             )}
           </div>
 
-          <div className="relative ml-auto">
+          <button type="button" onClick={duplicar} disabled={duplicando} className="ml-auto hover:text-ink disabled:opacity-50">
+            {duplicando ? 'Duplicando…' : '📑 Duplicar'}
+          </button>
+
+          <div className="relative">
             <button
               type="button"
               onClick={() => setMenuExportar((abierto) => !abierto)}

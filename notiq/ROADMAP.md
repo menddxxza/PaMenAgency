@@ -65,6 +65,25 @@ repositorio; el resto es el plan.
 - [x] "Recordar" en una nota crea una tarea con fecha de vencimiento enlazada a
       ella — no es una notificación push (eso sigue sin existir, ver el cron de
       arriba), solo aparece en Tareas con fecha
+- [x] Menú de comandos "/" en el editor (como Notion): escribir "/" en un bloque
+      de texto abre un desplegable para elegir el tipo de bloque
+- [x] Bloque de tabla — celdas editables, filas/columnas dinámicas; sigue en
+      `notes.content` (jsonb), sin tabla nueva
+- [x] Duplicar nota — copia título, bloques y etiquetas; no copia adjuntos (ver
+      el comentario en `duplicarNota`, `app/(app)/notas/actions.ts`)
+
+## Comparado con Notion, con más trabajo por detrás — no entraron en esta ronda
+
+- [ ] Icono/emoji por nota (Notion lo tiene en cada página) — necesita una
+      columna nueva (`notes.icono`), mismo patrón de migración pendiente que
+      "compartir por enlace" más abajo
+- [ ] Páginas anidadas / jerarquía infinita — Notiq solo tiene un nivel de
+      carpetas, no notas dentro de notas; cambio de modelo de datos grande
+- [ ] Comentarios y menciones @persona, edición colaborativa en tiempo real —
+      Notiq es de un solo usuario por cuenta, esto es una categoría de trabajo
+      aparte (no solo backend: presencia, resolución de conflictos)
+- [ ] Importar desde Notion/Evernote/Google Docs
+- [ ] Historial de versiones de una nota (deshacer más allá de la sesión actual)
 
 ## Compartir por enlace — código listo, pendiente de una migración
 

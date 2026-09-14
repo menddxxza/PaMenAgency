@@ -15,7 +15,8 @@ export type TipoBloque =
   | 'tarea'
   | 'codigo'
   | 'cita'
-  | 'imagen';
+  | 'imagen'
+  | 'tabla';
 
 export type Bloque = {
   id: string;
@@ -27,6 +28,8 @@ export type Bloque = {
   lenguaje?: string;
   /** Solo para 'imagen': ruta de descarga del adjunto (/api/adjuntos/[id]). */
   url?: string;
+  /** Solo para 'tabla': filas de celdas, todas con el mismo número de columnas. */
+  filas?: string[][];
 };
 
 export const TIPOS_BLOQUE: { tipo: TipoBloque; etiqueta: string; atajo: string }[] = [
@@ -37,9 +40,24 @@ export const TIPOS_BLOQUE: { tipo: TipoBloque; etiqueta: string; atajo: string }
   { tipo: 'tarea', etiqueta: 'Tarea', atajo: '[] ' },
   { tipo: 'codigo', etiqueta: 'Código', atajo: '```' },
   { tipo: 'cita', etiqueta: 'Cita', atajo: '> ' },
+  { tipo: 'tabla', etiqueta: 'Tabla', atajo: 'tabla' },
 ];
 
 export function nuevoBloque(tipo: TipoBloque = 'texto', texto = ''): Bloque {
+  // 2×2 en blanco de partida: una tabla de 0 filas o columnas no tiene forma de
+  // crecer desde la interfaz (los botones de "+ fila"/"+ columna" añaden a partir
+  // de lo que ya haya, no parten de la nada).
+  if (tipo === 'tabla') {
+    return {
+      id: idBloque(),
+      tipo,
+      texto,
+      filas: [
+        ['', ''],
+        ['', ''],
+      ],
+    };
+  }
   return { id: idBloque(), tipo, texto };
 }
 
@@ -66,6 +84,13 @@ export function comoBloques(valor: unknown): Bloque[] {
       ? (b.tipo as TipoBloque)
       : 'texto';
 
+    // Filas válidas: un array de arrays de strings, o si no, la tabla en blanco de
+    // nuevoBloque — una tabla sin filas no se podría ni empezar a rellenar.
+    const filasValidas =
+      tipo === 'tabla' && Array.isArray(b.filas) && b.filas.every((f) => Array.isArray(f))
+        ? (b.filas as unknown[]).map((f) => (f as unknown[]).map((c) => (typeof c === 'string' ? c : '')))
+        : undefined;
+
     return [
       {
         id: typeof b.id === 'string' ? b.id : idBloque(),
@@ -76,6 +101,9 @@ export function comoBloques(valor: unknown): Bloque[] {
           ? { lenguaje: b.lenguaje }
           : {}),
         ...(tipo === 'imagen' && typeof b.url === 'string' ? { url: b.url } : {}),
+        ...(tipo === 'tabla'
+          ? { filas: filasValidas ?? [['', ''], ['', '']] }
+          : {}),
       },
     ];
   });
@@ -102,6 +130,13 @@ export function aMarkdown(bloques: Bloque[]): string {
           return `> ${b.texto}`;
         case 'imagen':
           return `![${b.texto}](${b.url ?? ''})`;
+        case 'tabla': {
+          const filas = b.filas ?? [];
+          if (filas.length === 0) return '';
+          const filaMd = (fila: string[]) => `| ${fila.map((c) => c.replace(/\|/g, '\\|')).join(' | ')} |`;
+          const separador = `| ${filas[0].map(() => '---').join(' | ')} |`;
+          return [filaMd(filas[0]), separador, ...filas.slice(1).map(filaMd)].join('\n');
+        }
         default:
           return b.texto;
       }
@@ -119,7 +154,37 @@ export function desdeMarkdown(markdown: string): Bloque[] {
   let acumuladoCodigo: string[] = [];
   let lenguaje = '';
 
+  // Filas de una tabla markdown en curso: una línea "|a|b|" tras otra, sin línea en
+  // blanco de por medio. patronFilaTabla acepta la fila de datos y también la de
+  // separación ("|---|---|" o "|:--|--:|"), que se descarta al cerrar la tabla —
+  // filtrarla aquí es más simple que tratarla como un caso especial de la primera fila.
+  let enTabla = false;
+  let filasTabla: string[][] = [];
+  const patronFilaTabla = /^\|.*\|\s*$/;
+  const esFilaSeparadora = (fila: string[]) => fila.every((c) => /^:?-+:?$/.test(c.trim()));
+
+  function cerrarTabla() {
+    const filas = filasTabla.filter((f) => !esFilaSeparadora(f));
+    if (filas.length > 0) bloques.push({ ...nuevoBloque('tabla'), filas });
+    enTabla = false;
+    filasTabla = [];
+  }
+
   for (const linea of lineas) {
+    if (enTabla && !patronFilaTabla.test(linea.trim())) cerrarTabla();
+
+    if (patronFilaTabla.test(linea.trim())) {
+      enTabla = true;
+      const celdas = linea
+        .trim()
+        .replace(/^\|/, '')
+        .replace(/\|$/, '')
+        .split('|')
+        .map((c) => c.trim());
+      filasTabla.push(celdas);
+      continue;
+    }
+
     if (linea.startsWith('```')) {
       if (enCodigo) {
         bloques.push({
@@ -174,6 +239,10 @@ export function desdeMarkdown(markdown: string): Bloque[] {
     else bloques.push(nuevoBloque('texto', texto));
   }
 
+  // El markdown puede terminar justo en la última fila de una tabla, sin línea en
+  // blanco después — sin esto esa tabla se perdía entera.
+  if (enTabla) cerrarTabla();
+
   // Un bloque de código sin cerrar sigue siendo código: mejor eso que perderlo.
   if (enCodigo && acumuladoCodigo.length > 0) {
     bloques.push({
@@ -188,7 +257,7 @@ export function desdeMarkdown(markdown: string): Bloque[] {
 /** Texto plano, para el índice de búsqueda y para los extractos de la lista. */
 export function aTextoPlano(bloques: Bloque[]): string {
   return bloques
-    .map((b) => b.texto)
+    .map((b) => (b.tipo === 'tabla' ? (b.filas ?? []).flat().join(' ') : b.texto))
     .filter(Boolean)
     .join(' ')
     .replace(/\s+/g, ' ')

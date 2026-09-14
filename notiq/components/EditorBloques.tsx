@@ -5,6 +5,7 @@ import {
   aMarkdown,
   desdeMarkdown,
   nuevoBloque,
+  TIPOS_BLOQUE,
   type Bloque,
   type TipoBloque,
 } from '@/lib/bloques';
@@ -40,17 +41,32 @@ const ESTILOS: Record<TipoBloque, string> = {
   cita: 'text-[15px] italic leading-relaxed text-ink/70',
   codigo: 'font-mono text-[13px] leading-relaxed',
   imagen: 'text-sm text-ink/60',
+  tabla: '',
 };
 
 const MARCADORES: Record<TipoBloque, string> = {
   titulo: 'Título',
   subtitulo: 'Subtítulo',
-  texto: 'Escribe, o usa "# ", "- ", "[] ", "> "…',
+  texto: 'Escribe, o usa "# ", "- ", "[] ", "> ", "/" …',
   lista: 'Elemento',
   tarea: 'Tarea',
   cita: 'Cita',
   codigo: 'Código',
   imagen: 'Descripción',
+  tabla: '',
+};
+
+/** Emoji por tipo de bloque, solo para el menú de comandos "/". */
+const ICONOS_COMANDO: Record<TipoBloque, string> = {
+  texto: '📄',
+  titulo: '🔠',
+  subtitulo: '🔡',
+  lista: '•',
+  tarea: '☑️',
+  codigo: '💻',
+  cita: '❝',
+  imagen: '🖼️',
+  tabla: '▦',
 };
 
 export default function EditorBloques({
@@ -70,6 +86,13 @@ export default function EditorBloques({
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [errorImagen, setErrorImagen] = useState<string | null>(null);
 
+  // Menú de comandos ("/" al principio de un bloque de texto): comandoAbierto es
+  // el índice del bloque con el menú abierto, o null. indiceComando es la opción
+  // resaltada dentro de la lista ya filtrada por filtroComando.
+  const [comandoAbierto, setComandoAbierto] = useState<number | null>(null);
+  const [filtroComando, setFiltroComando] = useState('');
+  const [indiceComando, setIndiceComando] = useState(0);
+
   useEffect(() => {
     if (foco === null) return;
     const campo = refs.current[foco];
@@ -88,6 +111,20 @@ export default function EditorBloques({
     [bloques, onCambio],
   );
 
+  function comandosFiltrados(filtro: string) {
+    const q = filtro.trim().toLowerCase();
+    if (!q) return TIPOS_BLOQUE;
+    return TIPOS_BLOQUE.filter((t) => t.etiqueta.toLowerCase().includes(q) || t.tipo.includes(q));
+  }
+
+  function elegirComando(indice: number, tipo: TipoBloque) {
+    const nuevo = nuevoBloque(tipo, '');
+    onCambio(bloques.map((b, i) => (i === indice ? { ...nuevo, id: b.id } : b)));
+    setComandoAbierto(null);
+    setFiltroComando('');
+    setFoco(indice);
+  }
+
   function escribir(indice: number, valor: string) {
     const bloque = bloques[indice];
 
@@ -97,7 +134,20 @@ export default function EditorBloques({
       const atajo = ATAJOS.find(({ patron }) => patron.test(valor));
       if (atajo) {
         actualizar(indice, { tipo: atajo.tipo, texto: '' });
+        setComandoAbierto(null);
         return;
+      }
+
+      // "/" al principio abre el menú de comandos; lo que se escriba después filtra
+      // la lista. Deja de estarlo en cuanto el texto ya no empieza por "/" (borrar
+      // la barra, o pegar algo encima) — no hace falta un Escape para eso.
+      if (valor.startsWith('/')) {
+        setComandoAbierto(indice);
+        setFiltroComando(valor.slice(1));
+        setIndiceComando(0);
+      } else if (comandoAbierto === indice) {
+        setComandoAbierto(null);
+        setFiltroComando('');
       }
     }
 
@@ -107,6 +157,34 @@ export default function EditorBloques({
   function pulsar(evento: React.KeyboardEvent<HTMLTextAreaElement>, indice: number) {
     const campo = evento.currentTarget;
     const bloque = bloques[indice];
+
+    // Con el menú de comandos abierto, las flechas/Enter/Escape lo gobiernan a él
+    // y no al bloque — el resto de teclas (letras, Backspace…) siguen su camino
+    // normal más abajo, que es lo que hace que escribir seguido de "/" filtre.
+    if (comandoAbierto === indice) {
+      const opciones = comandosFiltrados(filtroComando);
+      if (evento.key === 'ArrowDown') {
+        evento.preventDefault();
+        setIndiceComando((i) => Math.min(i + 1, Math.max(opciones.length - 1, 0)));
+        return;
+      }
+      if (evento.key === 'ArrowUp') {
+        evento.preventDefault();
+        setIndiceComando((i) => Math.max(i - 1, 0));
+        return;
+      }
+      if (evento.key === 'Enter') {
+        evento.preventDefault();
+        if (opciones[indiceComando]) elegirComando(indice, opciones[indiceComando].tipo);
+        return;
+      }
+      if (evento.key === 'Escape') {
+        evento.preventDefault();
+        setComandoAbierto(null);
+        setFiltroComando('');
+        return;
+      }
+    }
 
     if (evento.key === 'Enter' && !evento.shiftKey) {
       // En un bloque de código Enter es un salto de línea, no un bloque nuevo.
@@ -178,7 +256,7 @@ export default function EditorBloques({
 
     // Solo se interpreta como markdown lo que tiene varias líneas o marcas claras.
     // Pegar una palabra suelta debe seguir siendo pegar una palabra suelta.
-    const pareceMarkdown = /\n/.test(texto) && /^(#{1,2} |[-*] |> |```)/m.test(texto);
+    const pareceMarkdown = /\n/.test(texto) && /^(#{1,2} |[-*] |> |```|\|.*\|)/m.test(texto);
     if (!pareceMarkdown || bloques[indice].tipo === 'codigo') return;
 
     evento.preventDefault();
@@ -294,26 +372,49 @@ export default function EditorBloques({
               </div>
             )}
 
-            <textarea
-              ref={(el) => {
-                refs.current[indice] = el;
-              }}
-              value={bloque.texto}
-              rows={1}
-              onChange={(e) => {
-                escribir(indice, e.target.value);
-                autoAlto(e.target);
-              }}
-              onKeyDown={(e) => pulsar(e, indice)}
-              onPaste={(e) => pegar(e, indice)}
-              onFocus={(e) => autoAlto(e.target)}
-              placeholder={MARCADORES[bloque.tipo]}
-              className={`w-full resize-none bg-transparent outline-none placeholder:text-ink/25 ${
-                ESTILOS[bloque.tipo]
-              } ${bloque.tipo === 'cita' ? 'border-l-2 border-brand-300 pl-3' : ''} ${
-                bloque.tipo === 'codigo' ? 'rounded-lg bg-ink/[0.04] p-3' : ''
-              } ${bloque.tipo === 'tarea' && bloque.hecho ? 'text-ink/40 line-through' : ''}`}
-            />
+            {bloque.tipo === 'tabla' ? (
+              <TablaBloque
+                filas={bloque.filas ?? [['', ''], ['', '']]}
+                onCambiar={(filas) => actualizar(indice, { filas })}
+                onBorrar={() => onCambio(bloques.filter((_, i) => i !== indice))}
+              />
+            ) : (
+              <div className="relative">
+                <textarea
+                  ref={(el) => {
+                    refs.current[indice] = el;
+                  }}
+                  value={bloque.texto}
+                  rows={1}
+                  onChange={(e) => {
+                    escribir(indice, e.target.value);
+                    autoAlto(e.target);
+                  }}
+                  onKeyDown={(e) => pulsar(e, indice)}
+                  onPaste={(e) => pegar(e, indice)}
+                  onFocus={(e) => autoAlto(e.target)}
+                  placeholder={MARCADORES[bloque.tipo]}
+                  className={`w-full resize-none bg-transparent outline-none placeholder:text-ink/25 ${
+                    ESTILOS[bloque.tipo]
+                  } ${bloque.tipo === 'cita' ? 'border-l-2 border-brand-300 pl-3' : ''} ${
+                    bloque.tipo === 'codigo' ? 'rounded-lg bg-ink/[0.04] p-3' : ''
+                  } ${bloque.tipo === 'tarea' && bloque.hecho ? 'text-ink/40 line-through' : ''}`}
+                />
+
+                {comandoAbierto === indice && (
+                  <MenuComandos
+                    opciones={comandosFiltrados(filtroComando)}
+                    indiceResaltado={indiceComando}
+                    onResaltar={setIndiceComando}
+                    onElegir={(tipo) => elegirComando(indice, tipo)}
+                    onCerrar={() => {
+                      setComandoAbierto(null);
+                      setFiltroComando('');
+                    }}
+                  />
+                )}
+              </div>
+            )}
           </div>
         </div>
       ))}
@@ -343,6 +444,16 @@ export default function EditorBloques({
         >
           {subiendoImagen ? 'Subiendo imagen…' : '+ Imagen'}
         </button>
+        <button
+          type="button"
+          onClick={() => {
+            onCambio([...bloques, nuevoBloque('tabla')]);
+            setFoco(bloques.length);
+          }}
+          className="btn-fantasma text-xs"
+        >
+          + Tabla
+        </button>
         <input
           ref={inputImagenRef}
           type="file"
@@ -366,4 +477,148 @@ export default function EditorBloques({
 function autoAlto(campo: HTMLTextAreaElement) {
   campo.style.height = 'auto';
   campo.style.height = `${campo.scrollHeight}px`;
+}
+
+/**
+ * Menú de comandos ("/" al principio de un bloque de texto): mismo patrón de
+ * capa transparente para cerrar al hacer clic fuera que ya usan PaletaComandos.tsx
+ * y los desplegables de NotaEditor.tsx.
+ */
+function MenuComandos({
+  opciones,
+  indiceResaltado,
+  onResaltar,
+  onElegir,
+  onCerrar,
+}: {
+  opciones: { tipo: TipoBloque; etiqueta: string; atajo: string }[];
+  indiceResaltado: number;
+  onResaltar: (indice: number) => void;
+  onElegir: (tipo: TipoBloque) => void;
+  onCerrar: () => void;
+}) {
+  return (
+    <>
+      <button
+        type="button"
+        aria-hidden
+        tabIndex={-1}
+        onClick={onCerrar}
+        className="fixed inset-0 z-10 cursor-default"
+      />
+      <div className="card absolute left-0 top-full z-20 mt-1 w-56 overflow-hidden py-1.5">
+        {opciones.length === 0 ? (
+          <p className="px-3.5 py-2 text-xs text-ink/45">Sin resultados.</p>
+        ) : (
+          opciones.map((op, i) => (
+            <button
+              key={op.tipo}
+              type="button"
+              // onMouseDown y no onClick: el clic primero le quita el foco al
+              // textarea (blur), y con onClick ese blur llegaría a tiempo de que
+              // React ya hubiera desmontado este menú antes de procesar la
+              // selección. mousedown se dispara antes del blur.
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onElegir(op.tipo);
+              }}
+              onMouseEnter={() => onResaltar(i)}
+              className={`flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-sm ${
+                i === indiceResaltado ? 'bg-brand-50 text-brand-700' : 'text-ink/80'
+              }`}
+            >
+              <span aria-hidden>{ICONOS_COMANDO[op.tipo]}</span>
+              {op.etiqueta}
+            </button>
+          ))
+        )}
+      </div>
+    </>
+  );
+}
+
+/** Bloque de tabla: celdas editables, sin el textarea compartido del resto de bloques. */
+function TablaBloque({
+  filas,
+  onCambiar,
+  onBorrar,
+}: {
+  filas: string[][];
+  onCambiar: (filas: string[][]) => void;
+  onBorrar: () => void;
+}) {
+  const columnas = filas[0]?.length ?? 0;
+
+  function celda(f: number, c: number, valor: string) {
+    onCambiar(filas.map((fila, i) => (i === f ? fila.map((cel, j) => (j === c ? valor : cel)) : fila)));
+  }
+
+  function anadirFila() {
+    onCambiar([...filas, Array(columnas || 2).fill('')]);
+  }
+
+  function anadirColumna() {
+    onCambiar(filas.map((fila) => [...fila, '']));
+  }
+
+  function quitarFila(f: number) {
+    if (filas.length <= 1) return;
+    onCambiar(filas.filter((_, i) => i !== f));
+  }
+
+  function quitarUltimaColumna() {
+    if (columnas <= 1) return;
+    onCambiar(filas.map((fila) => fila.slice(0, -1)));
+  }
+
+  return (
+    <div className="my-1">
+      <div className="overflow-x-auto rounded-lg border border-ink/10">
+        <table className="w-full border-collapse text-sm">
+          <tbody>
+            {filas.map((fila, f) => (
+              <tr key={f} className="group/fila">
+                {fila.map((celdaTexto, c) => (
+                  <td key={c} className="border border-ink/10 p-0">
+                    <input
+                      value={celdaTexto}
+                      onChange={(e) => celda(f, c, e.target.value)}
+                      aria-label={`Celda, fila ${f + 1}, columna ${c + 1}`}
+                      className="w-full min-w-[7rem] bg-transparent px-2.5 py-1.5 outline-none focus:bg-ink/[0.03]"
+                    />
+                  </td>
+                ))}
+                <td className="w-0 border-0 pl-1">
+                  <button
+                    type="button"
+                    onClick={() => quitarFila(f)}
+                    aria-label={`Quitar la fila ${f + 1}`}
+                    className="px-1 text-xs text-ink/25 opacity-0 transition hover:text-red-600 group-hover/fila:opacity-100"
+                  >
+                    ✕
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-1.5 flex items-center gap-3 text-xs text-ink/45">
+        <button type="button" onClick={anadirFila} className="hover:text-ink">
+          + fila
+        </button>
+        <button type="button" onClick={anadirColumna} className="hover:text-ink">
+          + columna
+        </button>
+        {columnas > 1 && (
+          <button type="button" onClick={quitarUltimaColumna} className="hover:text-ink">
+            − columna
+          </button>
+        )}
+        <button type="button" onClick={onBorrar} className="ml-auto hover:text-red-600">
+          Borrar tabla
+        </button>
+      </div>
+    </div>
+  );
 }
