@@ -284,7 +284,10 @@ export default function EditorBloques({
                   type="button"
                   onClick={() => quitarImagen(indice)}
                   aria-label="Quitar imagen"
-                  className="absolute right-2 top-2 rounded-full bg-ink/70 px-2 py-1 text-xs text-white opacity-0 transition group-hover/imagen:opacity-100"
+                  // bg-[#141319]/70 fijo, no bg-ink/70: mismo motivo que el panel de
+                  // /entrar — este botón flota sobre una imagen cualquiera y necesita
+                  // contraste garantizado, no uno que se invierta con el tema.
+                  className="absolute right-2 top-2 rounded-full bg-[#141319]/70 px-2 py-1 text-xs text-white opacity-0 transition group-hover/imagen:opacity-100"
                 >
                   Quitar
                 </button>

@@ -42,7 +42,13 @@ export default async function EntrarPage({
         </div>
       </div>
 
-      <aside className="relative hidden overflow-hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-center">
+      {/*
+        bg-[#141319] fijo, no bg-ink: ink se invierte con el modo oscuro (ahí es
+        un color claro, pensado para texto legible sobre fondo oscuro, no para
+        ser fondo él mismo) — con bg-ink este panel se quedaba casi blanco con
+        texto blanco encima en cuanto el modo oscuro estaba activo.
+      */}
+      <aside className="relative hidden overflow-hidden bg-[#141319] p-12 text-white lg:flex lg:flex-col lg:justify-center">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-24 -top-32 h-[26rem] w-[26rem] rounded-full bg-brand-600/40 blur-3xl"
