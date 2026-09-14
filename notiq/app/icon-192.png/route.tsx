@@ -6,6 +6,10 @@ import { elementoIconoNotiq } from '@/lib/iconoNotiq';
 // force-static: el icono no cambia con cada petición, así que se genera una vez en
 // el build y se sirve como archivo estático, no en cada visita.
 export const dynamic = 'force-static';
+// elementoIconoNotiq lee public/logo.png con fs.readFileSync — no disponible
+// en el runtime Edge, de ahí forzar Node aquí en vez de dejarlo al valor por
+// defecto.
+export const runtime = 'nodejs';
 
 export async function GET() {
   return new ImageResponse(elementoIconoNotiq(192), { width: 192, height: 192 });
