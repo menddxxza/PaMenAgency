@@ -1,26 +1,23 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { LOGO_PNG_BASE64 } from '@/lib/logoBase64';
 
 /**
  * El icono de la app (favicon, apple-touch-icon y el manifest de PWA) sale de
- * public/logo.png, incrustado como `data:` URI: dentro de una ImageResponse
- * (Satori) no se puede referenciar un archivo por ruta relativa como
- * "/logo.png" de forma fiable — hay que darle los bytes ya en el propio JSX.
- * Se lee una sola vez al cargar el módulo (no en cada petición) con
- * `readFileSync`, de ahí el `runtime = 'nodejs'` explícito en los cuatro
- * ficheros que usan esto (app/icon.tsx, app/apple-icon.tsx y las dos rutas
- * icon-*.png): sin Node de verdad no hay `fs`.
+ * public/logo.png, incrustado como `data:` URI a partir de una constante ya
+ * generada (lib/logoBase64.ts) — no leído con fs.readFileSync en tiempo de
+ * ejecución. Esa primera versión funcionaba en el build local pero rompía en
+ * Vercel: la función serverless no tiene el contenido de public/ en su propio
+ * sistema de archivos (se sirve aparte por CDN), así que `readFileSync` daba
+ * ENOENT ahí aunque en local sí encontrara el archivo. Con el string ya
+ * incrustado en el bundle no hace falta leer nada en ningún runtime.
  *
  * Sin `borderRadius` aquí: Apple aplica su propia máscara (esquinas
  * redondeadas o "squircle") al apple-touch-icon, y Android hace lo mismo con
  * los iconos `purpose: "maskable"` del manifest — un icono ya recortado por
  * dentro queda recortado dos veces, o mal encajado si el sistema espera el
- * cuadrado entero. public/logo.png ya es un cuadrado completo (la propia
- * imagen trae su esquinas redondeadas "pintadas", no recortadas de verdad).
+ * cuadrado entero. public/logo.png ya es un cuadrado completo (la imagen trae
+ * sus esquinas redondeadas "pintadas", no recortadas de verdad).
  */
-const LOGO_DATA_URI = `data:image/png;base64,${readFileSync(
-  join(process.cwd(), 'public', 'logo.png'),
-).toString('base64')}`;
+const LOGO_DATA_URI = `data:image/png;base64,${LOGO_PNG_BASE64}`;
 
 export function elementoIconoNotiq(size: number) {
   return (
