@@ -32,6 +32,14 @@ const config: Config = {
           500: '#84cc16',
           600: '#65a30d',
         },
+        // Alias hacia `brand`, no una paleta nueva: `primary`/`primary-foreground`
+        // es la convención que esperan los componentes de estilo shadcn/ui (como
+        // components/ui/prisma-hero.tsx) — mapearlos al violeta de marca ya
+        // existente evita tener dos sistemas de color paralelos en la misma app.
+        primary: {
+          DEFAULT: '#7a45f5',
+          foreground: '#ffffff',
+        },
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],

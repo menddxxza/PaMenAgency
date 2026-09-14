@@ -5,6 +5,7 @@ import TablaPrecios from '@/components/TablaPrecios';
 import FondoAnimado from '@/components/FondoAnimado';
 import VistaPreviaProducto from '@/components/VistaPreviaProducto';
 import DemoAsistente from '@/components/DemoAsistente';
+import { NotiqHero } from '@/components/ui/notiq-hero';
 
 // Solo para los titulares de la landing: un trazo más marcado que el sans del
 // resto de la app, para que la portada tenga una voz propia sin tocar la
@@ -65,40 +66,11 @@ export default function LandingPage() {
         </header>
 
         <main>
-          <section className="container-page py-16 sm:py-24">
-            <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
-              <div className="max-w-xl">
-                <p className="eyebrow">Notas · Tareas · Asistente</p>
-                <h1
-                  className={`${grotesk.className} mt-4 text-4xl font-bold leading-[1.08] tracking-tight sm:text-6xl`}
-                >
-                  Escribes la reunión.
-                  <br />
-                  <span className="texto-degradado">Notiq saca las tareas.</span>
-                </h1>
-                <p className="mt-6 text-lg leading-relaxed text-ink/70">
-                  Una app de notas con la IA metida en el flujo, no en una pestaña aparte.
-                  Resume lo que escribes, convierte los acuerdos en tareas y responde a lo
-                  que le preguntes sobre tu propio material.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <Link href="/entrar" className="btn-primary px-6 py-3 text-base">
-                    Empezar gratis
-                  </Link>
-                  <Link href="#precios" className="btn-secondary px-6 py-3 text-base">
-                    Ver precios
-                  </Link>
-                </div>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <span className="chip">Sin tarjeta</span>
-                  <span className="chip">50 notas gratis</span>
-                  <span className="chip">20 operaciones de IA al mes</span>
-                </div>
-              </div>
+          <NotiqHero />
 
-              <div className="flex justify-center lg:justify-end">
-                <VistaPreviaProducto />
-              </div>
+          <section className="container-page py-16 sm:py-20">
+            <div className="flex justify-center">
+              <VistaPreviaProducto />
             </div>
           </section>
 
