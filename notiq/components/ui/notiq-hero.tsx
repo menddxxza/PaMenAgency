@@ -48,18 +48,27 @@ export const WordsPullUp = ({ text, className = '', style }: WordsPullUpProps) =
  * encima — otra barra aquí habría quedado duplicada. Este componente empieza
  * ya debajo de esa cabecera.
  *
- * Sin vídeo de fondo: el original usaba uno de un desconocido en CloudFront,
- * que no es un asset de Notiq. Un degradado con la marca (violeta + un halo
- * lima) hace de fondo mientras no haya un vídeo propio — cambiar `<video>` por
- * este `<div>` es el único paso si algún día se graba uno.
+ * Vídeo en public/hero.mp4: es el que pasó el propio usuario (16 MB, sin
+ * comprimir por falta de ffmpeg en el entorno donde se integró — si la carga
+ * inicial de la landing se nota lenta, ese archivo es el primer sitio donde
+ * mirar). El degradado de marca queda como `poster`/capa de contraste detrás
+ * del texto, no como sustituto: sigue ahí para que el título se lea bien
+ * aunque el vídeo tarde en cargar.
  */
 export const NotiqHero = () => {
   return (
     <section className="h-[calc(100dvh-4.5rem)] w-full">
       <div className="relative isolate h-full w-full overflow-hidden rounded-2xl md:rounded-[2rem]">
-        {/* Fondo: degradado de marca + un par de halos difuminados, no un vídeo */}
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-700 via-ink to-ink" />
-        <div className="absolute -left-24 top-1/3 h-72 w-72 rounded-full bg-brand-500/30 blur-[100px]" />
+        {/* Fondo: vídeo propio + degradado encima para que el texto siga legible */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/hero.mp4"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/75" />
         <div className="absolute -right-16 bottom-10 h-64 w-64 rounded-full bg-lima-500/20 blur-[100px]" />
 
         {/* Contenido */}
@@ -105,10 +114,13 @@ export const NotiqHero = () => {
               >
                 <Link
                   href="/entrar"
-                  className="group inline-flex items-center gap-2 self-start rounded-full bg-white py-1 pl-5 pr-1 text-sm font-semibold text-ink transition-all hover:gap-3 sm:text-base"
+                  // text-[#141319] y no text-ink por el mismo motivo que el fondo de
+                  // arriba: en modo oscuro `ink` es un color claro, y el botón se
+                  // quedaba con texto casi blanco sobre un fondo blanco.
+                  className="group inline-flex items-center gap-2 self-start rounded-full bg-white py-1 pl-5 pr-1 text-sm font-semibold text-[#141319] transition-all hover:gap-3 sm:text-base"
                 >
                   Empezar gratis
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink transition-transform group-hover:scale-110 sm:h-10 sm:w-10">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#141319] transition-transform group-hover:scale-110 sm:h-10 sm:w-10">
                     <ArrowRight className="h-4 w-4 text-white" />
                   </span>
                 </Link>
