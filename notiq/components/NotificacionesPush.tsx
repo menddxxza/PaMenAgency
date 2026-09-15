@@ -89,7 +89,21 @@ export default function NotificacionesPush() {
 
       setEstado('activo');
     } catch (fallo) {
-      setError(fallo instanceof Error ? fallo.message : 'No se ha podido activar.');
+      // "Registration failed - push service error" es el mensaje exacto que da
+      // Chrome/Brave cuando el navegador no puede llegar al servicio de push de
+      // Google — en Brave casi siempre es que lo bloquea por defecto (Ajustes →
+      // Privacidad → "Usar servicios de Google para la mensajería push"), no un
+      // fallo de Notiq. El mensaje del navegador por sí solo no lo explica.
+      const mensaje = fallo instanceof Error ? fallo.message : '';
+      if (/push service error/i.test(mensaje)) {
+        setError(
+          'El navegador ha bloqueado el servicio de notificaciones push. Si usas Brave: ve a ' +
+            'brave://settings/privacy y activa "Usar servicios de Google para la mensajería push", ' +
+            'luego recarga esta página y vuelve a intentarlo.',
+        );
+      } else {
+        setError(mensaje || 'No se ha podido activar.');
+      }
     } finally {
       setCargando(false);
     }
