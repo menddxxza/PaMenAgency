@@ -40,6 +40,16 @@ const config: Config = {
           DEFAULT: '#7a45f5',
           foreground: '#ffffff',
         },
+        // Resto de alias que esperan los componentes shadcn/ui (como
+        // components/ui/ai-chat-input.tsx): reaprovechan las variables ya
+        // existentes en vez de crear una paleta neutra en paralelo — solo
+        // `border` es un tono nuevo de verdad, porque necesita su propio matiz
+        // sutil (no vale simplemente ink al 100%).
+        card: 'rgb(var(--color-surface) / <alpha-value>)',
+        foreground: 'rgb(var(--color-ink) / <alpha-value>)',
+        'muted-foreground': 'rgb(var(--color-ink-soft) / <alpha-value>)',
+        border: 'rgb(var(--color-border) / <alpha-value>)',
+        ring: '#7a45f5',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],

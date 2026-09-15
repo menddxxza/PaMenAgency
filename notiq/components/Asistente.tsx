@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { PromptInput } from '@/components/ui/ai-chat-input';
 
 type Turno = { role: 'user' | 'assistant'; content: string };
 
@@ -145,25 +146,16 @@ export default function Asistente() {
         <div ref={finRef} />
       </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          void enviar(pregunta);
-        }}
-        className="mt-4 flex gap-2"
-      >
-        <input
+      <div className="mt-4 flex justify-center">
+        <PromptInput
           value={pregunta}
-          onChange={(e) => setPregunta(e.target.value)}
+          onChange={setPregunta}
+          onSubmit={(texto) => void enviar(texto)}
+          disabled={cargando}
           placeholder="Pregúntame lo que sea…"
-          aria-label="Pregunta"
           maxLength={1000}
-          className="campo flex-1"
         />
-        <button type="submit" disabled={cargando || !pregunta.trim()} className="btn-primary">
-          Enviar
-        </button>
-      </form>
+      </div>
     </div>
   );
 }

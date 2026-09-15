@@ -14,6 +14,7 @@
     --color-ink-soft: 60 58 69; /* #3c3a45 */
     --color-paper: 250 249 247; /* #faf9f7 */
     --color-surface: 255 255 255; /* blanco: tarjetas, campos, botones secundarios */
+    --color-border: 227 226 225; /* ink al 10% sobre surface, precalculado */
   }
 
   /* .dark y no solo prefers-color-scheme: el interruptor de Ajustes necesita
@@ -24,6 +25,7 @@
     --color-ink-soft: 176 173 186;
     --color-paper: 18 17 22; /* fondo de página, violeta muy oscuro */
     --color-surface: 26 25 32; /* tarjetas y campos, un punto más claro que el fondo */
+    --color-border: 51 50 55; /* blanco al 14% sobre paper, precalculado */
   }
 
   body {
