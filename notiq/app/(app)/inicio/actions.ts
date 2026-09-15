@@ -3,6 +3,7 @@
 import { getSesion } from '@/lib/sesion';
 import { db, esUuid } from '@/lib/db';
 import { ordenarPorUrgencia, type Tarea } from '@/lib/tareas';
+import { consumoIa, puedeCrearNota } from '@/lib/ia/limites';
 import type { NotaResumen } from '@/app/(app)/notas/actions';
 
 export type CarpetaResumen = {
@@ -21,6 +22,9 @@ export type Resumen = {
   notasRecientes: NotaResumen[];
   tareasProximas: Tarea[];
   carpetas: CarpetaResumen[];
+  plan: string;
+  consumoIa: { usadas: number; limite: number };
+  cupoNotas: { permitido: boolean; usadas: number; limite: number | null };
 };
 
 /**
@@ -43,6 +47,8 @@ export async function obtenerResumen(): Promise<Resumen | null> {
     notasRecientes,
     tareasAbiertas,
     carpetas,
+    consumo,
+    cupoNotas,
   ] = await Promise.all([
     sql<{ total: number }[]>`
       select count(*)::int as total from notes
@@ -88,6 +94,8 @@ export async function obtenerResumen(): Promise<Resumen | null> {
       group by f.id, f.nombre
       order by f.nombre
     `,
+    consumoIa(userId, sesion.plan),
+    puedeCrearNota(userId, sesion.plan),
   ]);
 
   return {
@@ -98,6 +106,9 @@ export async function obtenerResumen(): Promise<Resumen | null> {
     notasRecientes,
     tareasProximas: ordenarPorUrgencia(tareasAbiertas).slice(0, 5),
     carpetas,
+    plan: sesion.plan,
+    consumoIa: consumo,
+    cupoNotas,
   };
 }
 

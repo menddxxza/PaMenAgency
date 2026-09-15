@@ -33,8 +33,13 @@ repositorio; el resto es el plan.
 - [x] Estado de la suscripción en Ajustes (prueba, cobro fallido, cancelada)
 - [x] Productos Notiq Pro (9 €) y Notiq Team (19 €) creados en Stripe, en modo live
 - [ ] Configurar `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` y el endpoint del webhook
-- [ ] Cobro por asiento en Team (hoy va a `quantity: 1`)
-- [ ] Avisos al acercarse al límite del plan
+- [x] Cobro por asiento en Team — selector de personas al contratar/cambiar de
+      plan; la cantidad no se guarda en Neon, se lee en caliente de Stripe
+      (`subscription.items[0].quantity`) para no añadir otra migración
+- [x] Avisos al acercarse al límite del plan — banner en Inicio (IA y notas) a
+      partir del 80%, aviso más temprano en Notas (antes solo al 100%, ya
+      bloqueado), cifras en rojo en Ajustes, y "Ampliar" en la cabecera ahora
+      también le sale a Pro cerca del límite (antes solo a Free, siempre)
 
 ## Migración de Supabase a Neon — hecho, sin verificar contra una base real
 

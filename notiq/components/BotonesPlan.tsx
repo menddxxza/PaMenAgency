@@ -30,6 +30,10 @@ export default function BotonesPlan({
   const [cargando, setCargando] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [cambiado, setCambiado] = useState(false);
+  // Solo importa para Team, que se cobra por persona (ver checkout/route.ts) — Pro
+  // y Free son de una sola cuenta. 2 por defecto porque "Team" para una persona
+  // sola es simplemente Pro.
+  const [personasTeam, setPersonasTeam] = useState(2);
 
   async function ir(ruta: string, cuerpo?: Record<string, unknown>) {
     setCargando(ruta);
@@ -89,14 +93,30 @@ export default function BotonesPlan({
         )}
 
         {planActual !== 'team' && (
-          <button
-            type="button"
-            onClick={() => ir('/api/stripe/checkout', { plan: 'team' })}
-            disabled={cargando !== null}
-            className="btn-secondary"
-          >
-            Pasar a Team
-          </button>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1.5 text-xs text-ink/55" htmlFor="personas-team">
+              Personas
+              <input
+                id="personas-team"
+                type="number"
+                min={1}
+                max={50}
+                value={personasTeam}
+                onChange={(e) =>
+                  setPersonasTeam(Math.min(50, Math.max(1, Math.trunc(Number(e.target.value)) || 1)))
+                }
+                className="campo w-16 py-1.5 text-center text-sm"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => ir('/api/stripe/checkout', { plan: 'team', cantidad: personasTeam })}
+              disabled={cargando !== null}
+              className="btn-secondary"
+            >
+              Pasar a Team
+            </button>
+          </div>
         )}
 
         {tieneSuscripcion && (

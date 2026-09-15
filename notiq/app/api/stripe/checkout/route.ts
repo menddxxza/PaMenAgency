@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const cuerpo = (await request.json().catch(() => ({}))) as { plan?: unknown };
+  const cuerpo = (await request.json().catch(() => ({}))) as { plan?: unknown; cantidad?: unknown };
   if (!esPlanDePago(cuerpo.plan)) {
     return NextResponse.json({ error: 'Plan no válido.' }, { status: 400 });
   }
@@ -39,6 +39,16 @@ export async function POST(request: NextRequest) {
       { status: 503 },
     );
   }
+
+  // Solo Team se cobra por persona (así lo dice ya la tabla de precios, "por
+  // usuario") — Pro es de una sola cuenta, así que ahí "cantidad" no significa
+  // nada y se ignora lo que venga. Nunca te fías de un número que llega del
+  // cliente para algo que genera un cobro real: se valida y se acota aquí,
+  // no solo en el <input> del formulario.
+  const cantidad =
+    cuerpo.plan === 'team' && typeof cuerpo.cantidad === 'number' && Number.isFinite(cuerpo.cantidad)
+      ? Math.min(50, Math.max(1, Math.trunc(cuerpo.cantidad)))
+      : 1;
 
   const sitio = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
 
@@ -54,7 +64,7 @@ export async function POST(request: NextRequest) {
     // compartan cliente), y el usuario acabaría pagando las dos a la vez. En su
     // lugar se cambia el precio de la suscripción existente, con prorrateo.
     if (perfil?.stripe_subscription_id && esPlanDePago(perfil.plan) && perfil.plan !== cuerpo.plan) {
-      return await cambiarDePlan(stripe, perfil.stripe_subscription_id, precio);
+      return await cambiarDePlan(stripe, perfil.stripe_subscription_id, precio, cantidad);
     }
 
     const clienteStripe = await customerDelUsuario(stripe, sesion);
@@ -62,7 +72,7 @@ export async function POST(request: NextRequest) {
     const checkout = await stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: clienteStripe,
-      line_items: [{ price: precio, quantity: 1 }],
+      line_items: [{ price: precio, quantity: cantidad }],
       success_url: `${sitio}/ajustes?pago=ok`,
       cancel_url: `${sitio}/ajustes?pago=cancelado`,
       client_reference_id: sesion.userId,
@@ -101,6 +111,7 @@ async function cambiarDePlan(
   stripe: NonNullable<ReturnType<typeof getStripe>>,
   subscriptionId: string,
   nuevoPrecio: string,
+  cantidad: number,
 ): Promise<NextResponse> {
   const suscripcionActual = await stripe.subscriptions.retrieve(subscriptionId);
   const item = suscripcionActual.items.data[0];
@@ -113,7 +124,7 @@ async function cambiarDePlan(
   }
 
   await stripe.subscriptions.update(subscriptionId, {
-    items: [{ id: item.id, price: nuevoPrecio }],
+    items: [{ id: item.id, price: nuevoPrecio, quantity: cantidad }],
     proration_behavior: 'create_prorations',
   });
 

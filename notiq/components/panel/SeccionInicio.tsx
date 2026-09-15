@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { comoBloques, extracto } from '@/lib/bloques';
 import { clasePrioridad, etiquetaPrioridad, etiquetaVencimiento, type Tarea } from '@/lib/tareas';
 import { cambiarEstado } from '@/app/(app)/tareas/actions';
@@ -145,12 +146,32 @@ export default function SeccionInicio({ email }: { email: string | null }) {
     );
   }
 
+  const porcentajeIa = Math.round((resumen.consumoIa.usadas / resumen.consumoIa.limite) * 100);
+  const cercaDeIa = resumen.plan !== 'team' && porcentajeIa >= 80;
+  const cercaDeNotas =
+    resumen.cupoNotas.limite !== null && resumen.cupoNotas.usadas / resumen.cupoNotas.limite >= 0.8;
+
   return (
     <div className="px-5 py-6 sm:px-8">
       <header>
         <h1 className="text-2xl font-extrabold tracking-tight">Inicio</h1>
         <p className="mt-1 text-sm text-ink/55">{email}</p>
       </header>
+
+      {(cercaDeIa || cercaDeNotas) && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">
+          <p>
+            {cercaDeIa && cercaDeNotas
+              ? `Te quedan pocas operaciones de IA (${resumen.consumoIa.usadas}/${resumen.consumoIa.limite}) y pocas notas (${resumen.cupoNotas.usadas}/${resumen.cupoNotas.limite}) este mes.`
+              : cercaDeIa
+                ? `Te quedan pocas operaciones de IA este mes: ${resumen.consumoIa.usadas} de ${resumen.consumoIa.limite}.`
+                : `Te quedan pocas notas en el plan: ${resumen.cupoNotas.usadas} de ${resumen.cupoNotas.limite}.`}
+          </p>
+          <Link href="/ajustes" className="shrink-0 font-semibold underline underline-offset-4">
+            Ver planes →
+          </Link>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <TarjetaResumen etiqueta="Notas" valor={resumen.totalNotas} />

@@ -211,6 +211,10 @@ export default function SeccionNotas() {
 
   const limites = limitesDe(plan);
   const cupoLleno = limites.notas !== null && totalNotas >= limites.notas;
+  // Antes solo se avisaba al llegar al 100% (y encima bloqueado, con "Nueva nota"
+  // ya deshabilitado) — nadie veía venir el límite. Este aviso aparece un poco
+  // antes, al 80%, para dar tiempo a decidir sin bloquear nada todavía.
+  const cercaDelCupo = !cupoLleno && limites.notas !== null && totalNotas / limites.notas >= 0.8;
 
   if (notaAbierta) {
     return (
@@ -400,6 +404,12 @@ export default function SeccionNotas() {
         <p className="mt-4 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">
           Has llegado al límite de {limites.notas} notas del plan {limites.nombre}. Pasa a Pro
           para tenerlas ilimitadas.
+        </p>
+      )}
+      {cercaDelCupo && (
+        <p className="mt-4 rounded-xl bg-ink/[0.04] px-4 py-3 text-sm text-ink/70">
+          Vas por {totalNotas} de {limites.notas} notas del plan {limites.nombre} — te quedan
+          pocas.
         </p>
       )}
 

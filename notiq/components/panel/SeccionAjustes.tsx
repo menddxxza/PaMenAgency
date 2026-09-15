@@ -35,7 +35,7 @@ export default function SeccionAjustes({ pago }: { pago?: string }) {
 
   if (!datos) return null;
 
-  const { email, plan, consumo, cupoNotas, perfil, pagosActivos } = datos;
+  const { email, plan, consumo, cupoNotas, perfil, asientosTeam, pagosActivos } = datos;
   const limites = limitesDe(plan);
   const aviso = perfil?.subscription_status ? AVISO_ESTADO[perfil.subscription_status] : undefined;
 
@@ -90,18 +90,38 @@ export default function SeccionAjustes({ pago }: { pago?: string }) {
               <dt className="text-xs font-semibold uppercase tracking-wide text-ink/45">
                 Operaciones de IA este mes
               </dt>
-              <dd className="mt-1 text-sm font-medium">
+              <dd
+                className={`mt-1 text-sm font-medium ${
+                  consumo.usadas / consumo.limite >= 0.8 ? 'text-red-600' : ''
+                }`}
+              >
                 {consumo.usadas} de {consumo.limite}
               </dd>
             </div>
             <div>
               <dt className="text-xs font-semibold uppercase tracking-wide text-ink/45">Notas</dt>
-              <dd className="mt-1 text-sm font-medium">
+              <dd
+                className={`mt-1 text-sm font-medium ${
+                  cupoNotas.limite !== null && cupoNotas.usadas / cupoNotas.limite >= 0.8
+                    ? 'text-red-600'
+                    : ''
+                }`}
+              >
                 {cupoNotas.limite === null
                   ? 'Ilimitadas'
                   : `${cupoNotas.usadas} de ${cupoNotas.limite}`}
               </dd>
             </div>
+            {plan === 'team' && asientosTeam !== null && (
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wide text-ink/45">
+                  Personas
+                </dt>
+                <dd className="mt-1 text-sm font-medium">
+                  {asientosTeam} × {limites.precio} € — {asientosTeam * limites.precio} €/mes
+                </dd>
+              </div>
+            )}
             {perfil?.plan_renueva_el && plan !== 'free' && (
               <div>
                 <dt className="text-xs font-semibold uppercase tracking-wide text-ink/45">
@@ -124,6 +144,13 @@ export default function SeccionAjustes({ pago }: { pago?: string }) {
             pagosActivos={pagosActivos}
             onCambio={cargar}
           />
+
+          {plan === 'team' && asientosTeam !== null && (
+            <p className="mt-3 text-xs text-ink/45">
+              ¿Sois más o menos personas ahora? Prueba desde «Gestionar suscripción» — si esa
+              opción no aparece ahí, escríbenos y lo ajustamos a mano.
+            </p>
+          )}
         </div>
       </section>
 

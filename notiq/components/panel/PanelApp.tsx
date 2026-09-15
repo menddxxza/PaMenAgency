@@ -140,7 +140,11 @@ export default function PanelApp({
                 style={{ width: `${porcentaje}%` }}
               />
             </div>
-            {plan === 'free' && (
+            {/* Antes solo se ofrecía "Ampliar" en Free, siempre — quien ya paga Pro y
+                se está quedando sin cuota no veía ningún aviso hasta agotarla del
+                todo. Ahora también se ofrece a Pro (a Team no: ya es el plan más
+                alto) en cuanto se acerca al límite. */}
+            {plan !== 'team' && (plan === 'free' || porcentaje >= 80) && (
               <button
                 type="button"
                 onClick={() => cambiar('ajustes')}
