@@ -82,7 +82,10 @@ disparaba — esto es lo que faltaba.
 
 ## Semanas 9-10 · Pulido
 
-- [ ] Onboarding con una nota de ejemplo ya escrita
+- [x] Onboarding con una nota de ejemplo ya escrita — se crea sola al
+      registrarse (`app/entrar/actions.ts` → `notaDeBienvenida`), marcada
+      como favorita para que sea lo primero que se vea; si falla no tumba el
+      registro, solo se queda sin nota
 - [x] Etiquetas en la interfaz — chips en la nota (con sugerencias) y filtro en la lista
 - [x] Imágenes en las notas — arrastrar y soltar sobre Adjuntos (sigue guardando en
       Postgres como bytea, no en S3/R2; sube al mismo sitio que el botón de siempre)
