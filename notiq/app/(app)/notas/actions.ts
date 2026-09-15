@@ -518,6 +518,7 @@ export type NotaResumen = {
   content: unknown;
   favorita: boolean;
   folder_id: string | null;
+  created_at: string;
   updated_at: string;
   etiquetas: string[];
 };
@@ -561,7 +562,7 @@ export async function obtenerNotas(filtro: { carpeta?: string; etiqueta?: string
 
     if (ids.length > 0) {
       const completas = await sql<NotaResumen[]>`
-        select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+        select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.created_at, n.updated_at,
           coalesce((
             select array_agg(t.nombre order by t.nombre)
             from note_tags nt join tags t on t.id = nt.tag_id
@@ -577,7 +578,7 @@ export async function obtenerNotas(filtro: { carpeta?: string; etiqueta?: string
     }
   } else if (etiqueta && esUuid(etiqueta)) {
     notas = await sql<NotaResumen[]>`
-      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.created_at, n.updated_at,
         coalesce((
           select array_agg(t.nombre order by t.nombre)
           from note_tags nt join tags t on t.id = nt.tag_id
@@ -590,7 +591,7 @@ export async function obtenerNotas(filtro: { carpeta?: string; etiqueta?: string
     `;
   } else if (carpeta && esUuid(carpeta)) {
     notas = await sql<NotaResumen[]>`
-      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.created_at, n.updated_at,
         coalesce((
           select array_agg(t.nombre order by t.nombre)
           from note_tags nt join tags t on t.id = nt.tag_id
@@ -602,7 +603,7 @@ export async function obtenerNotas(filtro: { carpeta?: string; etiqueta?: string
     `;
   } else {
     notas = await sql<NotaResumen[]>`
-      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.created_at, n.updated_at,
         coalesce((
           select array_agg(t.nombre order by t.nombre)
           from note_tags nt join tags t on t.id = nt.tag_id

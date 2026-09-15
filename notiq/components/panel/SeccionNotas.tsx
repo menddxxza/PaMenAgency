@@ -26,6 +26,29 @@ type Carpeta = { id: string; nombre: string };
 type Etiqueta = { id: string; nombre: string };
 type NotaAbierta = { nota: NotaCompleta; tareas: TareaDeNota[] };
 
+const COLORES_CARPETA = [
+  'bg-amber-100 text-amber-800',
+  'bg-emerald-100 text-emerald-800',
+  'bg-sky-100 text-sky-800',
+  'bg-rose-100 text-rose-800',
+  'bg-violet-100 text-violet-800',
+  'bg-teal-100 text-teal-800',
+  'bg-orange-100 text-orange-800',
+  'bg-fuchsia-100 text-fuchsia-800',
+];
+
+/** Mismo id de carpeta → siempre el mismo color, sin guardar nada nuevo en la
+ * base de datos — imita las etiquetas de color automáticas de Notion. */
+function colorDeCarpeta(id: string): string {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return COLORES_CARPETA[hash % COLORES_CARPETA.length];
+}
+
+function fechaCorta(iso: string): string {
+  return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 export default function SeccionNotas() {
   const [carpetas, setCarpetas] = useState<Carpeta[]>([]);
   const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([]);
@@ -38,6 +61,8 @@ export default function SeccionNotas() {
   const [cargando, setCargando] = useState(true);
   const [nombreCarpeta, setNombreCarpeta] = useState('');
   const [, empezar] = useTransition();
+  const [vistaLista, setVistaLista] = useState<'tarjetas' | 'tabla'>('tarjetas');
+  const [agrupacionTabla, setAgrupacionTabla] = useState<'fecha' | 'carpeta'>('fecha');
 
   // Papelera: notas borradas, mostradas en una vista aparte dentro de la misma
   // sección (no hace falta una pestaña nueva de navegación para algo que se usa
@@ -499,6 +524,46 @@ export default function SeccionNotas() {
         </div>
       )}
 
+      {!cargando && notas.length > 0 && (
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          <div className="inline-flex rounded-full border border-ink/10 p-0.5 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setVistaLista('tarjetas')}
+              className={`rounded-full px-3 py-1 transition ${vistaLista === 'tarjetas' ? 'bg-ink text-paper' : 'text-ink/55 hover:text-ink'}`}
+            >
+              Tarjetas
+            </button>
+            <button
+              type="button"
+              onClick={() => setVistaLista('tabla')}
+              className={`rounded-full px-3 py-1 transition ${vistaLista === 'tabla' ? 'bg-ink text-paper' : 'text-ink/55 hover:text-ink'}`}
+            >
+              Tabla
+            </button>
+          </div>
+
+          {vistaLista === 'tabla' && (
+            <div className="inline-flex rounded-full border border-ink/10 p-0.5 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setAgrupacionTabla('fecha')}
+                className={`rounded-full px-3 py-1 transition ${agrupacionTabla === 'fecha' ? 'bg-brand-50 text-brand-700' : 'text-ink/55 hover:text-ink'}`}
+              >
+                Por fecha
+              </button>
+              <button
+                type="button"
+                onClick={() => setAgrupacionTabla('carpeta')}
+                className={`rounded-full px-3 py-1 transition ${agrupacionTabla === 'carpeta' ? 'bg-brand-50 text-brand-700' : 'text-ink/55 hover:text-ink'}`}
+              >
+                Por carpeta
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {!cargando && notas.length === 0 ? (
         <div className="card mt-8 p-10 text-center">
           <p className="text-lg font-semibold">
@@ -510,6 +575,14 @@ export default function SeccionNotas() {
               : 'Crea la primera y empieza a escribir. Los atajos de markdown funcionan desde el primer bloque.'}
           </p>
         </div>
+      ) : vistaLista === 'tabla' ? (
+        <TablaNotas
+          notas={notas}
+          carpetas={carpetas}
+          agrupacion={agrupacionTabla}
+          onAbrir={abrirNota}
+          abriendo={abriendoNota}
+        />
       ) : (
         <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {notas.map((nota) => {
@@ -556,6 +629,123 @@ export default function SeccionNotas() {
           })}
         </ul>
       )}
+    </div>
+  );
+}
+
+type FilaTablaProps = {
+  nota: NotaResumen;
+  carpeta: Carpeta | undefined;
+  onAbrir: (id: string) => void;
+  abriendo: boolean;
+};
+
+function FilaTabla({ nota, carpeta, onAbrir, abriendo }: FilaTablaProps) {
+  return (
+    <tr className="border-b border-ink/[0.06] last:border-0 hover:bg-ink/[0.02]">
+      <td className="py-2.5 pr-4">
+        <button
+          type="button"
+          onClick={() => onAbrir(nota.id)}
+          disabled={abriendo}
+          className="flex items-center gap-1.5 text-left font-semibold hover:underline disabled:opacity-60"
+        >
+          {nota.favorita && <span aria-label="Favorita">⭐</span>}
+          <span className="line-clamp-1">{nota.titulo || 'Sin título'}</span>
+        </button>
+      </td>
+      <td className="whitespace-nowrap py-2.5 pr-4 text-ink/55">{fechaCorta(nota.created_at)}</td>
+      <td className="py-2.5">
+        {carpeta ? (
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${colorDeCarpeta(carpeta.id)}`}>
+            {carpeta.nombre}
+          </span>
+        ) : (
+          <span className="text-ink/30">—</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+type TablaNotasProps = {
+  notas: NotaResumen[];
+  carpetas: Carpeta[];
+  agrupacion: 'fecha' | 'carpeta';
+  onAbrir: (id: string) => void;
+  abriendo: boolean;
+};
+
+/** Vista de tabla al estilo de una base de datos de Notion — misma información
+ * que las tarjetas, pero pensada para escanear muchas notas de un vistazo. */
+function TablaNotas({ notas, carpetas, agrupacion, onAbrir, abriendo }: TablaNotasProps) {
+  const porCarpeta = (id: string | null) => carpetas.find((c) => c.id === id);
+
+  const cabecera = (
+    <thead>
+      <tr className="border-b border-ink/10 text-left text-xs font-semibold uppercase tracking-wide text-ink/40">
+        <th className="py-2 pr-4 font-semibold">Nombre</th>
+        <th className="py-2 pr-4 font-semibold">Creada</th>
+        <th className="py-2 font-semibold">Carpeta</th>
+      </tr>
+    </thead>
+  );
+
+  if (agrupacion === 'fecha') {
+    const ordenadas = [...notas].sort((a, b) => b.created_at.localeCompare(a.created_at));
+    return (
+      <div className="card mt-6 overflow-x-auto p-5">
+        <table className="w-full text-sm">
+          {cabecera}
+          <tbody>
+            {ordenadas.map((nota) => (
+              <FilaTabla key={nota.id} nota={nota} carpeta={porCarpeta(nota.folder_id)} onAbrir={onAbrir} abriendo={abriendo} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  const grupos = new Map<string, NotaResumen[]>();
+  for (const nota of notas) {
+    const clave = nota.folder_id ?? '__sin_carpeta__';
+    const lista = grupos.get(clave);
+    if (lista) lista.push(nota);
+    else grupos.set(clave, [nota]);
+  }
+  const ordenGrupos = [...carpetas.map((c) => c.id), '__sin_carpeta__'].filter((id) => grupos.has(id));
+
+  return (
+    <div className="mt-6 space-y-6">
+      {ordenGrupos.map((claveGrupo) => {
+        const carpetaGrupo = claveGrupo === '__sin_carpeta__' ? undefined : porCarpeta(claveGrupo);
+        const notasGrupo = grupos.get(claveGrupo) ?? [];
+        return (
+          <div key={claveGrupo} className="card overflow-x-auto p-5">
+            <div className="mb-2 flex items-center gap-2">
+              {carpetaGrupo ? (
+                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${colorDeCarpeta(carpetaGrupo.id)}`}>
+                  {carpetaGrupo.nombre}
+                </span>
+              ) : (
+                <span className="text-xs font-semibold text-ink/40">Sin carpeta</span>
+              )}
+              <span className="text-xs text-ink/35">
+                {notasGrupo.length} {notasGrupo.length === 1 ? 'nota' : 'notas'}
+              </span>
+            </div>
+            <table className="w-full text-sm">
+              {cabecera}
+              <tbody>
+                {notasGrupo.map((nota) => (
+                  <FilaTabla key={nota.id} nota={nota} carpeta={carpetaGrupo} onAbrir={onAbrir} abriendo={abriendo} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
     </div>
   );
 }

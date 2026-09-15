@@ -66,7 +66,7 @@ export async function obtenerResumen(): Promise<Resumen | null> {
       select count(*)::int as total from attachments where user_id = ${userId}::uuid
     `,
     sql<NotaResumen[]>`
-      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.created_at, n.updated_at,
         coalesce((
           select array_agg(t.nombre order by t.nombre)
           from note_tags nt join tags t on t.id = nt.tag_id
@@ -132,7 +132,7 @@ export async function obtenerContenidoCarpeta(id: string): Promise<ContenidoCarp
 
   const [notas, tareas] = await Promise.all([
     sql<NotaResumen[]>`
-      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.updated_at,
+      select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.created_at, n.updated_at,
         coalesce((
           select array_agg(t.nombre order by t.nombre)
           from note_tags nt join tags t on t.id = nt.tag_id
