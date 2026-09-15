@@ -176,6 +176,12 @@ export default function PanelApp({
           </div>
         )}
 
+        {abiertas.has('estudio') && (
+          <div className={activa === 'estudio' ? '' : 'hidden'}>
+            <SeccionEstudio />
+          </div>
+        )}
+
         {abiertas.has('notas') && (
           <div className={activa === 'notas' ? '' : 'hidden'}>
             <SeccionNotas />
@@ -185,12 +191,6 @@ export default function PanelApp({
         {abiertas.has('tareas') && (
           <div className={activa === 'tareas' ? '' : 'hidden'}>
             <SeccionTareas />
-          </div>
-        )}
-
-        {abiertas.has('estudio') && (
-          <div className={activa === 'estudio' ? '' : 'hidden'}>
-            <SeccionEstudio />
           </div>
         )}
 

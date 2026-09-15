@@ -1,12 +1,19 @@
 'use client';
 
+import GooeyNav from '@/components/ui/GooeyNav';
 import { PESTANAS, type Pestana } from './pestanas';
+
+const ITEMS = PESTANAS.map((p) => ({ id: p.id, label: `${p.emoji} ${p.etiqueta}` }));
 
 /**
  * Barra de pestañas de escritorio/tablet (a partir de `sm`): en móvil las mismas
  * pestañas viven abajo, fijas, en NavPestanasMovil — cinco destinos más el logo,
  * el medidor de IA, el correo y "Salir" no caben con dignidad en una sola fila
  * horizontal con scroll, por bien que el scroll funcione. Ver PanelApp.tsx.
+ *
+ * El efecto "gooey" (GooeyNav, adaptado de React Bits — ver components/ui/) solo
+ * tiene sentido aquí: en la barra fija de abajo, con solo icono y sin hueco para
+ * el desplazamiento de la burbuja, no aportaría nada.
  */
 export default function NavPestanas({
   activa,
@@ -25,30 +32,13 @@ export default function NavPestanas({
     // o scrollear. Pasa justo en el rango de tablet (~640-1024px), donde las cinco
     // etiquetas de texto no caben del todo pero tampoco falta tanto sitio como
     // para que se note a simple vista que hace falta scroll.
-    <nav
-      role="tablist"
-      aria-label="Secciones de Notiq"
-      className="hidden min-w-0 gap-1 overflow-x-auto sm:flex"
-    >
-      {PESTANAS.map((p) => (
-        <button
-          key={p.id}
-          type="button"
-          role="tab"
-          aria-selected={activa === p.id}
-          onClick={() => onCambiar(p.id)}
-          className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-semibold transition-colors duration-150 ${
-            activa === p.id
-              ? 'bg-brand-600 text-white'
-              : 'text-ink/70 hover:bg-ink/[0.05] hover:text-ink'
-          }`}
-        >
-          <span aria-hidden className="text-sm">
-            {p.emoji}
-          </span>
-          {p.etiqueta}
-        </button>
-      ))}
-    </nav>
+    <div className="hidden min-w-0 overflow-x-auto sm:block">
+      <GooeyNav
+        items={ITEMS}
+        activeId={activa}
+        onSelect={(id) => onCambiar(id as Pestana)}
+        ariaLabel="Secciones de Notiq"
+      />
+    </div>
   );
 }
