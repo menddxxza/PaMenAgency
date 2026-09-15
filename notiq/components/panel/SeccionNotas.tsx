@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState, useTransition, type FormEvent } from 'react';
+import { useEffect, useRef, useState, useTransition, type FormEvent } from 'react';
 import { comoBloques, extracto } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
 import { PLANTILLAS } from '@/lib/plantillas';
-import NotaEditor from '@/components/NotaEditor';
+import NotaEditor, { type NotaEditorHandle } from '@/components/NotaEditor';
 import {
   crearCarpeta,
   borrarCarpeta,
@@ -78,6 +78,7 @@ export default function SeccionNotas() {
   const [notaAbierta, setNotaAbierta] = useState<NotaAbierta | null>(null);
   const [abriendoNota, setAbriendoNota] = useState(false);
   const [errorNota, setErrorNota] = useState<string | null>(null);
+  const editorRef = useRef<NotaEditorHandle>(null);
 
   async function cargar(filtro: { carpeta?: string; etiqueta?: string; q?: string }) {
     const datos = await obtenerNotas(filtro);
@@ -160,6 +161,10 @@ export default function SeccionNotas() {
   async function abrirNota(id: string) {
     setErrorNota(null);
     setAbriendoNota(true);
+    // Si ya había una nota abierta (p. ej. desde "Notas que enlazan aquí",
+    // que cambia de una nota a otra sin pasar por cerrarNota), que termine de
+    // guardarse antes de leer la siguiente — mismo motivo que en cerrarNota.
+    await editorRef.current?.guardarSiHaceFalta();
     const datos = await obtenerNota(id);
     setAbriendoNota(false);
     if (!datos) {
@@ -194,12 +199,19 @@ export default function SeccionNotas() {
         deleted_at: null,
         etiquetas: [],
         compartir_publico: false,
+        tieneVersionAnterior: false,
       },
       tareas: [],
     });
   }
 
-  function cerrarNota() {
+  async function cerrarNota() {
+    // Espera a que termine cualquier guardado pendiente antes de cerrar: sin
+    // esto, cerrar y volver a abrir la nota muy rápido podía leerla de la
+    // base de datos antes de que el guardado de lo último escrito hubiera
+    // terminado de verdad — parecía que se había perdido, aunque en realidad
+    // solo llegaba tarde.
+    await editorRef.current?.guardarSiHaceFalta();
     setNotaAbierta(null);
     // El título, la carpeta, las etiquetas o el estado de favorita pueden haber cambiado.
     cargar({ carpeta, etiqueta, q: q.trim() || undefined });
@@ -277,6 +289,7 @@ export default function SeccionNotas() {
         </div>
 
         <NotaEditor
+          ref={editorRef}
           id={notaAbierta.nota.id}
           tituloInicial={notaAbierta.nota.titulo ?? ''}
           bloquesIniciales={comoBloques(notaAbierta.nota.content)}
@@ -285,6 +298,7 @@ export default function SeccionNotas() {
           etiquetasIniciales={notaAbierta.nota.etiquetas}
           etiquetasConocidas={etiquetas.map((e) => e.nombre)}
           compartidaInicial={notaAbierta.nota.compartir_publico}
+          tieneVersionAnterior={notaAbierta.nota.tieneVersionAnterior}
           onFavoritaCambiada={() => cargar({ carpeta, etiqueta, q: q.trim() || undefined })}
         />
 

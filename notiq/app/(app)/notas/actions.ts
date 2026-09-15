@@ -53,6 +53,9 @@ export type NotaCompleta = {
   deleted_at: string | null;
   etiquetas: string[];
   compartir_publico: boolean;
+  /** Solo si hay algo que recuperar — el contenido en sí no se manda al
+   * cliente hasta que se pide restaurarlo (ver restaurarVersionAnterior). */
+  tieneVersionAnterior: boolean;
 };
 
 export type TareaDeNota = { id: string; titulo: string; estado: string };
@@ -67,8 +70,9 @@ export async function obtenerNota(
 
   const sql = db();
   const [[nota], etiquetas, tareas] = await Promise.all([
-    sql<Omit<NotaCompleta, 'etiquetas'>[]>`
-      select id, titulo, content, favorita, resumen_ia, deleted_at, compartir_publico
+    sql<(Omit<NotaCompleta, 'etiquetas' | 'tieneVersionAnterior'> & { tiene_version_anterior: boolean })[]>`
+      select id, titulo, content, favorita, resumen_ia, deleted_at, compartir_publico,
+        content_anterior is not null as tiene_version_anterior
       from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
     `,
     etiquetasDeNota(id, sesion.userId),
@@ -80,7 +84,21 @@ export async function obtenerNota(
   ]);
   if (!nota || nota.deleted_at) return null;
 
-  return { nota: { ...nota, etiquetas: etiquetas.map((e) => e.nombre) }, tareas };
+  // Foto de seguridad del contenido con el que se abre la nota — no del que se
+  // guarda al escribir (eso ya lo hace guardarNota constantemente y sería
+  // sobrescribirla sin parar). Con await a propósito: en una función
+  // serverless una escritura sin esperar no tiene garantía de terminar antes
+  // de que acabe la petición, y el sentido entero de esto es que no se pierda.
+  await sql`
+    update notes set content_anterior = content
+    where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+  `;
+
+  const { tiene_version_anterior, ...resto } = nota;
+  return {
+    nota: { ...resto, etiquetas: etiquetas.map((e) => e.nombre), tieneVersionAnterior: tiene_version_anterior },
+    tareas,
+  };
 }
 
 /** Sustituye las etiquetas de una nota por la lista de nombres dada. */
@@ -140,6 +158,41 @@ export async function guardarNota(id: string, titulo: string, bloques: Bloque[])
 
   revalidatePath('/notas');
   return { ok: true };
+}
+
+/** Recupera la "foto" del contenido tomada al abrir la nota (ver
+ * obtenerNota) — un solo paso atrás, no un historial completo. */
+export async function restaurarVersionAnterior(
+  id: string,
+): Promise<(Resultado & { bloques?: Bloque[] }) | { ok: false; error: string }> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+  if (!esUuid(id)) return { ok: false, error: 'Nota no válida.' };
+
+  const sql = db();
+  let bloques: Bloque[];
+  try {
+    const [fila] = await sql<{ content_anterior: unknown }[]>`
+      select content_anterior from notes
+      where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+    `;
+    if (!fila || fila.content_anterior == null) {
+      return { ok: false, error: 'No hay ninguna versión anterior guardada de esta nota.' };
+    }
+
+    bloques = comoBloques(fila.content_anterior);
+    await sql`
+      update notes
+      set content = ${JSON.stringify(bloques)}::jsonb, texto = ${aTextoPlano(bloques)}, content_anterior = null
+      where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+    `;
+  } catch (fallo) {
+    console.error('[notiq] no se ha podido restaurar la versión anterior', fallo);
+    return { ok: false, error: 'No se ha podido restaurar.' };
+  }
+
+  revalidatePath('/notas');
+  return { ok: true, bloques };
 }
 
 export async function alternarFavorita(id: string, favorita: boolean): Promise<Resultado> {

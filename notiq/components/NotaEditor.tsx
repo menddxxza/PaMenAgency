@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import EditorBloques from '@/components/EditorBloques';
 import EtiquetasNota from '@/components/EtiquetasNota';
@@ -15,6 +15,7 @@ import {
   guardarNota,
   obtenerNotas,
   obtenerNotasRelacionadas,
+  restaurarVersionAnterior,
   type NotaRelacionada,
 } from '@/app/(app)/notas/actions';
 
@@ -22,31 +23,50 @@ const RETARDO_GUARDADO = 900;
 
 type Estado = 'guardado' | 'escribiendo' | 'guardando' | 'error';
 
-export default function NotaEditor({
-  id,
-  tituloInicial,
-  bloquesIniciales,
-  favoritaInicial,
-  resumenInicial,
-  etiquetasIniciales = [],
-  etiquetasConocidas = [],
-  compartidaInicial = false,
-  onFavoritaCambiada,
-}: {
-  id: string;
-  tituloInicial: string;
-  bloquesIniciales: Bloque[];
-  favoritaInicial: boolean;
-  resumenInicial: string | null;
-  etiquetasIniciales?: string[];
-  /** Etiquetas ya usadas en otras notas del usuario, para sugerirlas al escribir. */
-  etiquetasConocidas?: string[];
-  compartidaInicial?: boolean;
-  /** Se llama al marcar/desmarcar favorita. Sin esto (uso standalone en
-   * /notas/[id]) se refresca la ruta del servidor; el panel único pasa aquí su
-   * propio refetch, porque ahí no hay ruta de servidor que refrescar. */
-  onFavoritaCambiada?: () => void;
-}) {
+export type NotaEditorHandle = {
+  /** Fuerza el guardado pendiente ya, sin esperar al debounce, y no resuelve
+   * hasta que termina. Antes de cerrar la nota (ver cerrarNota en
+   * SeccionNotas.tsx) hay que esperar a esto: si se cierra y se vuelve a
+   * abrir la nota antes de que el guardado normal termine, se lee de la base
+   * de datos la versión de justo antes de escribir — la última edición no se
+   * ha perdido todavía, pero parece que sí porque llega tarde. */
+  guardarSiHaceFalta: () => Promise<void>;
+};
+
+const NotaEditor = forwardRef<
+  NotaEditorHandle,
+  {
+    id: string;
+    tituloInicial: string;
+    bloquesIniciales: Bloque[];
+    favoritaInicial: boolean;
+    resumenInicial: string | null;
+    etiquetasIniciales?: string[];
+    /** Etiquetas ya usadas en otras notas del usuario, para sugerirlas al escribir. */
+    etiquetasConocidas?: string[];
+    compartidaInicial?: boolean;
+    /** Si hay una versión anterior (ver migrations/0007) que se pueda recuperar. */
+    tieneVersionAnterior?: boolean;
+    /** Se llama al marcar/desmarcar favorita. Sin esto (uso standalone en
+     * /notas/[id]) se refresca la ruta del servidor; el panel único pasa aquí su
+     * propio refetch, porque ahí no hay ruta de servidor que refrescar. */
+    onFavoritaCambiada?: () => void;
+  }
+>(function NotaEditor(
+  {
+    id,
+    tituloInicial,
+    bloquesIniciales,
+    favoritaInicial,
+    resumenInicial,
+    etiquetasIniciales = [],
+    etiquetasConocidas = [],
+    compartidaInicial = false,
+    tieneVersionAnterior = false,
+    onFavoritaCambiada,
+  },
+  ref,
+) {
   const router = useRouter();
   const [titulo, setTitulo] = useState(tituloInicial);
   const [bloques, setBloques] = useState(bloquesIniciales);
@@ -64,9 +84,10 @@ export default function NotaEditor({
   const [menuCompartir, setMenuCompartir] = useState(false);
   const [cambiandoCompartir, setCambiandoCompartir] = useState(false);
   const [enlaceCopiado, setEnlaceCopiado] = useState(false);
+  const [versionRecuperable, setVersionRecuperable] = useState(tieneVersionAnterior);
+  const [restaurando, setRestaurando] = useState(false);
 
   const sucio = useRef(false);
-  const enVuelo = useRef(false);
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Lo último escrito, para que el guardado use el valor actual y no el de la
   // clausura con la que se programó el temporizador.
@@ -77,31 +98,62 @@ export default function NotaEditor({
    * Ctrl+S mientras el debounce ya está en vuelo) pueden llegar en orden distinto al
    * que salieron: si el más lento responde después, sobrescribe en la base de datos
    * lo que el más rápido ya había guardado, y la última edición desaparece sin que
-   * la interfaz avise (queda en "Guardado"). `enVuelo` asegura que solo hay una
+   * la interfaz avise (queda en "Guardado"). `enVueloPromesa` asegura que solo hay una
    * petición de guardado activa a la vez; si llegan cambios mientras tanto, se
    * encadena otro guardado justo al terminar en vez de esperar al siguiente debounce.
+   *
+   * Guarda la propia promesa (no solo un booleano) para que quien necesite estar
+   * seguro de que un guardado ya ha terminado de verdad (guardarSiHaceFalta, al
+   * cerrar la nota) pueda esperarla — antes, llamar a guardar() mientras ya había
+   * uno en marcha simplemente no hacía nada, así que cerrar la nota y volver a
+   * abrirla muy rápido podía leer de la base de datos la versión de justo antes
+   * de escribir, como si la última edición no hubiera pasado.
    */
-  const guardar = useCallback(async () => {
-    if (enVuelo.current || !sucio.current) return;
-    enVuelo.current = true;
+  const enVueloPromesa = useRef<Promise<void> | null>(null);
+
+  const guardar = useCallback(async (): Promise<void> => {
+    if (enVueloPromesa.current) {
+      await enVueloPromesa.current;
+      if (sucio.current) await guardar();
+      return;
+    }
+    if (!sucio.current) return;
+
     sucio.current = false;
     setEstado('guardando');
 
     const { titulo: t, bloques: b } = ultimo.current;
-    const resultado = await guardarNota(id, t, b);
-    enVuelo.current = false;
+    const promesa = guardarNota(id, t, b).then((resultado) => {
+      enVueloPromesa.current = null;
 
-    if (!resultado.ok) {
-      // La siguiente tecla también volvería a marcar sucio, pero no hay que
-      // esperar a que el usuario teclee para reintentar un guardado fallido.
-      sucio.current = true;
-      setEstado('error');
-      return;
-    }
+      if (!resultado.ok) {
+        // La siguiente tecla también volvería a marcar sucio, pero no hay que
+        // esperar a que el usuario teclee para reintentar un guardado fallido.
+        sucio.current = true;
+        setEstado('error');
+        return;
+      }
 
-    if (sucio.current) void guardar();
-    else setEstado('guardado');
+      if (!sucio.current) setEstado('guardado');
+    });
+    enVueloPromesa.current = promesa;
+    await promesa;
+    if (sucio.current) await guardar();
   }, [id]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      guardarSiHaceFalta: async () => {
+        if (temporizador.current) {
+          clearTimeout(temporizador.current);
+          temporizador.current = null;
+        }
+        await guardar();
+      },
+    }),
+    [guardar],
+  );
 
   const programarGuardado = useCallback(
     (nuevoTitulo: string, nuevosBloques: Bloque[]) => {
@@ -254,6 +306,29 @@ export default function NotaEditor({
     );
   }
 
+  async function restaurar() {
+    if (
+      !window.confirm(
+        'Esto sustituye lo que hay ahora escrito en la nota por la versión de cuando se abrió. ¿Seguro?',
+      )
+    ) {
+      return;
+    }
+    setRestaurando(true);
+    const resultado = await restaurarVersionAnterior(id);
+    setRestaurando(false);
+    if (!resultado.ok || !resultado.bloques) {
+      setMensajeRecordatorio(!resultado.ok ? resultado.error : 'No se ha podido restaurar.');
+      return;
+    }
+    setBloques(resultado.bloques);
+    setVersionRecuperable(false);
+    // No pasa por programarGuardado: ya está guardado en el servidor, marcar
+    // "sucio" aquí solo arriesgaría a que un guardado normal lo pisara con la
+    // versión vacía que todavía pudiera quedar en `ultimo.current`.
+    ultimo.current = { titulo, bloques: resultado.bloques };
+  }
+
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0 imprimir-nota">
@@ -282,6 +357,17 @@ export default function NotaEditor({
           >
             {favorita ? '⭐ Favorita' : '☆ Marcar favorita'}
           </button>
+
+          {versionRecuperable && (
+            <button
+              type="button"
+              onClick={restaurar}
+              disabled={restaurando}
+              className="text-brand-600 hover:text-brand-700 disabled:opacity-60"
+            >
+              {restaurando ? 'Recuperando…' : '↩ Recuperar versión anterior'}
+            </button>
+          )}
 
           <div className="relative">
             <button
@@ -535,4 +621,8 @@ export default function NotaEditor({
       </div>
     </div>
   );
-}
+});
+
+NotaEditor.displayName = 'NotaEditor';
+
+export default NotaEditor;

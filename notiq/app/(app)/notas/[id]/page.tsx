@@ -4,7 +4,7 @@ import { getSesion } from '@/lib/sesion';
 import { db, esUuid } from '@/lib/db';
 import { comoBloques } from '@/lib/bloques';
 import { etiquetasDeNota, listarEtiquetas } from '@/lib/etiquetas';
-import NotaEditor from '@/components/NotaEditor';
+import VolverYEditor from '@/components/notas/VolverYEditor';
 import { borrarNota } from '../actions';
 
 export const metadata = { title: 'Nota · Notiq' };
@@ -26,13 +26,25 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
       resumen_ia: string | null;
       deleted_at: string | null;
       compartir_publico: boolean;
+      tiene_version_anterior: boolean;
     }[]
   >`
-    select id, titulo, content, favorita, resumen_ia, deleted_at, compartir_publico
+    select id, titulo, content, favorita, resumen_ia, deleted_at, compartir_publico,
+      content_anterior is not null as tiene_version_anterior
     from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
   `;
 
   if (!nota || nota.deleted_at) notFound();
+
+  // Misma foto de seguridad que en obtenerNota (SeccionNotas.tsx) — esta ruta
+  // standalone tiene su propia consulta, así que le hace falta la suya.
+  // Con await a propósito y no en segundo plano: en una función serverless no
+  // hay garantía de que una escritura sin esperar termine antes de que la
+  // petición acabe, y el sentido entero de esto es que no se pierda.
+  await sql`
+    update notes set content_anterior = content
+    where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
+  `;
 
   // Las tareas que salieron de esta nota, para poder volver a ellas desde aquí.
   const [tareas, etiquetasNota, etiquetasConocidas] = await Promise.all([
@@ -47,19 +59,7 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="px-5 py-6 sm:px-8">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <Link href="/notas" className="btn-fantasma text-sm">
-          ← Notas
-        </Link>
-        <form action={borrarNota}>
-          <input type="hidden" name="id" value={nota.id} />
-          <button type="submit" className="btn-fantasma text-sm text-red-600 hover:bg-red-50">
-            Eliminar
-          </button>
-        </form>
-      </div>
-
-      <NotaEditor
+      <VolverYEditor
         id={nota.id}
         tituloInicial={nota.titulo ?? ''}
         bloquesIniciales={comoBloques(nota.content)}
@@ -68,6 +68,15 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
         etiquetasIniciales={etiquetasNota.map((e) => e.nombre)}
         etiquetasConocidas={etiquetasConocidas.map((e) => e.nombre)}
         compartidaInicial={nota.compartir_publico}
+        tieneVersionAnterior={nota.tiene_version_anterior}
+        formularioEliminar={
+          <form action={borrarNota}>
+            <input type="hidden" name="id" value={nota.id} />
+            <button type="submit" className="btn-fantasma text-sm text-red-600 hover:bg-red-50">
+              Eliminar
+            </button>
+          </form>
+        }
       />
 
       {tareas.length > 0 && (
