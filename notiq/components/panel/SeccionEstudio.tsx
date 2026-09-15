@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import GrabarClase from './GrabarClase';
-import ImportarYoutube from './ImportarYoutube';
+import AnalizarVideo from './AnalizarVideo';
 import {
   borrarExamen,
   borrarFlashcard,
@@ -246,7 +246,7 @@ export default function SeccionEstudio() {
 
         <div className="flex flex-col gap-5">
           <GrabarClase />
-          <ImportarYoutube carpetas={datos.carpetas} />
+          <AnalizarVideo carpetas={datos.carpetas} />
         </div>
       </div>
     </div>
