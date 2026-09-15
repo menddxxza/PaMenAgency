@@ -48,6 +48,12 @@ export const MODELO_ASISTENTE =
 export const MODELO_TRANSCRIPCION =
   process.env.OPENAI_MODEL_TRANSCRIPCION ?? (ES_GROQ ? 'whisper-large-v3-turbo' : 'whisper-1');
 
+/** Para "Resolver ejercicio" (foto → solución): el único uso de visión en Notiq,
+ * así que va en su propio modelo en vez de reutilizar MODELO — ni "openai/gpt-oss-120b"
+ * (Groq) ni la mayoría de modelos de texto entienden imágenes. */
+export const MODELO_VISION =
+  process.env.OPENAI_MODEL_VISION ?? (ES_GROQ ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'gpt-4o-mini');
+
 export type Mensaje = {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -291,6 +297,90 @@ export async function transcribirAudio(archivo: Blob, nombreArchivo = 'audio.web
 /** Igual que `completar`, pero devolviendo JSON ya parseado. */
 export async function completarJson<T>(opciones: Omit<Opciones, 'json'>): Promise<T> {
   const bruto = await completar({ ...opciones, json: true });
+  try {
+    return JSON.parse(bruto) as T;
+  } catch {
+    throw new ErrorIA('La IA ha devuelto un JSON que no se puede leer.');
+  }
+}
+
+type OpcionesImagen = {
+  mensajeSistema: string;
+  mensajeUsuario: string;
+  imagenBase64: string;
+  imagenTipo: string;
+  temperatura?: number;
+  maxTokens?: number;
+};
+
+/**
+ * Como `completar`, pero con una foto además de texto — para "Resolver
+ * ejercicio" (SeccionEstudio.tsx). Aparte y no una opción más de `completar`
+ * porque el contenido multimodal (texto + imagen en el mismo mensaje) tiene
+ * una forma distinta a la de `Mensaje.content: string` que usa el resto de
+ * Notiq, y liarlo todo en un solo tipo habría complicado las llamadas que no
+ * necesitan imagen para nada.
+ */
+async function completarConImagen({
+  mensajeSistema,
+  mensajeUsuario,
+  imagenBase64,
+  imagenTipo,
+  temperatura = 0.2,
+  maxTokens = 1500,
+}: OpcionesImagen): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new ErrorIA('La IA no está configurada en este despliegue.', 503);
+  }
+
+  let respuesta: Response;
+  try {
+    respuesta = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: MODELO_VISION,
+        messages: [
+          { role: 'system', content: mensajeSistema },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: mensajeUsuario },
+              { type: 'image_url', image_url: { url: `data:${imagenTipo};base64,${imagenBase64}` } },
+            ],
+          },
+        ],
+        temperature: temperatura,
+        max_tokens: maxTokens,
+        response_format: { type: 'json_object' },
+      }),
+      signal: AbortSignal.timeout(60_000),
+    });
+  } catch {
+    throw new ErrorIA('No se ha podido contactar con el proveedor de IA.', 504);
+  }
+
+  if (!respuesta.ok) {
+    const estado = respuesta.status === 429 ? 429 : 502;
+    throw new ErrorIA('El proveedor de IA no ha podido leer la foto.', estado);
+  }
+
+  const datos = (await respuesta.json()) as {
+    choices?: { message?: { content?: string } }[];
+  };
+  const contenido = datos.choices?.[0]?.message?.content?.trim();
+
+  if (!contenido) throw new ErrorIA('La IA ha devuelto una respuesta vacía.');
+  return contenido;
+}
+
+/** Igual que `completarConImagen`, pero devolviendo JSON ya parseado. */
+export async function completarConImagenJson<T>(opciones: OpcionesImagen): Promise<T> {
+  const bruto = await completarConImagen(opciones);
   try {
     return JSON.parse(bruto) as T;
   } catch {

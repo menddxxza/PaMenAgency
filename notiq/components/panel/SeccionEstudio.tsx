@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import GrabarClase from './GrabarClase';
 import AnalizarVideo from './AnalizarVideo';
+import ResolverEjercicio from './ResolverEjercicio';
 import {
   borrarExamen,
   borrarFlashcard,
@@ -30,7 +31,7 @@ import { obtenerContenidoCarpeta, type ContenidoCarpeta } from '@/app/(app)/inic
 import { obtenerAdjuntosDeCarpeta, borrarAdjunto, type Adjunto } from '@/app/(app)/adjuntos/actions';
 import { diasHasta, generarPlanRepaso } from '@/lib/estudio';
 
-type Vista = 'inicio' | 'repaso' | 'generar' | 'flashcards' | 'biblioteca';
+type Vista = 'inicio' | 'repaso' | 'generar' | 'flashcards' | 'biblioteca' | 'ejercicio';
 
 function formatoTamano(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -99,6 +100,10 @@ export default function SeccionEstudio() {
     );
   }
 
+  if (vista === 'ejercicio') {
+    return <ResolverEjercicio onSalir={() => setVista('inicio')} />;
+  }
+
   // El examen más próximo entre las carpetas con fecha puesta (hoy o en el
   // futuro) — con varios exámenes a la vista, el "modo examen" es para el que
   // toca antes, no para todos a la vez.
@@ -115,9 +120,14 @@ export default function SeccionEstudio() {
             Flashcards, exámenes y apuntes de clase, todo generado de lo que ya has escrito.
           </p>
         </div>
-        <button type="button" onClick={() => setVista('generar')} className="btn-primary">
-          + Generar flashcards o examen
-        </button>
+        <div className="flex gap-2">
+          <button type="button" onClick={() => setVista('ejercicio')} className="btn-secondary">
+            📸 Resolver ejercicio
+          </button>
+          <button type="button" onClick={() => setVista('generar')} className="btn-primary">
+            + Generar flashcards o examen
+          </button>
+        </div>
       </header>
 
       {carpetaConExamen && (
