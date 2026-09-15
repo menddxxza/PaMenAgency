@@ -119,13 +119,13 @@ export function GrabadoraVisual({ fase, etiqueta, segundos, nivelAudio, onToggle
             {grabando && (
               <>
                 <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-red-500/30"
+                  className="pointer-events-none absolute inset-0 rounded-full border-2 border-red-500/30"
                   initial={{ scale: 1, opacity: 0.6 }}
                   animate={{ scale: 1.5, opacity: 0 }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
                 />
                 <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-red-500/20"
+                  className="pointer-events-none absolute inset-0 rounded-full border-2 border-red-500/20"
                   initial={{ scale: 1, opacity: 0.4 }}
                   animate={{ scale: 2, opacity: 0 }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut', delay: 0.5 }}
