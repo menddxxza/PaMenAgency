@@ -215,6 +215,7 @@ export type ExamenResumen = {
   total_preguntas: number;
   created_at: string;
   mejor_puntuacion: number | null;
+  folder_id: string | null;
 };
 
 export async function obtenerExamenes(): Promise<ExamenResumen[] | null> {
@@ -224,7 +225,7 @@ export async function obtenerExamenes(): Promise<ExamenResumen[] | null> {
   const sql = db();
   return sql<ExamenResumen[]>`
     select
-      e.id, e.titulo, jsonb_array_length(e.preguntas) as total_preguntas, e.created_at,
+      e.id, e.titulo, jsonb_array_length(e.preguntas) as total_preguntas, e.created_at, e.folder_id,
       (select max(i.puntuacion) from intentos_examen i where i.examen_id = e.id) as mejor_puntuacion
     from examenes e
     where e.user_id = ${sesion.userId}::uuid

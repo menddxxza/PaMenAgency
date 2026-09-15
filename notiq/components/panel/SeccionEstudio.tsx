@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import GrabarClase from './GrabarClase';
 import {
   borrarExamen,
@@ -18,14 +19,23 @@ import {
   type CarpetaEstudio,
   type EstudioInicial,
   type ExamenCompleto,
+  type ExamenResumen,
   type FlashcardResumen,
   type PreguntaExamen,
   type ProgresoCarpeta,
   type ResultadoIntento,
 } from '@/app/(app)/estudio/actions';
+import { obtenerContenidoCarpeta, type ContenidoCarpeta } from '@/app/(app)/inicio/actions';
+import { obtenerAdjuntosDeCarpeta, borrarAdjunto, type Adjunto } from '@/app/(app)/adjuntos/actions';
 import { diasHasta, generarPlanRepaso } from '@/lib/estudio';
 
-type Vista = 'inicio' | 'repaso' | 'generar' | 'flashcards';
+type Vista = 'inicio' | 'repaso' | 'generar' | 'flashcards' | 'biblioteca';
+
+function formatoTamano(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 const ETIQUETA_ESTADO: Record<string, { texto: string; clase: string }> = {
   nueva: { texto: 'Nueva', clase: 'bg-ink/[0.05] text-ink/60' },
@@ -61,6 +71,22 @@ export default function SeccionEstudio() {
         onSalir={() => { setVista('inicio'); cargar(); }}
       />
     );
+  }
+
+  if (vista === 'biblioteca' && folderFiltro) {
+    const carpeta = datos.carpetas.find((c) => c.id === folderFiltro);
+    if (carpeta) {
+      return (
+        <Biblioteca
+          carpeta={carpeta}
+          progreso={datos.progreso.find((p) => p.id === carpeta.id)}
+          examenes={datos.examenes.filter((e) => e.folder_id === carpeta.id)}
+          onCambio={cargar}
+          onVerFlashcards={() => setVista('flashcards')}
+          onSalir={() => { setVista('inicio'); cargar(); }}
+        />
+      );
+    }
   }
 
   if (vista === 'generar') {
@@ -123,6 +149,32 @@ export default function SeccionEstudio() {
             </div>
           </section>
 
+          {datos.carpetas.length > 0 && (
+            <section>
+              <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink/60">
+                Tus asignaturas
+              </h2>
+              <p className="mt-1 text-sm text-ink/55">
+                Apuntes, PDFs, flashcards, exámenes y plan de estudio de cada una, todo junto.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {datos.carpetas.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setFolderFiltro(c.id);
+                      setVista('biblioteca');
+                    }}
+                    className="chip transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    📁 {c.nombre}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
           {datos.progreso.length > 0 && (
             <section>
               <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink/60">
@@ -138,7 +190,7 @@ export default function SeccionEstudio() {
                         type="button"
                         onClick={() => {
                           setFolderFiltro(p.id);
-                          setVista('flashcards');
+                          setVista('biblioteca');
                         }}
                         className="flex w-full items-center justify-between gap-3 text-left"
                       >
@@ -404,6 +456,176 @@ function VerFlashcards({
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * Biblioteca de una asignatura: apuntes, PDFs, flashcards, exámenes, progreso
+ * y plan de estudio en un solo sitio — no hay tabla nueva, es una vista que
+ * junta datos que ya existían cada uno por su lado (notas y adjuntos por
+ * carpeta, flashcards y exámenes ídem).
+ * ------------------------------------------------------------------------- */
+function Biblioteca({
+  carpeta,
+  progreso,
+  examenes,
+  onCambio,
+  onVerFlashcards,
+  onSalir,
+}: {
+  carpeta: CarpetaEstudio;
+  progreso: ProgresoCarpeta | undefined;
+  examenes: ExamenResumen[];
+  onCambio: () => void;
+  onVerFlashcards: () => void;
+  onSalir: () => void;
+}) {
+  const router = useRouter();
+  const [contenido, setContenido] = useState<ContenidoCarpeta | null>(null);
+  const [pdfs, setPdfs] = useState<Adjunto[] | null>(null);
+
+  useEffect(() => {
+    obtenerContenidoCarpeta(carpeta.id).then(setContenido);
+    obtenerAdjuntosDeCarpeta(carpeta.id).then(setPdfs);
+  }, [carpeta.id]);
+
+  async function borrarPdf(id: string) {
+    setPdfs((actual) => (actual ? actual.filter((a) => a.id !== id) : actual));
+    await borrarAdjunto(id);
+  }
+
+  const totalFlashcards = progreso ? progreso.nueva + progreso.repasar + progreso.progreso + progreso.dominada : 0;
+  const dias = carpeta.fecha_examen ? diasHasta(carpeta.fecha_examen) : null;
+  const plan = dias !== null && dias > 0 ? generarPlanRepaso(dias).slice(0, 7) : [];
+
+  return (
+    <div className="px-5 py-6 sm:px-8">
+      <button type="button" onClick={onSalir} className="btn-fantasma text-sm">
+        ← Estudio
+      </button>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-extrabold tracking-tight">📁 {carpeta.nombre}</h1>
+        <FechaExamenControl carpeta={carpeta} onCambio={onCambio} />
+      </div>
+
+      <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <section className="card p-5">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-ink/50">📄 Apuntes</h2>
+          {!contenido ? (
+            <p className="mt-2 text-sm text-ink/45">Cargando…</p>
+          ) : contenido.notas.length === 0 ? (
+            <p className="mt-2 text-sm text-ink/45">Sin notas todavía en esta carpeta.</p>
+          ) : (
+            <ul className="mt-2 space-y-1.5">
+              {contenido.notas.slice(0, 8).map((n) => (
+                <li key={n.id}>
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/notas/${n.id}`)}
+                    className="w-full truncate text-left text-sm text-ink/75 hover:text-brand-600"
+                  >
+                    {n.titulo || 'Sin título'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="card p-5">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-ink/50">📚 PDFs</h2>
+          {!pdfs ? (
+            <p className="mt-2 text-sm text-ink/45">Cargando…</p>
+          ) : pdfs.length === 0 ? (
+            <p className="mt-2 text-sm text-ink/45">
+              Sin PDFs ni fotos — añádelos desde una nota o tarea de esta carpeta.
+            </p>
+          ) : (
+            <ul className="mt-2 space-y-1.5">
+              {pdfs.map((a) => (
+                <li key={a.id} className="flex items-center justify-between gap-2 text-sm">
+                  <a
+                    href={`/api/adjuntos/${a.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="min-w-0 flex-1 truncate text-ink/75 hover:text-brand-600"
+                  >
+                    {a.tipo.startsWith('image/') ? '🖼️' : '📄'} {a.nombre}
+                    <span className="ml-1.5 text-xs text-ink/40">{formatoTamano(a.tamano)}</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => borrarPdf(a.id)}
+                    aria-label={`Eliminar "${a.nombre}"`}
+                    className="shrink-0 text-ink/30 transition hover:text-red-600"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="card p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wide text-ink/50">🧠 Flashcards</h2>
+            {totalFlashcards > 0 && (
+              <button type="button" onClick={onVerFlashcards} className="text-xs font-semibold text-brand-600 hover:underline">
+                Ver todas →
+              </button>
+            )}
+          </div>
+          {totalFlashcards === 0 ? (
+            <p className="mt-2 text-sm text-ink/45">
+              Sin flashcards todavía — genera algunas desde «+ Generar flashcards o examen».
+            </p>
+          ) : (
+            <>
+              <p className="mt-2 text-sm text-ink/60">{totalFlashcards} en total</p>
+              <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-ink/[0.06]">
+                <div className="bg-lima-500" style={{ width: `${(progreso!.dominada / totalFlashcards) * 100}%` }} />
+                <div className="bg-brand-400" style={{ width: `${(progreso!.progreso / totalFlashcards) * 100}%` }} />
+                <div className="bg-red-400" style={{ width: `${(progreso!.repasar / totalFlashcards) * 100}%` }} />
+              </div>
+            </>
+          )}
+        </section>
+
+        <section className="card p-5 sm:col-span-2 xl:col-span-1">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-ink/50">📝 Exámenes</h2>
+          {examenes.length === 0 ? (
+            <p className="mt-2 text-sm text-ink/45">Sin exámenes generados para esta carpeta todavía.</p>
+          ) : (
+            <ul className="mt-2 space-y-2">
+              {examenes.map((e) => (
+                <ExamenFila key={e.id} examen={e} onCambio={onCambio} />
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="card p-5 sm:col-span-2 xl:col-span-3">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-ink/50">📅 Plan de estudio</h2>
+          {!carpeta.fecha_examen ? (
+            <p className="mt-2 text-sm text-ink/45">
+              Ponle fecha al examen (arriba a la derecha) para que Notiq arme un plan de repaso día a día.
+            </p>
+          ) : plan.length === 0 ? (
+            <p className="mt-2 text-sm text-ink/45">El examen ya pasó, o es hoy mismo — no queda plan que armar.</p>
+          ) : (
+            <ul className="mt-2 grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
+              {plan.map((d, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="w-20 shrink-0 font-semibold text-brand-700">{d.etiqueta}</span>
+                  <span className="text-ink/70">{d.tarea}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

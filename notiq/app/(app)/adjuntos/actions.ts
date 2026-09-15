@@ -118,6 +118,26 @@ export async function obtenerAdjuntos(destino: Destino): Promise<Adjunto[]> {
   return [];
 }
 
+/** Los PDFs/fotos de una carpeta, para la biblioteca de recursos de Estudio —
+ * un adjunto no tiene folder_id propio, cuelga de una nota o una tarea, así
+ * que hay que pasar por la suya (ver migrations/0002). */
+export async function obtenerAdjuntosDeCarpeta(folderId: string): Promise<Adjunto[]> {
+  const sesion = await getSesion();
+  if (!sesion) return [];
+  if (!esUuid(folderId)) return [];
+
+  const sql = db();
+  return sql<Adjunto[]>`
+    select a.id, a.nombre, a.tipo, a.tamano, a.created_at
+    from attachments a
+    left join notes n on n.id = a.note_id
+    left join tasks t on t.id = a.task_id
+    where a.user_id = ${sesion.userId}::uuid
+      and (n.folder_id = ${folderId}::uuid or t.folder_id = ${folderId}::uuid)
+    order by a.created_at desc
+  `;
+}
+
 export async function borrarAdjunto(id: string): Promise<Resultado> {
   const sesion = await getSesion();
   if (!sesion) return { ok: false, error: 'Sesión caducada.' };
