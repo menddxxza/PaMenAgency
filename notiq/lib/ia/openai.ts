@@ -126,10 +126,21 @@ export async function completar({
   }
 
   if (!respuesta.ok) {
+    // Sin este log no hay forma de saber luego, desde fuera, si el proveedor
+    // rechazó la clave, el modelo ya no existe, se acabó la cuota gratuita...
+    // el mensaje que ve el usuario es siempre el mismo a propósito (no hay
+    // que filtrarle detalles internos), pero alguien tiene que poder ver el
+    // motivo real en los logs de Vercel para poder arreglarlo.
+    console.error(`[notiq] el proveedor de IA respondió ${respuesta.status} en /chat/completions (modelo: ${modelo})`, await respuesta.text().catch(() => ''));
     // 429 del proveedor es distinto de 429 nuestro (cuota del plan), pero para el
-    // usuario significa lo mismo: reintentar en un momento.
-    const estado = respuesta.status === 429 ? 429 : 502;
-    throw new ErrorIA('El proveedor de IA ha devuelto un error.', estado);
+    // usuario significa lo mismo: reintentar en un momento — y conviene decírselo
+    // así en vez de sonar a fallo permanente, porque es justo lo que puede pasar
+    // con una petición grande (una transcripción de clase entera) contra el
+    // límite gratuito de tokens por minuto de Groq.
+    if (respuesta.status === 429) {
+      throw new ErrorIA('El proveedor de IA está saturado ahora mismo. Espera un minuto y vuelve a intentarlo.', 429);
+    }
+    throw new ErrorIA('El proveedor de IA ha devuelto un error.', 502);
   }
 
   const datos = (await respuesta.json()) as {
@@ -233,6 +244,7 @@ async function buscarConResponsesApi({
   }
 
   if (!respuesta.ok) {
+    console.error(`[notiq] el proveedor de IA respondió ${respuesta.status} en /responses (modelo: ${MODELO_ASISTENTE})`, await respuesta.text().catch(() => ''));
     const estado = respuesta.status === 429 ? 429 : 502;
     throw new ErrorIA('El proveedor de IA ha devuelto un error.', estado);
   }
@@ -285,8 +297,11 @@ export async function transcribirAudio(archivo: Blob, nombreArchivo = 'audio.web
   }
 
   if (!respuesta.ok) {
-    const estado = respuesta.status === 429 ? 429 : 502;
-    throw new ErrorIA('El proveedor de IA no ha podido transcribir el audio.', estado);
+    console.error(`[notiq] el proveedor de IA respondió ${respuesta.status} en /audio/transcriptions (modelo: ${MODELO_TRANSCRIPCION})`, await respuesta.text().catch(() => ''));
+    if (respuesta.status === 429) {
+      throw new ErrorIA('El proveedor de IA está saturado ahora mismo. Espera un minuto y vuelve a intentarlo.', 429);
+    }
+    throw new ErrorIA('El proveedor de IA no ha podido transcribir el audio.', 502);
   }
 
   const texto = (await respuesta.text()).trim();
@@ -370,8 +385,11 @@ export async function completarConImagen({
   }
 
   if (!respuesta.ok) {
-    const estado = respuesta.status === 429 ? 429 : 502;
-    throw new ErrorIA('El proveedor de IA no ha podido leer la foto.', estado);
+    console.error(`[notiq] el proveedor de IA respondió ${respuesta.status} en /chat/completions con imagen (modelo: ${MODELO_VISION})`, await respuesta.text().catch(() => ''));
+    if (respuesta.status === 429) {
+      throw new ErrorIA('El proveedor de IA está saturado ahora mismo. Espera un minuto y vuelve a intentarlo.', 429);
+    }
+    throw new ErrorIA('El proveedor de IA no ha podido leer la foto.', 502);
   }
 
   const datos = (await respuesta.json()) as {
