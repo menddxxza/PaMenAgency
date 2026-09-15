@@ -398,6 +398,35 @@ export async function crearCarpeta(formData: FormData) {
   revalidatePath('/notas');
 }
 
+/**
+ * Borra una carpeta. Las notas, tareas, flashcards y exámenes que tuviera
+ * dentro NO se borran — todas sus columnas folder_id son `on delete set
+ * null` (ver migrations/0001, 0002 y 0004), así que solo se quedan sin
+ * carpeta. Se revalida en todas las pestañas que enseñan carpetas: Notas las
+ * crea, pero Tareas, Inicio y Estudio también las leen.
+ */
+export async function borrarCarpeta(id: string): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+
+  const folderIdPropia = await verificarCarpetaPropia(sesion.userId, id);
+  if (!folderIdPropia) return { ok: false, error: 'Carpeta no válida.' };
+
+  const sql = db();
+  try {
+    await sql`delete from folders where id = ${folderIdPropia}::uuid`;
+  } catch (fallo) {
+    console.error('[notiq] no se ha podido borrar la carpeta', fallo);
+    return { ok: false, error: 'No se ha podido borrar la carpeta.' };
+  }
+
+  revalidatePath('/notas');
+  revalidatePath('/tareas');
+  revalidatePath('/inicio');
+  revalidatePath('/estudio');
+  return { ok: true };
+}
+
 /** Guarda el resumen que ha devuelto la IA para no volver a pagarlo al recargar. */
 export async function guardarResumen(id: string, resumen: string): Promise<Resultado> {
   const sesion = await getSesion();

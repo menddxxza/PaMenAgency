@@ -7,6 +7,7 @@ import { PLANTILLAS } from '@/lib/plantillas';
 import NotaEditor from '@/components/NotaEditor';
 import {
   crearCarpeta,
+  borrarCarpeta,
   crearNotaEnPanel,
   borrarNotaEnPanel,
   guardarNota,
@@ -83,6 +84,23 @@ export default function SeccionNotas() {
     setEtiqueta(undefined);
     setQ('');
     cargar({ carpeta: id });
+  }
+
+  // Las notas y tareas de la carpeta no se borran (folder_id se queda en null,
+  // ver el comentario de borrarCarpeta en notas/actions.ts) — solo la propia
+  // carpeta desaparece. Aun así, confirma: no hay forma de deshacerlo desde
+  // aquí como sí la hay con las notas (papelera).
+  async function borrarCarpetaLocal(id: string, nombre: string) {
+    if (
+      !window.confirm(
+        `¿Eliminar la carpeta "${nombre}"? Las notas y tareas que tenga dentro no se borran, se quedan sin carpeta.`,
+      )
+    ) {
+      return;
+    }
+    await borrarCarpeta(id);
+    if (carpeta === id) setCarpeta(undefined);
+    cargar({ etiqueta, q: q.trim() || undefined });
   }
 
   // Carpeta y etiqueta son excluyentes: elegir una limpia la otra, igual que ya
@@ -438,14 +456,22 @@ export default function SeccionNotas() {
           Todas
         </button>
         {carpetas.map((c) => (
-          <button
+          <span
             key={c.id}
-            type="button"
-            onClick={() => elegirCarpeta(c.id)}
-            className={`chip ${carpeta === c.id ? 'border-brand-300 bg-brand-50 text-brand-700' : ''}`}
+            className={`chip group py-1 pr-1 ${carpeta === c.id ? 'border-brand-300 bg-brand-50 text-brand-700' : ''}`}
           >
-            {c.nombre}
-          </button>
+            <button type="button" onClick={() => elegirCarpeta(c.id)} className="whitespace-nowrap">
+              {c.nombre}
+            </button>
+            <button
+              type="button"
+              onClick={() => borrarCarpetaLocal(c.id, c.nombre)}
+              aria-label={`Eliminar la carpeta "${c.nombre}"`}
+              className="rounded-full px-1 text-ink/30 opacity-0 transition hover:text-red-600 group-hover:opacity-100"
+            >
+              ✕
+            </button>
+          </span>
         ))}
         <form onSubmit={crearCarpetaLocal} className="flex items-center gap-1.5">
           <input
