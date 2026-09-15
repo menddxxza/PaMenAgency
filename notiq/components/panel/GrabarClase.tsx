@@ -210,6 +210,15 @@ export default function GrabarClase() {
         />
       )}
 
+      {/* Botón de detener aparte y sencillo, no solo el círculo animado de
+          arriba: si algo en ese componente (capas encima, animaciones...)
+          se interpone al clic, esto sigue funcionando igual. */}
+      {fase === 'grabando' && (
+        <button type="button" onClick={detener} className="btn-secondary mt-3 w-full">
+          ⏹ Detener grabación
+        </button>
+      )}
+
       {fase === 'listo' && notaId && (
         <div className="mt-4 rounded-xl bg-lima-400/15 px-3 py-2.5 text-sm text-lima-700">
           <p>Apuntes guardados{flashcardsCreadas ? ` junto con ${flashcardsCreadas} flashcards` : ''}.</p>

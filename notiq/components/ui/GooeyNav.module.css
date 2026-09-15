@@ -112,19 +112,16 @@
   color: white;
 }
 
-.gooeyNavContainer .effect.filter {
-  filter: blur(7px) contrast(100) blur(0);
-  mix-blend-mode: lighten;
-}
-
-.gooeyNavContainer .effect.filter::before {
-  content: '';
-  position: absolute;
-  inset: -75px;
-  z-index: -2;
-  background: black;
-}
-
+/*
+ * El original de React Bits monta el "gooey" con blur(7px) contrast(100),
+ * mix-blend-mode:lighten y una máscara negra de -75px de margen detrás — ese
+ * margen de sobra se metía dentro del scroll horizontal de la barra (ver
+ * NavPestanas.tsx) y era justo lo que hacía salir una barra de scroll donde
+ * no hacía falta ninguna, y con eso encima un truco de blend-mode difícil de
+ * depurar sin ver el resultado en un navegador de verdad. Se deja la píldora
+ * y las partículas (lo que de verdad se nota), sin el filtro que las fundía
+ * entre sí — menos "líquido", pero fiable.
+ */
 .gooeyNavContainer .effect.filter::after {
   content: '';
   position: absolute;
