@@ -5,6 +5,7 @@ import { limitesDe } from '@/lib/planes';
 import TablaPrecios from '@/components/TablaPrecios';
 import BotonesPlan from '@/components/BotonesPlan';
 import InterruptorTema from '@/components/InterruptorTema';
+import NotificacionesPush from '@/components/NotificacionesPush';
 import { obtenerAjustes } from '@/app/(app)/ajustes/actions';
 
 /** Cómo se le cuenta al usuario lo que dice `subscription_status` de Stripe. */
@@ -61,6 +62,15 @@ export default function SeccionAjustes({ pago }: { pago?: string }) {
         <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink/60">Apariencia</h2>
         <div className="mt-3">
           <InterruptorTema />
+        </div>
+      </section>
+
+      <section className="mt-8 max-w-2xl">
+        <h2 className="text-sm font-extrabold uppercase tracking-wide text-ink/60">
+          Notificaciones
+        </h2>
+        <div className="card mt-3 p-5">
+          <NotificacionesPush />
         </div>
       </section>
 

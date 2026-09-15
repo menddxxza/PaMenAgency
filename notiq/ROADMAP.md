@@ -22,8 +22,35 @@ repositorio; el resto es el plan.
 
 - [ ] Proyecto Expo + React Native reutilizando `lib/`
 - [ ] Sesión compartida con Auth.js
-- [ ] Notificaciones push con Expo Notifications
-- [ ] Cron de recordatorios (`tasks.recordar_el` ya está en el esquema)
+- [ ] Notificaciones push con Expo Notifications — para la futura app móvil.
+      La web ya tiene las suyas (Web Push, ver más abajo); esto sería
+      solo para cuando exista la app nativa.
+
+## Recordatorios de verdad (notificaciones push) — código listo, pendiente de claves y una migración
+
+`tasks.recordar_el` guardaba la fecha desde hacía tiempo, pero nada la
+disparaba — esto es lo que faltaba.
+
+- [ ] `migrations/0006_notificaciones_push.sql` añade la tabla
+      `push_subscriptions`. **No se ha ejecutado contra el Neon real.**
+- [x] Web Push del navegador (el estándar — no Expo Notifications, no SDK de
+      terceros): `public/sw.js` recibe el push y muestra la notificación;
+      `lib/push.ts` la manda desde el servidor con la librería `web-push`.
+- [x] Par de claves VAPID: se generan una vez, propias de Notiq, sin cuenta
+      externa (`npx web-push generate-vapid-keys`). Sin ellas configuradas,
+      "Activar notificaciones" de Ajustes ni siquiera aparece — el resto de
+      la app sigue igual.
+- [x] `app/api/cron/recordatorios/route.ts` — revisa `tasks` con
+      `recordar_el` cumplido y sin enviar, manda un push a cada dispositivo
+      suscrito del usuario, y marca `recordatorio_enviado_el`. Protegido con
+      `CRON_SECRET` (Vercel lo manda solo en el header cuando dispara el cron).
+- [x] `vercel.json`: el cron corre **una vez al día** — el plan Hobby de
+      Vercel no deja programarlos con más frecuencia. Un recordatorio puesto
+      para las 9:00 puede no llegar hasta la pasada del día siguiente; si el
+      proyecto pasa a Pro, basta con cambiar el "schedule" para que lleguen
+      más cerca de la hora exacta.
+- [x] "Activar notificaciones" en Ajustes — pide permiso, registra el
+      service worker y guarda la suscripción; "Desactivar" hace lo contrario.
 
 ## Semanas 7-8 · Monetización — hecho (falta dar de alta los productos)
 
