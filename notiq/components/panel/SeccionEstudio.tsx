@@ -7,6 +7,7 @@ import {
   borrarFlashcard,
   crearExamen,
   crearFlashcardsDeErrores,
+  guardarFechaExamen,
   guardarFlashcards,
   guardarIntento,
   obtenerEstudioInicial,
@@ -14,12 +15,15 @@ import {
   obtenerFlashcards,
   obtenerRepasoDeHoy,
   responderFlashcard,
+  type CarpetaEstudio,
   type EstudioInicial,
   type ExamenCompleto,
   type FlashcardResumen,
   type PreguntaExamen,
+  type ProgresoCarpeta,
   type ResultadoIntento,
 } from '@/app/(app)/estudio/actions';
+import { diasHasta, generarPlanRepaso } from '@/lib/estudio';
 
 type Vista = 'inicio' | 'repaso' | 'generar' | 'flashcards';
 
@@ -68,6 +72,13 @@ export default function SeccionEstudio() {
     );
   }
 
+  // El examen más próximo entre las carpetas con fecha puesta (hoy o en el
+  // futuro) — con varios exámenes a la vista, el "modo examen" es para el que
+  // toca antes, no para todos a la vez.
+  const carpetaConExamen = datos.carpetas
+    .filter((c) => c.fecha_examen && diasHasta(c.fecha_examen) >= 0)
+    .sort((a, b) => diasHasta(a.fecha_examen!) - diasHasta(b.fecha_examen!))[0];
+
   return (
     <div className="px-5 py-6 sm:px-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
@@ -81,6 +92,16 @@ export default function SeccionEstudio() {
           + Generar flashcards o examen
         </button>
       </header>
+
+      {carpetaConExamen && (
+        <div className="mt-6">
+          <ModoExamen
+            carpeta={carpetaConExamen}
+            progreso={datos.progreso.find((p) => p.id === carpetaConExamen.id)}
+            onEmpezarRepaso={() => setVista('repaso')}
+          />
+        </div>
+      )}
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-8">
@@ -110,6 +131,7 @@ export default function SeccionEstudio() {
               <ul className="mt-3 space-y-3">
                 {datos.progreso.map((p) => {
                   const total = p.nueva + p.repasar + p.progreso + p.dominada;
+                  const carpeta = datos.carpetas.find((c) => c.id === p.id);
                   return (
                     <li key={p.id} className="card p-4">
                       <button
@@ -130,6 +152,7 @@ export default function SeccionEstudio() {
                           <div className="bg-red-400" style={{ width: `${(p.repasar / total) * 100}%` }} />
                         </div>
                       )}
+                      {carpeta && <FechaExamenControl carpeta={carpeta} onCambio={cargar} />}
                     </li>
                   );
                 })}
@@ -731,5 +754,114 @@ function TomarExamen({ examenId, onSalir }: { examenId: string; onSalir: () => v
         </div>
       </div>
     </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * Modo examen: cuenta atrás + preparación estimada + plan de repaso día a día
+ * para la carpeta con el examen más próximo. El plan es una regla fija
+ * (lib/estudio.ts), no generado por IA.
+ * ------------------------------------------------------------------------- */
+function ModoExamen({
+  carpeta,
+  progreso,
+  onEmpezarRepaso,
+}: {
+  carpeta: CarpetaEstudio;
+  progreso: ProgresoCarpeta | undefined;
+  onEmpezarRepaso: () => void;
+}) {
+  const dias = diasHasta(carpeta.fecha_examen!);
+  const total = progreso ? progreso.nueva + progreso.repasar + progreso.progreso + progreso.dominada : 0;
+  const preparacion = total > 0 && progreso ? Math.round((progreso.dominada / total) * 100) : 0;
+  // Los primeros 7 días nada más: un plan de un mes entero de golpe abruma más
+  // de lo que ayuda, y lo que toca dentro de dos semanas puede cambiar antes
+  // de que llegue esa fecha (nuevas flashcards, exámenes de práctica hechos...).
+  const plan = generarPlanRepaso(dias).slice(0, 7);
+
+  return (
+    <section className="card border-2 border-brand-300 p-5">
+      <p className="eyebrow">📁 {carpeta.nombre}</p>
+      <h2 className="mt-1 text-xl font-extrabold tracking-tight">
+        {dias === 0 ? '⚠️ Examen hoy' : `Examen en ${dias} día${dias === 1 ? '' : 's'}`}
+      </h2>
+
+      {total > 0 ? (
+        <>
+          <p className="mt-1 text-sm text-ink/60">Preparación estimada: {preparacion}%</p>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink/55">
+            <span>🔴 {progreso?.repasar ?? 0} flojos</span>
+            <span>🟡 {progreso?.progreso ?? 0} en progreso</span>
+            <span>🟢 {progreso?.dominada ?? 0} dominados</span>
+          </div>
+        </>
+      ) : (
+        <p className="mt-1 text-sm text-ink/60">
+          Todavía no tienes flashcards de este tema — genera algunas para que el plan de repaso
+          tenga con qué trabajar.
+        </p>
+      )}
+
+      {plan.length > 0 && (
+        <ul className="mt-4 space-y-1.5 text-sm">
+          {plan.map((d, i) => (
+            <li key={i} className="flex gap-3">
+              <span className="w-20 shrink-0 font-semibold text-brand-700">{d.etiqueta}</span>
+              <span className="text-ink/70">{d.tarea}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <button type="button" onClick={onEmpezarRepaso} className="btn-primary mt-4">
+        Empezar sesión de hoy
+      </button>
+    </section>
+  );
+}
+
+/** Poner/editar/quitar la fecha de examen de una carpeta, desde la lista de progreso. */
+function FechaExamenControl({ carpeta, onCambio }: { carpeta: CarpetaEstudio; onCambio: () => void }) {
+  const [editando, setEditando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+
+  async function guardar(fecha: string) {
+    setGuardando(true);
+    await guardarFechaExamen(carpeta.id, fecha || null);
+    setGuardando(false);
+    setEditando(false);
+    onCambio();
+  }
+
+  if (editando) {
+    return (
+      <input
+        type="date"
+        autoFocus
+        defaultValue={carpeta.fecha_examen ?? ''}
+        disabled={guardando}
+        onBlur={(e) => guardar(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') guardar(e.currentTarget.value);
+        }}
+        className="campo mt-2 py-1 text-xs"
+      />
+    );
+  }
+
+  const dias = carpeta.fecha_examen ? diasHasta(carpeta.fecha_examen) : null;
+
+  return (
+    <button
+      type="button"
+      onClick={() => setEditando(true)}
+      className="mt-2 block text-xs text-ink/45 hover:text-brand-600"
+    >
+      {carpeta.fecha_examen
+        ? dias !== null && dias >= 0
+          ? `📅 Examen en ${dias} día${dias === 1 ? '' : 's'} — cambiar`
+          : '📅 Examen ya pasado — cambiar'
+        : '📅 Poner fecha de examen'}
+    </button>
   );
 }

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getSesion } from '@/lib/sesion';
 import { db, esUuid } from '@/lib/db';
 import { verificarCarpetaPropia } from '@/lib/carpetas';
+import { fechaValidaONull } from '@/lib/tareas';
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
@@ -377,8 +378,39 @@ export type ProgresoCarpeta = {
   dominada: number;
 };
 
+/**
+ * Fecha de examen de una carpeta — lo que activa el "modo examen" en
+ * SeccionEstudio.tsx. `fecha: null` la borra (para cuando el examen ya pasó,
+ * o se puso por error).
+ */
+export async function guardarFechaExamen(folderId: string, fecha: string | null): Promise<Resultado> {
+  const sesion = await getSesion();
+  if (!sesion) return { ok: false, error: 'Sesión caducada.' };
+
+  const folderIdPropia = await verificarCarpetaPropia(sesion.userId, folderId);
+  if (!folderIdPropia) return { ok: false, error: 'Carpeta no válida.' };
+
+  const fechaValida = fecha ? fechaValidaONull(fecha) : null;
+  if (fecha && !fechaValida) return { ok: false, error: 'Fecha no válida.' };
+
+  const sql = db();
+  try {
+    await sql`
+      update folders set fecha_examen = ${fechaValida} where id = ${folderIdPropia}::uuid
+    `;
+  } catch (fallo) {
+    console.error('[notiq] no se ha podido guardar la fecha de examen', fallo);
+    return { ok: false, error: 'No se ha podido guardar.' };
+  }
+
+  revalidatePath('/estudio');
+  return { ok: true };
+}
+
+export type CarpetaEstudio = { id: string; nombre: string; fecha_examen: string | null };
+
 export type EstudioInicial = {
-  carpetas: { id: string; nombre: string }[];
+  carpetas: CarpetaEstudio[];
   repasoDeHoy: FlashcardResumen[];
   examenes: ExamenResumen[];
   progreso: ProgresoCarpeta[];
@@ -392,8 +424,9 @@ export async function obtenerEstudioInicial(): Promise<EstudioInicial | null> {
 
   const sql = db();
   const [carpetas, repasoDeHoy, examenes, filasProgreso] = await Promise.all([
-    sql<{ id: string; nombre: string }[]>`
-      select id, nombre from folders where user_id = ${sesion.userId}::uuid order by nombre
+    sql<CarpetaEstudio[]>`
+      select id, nombre, fecha_examen::text from folders
+      where user_id = ${sesion.userId}::uuid order by nombre
     `,
     obtenerRepasoDeHoy(),
     obtenerExamenes(),
