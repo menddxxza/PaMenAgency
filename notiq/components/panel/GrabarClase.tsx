@@ -1,12 +1,15 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { crearNotaEnPanel, guardarNota } from '@/app/(app)/notas/actions';
 import { guardarFlashcards } from '@/app/(app)/estudio/actions';
 import { desdeMarkdown } from '@/lib/bloques';
+import { GrabadoraVisual } from '@/components/ui/ia-siri-chat';
 
 type Fase = 'inactivo' | 'grabando' | 'transcribiendo' | 'generando' | 'listo' | 'error';
+
+const BANDAS_ONDA = 20;
 
 /**
  * "Grabar clase" → transcripción (Whisper vía Groq, lib/ia/openai.ts) → apuntes
@@ -25,10 +28,53 @@ export default function GrabarClase() {
   const [error, setError] = useState<string | null>(null);
   const [notaId, setNotaId] = useState<string | null>(null);
   const [flashcardsCreadas, setFlashcardsCreadas] = useState<number | null>(null);
+  const [nivelAudio, setNivelAudio] = useState<number[]>(new Array(BANDAS_ONDA).fill(0));
 
   const grabadorRef = useRef<MediaRecorder | null>(null);
   const trozosRef = useRef<Blob[]>([]);
   const cronometroRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const rafRef = useRef<number | null>(null);
+
+  // La onda del botón de grabar es el nivel real del micrófono (AnalyserNode),
+  // no números aleatorios — así si no se oye nada, tampoco se mueve nada.
+  function pararVisualizador() {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    setNivelAudio(new Array(BANDAS_ONDA).fill(0));
+  }
+
+  function empezarVisualizador(stream: MediaStream) {
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const audioCtx = new AudioCtx();
+    audioContextRef.current = audioCtx;
+    const analizador = audioCtx.createAnalyser();
+    analizador.fftSize = 256;
+    audioCtx.createMediaStreamSource(stream).connect(analizador);
+    const datos = new Uint8Array(analizador.frequencyBinCount);
+
+    const paso = Math.floor(datos.length / BANDAS_ONDA);
+    const actualizar = () => {
+      analizador.getByteFrequencyData(datos);
+      const bandas = new Array(BANDAS_ONDA).fill(0);
+      for (let i = 0; i < BANDAS_ONDA; i++) {
+        let suma = 0;
+        for (let j = 0; j < paso; j++) suma += datos[i * paso + j];
+        bandas[i] = suma / paso / 255;
+      }
+      setNivelAudio(bandas);
+      rafRef.current = requestAnimationFrame(actualizar);
+    };
+    rafRef.current = requestAnimationFrame(actualizar);
+  }
+
+  useEffect(() => pararVisualizador, []);
 
   async function empezar() {
     setError(null);
@@ -46,6 +92,7 @@ export default function GrabarClase() {
         // Parar las pistas y no solo el grabador: si no, el navegador sigue
         // mostrando el icono de "usando el micrófono" después de terminar.
         stream.getTracks().forEach((t) => t.stop());
+        pararVisualizador();
         void procesar();
       };
 
@@ -53,6 +100,7 @@ export default function GrabarClase() {
       grabadorRef.current = grabador;
       setSegundos(0);
       cronometroRef.current = setInterval(() => setSegundos((s) => s + 1), 1000);
+      empezarVisualizador(stream);
       setFase('grabando');
     } catch {
       setError('No se ha podido acceder al micrófono. Revisa los permisos del navegador.');
@@ -63,6 +111,14 @@ export default function GrabarClase() {
   function detener() {
     grabadorRef.current?.stop();
     if (cronometroRef.current) clearInterval(cronometroRef.current);
+  }
+
+  function reiniciar() {
+    setFase('inactivo');
+    setSegundos(0);
+    setError(null);
+    setNotaId(null);
+    setFlashcardsCreadas(null);
   }
 
   async function procesar() {
@@ -125,8 +181,15 @@ export default function GrabarClase() {
     }
   }
 
-  const minutos = String(Math.floor(segundos / 60)).padStart(2, '0');
-  const segs = String(segundos % 60).padStart(2, '0');
+  const faseVisual = fase === 'transcribiendo' || fase === 'generando' ? 'procesando' : fase === 'grabando' ? 'grabando' : 'inactivo';
+  const etiqueta =
+    fase === 'grabando'
+      ? 'Escuchando…'
+      : fase === 'transcribiendo'
+        ? 'Transcribiendo el audio…'
+        : fase === 'generando'
+          ? 'Generando apuntes y flashcards…'
+          : 'Toca para grabar';
 
   return (
     <div className="card p-5">
@@ -135,28 +198,16 @@ export default function GrabarClase() {
         Graba la explicación del profesor y Notiq la convierte en apuntes y flashcards.
       </p>
 
-      {fase === 'inactivo' && (
-        <button type="button" onClick={empezar} className="btn-primary mt-4 w-full">
-          🎙️ Empezar a grabar
-        </button>
-      )}
-
-      {fase === 'grabando' && (
-        <div className="mt-4">
-          <p className="flex items-center gap-2 text-sm font-semibold text-red-600">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-red-600" aria-hidden />
-            Grabando — {minutos}:{segs}
-          </p>
-          <button type="button" onClick={detener} className="btn-secondary mt-3 w-full">
-            Detener y procesar
-          </button>
-        </div>
-      )}
-
-      {(fase === 'transcribiendo' || fase === 'generando') && (
-        <p className="mt-4 text-sm text-ink/60">
-          {fase === 'transcribiendo' ? 'Transcribiendo el audio…' : 'Generando apuntes y flashcards…'}
-        </p>
+      {(fase === 'inactivo' || fase === 'grabando' || fase === 'transcribiendo' || fase === 'generando') && (
+        <GrabadoraVisual
+          fase={faseVisual}
+          etiqueta={etiqueta}
+          segundos={segundos}
+          nivelAudio={nivelAudio}
+          disabled={fase === 'transcribiendo' || fase === 'generando'}
+          onToggle={fase === 'grabando' ? detener : empezar}
+          className="mt-2"
+        />
       )}
 
       {fase === 'listo' && notaId && (
@@ -169,13 +220,19 @@ export default function GrabarClase() {
           >
             Ver la nota →
           </button>
+          <button type="button" onClick={reiniciar} className="mt-2 block text-ink/50 underline underline-offset-4">
+            Grabar otra clase
+          </button>
         </div>
       )}
 
       {error && (
-        <p role="alert" className="mt-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
+        <div className="mt-4 rounded-xl bg-red-50 px-3 py-2.5 text-sm text-red-700">
+          <p role="alert">{error}</p>
+          <button type="button" onClick={reiniciar} className="mt-2 font-semibold underline underline-offset-4">
+            Reintentar
+          </button>
+        </div>
       )}
     </div>
   );
