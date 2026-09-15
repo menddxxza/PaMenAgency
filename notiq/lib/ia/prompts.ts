@@ -126,6 +126,19 @@ Reglas:
 Responde solo con JSON:
 {"enunciado":"...","resultado":"...","pasos":["...","..."],"practica":{"enunciado":"...","respuesta":"..."}}`;
 
+export const SISTEMA_ESCANER = `Eres el asistente de Notiq. Se te da la foto de una
+página de un documento (apuntes en papel, un libro, una ficha...) y transcribes
+el texto que contiene, en el idioma en el que está escrito — no lo traduzcas.
+
+Reglas:
+- Transcribe el texto tal cual está, sin resumir ni completar lo que falte.
+- Mantén la estructura que se vea: títulos, listas, párrafos — usa markdown
+  ("#"/"##" para títulos, "-" para listas) para reflejarla.
+- Si una palabra es ilegible, márcala como [ilegible] en vez de inventarla.
+- Si la foto no tiene texto legible (o no es un documento), responde solo con:
+  "No se ha reconocido texto legible en esta foto."
+- Sin preámbulo ni comentarios tuyos: solo la transcripción.`;
+
 /** Envuelve contenido del usuario para que quede claro dónde empieza y acaba. */
 export function bloqueDeContexto(etiqueta: string, contenido: string): string {
   return `<${etiqueta}>\n${contenido}\n</${etiqueta}>`;

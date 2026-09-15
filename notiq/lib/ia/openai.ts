@@ -309,6 +309,10 @@ type OpcionesImagen = {
   mensajeUsuario: string;
   imagenBase64: string;
   imagenTipo: string;
+  /** Fuerza que la respuesta sea un objeto JSON válido — desactivado por
+   * defecto porque no todas las llamadas con imagen quieren JSON (el escáner
+   * de documentos, por ejemplo, quiere el texto tal cual en markdown). */
+  json?: boolean;
   temperatura?: number;
   maxTokens?: number;
 };
@@ -321,11 +325,12 @@ type OpcionesImagen = {
  * Notiq, y liarlo todo en un solo tipo habría complicado las llamadas que no
  * necesitan imagen para nada.
  */
-async function completarConImagen({
+export async function completarConImagen({
   mensajeSistema,
   mensajeUsuario,
   imagenBase64,
   imagenTipo,
+  json = false,
   temperatura = 0.2,
   maxTokens = 1500,
 }: OpcionesImagen): Promise<string> {
@@ -356,7 +361,7 @@ async function completarConImagen({
         ],
         temperature: temperatura,
         max_tokens: maxTokens,
-        response_format: { type: 'json_object' },
+        ...(json ? { response_format: { type: 'json_object' } } : {}),
       }),
       signal: AbortSignal.timeout(60_000),
     });
@@ -379,8 +384,8 @@ async function completarConImagen({
 }
 
 /** Igual que `completarConImagen`, pero devolviendo JSON ya parseado. */
-export async function completarConImagenJson<T>(opciones: OpcionesImagen): Promise<T> {
-  const bruto = await completarConImagen(opciones);
+export async function completarConImagenJson<T>(opciones: Omit<OpcionesImagen, 'json'>): Promise<T> {
+  const bruto = await completarConImagen({ ...opciones, json: true });
   try {
     return JSON.parse(bruto) as T;
   } catch {
