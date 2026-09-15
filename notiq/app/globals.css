@@ -135,6 +135,18 @@
     content: attr(data-marcador);
     @apply pointer-events-none text-ink/30;
   }
+
+  /* El nav de escritorio (NavPestanas) sigue pudiendo hacer scroll horizontal
+     en tablet si hace falta, pero sin la barra nativa encima — con ella se
+     veía como una línea blanca ajena al diseño. El scroll en sí (rueda con
+     mayús, trackpad, swipe) sigue funcionando igual, solo se oculta la barra. */
+  .sin-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sin-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /*

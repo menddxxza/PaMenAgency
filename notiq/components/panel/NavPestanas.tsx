@@ -32,7 +32,11 @@ export default function NavPestanas({
     // o scrollear. Pasa justo en el rango de tablet (~640-1024px), donde las cinco
     // etiquetas de texto no caben del todo pero tampoco falta tanto sitio como
     // para que se note a simple vista que hace falta scroll.
-    <div className="hidden min-w-0 overflow-x-auto sm:block">
+    // overflow-y-hidden no es decoración: por spec, un elemento con overflow-x
+    // distinto de "visible" convierte overflow-y en "auto" aunque no se pida —
+    // sin esto aparecía también una barra vertical (las "líneas blancas") por
+    // culpa de eso, no porque el contenido necesitara scroll en ese eje.
+    <div className="sin-scrollbar hidden min-w-0 overflow-x-auto overflow-y-hidden sm:block">
       <GooeyNav
         items={ITEMS}
         activeId={activa}
