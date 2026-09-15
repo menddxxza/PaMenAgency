@@ -8,6 +8,7 @@ import PanelIa from '@/components/PanelIa';
 import Adjuntos from '@/components/panel/Adjuntos';
 import { aMarkdown, nuevoBloque, type Bloque } from '@/lib/bloques';
 import {
+  alternarCompartir,
   alternarFavorita,
   crearRecordatorioDeNota,
   duplicarNota,
@@ -29,6 +30,7 @@ export default function NotaEditor({
   resumenInicial,
   etiquetasIniciales = [],
   etiquetasConocidas = [],
+  compartidaInicial = false,
   onFavoritaCambiada,
 }: {
   id: string;
@@ -39,6 +41,7 @@ export default function NotaEditor({
   etiquetasIniciales?: string[];
   /** Etiquetas ya usadas en otras notas del usuario, para sugerirlas al escribir. */
   etiquetasConocidas?: string[];
+  compartidaInicial?: boolean;
   /** Se llama al marcar/desmarcar favorita. Sin esto (uso standalone en
    * /notas/[id]) se refresca la ruta del servidor; el panel único pasa aquí su
    * propio refetch, porque ahí no hay ruta de servidor que refrescar. */
@@ -57,6 +60,10 @@ export default function NotaEditor({
   const [resultadosVincular, setResultadosVincular] = useState<{ id: string; titulo: string }[]>([]);
   const [relacionadas, setRelacionadas] = useState<NotaRelacionada[]>([]);
   const [duplicando, setDuplicando] = useState(false);
+  const [compartida, setCompartida] = useState(compartidaInicial);
+  const [menuCompartir, setMenuCompartir] = useState(false);
+  const [cambiandoCompartir, setCambiandoCompartir] = useState(false);
+  const [enlaceCopiado, setEnlaceCopiado] = useState(false);
 
   const sucio = useRef(false);
   const enVuelo = useRef(false);
@@ -218,6 +225,24 @@ export default function NotaEditor({
     }
   }
 
+  async function alCambiarCompartir(siguiente: boolean) {
+    setCambiandoCompartir(true);
+    const resultado = await alternarCompartir(id, siguiente);
+    setCambiandoCompartir(false);
+    if (resultado.ok) setCompartida(siguiente);
+  }
+
+  async function copiarEnlace() {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/compartido/${id}`);
+      setEnlaceCopiado(true);
+      setTimeout(() => setEnlaceCopiado(false), 2000);
+    } catch {
+      // Portapapeles bloqueado (permiso denegado, contexto no seguro): el enlace
+      // sigue visible en el campo de texto de al lado para copiarlo a mano.
+    }
+  }
+
   async function crearRecordatorio(fecha: string) {
     if (!fecha) return;
     const resultado = await crearRecordatorioDeNota(id, fecha);
@@ -347,6 +372,57 @@ export default function NotaEditor({
           <button type="button" onClick={duplicar} disabled={duplicando} className="ml-auto hover:text-ink disabled:opacity-50">
             {duplicando ? 'Duplicando…' : '📑 Duplicar'}
           </button>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuCompartir((abierto) => !abierto)}
+              aria-expanded={menuCompartir}
+              className={compartida ? 'font-semibold text-brand-600' : 'hover:text-ink'}
+            >
+              🌐 {compartida ? 'Compartida' : 'Compartir'}
+            </button>
+            {menuCompartir && (
+              <>
+                <button
+                  type="button"
+                  aria-hidden
+                  tabIndex={-1}
+                  onClick={() => setMenuCompartir(false)}
+                  className="fixed inset-0 z-10 cursor-default"
+                />
+                <div className="card absolute right-0 top-full z-20 mt-2 w-72 p-3.5 text-sm">
+                  <label className="flex items-start gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={compartida}
+                      disabled={cambiandoCompartir}
+                      onChange={(e) => void alCambiarCompartir(e.target.checked)}
+                      className="mt-0.5"
+                    />
+                    <span className="text-ink/75">
+                      Cualquiera con el enlace puede ver esta nota (sin poder editarla). Las
+                      imágenes no se muestran en la versión compartida.
+                    </span>
+                  </label>
+                  {compartida && (
+                    <div className="mt-3 flex items-center gap-1.5">
+                      <input
+                        readOnly
+                        value={typeof window !== 'undefined' ? `${window.location.origin}/compartido/${id}` : ''}
+                        onFocus={(e) => e.target.select()}
+                        aria-label="Enlace público de la nota"
+                        className="campo truncate text-xs"
+                      />
+                      <button type="button" onClick={copiarEnlace} className="btn-secondary shrink-0 px-2.5 py-2 text-xs">
+                        {enlaceCopiado ? 'Copiado ✓' : 'Copiar'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
 
           <div className="relative">
             <button

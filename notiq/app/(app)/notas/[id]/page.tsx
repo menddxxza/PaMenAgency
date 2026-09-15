@@ -18,9 +18,17 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
   const sql = db();
 
   const [nota] = await sql<
-    { id: string; titulo: string; content: unknown; favorita: boolean; resumen_ia: string | null; deleted_at: string | null }[]
+    {
+      id: string;
+      titulo: string;
+      content: unknown;
+      favorita: boolean;
+      resumen_ia: string | null;
+      deleted_at: string | null;
+      compartir_publico: boolean;
+    }[]
   >`
-    select id, titulo, content, favorita, resumen_ia, deleted_at
+    select id, titulo, content, favorita, resumen_ia, deleted_at, compartir_publico
     from notes where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
   `;
 
@@ -59,6 +67,7 @@ export default async function NotaPage({ params }: { params: Promise<{ id: strin
         resumenInicial={nota.resumen_ia}
         etiquetasIniciales={etiquetasNota.map((e) => e.nombre)}
         etiquetasConocidas={etiquetasConocidas.map((e) => e.nombre)}
+        compartidaInicial={nota.compartir_publico}
       />
 
       {tareas.length > 0 && (
