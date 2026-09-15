@@ -60,8 +60,17 @@ export function respuestaDeError(fallo: unknown): NextResponse {
   return NextResponse.json({ error: 'Algo ha ido mal. Inténtalo de nuevo.' }, { status: 500 });
 }
 
-/** Recorta el contenido que se manda al modelo para acotar el coste por llamada. */
-export function recortar(texto: string, maxCaracteres = 24_000): string {
+/**
+ * Recorta el contenido que se manda al modelo para acotar el coste por llamada
+ * — y, con el plan gratuito de Groq (12.000 tokens/minuto con MODELO, ver
+ * lib/ia/openai.ts), para no superar directamente el límite del proveedor.
+ * 10.000 caracteres son ~2.800 tokens: "Grabar clase" manda dos peticiones
+ * así de grandes seguidas (apuntes + flashcards) en el mismo minuto, y con
+ * 24.000 (el valor anterior) una transcripción real de clase agotaba el
+ * presupuesto casi siempre. Con notas o apuntes normales, mucho más cortos,
+ * este recorte no cambia nada — solo entra en juego con contenido grande.
+ */
+export function recortar(texto: string, maxCaracteres = 10_000): string {
   if (texto.length <= maxCaracteres) return texto;
   return `${texto.slice(0, maxCaracteres)}\n\n[…nota recortada por longitud]`;
 }

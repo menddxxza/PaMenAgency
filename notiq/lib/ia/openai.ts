@@ -32,8 +32,15 @@ const ES_GROQ = BASE_URL === BASE_URL_GROQ;
 
 /** Barato y suficiente para resumir y extraer tareas. Ver README para los costes.
  * Con un servidor en local, aquí va el nombre del modelo que sirva ese servidor
- * (p. ej. "llama3.1" en Ollama), no un modelo de OpenAI ni de Groq. */
-export const MODELO = process.env.OPENAI_MODEL ?? (ES_GROQ ? 'openai/gpt-oss-120b' : 'gpt-4o-mini');
+ * (p. ej. "llama3.1" en Ollama), no un modelo de OpenAI ni de Groq.
+ *
+ * "llama-3.3-70b-versatile" y no "openai/gpt-oss-120b" (el que traía Groq por
+ * defecto): el límite gratuito de gpt-oss-120b es de solo 8.000 tokens por
+ * minuto, y "Grabar clase" manda dos peticiones seguidas con la transcripción
+ * entera (apuntes + flashcards) — se agotaba casi siempre con una sola clase
+ * real. Este modelo da 12.000 TPM en el plan gratuito, con margen de sobra
+ * combinado con el recorte de `recortar()` (ver lib/ia/handler.ts). */
+export const MODELO = process.env.OPENAI_MODEL ?? (ES_GROQ ? 'llama-3.3-70b-versatile' : 'gpt-4o-mini');
 
 /** Modelo para el chat del asistente (completarConBusqueda), que puede ser distinto
  * del de resumir/extraer tareas: en OpenAI da igual (ambos soportan el buscador),
