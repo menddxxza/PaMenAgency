@@ -396,6 +396,11 @@ const NotaEditor = forwardRef<
                   ? '⚠ No se ha podido guardar'
                   : 'Guardado'}
           </span>
+          {(estado === 'escribiendo' || estado === 'error') && (
+            <button type="button" onClick={guardarYa} className="font-semibold text-brand-700 hover:underline">
+              Guardar ahora
+            </button>
+          )}
           <button
             type="button"
             onClick={async () => {
