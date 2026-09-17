@@ -54,6 +54,7 @@ export default function VolverYEditor({
       </div>
 
       <NotaEditor
+        key={id}
         ref={editorRef}
         id={id}
         tituloInicial={tituloInicial}

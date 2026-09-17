@@ -289,6 +289,15 @@ export default function SeccionNotas() {
         </div>
 
         <NotaEditor
+          // La clave, no solo el id como prop: sin esto, si React decidiera
+          // reconciliar esta posición como "el mismo" componente entre un
+          // cierre y una reapertura (aunque notaAbierta pase por null en
+          // medio), el estado interno de React (bloques, titulo — seedeado
+          // una sola vez desde bloquesIniciales via useState) no se
+          // reiniciaría, y se seguiría viendo lo que hubiera en pantalla
+          // antes de cerrar en vez de lo recién leído del servidor. La key
+          // obliga a un montaje nuevo de verdad cada vez.
+          key={notaAbierta.nota.id}
           ref={editorRef}
           id={notaAbierta.nota.id}
           tituloInicial={notaAbierta.nota.titulo ?? ''}
