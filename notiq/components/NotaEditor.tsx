@@ -6,13 +6,14 @@ import EditorBloques from '@/components/EditorBloques';
 import EtiquetasNota from '@/components/EtiquetasNota';
 import PanelIa from '@/components/PanelIa';
 import Adjuntos from '@/components/panel/Adjuntos';
-import { aMarkdown, nuevoBloque, type Bloque } from '@/lib/bloques';
+import { aMarkdown, comoBloques, nuevoBloque, type Bloque } from '@/lib/bloques';
 import {
   alternarCompartir,
   alternarFavorita,
   crearRecordatorioDeNota,
   duplicarNota,
   guardarNota,
+  obtenerNota,
   obtenerNotas,
   obtenerNotasRelacionadas,
   restaurarVersionAnterior,
@@ -214,6 +215,30 @@ const NotaEditor = forwardRef<
   // otras notas hacia esta, no algo que cambie por escribir aquí.
   useEffect(() => {
     obtenerNotasRelacionadas(id).then((r) => setRelacionadas(r ?? []));
+  }, [id]);
+
+  // Vuelve a pedir la nota de verdad al servidor nada más abrirla, por encima
+  // de lo que ya se ve (bloquesIniciales, que puede venir de la caché propia
+  // del "atrás" del navegador — la de Next.js para que el botón atrás sea
+  // instantáneo, que no se puede desactivar y no sabe nada de lo que se ha
+  // guardado después de esa foto). Una Server Action como obtenerNota() nunca
+  // pasa por esa caché, así que esto es lo único que da la garantía real.
+  // Si para cuando responde ya se ha escrito algo nuevo (sucio.current),
+  // no se toca: gana siempre lo que hay delante del usuario en ese momento.
+  useEffect(() => {
+    let cancelado = false;
+    obtenerNota(id).then((datos) => {
+      if (cancelado || !datos || sucio.current) return;
+      const frescos = comoBloques(datos.nota.content);
+      const tituloFresco = datos.nota.titulo ?? '';
+      setTitulo(tituloFresco);
+      setBloques(frescos);
+      ultimo.current = { titulo: tituloFresco, bloques: frescos };
+    });
+    return () => {
+      cancelado = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
