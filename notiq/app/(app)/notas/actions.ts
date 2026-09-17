@@ -13,6 +13,17 @@ import { etiquetasDeNota, ponerEtiquetas } from '@/lib/etiquetas';
 
 export type Resultado = { ok: true } | { ok: false; error: string };
 
+// TEMPORAL — reactivado, el botón de recuperar no era la única causa. Se
+// borra (y la tabla debug_log) en cuanto se encuentre la causa de verdad.
+async function registrarDepuracion(etiqueta: string, datos: unknown) {
+  try {
+    const sql = db();
+    await sql`insert into debug_log (etiqueta, datos) values (${etiqueta}, ${JSON.stringify(datos)}::jsonb)`;
+  } catch {
+    // Nunca debe romper el flujo real por un fallo del propio registro.
+  }
+}
+
 /**
  * Igual que `crearNota`, pero para el panel único: en vez de redirigir a
  * `/notas/{id}` (lo que sacaría de la pantalla), devuelve el id para que el
@@ -83,6 +94,7 @@ export async function obtenerNota(
     `,
   ]);
   if (!nota || nota.deleted_at) return null;
+  await registrarDepuracion('obtenerNota:leido', { id, content: nota.content });
 
   // Foto de seguridad del contenido con el que se abre la nota — no del que se
   // guarda al escribir (eso ya lo hace guardarNota constantemente y sería
@@ -144,6 +156,14 @@ export async function guardarNota(id: string, titulo: string, bloques: Bloque[])
   // en jsonb, así que se normaliza antes de escribir.
   const limpios = comoBloques(bloques);
   const sql = db();
+
+  await registrarDepuracion('guardarNota:escribiendo', {
+    id,
+    titulo,
+    bloquesRecibidos: bloques,
+    bloquesLimpios: limpios,
+    pila: new Error().stack,
+  });
 
   try {
     await sql`
