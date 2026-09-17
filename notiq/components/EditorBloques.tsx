@@ -73,11 +73,17 @@ export default function EditorBloques({
   bloques,
   onCambio,
   noteId,
+  onDejarDeEscribir,
 }: {
   bloques: Bloque[];
   onCambio: (bloques: Bloque[]) => void;
   /** Para subir imágenes como adjuntos de esta nota. */
   noteId: string;
+  /** Al salir de un bloque (clic fuera, Tab...): fuerza el guardado ya en vez
+   * de esperar el debounce normal — reduce la ventana en la que un "atrás"
+   * del navegador (que no se puede interceptar como un botón de la propia
+   * app) podría llegar antes de que lo último escrito esté guardado. */
+  onDejarDeEscribir?: () => void;
 }) {
   // Índice del bloque que debe recibir el foco tras el próximo render, o null.
   const [foco, setFoco] = useState<number | null>(null);
@@ -393,6 +399,7 @@ export default function EditorBloques({
                   onKeyDown={(e) => pulsar(e, indice)}
                   onPaste={(e) => pegar(e, indice)}
                   onFocus={(e) => autoAlto(e.target)}
+                  onBlur={onDejarDeEscribir}
                   placeholder={MARCADORES[bloque.tipo]}
                   className={`w-full resize-none bg-transparent outline-none placeholder:text-ink/25 ${
                     ESTILOS[bloque.tipo]

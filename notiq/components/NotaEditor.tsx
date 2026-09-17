@@ -167,6 +167,19 @@ const NotaEditor = forwardRef<
     [guardar],
   );
 
+  // Al salir de un campo (clic fuera, Tab...) fuerza el guardado ya, sin
+  // esperar el debounce — un "atrás" del navegador no se puede interceptar
+  // como si fuera un botón de la propia app (ver guardarSiHaceFalta arriba),
+  // así que la mejor defensa ahí es que apenas quede nada pendiente que
+  // guardar para cuando eso pase.
+  const guardarYa = useCallback(() => {
+    if (temporizador.current) {
+      clearTimeout(temporizador.current);
+      temporizador.current = null;
+    }
+    void guardar();
+  }, [guardar]);
+
   // Cerrar la pestaña con cambios sin guardar avisa. No siempre se puede evitar la
   // pérdida (el navegador puede matar la petición), pero al menos no es silenciosa.
   useEffect(() => {
@@ -565,6 +578,7 @@ const NotaEditor = forwardRef<
             setTitulo(e.target.value);
             programarGuardado(e.target.value, bloques);
           }}
+          onBlur={guardarYa}
           placeholder="Sin título"
           maxLength={200}
           aria-label="Título de la nota"
@@ -584,6 +598,7 @@ const NotaEditor = forwardRef<
             setBloques(siguientes);
             programarGuardado(titulo, siguientes);
           }}
+          onDejarDeEscribir={guardarYa}
         />
       </div>
 
