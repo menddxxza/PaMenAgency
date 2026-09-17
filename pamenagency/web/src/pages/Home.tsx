@@ -4,6 +4,7 @@ import { SolutionsSection } from '@/components/sections/SolutionsSection'
 import { AuditBand } from '@/components/sections/AuditBand'
 import { CalculatorSection } from '@/components/sections/CalculatorSection'
 import { WhySection } from '@/components/sections/WhySection'
+import { FounderSection } from '@/components/sections/FounderSection'
 import { MethodologySection } from '@/components/sections/MethodologySection'
 import { ForEveryone } from '@/components/sections/ForEveryone'
 import { KnowledgeSection } from '@/components/sections/KnowledgeSection'
@@ -56,6 +57,7 @@ export default function Home() {
       <CalculatorSection />
       <MethodologySection compact />
       <WhySection />
+      <FounderSection compact />
       <ForEveryone limit={3} />
       <KnowledgeSection limit={3} />
       <CracksSection limit={6} />

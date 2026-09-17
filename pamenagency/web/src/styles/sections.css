@@ -946,6 +946,78 @@
 
 .pm-calc__nota svg { flex: none; margin-top: 3px; color: var(--pm-gold); }
 
+/* --------------------------- Quién hay detrás --------------------------- */
+
+.pm-founder {
+  display: grid;
+  gap: var(--space-xl);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .pm-founder { grid-template-columns: 1fr; }
+}
+
+.pm-founder__photo {
+  position: relative;
+  max-width: 440px;
+  margin-inline: auto;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--pm-gold-line);
+  box-shadow: var(--shadow-lift);
+  aspect-ratio: 4 / 5;
+  background: var(--pm-surface);
+}
+
+.pm-founder__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+/* Fundido inferior hacia el negro de la marca: la foto se integra en la
+   página en vez de quedar pegada como un recorte. */
+.pm-founder__photo::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 30%;
+  background: linear-gradient(transparent, rgba(8, 8, 10, 0.55));
+  pointer-events: none;
+}
+
+.pm-founder__datos {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 1.75rem;
+  padding-block: 1.25rem;
+  border-block: 1px solid var(--pm-line);
+}
+
+@media (max-width: 560px) {
+  .pm-founder__datos { grid-template-columns: 1fr; }
+}
+
+.pm-founder__datos li { display: grid; gap: 0.2rem; }
+.pm-founder__datos strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  color: var(--pm-gold);
+}
+.pm-founder__datos span { font-size: var(--fs-small); color: var(--pm-muted); }
+
+.pm-founder__lema {
+  margin-top: 1.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 /* ------------------------------ Escenarios ------------------------------ */
 
 .pm-scenario {

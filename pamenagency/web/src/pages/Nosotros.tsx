@@ -2,6 +2,7 @@ import { PageHead } from '@/components/ui/PageHead'
 import { Section, SectionHead, Reveal } from '@/components/ui/Section'
 import { Icon } from '@/components/ui/Icon'
 import { CtaBand } from '@/components/sections/CtaBand'
+import { FounderSection } from '@/components/sections/FounderSection'
 import { MethodologySection } from '@/components/sections/MethodologySection'
 import { Scene3D } from '@/components/three/Scene3D'
 import { breadcrumbJsonLd, organizationJsonLd, useSeo } from '@/lib/seo'
@@ -63,6 +64,8 @@ export default function Nosotros() {
         lead="Esa frase no es un eslogan: es el criterio con el que decidimos qué proyectos aceptamos y cuáles no."
         breadcrumb={[{ label: 'Quiénes somos' }]}
       />
+
+      <FounderSection />
 
       <Section>
         <div className="pm-split pm-split--textwide">
