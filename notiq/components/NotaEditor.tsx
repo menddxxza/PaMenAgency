@@ -111,6 +111,9 @@ const NotaEditor = forwardRef<
    * de escribir, como si la última edición no hubiera pasado.
    */
   const enVueloPromesa = useRef<Promise<void> | null>(null);
+  // TEMPORAL, solo para depuración — de dónde viene la próxima llamada a
+  // guardar(). guardar() la lee y la deja en 'debounce' otra vez.
+  const origenGuardado = useRef('debounce');
 
   const guardar = useCallback(async (): Promise<void> => {
     if (enVueloPromesa.current) {
@@ -130,7 +133,9 @@ const NotaEditor = forwardRef<
     // hueco (el "atrás" del navegador, según qué navegación haga), ni
     // avisaba ni el guardado había llegado a confirmarse.
     const { titulo: t, bloques: b } = ultimo.current;
-    const promesa = guardarNota(id, t, b).then((resultado) => {
+    const origen = origenGuardado.current;
+    origenGuardado.current = 'debounce';
+    const promesa = guardarNota(id, t, b, origen).then((resultado) => {
       enVueloPromesa.current = null;
 
       if (!resultado.ok) {
@@ -160,6 +165,7 @@ const NotaEditor = forwardRef<
           clearTimeout(temporizador.current);
           temporizador.current = null;
         }
+        origenGuardado.current = 'guardarSiHaceFalta';
         await guardar();
       },
     }),
@@ -188,6 +194,7 @@ const NotaEditor = forwardRef<
       clearTimeout(temporizador.current);
       temporizador.current = null;
     }
+    origenGuardado.current = 'blur';
     void guardar();
   }, [guardar]);
 
@@ -206,6 +213,7 @@ const NotaEditor = forwardRef<
       // de página. Sin este flush, cancelar el timer sin más perdía en silencio la
       // última edición si el usuario navegaba antes de que venciera el debounce.
       // La petición sigue su curso aunque el componente ya no esté montado.
+      origenGuardado.current = 'unmount';
       void guardar();
     };
   }, [guardar]);
@@ -281,6 +289,7 @@ const NotaEditor = forwardRef<
       if ((evento.metaKey || evento.ctrlKey) && evento.key === 's') {
         evento.preventDefault();
         if (temporizador.current) clearTimeout(temporizador.current);
+        origenGuardado.current = 'ctrl-s';
         void guardar();
       }
     }
