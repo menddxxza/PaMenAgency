@@ -63,6 +63,8 @@ export default function ScrollStack({
   const stackCompletedRef = useRef(false);
   const animationFrameRef = useRef<number | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
+  /** Quita los listeners nativos del modo táctil (ver `setupLenis`). */
+  const nativeCleanupRef = useRef<(() => void) | null>(null);
   const cardsRef = useRef<HTMLElement[]>([]);
   const lastTransformsRef = useRef<Map<number, CardTransform>>(new Map());
   const isUpdatingRef = useRef(false);
@@ -237,6 +239,37 @@ export default function ScrollStack({
   }, [updateCardTransforms]);
 
   const setupLenis = useCallback(() => {
+    // En táctil no se instancia Lenis. Su `syncTouch` se apodera del gesto
+    // de arrastre y sustituye la inercia nativa por una interpolación en
+    // JavaScript: en iPad y iPhone eso se nota como un scroll que se traba
+    // y se queda pegado. El efecto de apilado no necesita Lenis — lee la
+    // posición del scroll del propio navegador (`getScrollData`) — así que
+    // basta con escuchar el scroll nativo, acotado a un frame.
+    const esTactil =
+      typeof window !== 'undefined' && !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    if (esTactil) {
+      const objetivo: Window | HTMLElement = useWindowScroll
+        ? window
+        : (scrollerRef.current ?? window);
+      let pendiente = false;
+      const onScroll = () => {
+        if (pendiente) return;
+        pendiente = true;
+        animationFrameRef.current = requestAnimationFrame(() => {
+          pendiente = false;
+          handleScroll();
+        });
+      };
+      objetivo.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      nativeCleanupRef.current = () => {
+        objetivo.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+      };
+      return null;
+    }
+
     const common = {
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -302,6 +335,9 @@ export default function ScrollStack({
         cancelAnimationFrame(animationFrameRef.current);
       }
       lenisRef.current?.destroy();
+      lenisRef.current = null;
+      nativeCleanupRef.current?.();
+      nativeCleanupRef.current = null;
       stackCompletedRef.current = false;
       cardsRef.current = [];
       transformsCache.clear();

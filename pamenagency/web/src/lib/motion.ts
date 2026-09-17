@@ -208,15 +208,25 @@ export function useCinematicScrollEnabled(): boolean {
   useEffect(() => {
     const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     const widthQuery = window.matchMedia('(min-width: 640px)')
+    // Puntero fino con hover = ratón o trackpad. Deja fuera tablets y
+    // móviles aunque sean anchos: el pin con scroll suave pelea con el
+    // scroll por inercia de iOS/Android — el navegador sólo emite eventos
+    // de scroll a saltos durante la inercia, así que la escena fijada va
+    // a rebufo y el scroll se siente trabado. En táctil se sirve el modo
+    // apilado, que usa el scroll nativo y va fino.
+    const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)')
 
-    const evaluate = () => setEnabled(!reducedQuery.matches && widthQuery.matches)
+    const evaluate = () =>
+      setEnabled(!reducedQuery.matches && widthQuery.matches && pointerQuery.matches)
     evaluate()
 
     reducedQuery.addEventListener('change', evaluate)
     widthQuery.addEventListener('change', evaluate)
+    pointerQuery.addEventListener('change', evaluate)
     return () => {
       reducedQuery.removeEventListener('change', evaluate)
       widthQuery.removeEventListener('change', evaluate)
+      pointerQuery.removeEventListener('change', evaluate)
     }
   }, [])
 
