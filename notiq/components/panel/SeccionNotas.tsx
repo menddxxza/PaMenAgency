@@ -298,7 +298,6 @@ export default function SeccionNotas() {
           etiquetasIniciales={notaAbierta.nota.etiquetas}
           etiquetasConocidas={etiquetas.map((e) => e.nombre)}
           compartidaInicial={notaAbierta.nota.compartir_publico}
-          tieneVersionAnterior={notaAbierta.nota.tieneVersionAnterior}
           onFavoritaCambiada={() => cargar({ carpeta, etiqueta, q: q.trim() || undefined })}
         />
 

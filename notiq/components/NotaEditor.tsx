@@ -16,7 +16,6 @@ import {
   obtenerNota,
   obtenerNotas,
   obtenerNotasRelacionadas,
-  restaurarVersionAnterior,
   type NotaRelacionada,
 } from '@/app/(app)/notas/actions';
 
@@ -46,8 +45,6 @@ const NotaEditor = forwardRef<
     /** Etiquetas ya usadas en otras notas del usuario, para sugerirlas al escribir. */
     etiquetasConocidas?: string[];
     compartidaInicial?: boolean;
-    /** Si hay una versión anterior (ver migrations/0007) que se pueda recuperar. */
-    tieneVersionAnterior?: boolean;
     /** Se llama al marcar/desmarcar favorita. Sin esto (uso standalone en
      * /notas/[id]) se refresca la ruta del servidor; el panel único pasa aquí su
      * propio refetch, porque ahí no hay ruta de servidor que refrescar. */
@@ -63,7 +60,6 @@ const NotaEditor = forwardRef<
     etiquetasIniciales = [],
     etiquetasConocidas = [],
     compartidaInicial = false,
-    tieneVersionAnterior = false,
     onFavoritaCambiada,
   },
   ref,
@@ -85,8 +81,6 @@ const NotaEditor = forwardRef<
   const [menuCompartir, setMenuCompartir] = useState(false);
   const [cambiandoCompartir, setCambiandoCompartir] = useState(false);
   const [enlaceCopiado, setEnlaceCopiado] = useState(false);
-  const [versionRecuperable, setVersionRecuperable] = useState(tieneVersionAnterior);
-  const [restaurando, setRestaurando] = useState(false);
 
   const sucio = useRef(false);
   const temporizador = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -111,9 +105,6 @@ const NotaEditor = forwardRef<
    * de escribir, como si la última edición no hubiera pasado.
    */
   const enVueloPromesa = useRef<Promise<void> | null>(null);
-  // TEMPORAL, solo para depuración — de dónde viene la próxima llamada a
-  // guardar(). guardar() la lee y la deja en 'debounce' otra vez.
-  const origenGuardado = useRef('debounce');
 
   const guardar = useCallback(async (): Promise<void> => {
     if (enVueloPromesa.current) {
@@ -133,9 +124,7 @@ const NotaEditor = forwardRef<
     // hueco (el "atrás" del navegador, según qué navegación haga), ni
     // avisaba ni el guardado había llegado a confirmarse.
     const { titulo: t, bloques: b } = ultimo.current;
-    const origen = origenGuardado.current;
-    origenGuardado.current = 'debounce';
-    const promesa = guardarNota(id, t, b, origen).then((resultado) => {
+    const promesa = guardarNota(id, t, b).then((resultado) => {
       enVueloPromesa.current = null;
 
       if (!resultado.ok) {
@@ -165,7 +154,6 @@ const NotaEditor = forwardRef<
           clearTimeout(temporizador.current);
           temporizador.current = null;
         }
-        origenGuardado.current = 'guardarSiHaceFalta';
         await guardar();
       },
     }),
@@ -194,7 +182,6 @@ const NotaEditor = forwardRef<
       clearTimeout(temporizador.current);
       temporizador.current = null;
     }
-    origenGuardado.current = 'blur';
     void guardar();
   }, [guardar]);
 
@@ -213,7 +200,6 @@ const NotaEditor = forwardRef<
       // de página. Sin este flush, cancelar el timer sin más perdía en silencio la
       // última edición si el usuario navegaba antes de que venciera el debounce.
       // La petición sigue su curso aunque el componente ya no esté montado.
-      origenGuardado.current = 'unmount';
       void guardar();
     };
   }, [guardar]);
@@ -289,7 +275,6 @@ const NotaEditor = forwardRef<
       if ((evento.metaKey || evento.ctrlKey) && evento.key === 's') {
         evento.preventDefault();
         if (temporizador.current) clearTimeout(temporizador.current);
-        origenGuardado.current = 'ctrl-s';
         void guardar();
       }
     }
@@ -383,29 +368,6 @@ const NotaEditor = forwardRef<
     );
   }
 
-  async function restaurar() {
-    if (
-      !window.confirm(
-        'Esto sustituye lo que hay ahora escrito en la nota por la versión de cuando se abrió. ¿Seguro?',
-      )
-    ) {
-      return;
-    }
-    setRestaurando(true);
-    const resultado = await restaurarVersionAnterior(id);
-    setRestaurando(false);
-    if (!resultado.ok || !resultado.bloques) {
-      setMensajeRecordatorio(!resultado.ok ? resultado.error : 'No se ha podido restaurar.');
-      return;
-    }
-    setBloques(resultado.bloques);
-    setVersionRecuperable(false);
-    // No pasa por programarGuardado: ya está guardado en el servidor, marcar
-    // "sucio" aquí solo arriesgaría a que un guardado normal lo pisara con la
-    // versión vacía que todavía pudiera quedar en `ultimo.current`.
-    ultimo.current = { titulo, bloques: resultado.bloques };
-  }
-
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0 imprimir-nota">
@@ -434,17 +396,6 @@ const NotaEditor = forwardRef<
           >
             {favorita ? '⭐ Favorita' : '☆ Marcar favorita'}
           </button>
-
-          {versionRecuperable && (
-            <button
-              type="button"
-              onClick={restaurar}
-              disabled={restaurando}
-              className="text-brand-600 hover:text-brand-700 disabled:opacity-60"
-            >
-              {restaurando ? 'Recuperando…' : '↩ Recuperar versión anterior'}
-            </button>
-          )}
 
           <div className="relative">
             <button

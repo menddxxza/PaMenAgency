@@ -63,7 +63,6 @@ export default function VolverYEditor({
         etiquetasIniciales={etiquetasIniciales}
         etiquetasConocidas={etiquetasConocidas}
         compartidaInicial={compartidaInicial}
-        tieneVersionAnterior={tieneVersionAnterior}
       />
     </>
   );
