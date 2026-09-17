@@ -6,14 +6,13 @@ import EditorBloques from '@/components/EditorBloques';
 import EtiquetasNota from '@/components/EtiquetasNota';
 import PanelIa from '@/components/PanelIa';
 import Adjuntos from '@/components/panel/Adjuntos';
-import { aMarkdown, comoBloques, nuevoBloque, type Bloque } from '@/lib/bloques';
+import { aMarkdown, nuevoBloque, type Bloque } from '@/lib/bloques';
 import {
   alternarCompartir,
   alternarFavorita,
   crearRecordatorioDeNota,
   duplicarNota,
   guardarNota,
-  obtenerNota,
   obtenerNotas,
   obtenerNotasRelacionadas,
   type NotaRelacionada,
@@ -228,29 +227,28 @@ const NotaEditor = forwardRef<
     obtenerNotasRelacionadas(id).then((r) => setRelacionadas(r ?? []));
   }, [id]);
 
-  // Vuelve a pedir la nota de verdad al servidor nada más abrirla, por encima
-  // de lo que ya se ve (bloquesIniciales, que puede venir de la caché propia
-  // del "atrás" del navegador — la de Next.js para que el botón atrás sea
-  // instantáneo, que no se puede desactivar y no sabe nada de lo que se ha
-  // guardado después de esa foto). Una Server Action como obtenerNota() nunca
-  // pasa por esa caché, así que esto es lo único que da la garantía real.
-  // Si para cuando responde ya se ha escrito algo nuevo (sucio.current),
-  // no se toca: gana siempre lo que hay delante del usuario en ese momento.
-  useEffect(() => {
-    let cancelado = false;
-    obtenerNota(id).then((datos) => {
-      if (cancelado || !datos || sucio.current) return;
-      const frescos = comoBloques(datos.nota.content);
-      const tituloFresco = datos.nota.titulo ?? '';
-      setTitulo(tituloFresco);
-      setBloques(frescos);
-      ultimo.current = { titulo: tituloFresco, bloques: frescos };
-    });
-    return () => {
-      cancelado = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  /*
+   * ANTES había aquí un useEffect que, nada más montar, volvía a pedir la nota
+   * al servidor (obtenerNota(id)) "por si acaso" bloquesIniciales viniera de
+   * una caché vieja, y solo aplicaba el resultado si `!sucio.current` en el
+   * momento en que la petición RESOLVÍA. Ese "en el momento en que resolvía"
+   * era el fallo: quien abre la nota y quien la monta (SeccionNotas.abrirNota,
+   * VolverYEditor, la página standalone) ya hace su propio obtenerNota() justo
+   * antes de montar este componente, así que bloquesIniciales YA llega fresco
+   * — este efecto era pura redundancia. Y esa redundancia tenía una carrera
+   * real: si el usuario escribía algo nada más abrir la nota y el autoguardado
+   * (900ms de debounce) terminaba ANTES que esta petición duplicada más lenta
+   * (arranque en frío del servidor, red lenta...), sucio.current ya estaba de
+   * nuevo a false cuando esta por fin respondía, así que su condición dejaba
+   * pasar y SOBRESCRIBÍA lo recién guardado con el contenido de ANTES de
+   * escribir — en pantalla parecía que la nota se hubiera vaciado o perdido
+   * lo escrito, sin que la base de datos tuviera nada mal (de hecho así se
+   * confirmó una vez con una consulta directa a Neon en el momento exacto del
+   * fallo: la base de datos tenía el texto correcto, la pantalla no). Por eso
+   * sobrevivía incluso a forzar una recarga completa al cerrar la nota: la
+   * misma carrera podía volver a darse en cualquier montaje nuevo, recargado
+   * o no. Quitado sin más — no hacía falta.
+   */
 
   /*
    * El "atrás" del navegador tiene su propia foto congelada de la página
