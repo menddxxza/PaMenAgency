@@ -41,8 +41,8 @@ export const services: Service[] = [
     short:
       'Analizamos tu situación y te decimos dónde la IA aporta algo real y dónde no.',
     benefit: 'Sales con una lista priorizada de acciones, no con una idea vaga.',
-    priceRange: 'Entre 90 € y 40.000 €, según el alcance de la consultoría.',
-    priceFrom: 'Desde 90 €',
+    priceRange: 'Entre 20 € y 40.000 €, según el alcance de la consultoría.',
+    priceFrom: 'Desde 20 €',
     icon: 'compass',
     detail: {
       intro:
@@ -75,8 +75,8 @@ export const services: Service[] = [
     short:
       'Diseñamos procesos que se ejecutan solos para que dejes de hacer lo mismo cada día.',
     benefit: 'Recuperas horas concretas de la semana, medibles desde el primer mes.',
-    priceRange: 'Entre 300 € y 8.000 €, según la complejidad del proceso.',
-    priceFrom: 'Desde 300 €',
+    priceRange: 'Entre 150 € y 8.000 €, según la complejidad del proceso.',
+    priceFrom: 'Desde 150 €',
     icon: 'gears',
     detail: {
       intro:
@@ -109,8 +109,8 @@ export const services: Service[] = [
     short:
       'Conectamos tus herramientas y sistemas para que la información deje de moverse a mano.',
     benefit: 'Tus herramientas dejan de ser islas y empiezan a trabajar juntas.',
-    priceRange: 'Entre 3.000 € y 6.000 €.',
-    priceFrom: 'Desde 3.000 €',
+    priceRange: 'Entre 300 € y 6.000 €.',
+    priceFrom: 'Desde 300 €',
     icon: 'plug',
     detail: {
       intro:
@@ -142,8 +142,8 @@ export const services: Service[] = [
     short:
       'Diseñamos e implementamos asistentes y sistemas conversacionales con un propósito claro.',
     benefit: 'Respuestas coherentes a cualquier hora, con límites definidos por ti.',
-    priceRange: 'Entre 500 € y 15.000 €, según el alcance del asistente.',
-    priceFrom: 'Desde 500 €',
+    priceRange: 'Entre 200 € y 15.000 €, según el alcance del asistente.',
+    priceFrom: 'Desde 200 €',
     icon: 'chat',
     detail: {
       intro:
@@ -176,8 +176,8 @@ export const services: Service[] = [
     short:
       'Detectamos dónde tiene sentido aplicar IA dentro de una organización con varios equipos.',
     benefit: 'Un plan por áreas, no una herramienta suelta que nadie adopta.',
-    priceRange: 'Entre 500 € y 9.000 €.',
-    priceFrom: 'Desde 500 €',
+    priceRange: 'Entre 300 € y 9.000 €.',
+    priceFrom: 'Desde 300 €',
     icon: 'building',
     detail: {
       intro:
@@ -209,8 +209,8 @@ export const services: Service[] = [
     short:
       'Soluciones proporcionadas para negocios pequeños, sin infraestructura ni presupuestos grandes.',
     benefit: 'Mejoras que caben en tu día a día y en tu presupuesto.',
-    priceRange: 'Entre 3.000 € y 12.000 €, con mantenimiento opcional desde 50 € a 250 € al mes.',
-    priceFrom: 'Desde 3.000 €',
+    priceRange: 'Entre 500 € y 12.000 €, con mantenimiento opcional desde 50 € a 250 € al mes.',
+    priceFrom: 'Desde 500 €',
     icon: 'store',
     detail: {
       intro:
@@ -308,8 +308,8 @@ export const services: Service[] = [
     short:
       'Enseñamos a usar correctamente las herramientas de IA, con sus capacidades y sus límites.',
     benefit: 'Tu equipo deja de depender de que alguien de fuera lo haga.',
-    priceRange: 'Entre 800 € y 6.000 € el curso completo, según su duración.',
-    priceFrom: 'Desde 800 €',
+    priceRange: 'Desde 100 €, dependiendo de lo que se quiera.',
+    priceFrom: 'Desde 100 €',
     icon: 'book',
     detail: {
       intro:
@@ -341,8 +341,8 @@ export const services: Service[] = [
     short:
       'Analizamos dónde merece la pena implementar IA y, sobre todo, dónde no.',
     benefit: 'Decisiones argumentadas, con el coste de no hacer nada incluido.',
-    priceRange: 'Entre 1.000 € y 25.000 €, según el tamaño de la empresa.',
-    priceFrom: 'Desde 1.000 €',
+    priceRange: 'Entre 700 € y 25.000 €, según el tamaño de la empresa.',
+    priceFrom: 'Desde 700 €',
     icon: 'map',
     detail: {
       intro:
