@@ -146,10 +146,14 @@ clase, generador de exámenes, flashcards con dominio, modo examen) sí entró.
 - [x] "Repasar mis errores": las preguntas falladas de un examen se
       convierten en flashcards nuevas, sin otra llamada a la IA (la
       respuesta correcta ya estaba en el examen)
-- [x] Grabar clase → transcripción (Whisper vía Groq, mismo proveedor y
-      clave que el resto de la IA, sin cuenta aparte) → apuntes
-      estructurados guardados como nota normal → flashcards de la propia
-      transcripción
+- [~] Grabar clase (micrófono en vivo → transcripción → apuntes → flashcards)
+      quitada de la interfaz a petición del usuario (2026-09-17): consumía
+      muchos créditos de IA (transcripción + apuntes + flashcards, tres
+      llamadas por cada grabación). El resto del camino "vídeo/YouTube →
+      transcripción → apuntes" sigue activo (AnalizarVideo, ImportarYoutube),
+      que reutiliza los mismos endpoints /api/ia/transcribir y
+      /api/ia/apuntes-clase — solo se quitó la puerta de entrada por
+      micrófono en directo.
 - [x] Progreso por carpeta: recuento de flashcards en cada estado, usado
       como "tema" en vez de crear una entidad "asignatura" aparte
 - [x] Modo examen "de verdad": `migrations/0005_examen_fecha.sql` añade

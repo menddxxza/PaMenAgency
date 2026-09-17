@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import GrabarClase from './GrabarClase';
 import AnalizarVideo from './AnalizarVideo';
 import ResolverEjercicio from './ResolverEjercicio';
 import EscanearDocumento from './EscanearDocumento';
@@ -256,7 +255,6 @@ export default function SeccionEstudio() {
         </div>
 
         <div className="flex flex-col gap-5">
-          <GrabarClase />
           <AnalizarVideo carpetas={datos.carpetas} />
           <EscanearDocumento carpetas={datos.carpetas} />
         </div>
