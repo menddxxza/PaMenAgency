@@ -119,22 +119,32 @@ const NotaEditor = forwardRef<
     }
     if (!sucio.current) return;
 
-    sucio.current = false;
     setEstado('guardando');
 
+    // `sucio` se queda a true DURANTE toda la petición, no solo hasta que
+    // empieza — antes se ponía a false aquí mismo, antes incluso de mandar
+    // nada, así que el aviso de "vas a perder cambios sin guardar" (más
+    // abajo, en beforeunload) dejaba de avisar mientras el guardado todavía
+    // estaba en el aire. Si el navegador recargaba de golpe justo en ese
+    // hueco (el "atrás" del navegador, según qué navegación haga), ni
+    // avisaba ni el guardado había llegado a confirmarse.
     const { titulo: t, bloques: b } = ultimo.current;
     const promesa = guardarNota(id, t, b).then((resultado) => {
       enVueloPromesa.current = null;
 
       if (!resultado.ok) {
-        // La siguiente tecla también volvería a marcar sucio, pero no hay que
-        // esperar a que el usuario teclee para reintentar un guardado fallido.
-        sucio.current = true;
         setEstado('error');
         return;
       }
 
-      if (!sucio.current) setEstado('guardado');
+      // Solo se marca a salvo si nadie ha vuelto a escribir mientras esto
+      // viajaba (ultimo.current seguiría siendo exactamente lo que se mandó,
+      // por referencia) — si ha cambiado, sigue sucio a propósito para que
+      // se encadene otro guardado con lo último de verdad.
+      if (ultimo.current.titulo === t && ultimo.current.bloques === b) {
+        sucio.current = false;
+        setEstado('guardado');
+      }
     });
     enVueloPromesa.current = promesa;
     await promesa;
