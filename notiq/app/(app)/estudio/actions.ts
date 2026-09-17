@@ -197,7 +197,7 @@ export async function crearExamen(
       insert into examenes (user_id, folder_id, titulo, preguntas)
       values (
         ${sesion.userId}::uuid, ${folderIdPropia}::uuid,
-        ${titulo.trim().slice(0, 200) || 'Examen sin título'}, ${JSON.stringify(preguntas)}::jsonb
+        ${titulo.trim().slice(0, 200) || 'Examen sin título'}, ${sql.json(preguntas)}
       )
       returning id
     `;
@@ -307,7 +307,7 @@ export async function guardarIntento(
     const [fila] = await sql<{ id: string }[]>`
       insert into intentos_examen (user_id, examen_id, respuestas, puntuacion, total)
       values (
-        ${sesion.userId}::uuid, ${examenId}::uuid, ${JSON.stringify(respuestas)}::jsonb,
+        ${sesion.userId}::uuid, ${examenId}::uuid, ${sql.json(respuestas)},
         ${puntuacion}, ${preguntas.length}
       )
       returning id

@@ -152,8 +152,8 @@ export async function guardarNota(id: string, titulo: string, bloques: Bloque[])
     // escritura posterior la que vacía `content`.
     await sql`
       update notes
-      set titulo = ${titulo.slice(0, 200)}, content = ${JSON.stringify(limpios)}::jsonb, texto = ${aTextoPlano(limpios)},
-        debug_bloques = ${JSON.stringify(bloques)}::jsonb, debug_momento = now()
+      set titulo = ${titulo.slice(0, 200)}, content = ${sql.json(limpios)}, texto = ${aTextoPlano(limpios)},
+        debug_bloques = ${sql.json(bloques)}, debug_momento = now()
       where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
     `;
   } catch (fallo) {
@@ -199,7 +199,7 @@ export async function restaurarVersionAnterior(
     bloques = comoBloques(fila.content_anterior);
     await sql`
       update notes
-      set content = ${JSON.stringify(bloques)}::jsonb, texto = ${aTextoPlano(bloques)}, content_anterior = null
+      set content = ${sql.json(bloques)}, texto = ${aTextoPlano(bloques)}, content_anterior = null
       where id = ${id}::uuid and user_id = ${sesion.userId}::uuid
     `;
   } catch (fallo) {
@@ -431,7 +431,7 @@ export async function duplicarNota(id: string): Promise<Resultado & { id?: strin
         values (
           ${sesion.userId}::uuid,
           ${`${original.titulo || 'Sin título'} (copia)`.slice(0, 200)},
-          ${JSON.stringify(original.content)}::jsonb,
+          ${tx.json(comoBloques(original.content))},
           ${original.texto},
           ${original.folder_id}::uuid
         )

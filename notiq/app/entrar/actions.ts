@@ -71,7 +71,7 @@ export async function registrarYEntrar(
     const { titulo, bloques } = notaDeBienvenida();
     await sql`
       insert into notes (user_id, titulo, content, texto, favorita)
-      values (${usuario.id}::uuid, ${titulo}, ${JSON.stringify(bloques)}::jsonb, ${aTextoPlano(bloques)}, true)
+      values (${usuario.id}::uuid, ${titulo}, ${sql.json(bloques)}, ${aTextoPlano(bloques)}, true)
     `;
   } catch (fallo) {
     console.error('[notiq] no se ha podido crear la nota de bienvenida', fallo);
