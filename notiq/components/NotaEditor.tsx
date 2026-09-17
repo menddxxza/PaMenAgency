@@ -241,6 +241,26 @@ const NotaEditor = forwardRef<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  /*
+   * El "atrás" del navegador tiene su propia foto congelada de la página
+   * entera (bfcache) para que volver sea instantáneo — y a diferencia de la
+   * caché de Next.js de arriba, esta ni siquiera vuelve a ejecutar el
+   * JavaScript de la página al restaurarla: simplemente descongela el DOM
+   * (y el estado de React dentro de él) tal como estaba en el momento de
+   * salir. El efecto de aquí arriba, por bueno que sea, nunca llegaría a
+   * dispararse en ese caso, porque nada vuelve a arrancar. El único aviso
+   * fiable de que esto ha pasado es el evento `pageshow` con
+   * `persisted: true` — y la única forma fiable de reaccionar es una
+   * recarga de verdad, que sí vuelve a pedirlo todo al servidor.
+   */
+  useEffect(() => {
+    function alMostrarPagina(evento: PageTransitionEvent) {
+      if (evento.persisted) window.location.reload();
+    }
+    window.addEventListener('pageshow', alMostrarPagina);
+    return () => window.removeEventListener('pageshow', alMostrarPagina);
+  }, []);
+
   useEffect(() => {
     if (!menuVincular || !qVincular.trim()) {
       setResultadosVincular([]);
