@@ -162,7 +162,6 @@ export async function guardarNota(id: string, titulo: string, bloques: Bloque[])
     titulo,
     bloquesRecibidos: bloques,
     bloquesLimpios: limpios,
-    pila: new Error().stack,
   });
 
   try {
