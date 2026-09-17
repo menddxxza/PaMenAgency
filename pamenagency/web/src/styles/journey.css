@@ -24,6 +24,32 @@
   transition: filter 140ms linear;
 }
 
+/* Respaldo cuando el equipo no puede con WebGL: `StaticScene` es un SVG
+   que por defecto ocupa todo su contenedor, y aquí el contenedor es la
+   pantalla entera — salía una esfera gigante por encima del texto. Se le
+   da el mismo papel que al mundo 3D: fondo, desplazado a la derecha,
+   atenuado y difuminado por la izquierda para no competir nunca con el
+   titular. */
+.pm-journey__world svg {
+  position: absolute;
+  top: 50%;
+  left: 68%;
+  transform: translate(-50%, -50%);
+  width: min(78vh, 52vw);
+  height: auto;
+  opacity: 0.55;
+  mask-image: radial-gradient(circle at 50% 50%, #000 45%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 45%, transparent 78%);
+}
+
+@media (max-width: 1100px) {
+  .pm-journey__world svg {
+    left: 50%;
+    width: min(70vh, 86vw);
+    opacity: 0.32;
+  }
+}
+
 /* Fondo decorativo detrás del mundo 3D — mismo halo/rejilla que el resto
    del sitio, para que el viaje no empiece sobre un negro plano si el WebGL
    tarda un frame en aparecer o si se sirve el fallback estático. */
