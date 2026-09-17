@@ -206,15 +206,15 @@ export default function SeccionNotas() {
   }
 
   async function cerrarNota() {
-    // Espera a que termine cualquier guardado pendiente antes de cerrar: sin
-    // esto, cerrar y volver a abrir la nota muy rápido podía leerla de la
-    // base de datos antes de que el guardado de lo último escrito hubiera
-    // terminado de verdad — parecía que se había perdido, aunque en realidad
-    // solo llegaba tarde.
+    // Espera a que termine cualquier guardado pendiente antes de cerrar.
     await editorRef.current?.guardarSiHaceFalta();
-    setNotaAbierta(null);
-    // El título, la carpeta, las etiquetas o el estado de favorita pueden haber cambiado.
-    cargar({ carpeta, etiqueta, q: q.trim() || undefined });
+    // Recarga de verdad (no solo setNotaAbierta(null)): varios arreglos más
+    // finos (key={id}, releer con obtenerNota al montar...) no han bastado
+    // para que reabrir la misma nota muestre siempre lo último guardado, así
+    // que en vez de seguir afinando la parte cliente, se corta por lo sano —
+    // una recarga real no deja ningún estado de React a medias del que
+    // desconfiar. /notas (no /inicio) para no perder de vista la pestaña.
+    window.location.href = '/notas';
   }
 
   // Disparados desde la paleta de comandos (Ctrl/Cmd+K) y el atajo "n": crean o
