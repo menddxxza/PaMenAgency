@@ -161,7 +161,18 @@ export async function guardarNota(id: string, titulo: string, bloques: Bloque[])
     return { ok: false, error: 'No se ha podido guardar.' };
   }
 
-  revalidatePath('/notas');
+  // Aparte del try/catch de arriba a propósito: el guardado en sí (lo único
+  // que de verdad importa aquí) ya ha terminado bien en este punto. Si
+  // revalidatePath fallara, no debe tirar abajo toda la función — el cliente
+  // vería la petición entera como rechazada (no como { ok: false }) y, sin
+  // más cuidado en NotaEditor.tsx, eso podía dejar el autoguardado atascado
+  // en silencio el resto de la sesión (ver el comentario junto a
+  // enVueloPromesa en NotaEditor.tsx).
+  try {
+    revalidatePath('/notas');
+  } catch (fallo) {
+    console.error('[notiq] guardarNota: revalidatePath ha fallado (el guardado en sí ya está hecho)', fallo);
+  }
   return { ok: true };
 }
 

@@ -124,23 +124,40 @@ const NotaEditor = forwardRef<
     // hueco (el "atrás" del navegador, según qué navegación haga), ni
     // avisaba ni el guardado había llegado a confirmarse.
     const { titulo: t, bloques: b } = ultimo.current;
-    const promesa = guardarNota(id, t, b).then((resultado) => {
-      enVueloPromesa.current = null;
+    const promesa = guardarNota(id, t, b)
+      .then((resultado) => {
+        if (!resultado.ok) {
+          setEstado('error');
+          return;
+        }
 
-      if (!resultado.ok) {
+        // Solo se marca a salvo si nadie ha vuelto a escribir mientras esto
+        // viajaba (ultimo.current seguiría siendo exactamente lo que se mandó,
+        // por referencia) — si ha cambiado, sigue sucio a propósito para que
+        // se encadene otro guardado con lo último de verdad.
+        if (ultimo.current.titulo === t && ultimo.current.bloques === b) {
+          sucio.current = false;
+          setEstado('guardado');
+        }
+      })
+      .catch((fallo) => {
+        // guardarNota() puede llegar a rechazar de verdad (no solo devolver
+        // {ok:false}) por algo ajeno al propio guardado — p. ej. el
+        // revalidatePath('/notas') de la acción, que va fuera de su try/catch.
+        // Sin este .catch(), enVueloPromesa.current se quedaba apuntando para
+        // siempre a una promesa ya rechazada: cualquier guardado posterior
+        // (el siguiente debounce, Ctrl+S, cerrar la nota...) esperaba esa
+        // misma promesa y volvía a lanzar al instante, así que el autoguardado
+        // se atascaba en silencio el resto de la sesión — nada de lo que se
+        // escribía a partir de ahí llegaba nunca a la base de datos.
+        console.error('[notiq] guardarNota ha lanzado una excepción', fallo);
         setEstado('error');
-        return;
-      }
-
-      // Solo se marca a salvo si nadie ha vuelto a escribir mientras esto
-      // viajaba (ultimo.current seguiría siendo exactamente lo que se mandó,
-      // por referencia) — si ha cambiado, sigue sucio a propósito para que
-      // se encadene otro guardado con lo último de verdad.
-      if (ultimo.current.titulo === t && ultimo.current.bloques === b) {
-        sucio.current = false;
-        setEstado('guardado');
-      }
-    });
+        // sucio.current sigue a true a propósito: el reintento de la línea de
+        // abajo (y cualquier guardado posterior) usará el contenido más reciente.
+      })
+      .finally(() => {
+        enVueloPromesa.current = null;
+      });
     enVueloPromesa.current = promesa;
     await promesa;
     if (sucio.current) await guardar();
