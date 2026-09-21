@@ -261,11 +261,16 @@ export async function updateSupplierOrderStatus(orderId: string, status: Supplie
 
 export async function updateBusinessSettings(
   businessId: string,
-  input: { name: string; whatsappNumber: string | null; timezone: string },
+  input: { name: string; whatsappNumber: string | null; timezone: string; openingHours: Record<string, string> },
 ) {
   const { error } = await supabase
     .from('businesses')
-    .update({ name: input.name, whatsapp_number: input.whatsappNumber, timezone: input.timezone })
+    .update({
+      name: input.name,
+      whatsapp_number: input.whatsappNumber,
+      timezone: input.timezone,
+      opening_hours: input.openingHours,
+    })
     .eq('id', businessId)
   if (error) throw error
 }

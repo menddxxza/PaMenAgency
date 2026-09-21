@@ -11,6 +11,27 @@ import { usePageTitle } from '@/hooks/usePageTitle'
 import { FullPageLoader } from '@/components/layout/FullPageLoader'
 import type { BotTone, Faq } from '@/types/database.types'
 
+// El horario se guarda como {"lunes-viernes": "10:00-14:00", ...} y el bot lo lee
+// tal cual; en el formulario es un texto con una línea "día: horas" por entrada.
+function hoursToText(hours: Record<string, unknown> | null | undefined): string {
+  return Object.entries(hours ?? {})
+    .filter(([, value]) => typeof value === 'string')
+    .map(([day, range]) => `${day}: ${range}`)
+    .join('\n')
+}
+
+function textToHours(text: string): Record<string, string> {
+  const hours: Record<string, string> = {}
+  for (const line of text.split('\n')) {
+    const separator = line.indexOf(':')
+    if (separator === -1) continue
+    const day = line.slice(0, separator).trim()
+    const range = line.slice(separator + 1).trim()
+    if (day && range) hours[day] = range
+  }
+  return hours
+}
+
 export function Configuracion() {
   usePageTitle('Configuración')
   const { activeBusinessId } = useTenant()
@@ -21,6 +42,7 @@ export function Configuracion() {
   const [businessName, setBusinessName] = useState('')
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [timezone, setTimezone] = useState('Europe/Madrid')
+  const [hoursText, setHoursText] = useState('')
   const [tone, setTone] = useState<BotTone>('cercano')
   const [greeting, setGreeting] = useState('')
   const [reminderHoursBefore, setReminderHoursBefore] = useState(24)
@@ -35,6 +57,7 @@ export function Configuracion() {
       setBusinessName(business.name)
       setWhatsappNumber(business.whatsapp_number ?? '')
       setTimezone(business.timezone)
+      setHoursText(hoursToText(business.opening_hours))
     }
     if (botConfig) {
       setTone(botConfig.tone)
@@ -49,7 +72,12 @@ export function Configuracion() {
     if (!activeBusinessId) return
     setSavingBusiness(true)
     try {
-      await updateBusinessSettings(activeBusinessId, { name: businessName, whatsappNumber: whatsappNumber || null, timezone })
+      await updateBusinessSettings(activeBusinessId, {
+        name: businessName,
+        whatsappNumber: whatsappNumber || null,
+        timezone,
+        openingHours: textToHours(hoursText),
+      })
       showToast('Datos del negocio guardados')
     } catch {
       showToast('No se pudo guardar', 'error')
@@ -119,6 +147,15 @@ export function Configuracion() {
           <label>
             Zona horaria
             <input value={timezone} onChange={(e) => setTimezone(e.target.value)} placeholder="Europe/Madrid" />
+          </label>
+          <label>
+            Horario de atención (una línea por día o tramo; el bot lo usa para contestar)
+            <textarea
+              rows={4}
+              value={hoursText}
+              onChange={(e) => setHoursText(e.target.value)}
+              placeholder={'lunes-viernes: 10:00-14:00 y 16:00-20:00\nsábado: 10:00-14:00\ndomingo: cerrado'}
+            />
           </label>
         </div>
         <div className="modal__footer" style={{ justifyContent: 'flex-start', marginTop: '1rem' }}>
