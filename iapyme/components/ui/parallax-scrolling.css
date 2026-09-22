@@ -1,0 +1,158 @@
+/**
+ * Estilos del parallax. El componente que llegó traía solo el JSX y el GSAP:
+ * todas estas clases (`parallax__layers`, `parallax__layer-img`…) no existían
+ * en ninguna parte, así que sin esto se veía como imágenes apiladas sin
+ * formato. Van en un .css propio, junto al componente, igual que GradualBlur.
+ */
+
+.parallax {
+  position: relative;
+  background: #0a0a0a;
+}
+
+/* Pista de scroll: el hero queda clavado mientras recorres esta altura, y es
+   ese recorrido el que mueve las capas. */
+.parallax__header {
+  position: relative;
+  height: 220vh;
+}
+
+.parallax__visuals {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@supports (height: 100svh) {
+  .parallax__visuals {
+    height: 100svh;
+  }
+}
+
+/* Velo superior: las formas son claras y la cabecera va encima. */
+.parallax__black-line-overflow {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 30vh;
+  background: linear-gradient(to bottom, #0a0a0a 0%, rgba(10, 10, 10, 0) 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.parallax__layers {
+  position: absolute;
+  inset: 0;
+}
+
+/**
+ * Cada fotograma es un objeto centrado sobre bruma azul clara. Sin máscara,
+ * sobre el fondo negro serían tres rectángulos claros; con el degradado
+ * radial se recorta la forma y flota.
+ */
+.parallax__layer-img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(130vw, 1500px);
+  height: auto;
+  max-width: none;
+  translate: -50% -50%;
+  object-fit: contain;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 26%, rgba(0, 0, 0, 0) 64%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 26%, rgba(0, 0, 0, 0) 64%);
+  will-change: transform;
+}
+
+/* Fondo: grande, difuminado y apagado. Da profundidad sin competir. */
+.parallax__layers [data-parallax-layer='1'] {
+  scale: 1.35;
+  opacity: 0.4;
+  filter: blur(6px) saturate(0.7) brightness(0.85);
+}
+
+/* Medio: la forma reconocible. */
+.parallax__layers [data-parallax-layer='2'] {
+  scale: 0.95;
+  opacity: 0.75;
+  filter: saturate(0.9) brightness(0.95);
+}
+
+/* Frente: los cables entrando por arriba. Más pequeño y nítido. */
+.parallax__layers [data-parallax-layer='4'] {
+  top: 34%;
+  scale: 0.7;
+  opacity: 0.9;
+}
+
+.parallax__layer-title {
+  position: absolute;
+  inset: 0;
+  /* Por encima de los dos velos (z-index 3) y de la capa de frente, que si no
+     se comerían el titular y los botones. */
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0 1.25rem;
+  text-align: center;
+  will-change: transform;
+}
+
+/**
+ * Velo propio del bloque de texto. El titular cae justo sobre el núcleo
+ * dorado de la imagen, que es la zona más clara de todas: sin esto, el texto
+ * blanco se queda sin contraste ahí en medio. Va detrás del texto pero por
+ * delante de las capas, así que la imagen se sigue viendo alrededor.
+ */
+.parallax__layer-title::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse 68% 52% at 50% 46%,
+    rgba(10, 10, 10, 0.74) 0%,
+    rgba(10, 10, 10, 0.45) 46%,
+    rgba(10, 10, 10, 0) 78%
+  );
+}
+
+.parallax__title {
+  max-width: 16ch;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  font-weight: 400;
+  line-height: 1.03;
+  letter-spacing: -0.03em;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
+}
+
+/* Cierre por abajo hacia el negro de la página. */
+.parallax__fade {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40vh;
+  background: linear-gradient(to bottom, rgba(10, 10, 10, 0) 0%, #0a0a0a 92%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Sin JavaScript o con movimiento reducido no hay barrido: las capas se
+   quedan quietas y colocadas, que es un estado válido por sí mismo. */
+@media (prefers-reduced-motion: reduce) {
+  .parallax__header {
+    height: auto;
+  }
+
+  .parallax__visuals {
+    position: relative;
+  }
+
+  .parallax__layer-img {
+    filter: none;
+  }
+}
