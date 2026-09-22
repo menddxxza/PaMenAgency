@@ -4,6 +4,7 @@ import Reveal from '@/components/Reveal';
 import Estrellas from '@/components/Estrellas';
 import NavHome from '@/components/home/NavHome';
 import { ParallaxHero } from '@/components/ui/parallax-scrolling';
+import Lightning from '@/components/ui/Lightning';
 import {
   BotonPrincipal,
   BotonSecundario,
@@ -245,9 +246,13 @@ export default async function Home() {
           )}
         </section>
 
-        {/* ---- Vender ---- */}
-        <section className="border-t border-white/10 px-5 py-24 sm:px-8 md:px-12 md:py-32">
-          <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-16">
+        {/* ---- Vender ----
+            El único apartado con el rayo de fondo. `overflow-hidden` para que
+            no se desborde por los lados, y el contenido en z-10 por encima. */}
+        <section className="relative overflow-hidden border-t border-white/10 px-5 py-24 sm:px-8 md:px-12 md:py-32">
+          <Lightning hue={248} xOffset={-0.55} speed={0.9} intensity={0.85} size={2.2} />
+
+          <div className="relative z-10 grid gap-12 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-16">
             <div>
               <Reveal estirar={false}>
                 <Insignia>Para quien vende</Insignia>
