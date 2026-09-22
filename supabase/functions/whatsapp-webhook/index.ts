@@ -172,8 +172,7 @@ Deno.serve(async (req) => {
   // Meta reintenta si no recibe 200 rápido, y reintentar duplicaría mensajes:
   // se responde ya y se procesa en segundo plano.
   const work = processPayload(payload)
-  // deno-lint-ignore no-explicit-any
-  const runtime = (globalThis as any).EdgeRuntime
+  const runtime = (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime
   if (runtime?.waitUntil) runtime.waitUntil(work)
   return new Response('ok', { status: 200 })
 })

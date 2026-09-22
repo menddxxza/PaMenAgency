@@ -33,6 +33,7 @@ export interface Database {
           name: string
           slug: string
           whatsapp_number: string | null
+          whatsapp_phone_number_id: string | null
           timezone: string
           opening_hours: Record<string, unknown>
           created_at: string
@@ -107,6 +108,7 @@ export interface Database {
           business_id: string
           client_id: string
           status: ConversationStatus
+          last_sender: 'client' | 'bot' | 'staff' | null
           last_message_at: string
           created_at: string
         }

@@ -36,29 +36,40 @@ export function Dashboard() {
   const plan = PLANS[subscription?.plan ?? 'starter']
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients])
 
-  const { upcoming, upcomingCount, todayCount, pendingCount, openConversations, openCount } = useMemo(() => {
-    const now = new Date()
-    const endOfToday = new Date()
-    endOfToday.setHours(23, 59, 59, 999)
+  const { upcoming, upcomingCount, todayCount, pendingCount, openConversations, openCount, awaitingReplyCount } =
+    useMemo(() => {
+      const now = new Date()
+      const endOfToday = new Date()
+      endOfToday.setHours(23, 59, 59, 999)
 
-    const upcomingAll = appointments
-      .filter((a) => (a.status === 'pending' || a.status === 'confirmed') && new Date(a.starts_at) >= now)
-      .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
+      const upcomingAll = appointments
+        .filter((a) => (a.status === 'pending' || a.status === 'confirmed') && new Date(a.starts_at) >= now)
+        .sort((a, b) => a.starts_at.localeCompare(b.starts_at))
 
-    const openAll = conversations.filter((c) => c.status === 'open')
+      const openAll = conversations
+        .filter((c) => c.status === 'open')
+        // Las que esperan respuesta (cliente escribió y nadie contestó) primero,
+        // para verlas sin tener que entrar en Conversaciones ni abrir WhatsApp.
+        .sort((a, b) => {
+          const aPending = a.last_sender === 'client' ? 1 : 0
+          const bPending = b.last_sender === 'client' ? 1 : 0
+          if (aPending !== bPending) return bPending - aPending
+          return b.last_message_at.localeCompare(a.last_message_at)
+        })
 
-    return {
-      // Antes las tarjetas mostraban la longitud de la lista ya recortada a
-      // 5, así que un negocio con 30 citas próximas leía "5". Ahora el
-      // recorte es solo de la vista previa; el contador es el total real.
-      upcoming: upcomingAll.slice(0, PREVIEW_LIMIT),
-      upcomingCount: upcomingAll.length,
-      todayCount: upcomingAll.filter((a) => new Date(a.starts_at) <= endOfToday).length,
-      pendingCount: appointments.filter((a) => a.status === 'pending').length,
-      openConversations: openAll.slice(0, PREVIEW_LIMIT),
-      openCount: openAll.length,
-    }
-  }, [appointments, conversations])
+      return {
+        // Antes las tarjetas mostraban la longitud de la lista ya recortada a
+        // 5, así que un negocio con 30 citas próximas leía "5". Ahora el
+        // recorte es solo de la vista previa; el contador es el total real.
+        upcoming: upcomingAll.slice(0, PREVIEW_LIMIT),
+        upcomingCount: upcomingAll.length,
+        todayCount: upcomingAll.filter((a) => new Date(a.starts_at) <= endOfToday).length,
+        pendingCount: appointments.filter((a) => a.status === 'pending').length,
+        openConversations: openAll.slice(0, PREVIEW_LIMIT),
+        openCount: openAll.length,
+        awaitingReplyCount: openAll.filter((c) => c.last_sender === 'client').length,
+      }
+    }, [appointments, conversations])
 
   const isBrandNew = !loading && appointments.length === 0 && conversations.length === 0 && clients.length === 0
 
@@ -130,6 +141,10 @@ export function Dashboard() {
           <span className="stat-card__value">{openCount}</span>
           <span className="stat-card__label">Conversaciones abiertas</span>
         </div>
+        <div className={`stat-card ${awaitingReplyCount > 0 ? 'stat-card--warning' : ''}`}>
+          <span className="stat-card__value">{awaitingReplyCount}</span>
+          <span className="stat-card__label">Esperando respuesta</span>
+        </div>
         {plan.hasClientes && (
           <div className="stat-card">
             <span className="stat-card__value">{clients.length}</span>
@@ -200,7 +215,10 @@ export function Dashboard() {
                 const client = clientById.get(c.client_id)
                 return (
                   <div className="mini-list__item" key={c.id}>
-                    <span>{client?.name || client?.phone || 'Cliente'}</span>
+                    <span>
+                      {client?.name || client?.phone || 'Cliente'}
+                      {c.last_sender === 'client' && <span className="badge badge--pending" style={{ marginLeft: '0.4rem' }}>Esperando respuesta</span>}
+                    </span>
                     <span className="mini-list__meta">{formatDayLabel(c.last_message_at)}</span>
                   </div>
                 )

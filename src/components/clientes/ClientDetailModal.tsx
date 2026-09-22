@@ -4,6 +4,7 @@ import { useClientDocuments } from '@/hooks/useClientDocuments'
 import { useToast } from '@/context/ToastContext'
 import { Modal } from '@/components/ui/Modal'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { ClientChat } from '@/components/clientes/ClientChat'
 import type { Database } from '@/types/database.types'
 
 type Client = Database['public']['Tables']['clients']['Row']
@@ -113,6 +114,13 @@ export function ClientDetailModal({ client, appointments, serviceById, onClose, 
             Notas
             <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Preferencias, alergias, historial…" />
           </label>
+
+          <div>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Conversación</span>
+            <div style={{ marginTop: '0.5rem' }}>
+              <ClientChat clientId={client.id} />
+            </div>
+          </div>
 
           <div>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>

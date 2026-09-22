@@ -5,8 +5,6 @@ import { useClients } from '@/hooks/useClients'
 import { useToast } from '@/context/ToastContext'
 import { usePageTitle } from '@/hooks/usePageTitle'
 import { sendStaffMessage, toggleConversationStatus } from '@/lib/mutations'
-import { sendWhatsappMessageViaN8n } from '@/lib/n8n'
-import { useTenant } from '@/context/TenantContext'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { SkeletonRows } from '@/components/ui/Skeleton'
 import { IconInbox } from '@/components/layout/NavIcons'
@@ -19,7 +17,6 @@ const SENDER_LABEL: Record<string, string> = {
 
 export function Conversaciones() {
   usePageTitle('Conversaciones')
-  const { activeBusinessId } = useTenant()
   const { conversations, loading } = useConversations()
   const { clients } = useClients()
   const { showToast } = useToast()
@@ -27,11 +24,24 @@ export function Conversaciones() {
   const { messages, loading: loadingMessages } = useMessages(activeId)
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
-  const [deliveryWarning, setDeliveryWarning] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const clientById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients])
   const activeConversation = conversations.find((c) => c.id === activeId) ?? null
+
+  // Última escribió el cliente y nadie (ni el bot) ha contestado todavía: es lo
+  // que hay que mirar primero, para no tener que abrir WhatsApp para saberlo.
+  const sortedConversations = useMemo(
+    () =>
+      [...conversations].sort((a, b) => {
+        const aPending = a.last_sender === 'client' ? 1 : 0
+        const bPending = b.last_sender === 'client' ? 1 : 0
+        if (aPending !== bPending) return bPending - aPending
+        return b.last_message_at.localeCompare(a.last_message_at)
+      }),
+    [conversations],
+  )
+  const pendingCount = conversations.filter((c) => c.last_sender === 'client' && c.status === 'open').length
 
   // Un chat que no baja solo al último mensaje no sirve: los que entraban por
   // Realtime quedaban fuera de pantalla y parecía que no había respuesta.
@@ -46,30 +56,11 @@ export function Conversaciones() {
 
   async function handleSend(e: FormEvent) {
     e.preventDefault()
-    if (!activeId || !activeBusinessId || !draft.trim() || !activeConversation) return
+    if (!activeId || !draft.trim()) return
     setSending(true)
-    setDeliveryWarning(null)
-    const content = draft.trim()
     try {
-      await sendStaffMessage(activeId, content)
+      await sendStaffMessage(activeId, draft.trim())
       setDraft('')
-
-      const phone = clientById.get(activeConversation.client_id)?.phone
-      if (phone) {
-        try {
-          await sendWhatsappMessageViaN8n({
-            businessId: activeBusinessId,
-            conversationId: activeId,
-            phone,
-            content,
-          })
-        } catch {
-          // El mensaje ya quedó guardado en Supabase; si n8n no está
-          // configurado (webhook aún no enlazado) solo avisamos, no
-          // bloqueamos el envío desde el panel.
-          setDeliveryWarning('Guardado en el panel, pero no se ha podido reenviar por WhatsApp (revisa la config. de n8n).')
-        }
-      }
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'No se pudo enviar el mensaje', 'error')
     } finally {
@@ -111,23 +102,34 @@ export function Conversaciones() {
   return (
     <div className="page conversaciones">
       <aside className={`conversaciones__list ${activeConversation ? 'has-active' : ''}`} aria-label="Conversaciones">
+        {pendingCount > 0 && (
+          <p className="conversaciones__pending-hint">
+            {pendingCount} {pendingCount === 1 ? 'conversación espera' : 'conversaciones esperan'} respuesta
+          </p>
+        )}
         {loading && <SkeletonRows rows={6} />}
-        {conversations.map((c) => (
-          <button
-            key={c.id}
-            className={`conversaciones__item ${c.id === activeId ? 'is-active' : ''}`}
-            onClick={() => setActiveId(c.id)}
-            aria-current={c.id === activeId}
-          >
-            <span className="conversaciones__item-top">
-              <span>{clientLabel(c.client_id)}</span>
-              <span className={`badge badge--${c.status}`}>{c.status === 'open' ? 'Abierta' : 'Cerrada'}</span>
-            </span>
-            <span className="conversaciones__item-time">
-              {new Date(c.last_message_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
-            </span>
-          </button>
-        ))}
+        {sortedConversations.map((c) => {
+          const pending = c.last_sender === 'client'
+          return (
+            <button
+              key={c.id}
+              className={`conversaciones__item ${c.id === activeId ? 'is-active' : ''} ${pending ? 'is-pending' : ''}`}
+              onClick={() => setActiveId(c.id)}
+              aria-current={c.id === activeId}
+            >
+              <span className="conversaciones__item-top">
+                <span>{clientLabel(c.client_id)}</span>
+                <span className="conversaciones__item-badges">
+                  {pending && <span className="badge badge--pending">Esperando respuesta</span>}
+                  <span className={`badge badge--${c.status}`}>{c.status === 'open' ? 'Abierta' : 'Cerrada'}</span>
+                </span>
+              </span>
+              <span className="conversaciones__item-time">
+                {new Date(c.last_message_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+              </span>
+            </button>
+          )
+        })}
       </aside>
 
       <section className={`conversaciones__thread ${!activeConversation ? 'is-hidden' : ''}`}>
@@ -166,11 +168,6 @@ export function Conversaciones() {
               <div ref={messagesEndRef} />
             </div>
 
-            {deliveryWarning && (
-              <p className="form-error" style={{ padding: '0 1.1rem' }} role="alert">
-                {deliveryWarning}
-              </p>
-            )}
             <form className="conversaciones__composer" onSubmit={handleSend}>
               <label className="sr-only" htmlFor="composer">
                 Escribe una respuesta

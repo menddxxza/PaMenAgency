@@ -158,6 +158,16 @@ export function Configuracion() {
             />
           </label>
         </div>
+        <p style={{ marginTop: '1rem', marginBottom: 0 }}>
+          <span className={`badge badge--${business?.whatsapp_phone_number_id ? 'confirmed' : 'pending'}`}>
+            {business?.whatsapp_phone_number_id ? 'WhatsApp conectado' : 'WhatsApp pendiente de conexión'}
+          </span>
+          {!business?.whatsapp_phone_number_id && (
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              Escríbenos y conectamos el número de tu negocio; hasta entonces no se pueden enviar ni recibir mensajes.
+            </span>
+          )}
+        </p>
         <div className="modal__footer" style={{ justifyContent: 'flex-start', marginTop: '1rem' }}>
           <button className="btn btn--primary" onClick={handleSaveBusiness} disabled={savingBusiness}>
             {savingBusiness ? 'Guardando…' : 'Guardar datos del negocio'}

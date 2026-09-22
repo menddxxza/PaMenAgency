@@ -51,15 +51,20 @@ export async function updateAppointmentStatus(id: string, status: AppointmentSta
   if (error) throw error
 }
 
+// El envío real (WhatsApp/Telegram) y el guardado del mensaje los hace la Edge
+// Function `send-staff-message`: así el panel solo muestra como enviado lo que
+// el canal ha aceptado, y la pertenencia al negocio se comprueba en servidor.
 export async function sendStaffMessage(conversationId: string, content: string) {
-  const { error } = await supabase.from('messages').insert({
-    conversation_id: conversationId,
-    sender: 'staff',
-    content,
+  const { data, error } = await supabase.functions.invoke('send-staff-message', {
+    body: { conversation_id: conversationId, content },
   })
-  if (error) throw error
-
-  await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId)
+  if (error) {
+    // FunctionsHttpError esconde el motivo real en la respuesta.
+    const response = (error as { context?: Response }).context
+    const detail = response ? await response.json().catch(() => null) : null
+    throw new Error(detail?.error ?? 'No se pudo enviar el mensaje')
+  }
+  if (data?.error) throw new Error(data.error)
 }
 
 export async function toggleConversationStatus(id: string, status: 'open' | 'closed') {

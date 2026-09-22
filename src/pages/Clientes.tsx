@@ -3,6 +3,7 @@ import { useTenant } from '@/context/TenantContext'
 import { useClients } from '@/hooks/useClients'
 import { useAppointments } from '@/hooks/useAppointments'
 import { useServices } from '@/hooks/useServices'
+import { useConversations } from '@/hooks/useConversations'
 import { ClientDetailModal } from '@/components/clientes/ClientDetailModal'
 import { NewClientModal } from '@/components/clientes/NewClientModal'
 import { usePageTitle } from '@/hooks/usePageTitle'
@@ -19,11 +20,22 @@ export function Clientes() {
   const { clients, loading, refresh } = useClients()
   const { appointments } = useAppointments()
   const { services } = useServices()
+  const { conversations } = useConversations()
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<Client | null>(null)
   const [showNew, setShowNew] = useState(false)
 
   const serviceById = useMemo(() => new Map(services.map((s) => [s.id, s])), [services])
+  // Última conversación (si tiene varias) de cada cliente, para saber sin
+  // abrir la ficha si escribió hace poco y si le toca a alguien responder.
+  const conversationByClient = useMemo(() => {
+    const map = new Map<string, (typeof conversations)[number]>()
+    for (const c of conversations) {
+      const current = map.get(c.client_id)
+      if (!current || c.last_message_at > current.last_message_at) map.set(c.client_id, c)
+    }
+    return map
+  }, [conversations])
   const appointmentCountByClient = useMemo(() => {
     const map = new Map<string, number>()
     for (const a of appointments) {
@@ -111,26 +123,39 @@ export function Clientes() {
                   <th>Nombre</th>
                   <th>Teléfono</th>
                   <th>Citas</th>
+                  <th>WhatsApp</th>
                   <th>Cliente desde</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((c) => (
-                  <tr key={c.id}>
-                    <td>{c.name || '—'}</td>
-                    <td>{c.phone}</td>
-                    <td>{appointmentCountByClient.get(c.id) ?? 0}</td>
-                    <td>{new Date(c.created_at).toLocaleDateString('es-ES')}</td>
-                    <td>
-                      <div className="table__actions">
-                        <button className="btn btn--sm" onClick={() => setSelected(c)}>
-                          Ver ficha
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map((c) => {
+                  const conversation = conversationByClient.get(c.id)
+                  return (
+                    <tr key={c.id}>
+                      <td>{c.name || '—'}</td>
+                      <td>{c.phone}</td>
+                      <td>{appointmentCountByClient.get(c.id) ?? 0}</td>
+                      <td>
+                        {!conversation && <span className="badge badge--closed">Sin contactar</span>}
+                        {conversation?.last_sender === 'client' && (
+                          <span className="badge badge--pending">Esperando respuesta</span>
+                        )}
+                        {conversation && conversation.last_sender !== 'client' && (
+                          <span className="badge badge--confirmed">Al día</span>
+                        )}
+                      </td>
+                      <td>{new Date(c.created_at).toLocaleDateString('es-ES')}</td>
+                      <td>
+                        <div className="table__actions">
+                          <button className="btn btn--sm" onClick={() => setSelected(c)}>
+                            {conversation ? 'Ver chat' : 'Ver ficha'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>

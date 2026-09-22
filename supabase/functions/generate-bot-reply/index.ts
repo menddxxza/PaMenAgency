@@ -285,7 +285,7 @@ Deno.serve(async (req) => {
   })
   await supabase
     .from('conversations')
-    .update({ last_message_at: new Date().toISOString() })
+    .update({ last_message_at: new Date().toISOString(), last_sender: 'bot' })
     .eq('id', body.conversation_id)
 
   return new Response(JSON.stringify({ handoff: false, reply }), {
