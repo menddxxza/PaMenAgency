@@ -25,6 +25,21 @@ function normalizeStatus(stripeStatus: string): string {
   return 'incomplete'
 }
 
+// checkout.session.completed vuelve a pedir la suscripción con nuestra
+// versión de API fija (donde current_period_end está en el nivel superior),
+// pero los eventos de webhook llegan serializados con la versión de API por
+// defecto de la cuenta de Stripe — en versiones recientes ese campo vive
+// dentro de cada item de la suscripción en vez de en el nivel superior. Sin
+// esto, una fecha indefinida rompe toISOString() y tira todo el webhook con
+// un 500, dejando la suscripción sin actualizar en nuestra base de datos.
+function extractCurrentPeriodEnd(subscription: Stripe.Subscription): string | null {
+  const topLevel = (subscription as unknown as { current_period_end?: number }).current_period_end
+  const fromItem = (subscription.items.data[0] as unknown as { current_period_end?: number } | undefined)
+    ?.current_period_end
+  const raw = typeof topLevel === 'number' ? topLevel : fromItem
+  return typeof raw === 'number' && Number.isFinite(raw) ? new Date(raw * 1000).toISOString() : null
+}
+
 Deno.serve(async (req) => {
   const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') ?? '', { apiVersion: '2024-06-20' })
   const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? ''
@@ -60,7 +75,7 @@ Deno.serve(async (req) => {
         stripe_subscription_id: subscription.id,
         plan: planFromPriceId(priceId),
         status: normalizeStatus(subscription.status),
-        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        current_period_end: extractCurrentPeriodEnd(subscription),
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'business_id' },

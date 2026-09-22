@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useTenant } from '@/context/TenantContext'
 import { useAuth } from '@/context/AuthContext'
 import { createBusiness } from '@/lib/mutations'
+import { TRIAL_DAYS } from '@/lib/plans'
 
 function slugify(value: string) {
   return value
@@ -38,7 +39,12 @@ export function OnboardingBusiness() {
     <div className="onboarding">
       <form className="login__form" onSubmit={handleSubmit}>
         <h1>Crea tu negocio</h1>
-        <p className="login__hint">Todavía no tienes ningún negocio vinculado a tu cuenta.</p>
+        {/* La prueba arranca al crear el negocio (create_business en
+            0011_free_trial.sql), no al registrarse: conviene decirlo aquí
+            para que nadie crea que ya está corriendo el contador. */}
+        <p className="login__hint">
+          Es el último paso. Al crearlo empiezan tus {TRIAL_DAYS} días gratis con el plan Pro completo.
+        </p>
         <label>
           Nombre del negocio
           <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="All Nails" />

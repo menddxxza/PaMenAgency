@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# SPA con react-router (BrowserRouter): sin esto, Netlify devuelve 404 al
+# entrar directo o refrescar cualquier ruta que no sea "/" (p.ej. /app/citas,
+# /login) porque busca un archivo real en esa ruta en vez de servir index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

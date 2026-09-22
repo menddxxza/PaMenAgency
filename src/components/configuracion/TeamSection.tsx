@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useTenant } from '@/context/TenantContext'
 import { useToast } from '@/context/ToastContext'
 import { listMembers, inviteMember, removeMember, type TeamMember } from '@/lib/team'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { SkeletonRows } from '@/components/ui/Skeleton'
 import type { BusinessRole } from '@/types/database.types'
 
 const ROLE_LABEL: Record<BusinessRole, string> = {
@@ -21,6 +23,7 @@ export function TeamSection({ businessId }: { businessId: string }) {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<BusinessRole>('staff')
   const [inviting, setInviting] = useState(false)
+  const [toRemove, setToRemove] = useState<TeamMember | null>(null)
 
   async function refresh() {
     setLoading(true)
@@ -69,7 +72,7 @@ export function TeamSection({ businessId }: { businessId: string }) {
     <div className="card">
       <h2 className="card__title">Equipo</h2>
 
-      {loading && <p className="empty-state">Cargando…</p>}
+      {loading && <SkeletonRows rows={2} />}
 
       {!loading && members && members.length > 0 && (
         <div className="table-scroll">
@@ -89,7 +92,7 @@ export function TeamSection({ businessId }: { businessId: string }) {
                   {isOwner && (
                     <td>
                       <div className="table__actions">
-                        <button className="btn btn--sm btn--danger" onClick={() => handleRemove(m.id)}>
+                        <button className="btn btn--sm btn--danger" onClick={() => setToRemove(m)}>
                           Quitar
                         </button>
                       </div>
@@ -131,6 +134,20 @@ export function TeamSection({ businessId }: { businessId: string }) {
         <p className="login__hint" style={{ marginTop: '1rem' }}>
           Solo el dueño/a del negocio puede invitar o quitar personas.
         </p>
+      )}
+
+      {toRemove && (
+        <ConfirmDialog
+          title="Quitar del equipo"
+          message={`${toRemove.email} perderá el acceso a este negocio de inmediato. Podrás volver a invitarle cuando quieras.`}
+          confirmLabel="Sí, quitar acceso"
+          danger
+          onCancel={() => setToRemove(null)}
+          onConfirm={async () => {
+            await handleRemove(toRemove.id)
+            setToRemove(null)
+          }}
+        />
       )}
     </div>
   )

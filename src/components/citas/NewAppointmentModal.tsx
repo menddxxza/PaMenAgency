@@ -3,6 +3,7 @@ import { useTenant } from '@/context/TenantContext'
 import { useServices } from '@/hooks/useServices'
 import { useClients } from '@/hooks/useClients'
 import { createAppointment, upsertClient } from '@/lib/mutations'
+import { Modal } from '@/components/ui/Modal'
 
 interface Props {
   onClose: () => void
@@ -71,15 +72,21 @@ export function NewAppointmentModal({ onClose, onCreated }: Props) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <form className="modal" onClick={(e) => e.stopPropagation()} onSubmit={handleSubmit}>
-        <div className="modal__header">
-          <h2>Nueva cita</h2>
-          <button type="button" className="btn btn--ghost btn--sm" onClick={onClose}>
-            ✕
+    <Modal
+      title="Nueva cita"
+      onClose={onClose}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <button type="button" className="btn" onClick={onClose}>
+            Cancelar
           </button>
-        </div>
-
+          <button type="submit" className="btn btn--primary" disabled={submitting}>
+            {submitting ? 'Guardando…' : 'Crear cita'}
+          </button>
+        </>
+      }
+    >
         <div className="form-grid">
           {resolvedMode === 'existing' ? (
             <label>
@@ -152,17 +159,11 @@ export function NewAppointmentModal({ onClose, onCreated }: Props) {
           </label>
         </div>
 
-        {error && <p className="form-error">{error}</p>}
-
-        <div className="modal__footer">
-          <button type="button" className="btn" onClick={onClose}>
-            Cancelar
-          </button>
-          <button type="submit" className="btn btn--primary" disabled={submitting}>
-            {submitting ? 'Guardando…' : 'Crear cita'}
-          </button>
-        </div>
-      </form>
-    </div>
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+    </Modal>
   )
 }

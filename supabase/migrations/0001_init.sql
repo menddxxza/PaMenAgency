@@ -218,6 +218,15 @@ begin
 end;
 $$;
 
+-- security definer salta RLS y no hay forma de comprobar "pertenece este
+-- negocio al que llama" (p_business_id decide en qué negocio se escribe, no
+-- hay sesión de usuario real). Por diseño solo debe invocarla n8n con la
+-- service_role key, así que se restringe el EXECUTE a ese rol: sin esto,
+-- cualquier usuario autenticado podría llamar a supabase.rpc() directamente
+-- e insertar mensajes falsos en la conversación de cualquier otro negocio.
+revoke execute on function handle_inbound_message(uuid, text, text, text, text) from public;
+grant execute on function handle_inbound_message(uuid, text, text, text, text) to service_role;
+
 -- =========================================================
 -- NOTAS
 -- =========================================================

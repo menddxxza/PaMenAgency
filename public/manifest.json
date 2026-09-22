@@ -4,8 +4,9 @@
   "description": "Panel de gestión de citas y conversaciones de WhatsApp con bot IA",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#111827",
-  "theme_color": "#111827",
+  "background_color": "#fdfaf4",
+  "theme_color": "#fdfaf4",
+  "lang": "es-ES",
   "icons": [
     {
       "src": "/icons/icon-192.png",

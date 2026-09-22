@@ -6,10 +6,18 @@ type Message = Database['public']['Tables']['messages']['Row']
 
 export function useMessages(conversationId: string | null) {
   const [messages, setMessages] = useState<Message[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!conversationId) return
+    // Al cambiar de chat había que vaciar primero: si no, durante la carga
+    // se seguían viendo los mensajes de la conversación anterior bajo el
+    // nombre del cliente nuevo.
+    setMessages([])
+
+    if (!conversationId) {
+      setLoading(false)
+      return
+    }
 
     let cancelled = false
     setLoading(true)
@@ -31,7 +39,10 @@ export function useMessages(conversationId: string | null) {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
         (payload) => {
-          setMessages((current) => [...current, payload.new as Message])
+          const next = payload.new as Message
+          // El mensaje del propio panel ya se pintó al enviarlo; sin este
+          // filtro llegaba duplicado por Realtime.
+          setMessages((current) => (current.some((m) => m.id === next.id) ? current : [...current, next]))
         },
       )
       .subscribe()
