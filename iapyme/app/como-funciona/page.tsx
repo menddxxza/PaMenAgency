@@ -42,7 +42,7 @@ const GRUPOS: Grupo[] = [
       {
         pregunta: '¿Qué pasa si el vendedor no responde?',
         respuesta:
-          'Escríbenos a hola@iapymeapp.com con el nombre del producto y te ayudamos a resolverlo.',
+          'Escríbenos a soporte.atiende@gmail.com con el nombre del producto y te ayudamos a resolverlo.',
       },
     ],
   },
@@ -90,7 +90,7 @@ const GRUPOS: Grupo[] = [
       },
       {
         pregunta: '¿Cómo os contacto?',
-        respuesta: 'Escríbenos a hola@iapymeapp.com, respondemos en persona.',
+        respuesta: 'Escríbenos a soporte.atiende@gmail.com, respondemos en persona.',
       },
     ],
   },

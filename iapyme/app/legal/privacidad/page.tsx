@@ -9,14 +9,14 @@ export const metadata = {
 
 export default function PoliticaPrivacidadPage() {
   return (
-    <PaginaLegal titulo="Política de privacidad" actualizado="11 de agosto de 2026">
+    <PaginaLegal titulo="Política de privacidad" actualizado="22 de septiembre de 2026">
       <SeccionLegal titulo="1. Quién es el responsable">
         <p>
           IAPyme (en adelante, &quot;nosotros&quot;) es el responsable del tratamiento de los
           datos personales que se recogen a través de{' '}
           <strong>iapymeapp.com</strong>. Para cualquier consulta sobre privacidad puedes
           escribir a{' '}
-          <a href="mailto:hola@iapymeapp.com">hola@iapymeapp.com</a>.
+          <a href="mailto:soporte.atiende@gmail.com">soporte.atiende@gmail.com</a>.
         </p>
       </SeccionLegal>
 
@@ -87,7 +87,7 @@ export default function PoliticaPrivacidadPage() {
         <p>
           Puedes pedirnos acceder a tus datos, corregirlos, borrarlos, limitarlos u oponerte a
           su uso, escribiendo a{' '}
-          <a href="mailto:hola@iapymeapp.com">hola@iapymeapp.com</a>. También puedes reclamar
+          <a href="mailto:soporte.atiende@gmail.com">soporte.atiende@gmail.com</a>. También puedes reclamar
           ante la Agencia Española de Protección de Datos (aepd.es) si consideras que no hemos
           atendido tu solicitud correctamente.
         </p>

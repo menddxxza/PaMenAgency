@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function TerminosPage() {
   return (
-    <PaginaLegal titulo="Términos y condiciones" actualizado="11 de agosto de 2026">
+    <PaginaLegal titulo="Términos y condiciones" actualizado="22 de septiembre de 2026">
       <SeccionLegal titulo="1. Qué es IAPyme">
         <p>
           IAPyme es un marketplace donde vendedores publican soluciones de IA (automatizaciones,
@@ -39,7 +39,7 @@ export default function TerminosPage() {
         <ul className="list-disc space-y-2 pl-5">
           <li>Debes dar datos veraces al registrarte.</li>
           <li>Eres responsable de la actividad de tu cuenta y de mantener tu contraseña a salvo.</li>
-          <li>Puedes cerrar tu cuenta cuando quieras, escribiendo a hola@iapymeapp.com.</li>
+          <li>Puedes cerrar tu cuenta cuando quieras, escribiendo a soporte.atiende@gmail.com.</li>
         </ul>
       </SeccionLegal>
 

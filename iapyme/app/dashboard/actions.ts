@@ -276,7 +276,7 @@ export async function eliminarCuenta(): Promise<ResultadoAccion> {
   if (!admin) {
     return {
       ok: false,
-      error: 'No se puede completar la baja ahora mismo. Escríbenos a hola@iapymeapp.com.',
+      error: 'No se puede completar la baja ahora mismo. Escríbenos a soporte.atiende@gmail.com.',
     };
   }
 
@@ -284,7 +284,7 @@ export async function eliminarCuenta(): Promise<ResultadoAccion> {
   if (error) {
     return {
       ok: false,
-      error: 'No hemos podido eliminar la cuenta. Escríbenos a hola@iapymeapp.com y lo resolvemos.',
+      error: 'No hemos podido eliminar la cuenta. Escríbenos a soporte.atiende@gmail.com y lo resolvemos.',
     };
   }
 

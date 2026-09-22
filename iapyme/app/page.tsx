@@ -278,10 +278,10 @@ export default async function Home() {
                         <p>
                           Si algo no encaja o el vendedor no responde, escríbenos a{' '}
                           <a
-                            href="mailto:hola@iapymeapp.com"
+                            href="mailto:soporte.atiende@gmail.com"
                             className="text-white underline decoration-white/40 underline-offset-4"
                           >
-                            hola@iapymeapp.com
+                            soporte.atiende@gmail.com
                           </a>
                           .
                         </p>
@@ -364,10 +364,10 @@ export default async function Home() {
                         <p>
                           Si el vendedor no contesta, escríbenos a{' '}
                           <a
-                            href="mailto:hola@iapymeapp.com"
+                            href="mailto:soporte.atiende@gmail.com"
                             className="text-white underline decoration-white/40 underline-offset-4"
                           >
-                            hola@iapymeapp.com
+                            soporte.atiende@gmail.com
                           </a>{' '}
                           con el nombre del producto y lo miramos.
                         </p>
@@ -842,10 +842,10 @@ export default async function Home() {
                       Resumen honesto y con enlace a las políticas completas. Para cualquier
                       duda de privacidad, el correo es{' '}
                       <a
-                        href="mailto:hola@iapymeapp.com"
+                        href="mailto:soporte.atiende@gmail.com"
                         className="text-white underline decoration-white/40 underline-offset-4"
                       >
-                        hola@iapymeapp.com
+                        soporte.atiende@gmail.com
                       </a>
                       .
                     </Parrafo>
@@ -901,7 +901,7 @@ export default async function Home() {
                         <p>
                           <strong className="text-white">Privacidad.</strong> El responsable
                           del tratamiento es IAPyme, a través de iapymeapp.com, con contacto en
-                          hola@iapymeapp.com. Se recogen: datos de cuenta (email; nombre y foto
+                          soporte.atiende@gmail.com. Se recogen: datos de cuenta (email; nombre y foto
                           pública si entras con Google), los datos de la ficha si publicas
                           —que son públicos a propósito—, los mensajes de contacto que envías a
                           un vendedor (nombre, email, teléfono y empresa opcionales, y el
