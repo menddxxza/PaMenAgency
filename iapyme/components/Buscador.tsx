@@ -101,7 +101,7 @@ function BuscadorInterno({ compacto, oscuro }: { compacto: boolean; oscuro: bool
           id="buscador-nav"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar soluciones…"
+          placeholder="Buscar en el marketplace…"
           className="w-full rounded-xl border border-ink/10 bg-ink/[0.03] py-2 pl-9 pr-3 text-sm
                      outline-none transition-[background-color,border-color] duration-fast ease-out
                      placeholder:text-ink/40
@@ -145,7 +145,7 @@ function BuscadorInterno({ compacto, oscuro }: { compacto: boolean; oscuro: bool
               setErrorIA(null);
             }
           }}
-          placeholder="¿Qué quieres automatizar?"
+          placeholder="¿Qué estás buscando?"
           className="min-w-0 flex-1 bg-transparent py-2.5 text-sm text-ink outline-none
                      placeholder:text-ink/40 sm:text-base"
         />

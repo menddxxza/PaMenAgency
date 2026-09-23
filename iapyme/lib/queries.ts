@@ -3,6 +3,7 @@ import { createPublicClient } from '@/lib/supabase/public';
 import type {
   Category,
   ProductoConRelaciones,
+  ProductType,
   Profile,
   ResenaConAutor,
 } from '@/lib/database.types';
@@ -22,7 +23,17 @@ export type FiltrosCatalogo = {
   precioMax?: number;
   minutosMax?: number;
   idioma?: 'es' | 'en';
-  orden?: 'recientes' | 'vistos' | 'baratos';
+  orden?: 'recientes' | 'vistos' | 'baratos' | 'valorados';
+  /** Tipos de publicación, normalmente los de una familia entera. */
+  tipos?: ProductType[];
+  /**
+   * Provincia normalizada. La columna llega con la migración 0006: si todavía
+   * no se ha ejecutado, este filtro concreto no devuelve nada, pero el resto
+   * del catálogo sigue funcionando.
+   */
+  provincia?: string;
+  /** Nota media mínima, de 1 a 5. */
+  valoracionMin?: number;
 };
 
 /**
@@ -90,6 +101,9 @@ export async function getProductos(
   if (filtros.idioma) consulta = consulta.eq('idioma_producto', filtros.idioma);
   if (filtros.minutosMax) consulta = consulta.lte('minutos_instalacion', filtros.minutosMax);
   if (filtros.precioMax) consulta = consulta.lte('precio_setup', filtros.precioMax);
+  if (filtros.tipos?.length) consulta = consulta.in('product_type', filtros.tipos);
+  if (filtros.provincia) consulta = consulta.eq('provincia', filtros.provincia);
+  if (filtros.valoracionMin) consulta = consulta.gte('rating_promedio', filtros.valoracionMin);
 
   switch (filtros.orden) {
     case 'vistos':
@@ -97,6 +111,13 @@ export async function getProductos(
       break;
     case 'baratos':
       consulta = consulta.order('precio_setup', { ascending: true });
+      break;
+    case 'valorados':
+      // Primero la nota, y a igual nota la que tenga más reseñas: un 5,0 con
+      // una sola opinión no debería ganarle a un 4,8 con cuarenta.
+      consulta = consulta
+        .order('rating_promedio', { ascending: false })
+        .order('rating_total', { ascending: false });
       break;
     default:
       consulta = consulta.order('published_at', { ascending: false, nullsFirst: false });
@@ -280,6 +301,28 @@ export async function getConteoPorCategoria(): Promise<Record<string, number>> {
   for (const fila of data ?? []) {
     const id = (fila as { category_id: string }).category_id;
     conteo[id] = (conteo[id] ?? 0) + 1;
+  }
+  return conteo;
+}
+
+/**
+ * Cuántas publicaciones hay de cada `product_type`. Una sola consulta y el
+ * recuento en memoria, igual que el de categorías: PostgREST no agrupa, y
+ * seis consultas —una por familia— para pintar seis números no compensa.
+ */
+export async function getConteoPorTipo(): Promise<Record<string, number>> {
+  const supabase = createPublicClient();
+  if (!supabase) return {};
+
+  const { data } = await supabase
+    .from('products')
+    .select('product_type')
+    .eq('status', 'published');
+
+  const conteo: Record<string, number> = {};
+  for (const fila of data ?? []) {
+    const tipo = (fila as { product_type: string }).product_type;
+    conteo[tipo] = (conteo[tipo] ?? 0) + 1;
   }
   return conteo;
 }

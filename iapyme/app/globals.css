@@ -18,14 +18,11 @@
 
 @layer base {
   :root {
-    /* Las familias reales las inyecta next/font desde app/layout.tsx.
-       Estos son los respaldos si la fuente no llega a cargar. Una sola
-       familia real (Inter) para display y cuerpo — --font-display no
-       carga nada aparte, solo reutiliza --font-sans para que el resto del
-       sistema pueda seguir marcando el rol tipográfico sin que existan dos
-       fuentes físicas distintas. */
+    /* Las familias reales las inyecta next/font desde app/layout.tsx. Estos
+       son los respaldos si la fuente no llega a cargar. Ahora display es una
+       familia propia (Instrument Sans), no un alias de --font-sans. */
     --font-sans: ui-sans-serif, system-ui, sans-serif;
-    --font-display: var(--font-sans);
+    --font-display: ui-sans-serif, system-ui, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, monospace;
 
     --dur-fast: 140ms;
@@ -49,7 +46,15 @@
   }
 
   body {
-    @apply bg-white font-sans text-ink antialiased;
+    @apply bg-superficie-50 font-sans text-ink antialiased;
+  }
+
+  /* Hueco para la barra inferior de móvil. Sin esto tapa lo último de cada
+     página —justo donde suele estar el botón que cierra la tarea—. */
+  @media (max-width: 767px) {
+    body {
+      padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+    }
   }
 
   /* Los titulares nunca desbordan en móvil aunque lleven una palabra larga. */

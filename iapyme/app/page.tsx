@@ -3,315 +3,193 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Buscador from '@/components/Buscador';
 import ProductoCard from '@/components/ProductoCard';
-import AvisoSinSupabase from '@/components/AvisoSinSupabase';
-import Reveal from '@/components/Reveal';
-import Icono, { type NombreIcono } from '@/components/Icono';
-import Estrellas from '@/components/Estrellas';
-import ConstellationHeroLazy from '@/components/ConstellationHeroLazy';
-import { getCategorias, getConteoPorCategoria, getDestacados, getProductos } from '@/lib/queries';
-import { supabaseConfigurado } from '@/lib/supabase/config';
-import { precioResumido, tiempoInstalacion } from '@/lib/formato';
+import Icono from '@/components/Icono';
+import EstadoVacio from '@/components/ui/EstadoVacio';
+import { FAMILIAS } from '@/lib/tipos-publicacion';
+import { getCategorias, getConteoPorCategoria, getProductos } from '@/lib/queries';
 import type { ProductoConRelaciones } from '@/lib/database.types';
 
-export const revalidate = 60;
+export const metadata = {
+  title: 'IAPyme · El marketplace de la IA aplicada',
+  description:
+    'Descubre soluciones de IA, servicios, negocios, profesionales, trabajos y proyectos. Publicar es gratis y el trato es directo entre las dos partes.',
+  alternates: { canonical: '/' },
+};
 
-const VENTAJAS: { icono: NombreIcono; titulo: string; texto: string }[] = [
-  {
-    icono: 'ficha',
-    titulo: 'Ficha técnica, no un anuncio',
-    texto:
-      'Qué hace, qué necesitas tener, cuánto tarda en estar listo y cuánto cuesta. Escrito antes de que preguntes.',
-  },
-  {
-    icono: 'rayo',
-    titulo: 'Funcionando el mismo día',
-    texto:
-      'La mayoría de soluciones se instalan en menos de una hora. Sin proyecto, sin consultoría, sin reuniones.',
-  },
-  {
-    icono: 'idioma',
-    titulo: 'En español, para pymes de aquí',
-    texto:
-      'Vendedores hispanohablantes, integraciones con el software que ya usas y soporte en tu idioma.',
-  },
-];
+export const revalidate = 120;
 
 export default async function Home() {
-  const [categorias, conteo, destacados, recientes] = await Promise.all([
+  const [categorias, conteo, recientes, masVistos, mejorValorados] = await Promise.all([
     getCategorias(),
     getConteoPorCategoria(),
-    getDestacados(4),
     getProductos({ orden: 'recientes' }, 8),
+    getProductos({ orden: 'vistos' }, 4),
+    getProductos({ orden: 'valorados' }, 4),
   ]);
 
-  const hayCatalogo = destacados.length > 0 || recientes.length > 0;
-  // Cifras reales del catálogo. Nada inventado: si están a cero, no se muestran.
-  const totalSoluciones = Object.values(conteo).reduce((suma, n) => suma + n, 0);
+  const hayCatalogo = recientes.length > 0;
+  const conValoracion = mejorValorados.filter((p) => p.rating_total > 0);
 
   return (
     <>
       <Header />
 
       <main>
-        {/* ---- Portada: fondo oscuro a todo lo ancho (mismo tono que el
-            footer y "entrar" — no es un color nuevo en el sistema), titular
-            arriba, catálogo real como franja horizontal debajo. Red de nodos
-            (Canvas 2D, reacciona al cursor) como textura de fondo de toda la
-            sección — decorativa, aria-hidden, se omite entero con
-            prefers-reduced-motion. Ya no hay columna aparte para una figura:
-            desde que el motivo es un fondo y no un objeto en primer plano,
-            el titular vuelve a ocupar el ancho simple que tenía antes de la
-            pieza 3D. ---- */}
-        <section className="relative overflow-hidden border-b border-ink/10 bg-ink text-white">
-          <ConstellationHeroLazy className="absolute inset-0 z-0 h-full w-full" />
+        {/* ---- Entrada: qué es esto y a qué has venido ---- */}
+        <section className="border-b border-superficie-200 bg-superficie-0">
+          {/* Entrada corta a propósito: en un marketplace lo que convierte es
+              el catálogo, así que el titular cede sitio para que el feed
+              empiece cuanto antes. */}
+          <div className="container-page py-9 sm:py-12">
+            <h1 className="max-w-[24ch] font-display text-[1.75rem] font-semibold leading-[1.1] tracking-[-0.03em] text-ink sm:text-4xl">
+              Descubre lo que necesitas.{' '}
+              <span className="text-ink/45">Publica lo que sabes hacer.</span>
+            </h1>
 
-          <div className="container-page relative z-10 py-14 sm:py-20 lg:py-24">
-            <div className="max-w-2xl">
-              {/* 17ch parte el titular en dos líneas limpias en vez de dejar
-                  "usar" huérfano en una tercera. */}
-              <h1 className="max-w-[15ch] text-display font-semibold">
-                Soluciones de IA listas para usar
-              </h1>
+            <p className="mt-3 max-w-[54ch] leading-relaxed text-ink/65">
+              El marketplace de la IA aplicada: soluciones ya construidas, servicios,
+              profesionales y negocios. Sin comisión, y el trato lo cerráis vosotros.
+            </p>
 
-              <p className="mt-5 max-w-[42ch] text-lg leading-relaxed text-white/70">
-                Automatizaciones, agentes y bots hechos por otras pymes españolas.
-                Instalación en horas, no en proyectos de meses.
-              </p>
-
-              <div className="mt-9 max-w-xl">
-                <Buscador oscuro />
-              </div>
-
-              {/* Franja de cifras decorativa, no una lista de datos real:
-                  por eso son <div>/<span> planos y no <dl>. */}
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/60">
-                <span className="flex items-baseline gap-1.5">
-                  <span className="dato font-semibold text-white">{categorias.length}</span>
-                  sectores
-                </span>
-                <span aria-hidden className="h-3 w-px bg-white/15" />
-                <span className="flex items-baseline gap-1.5">
-                  <span className="dato font-semibold text-white">0%</span>
-                  comisión
-                </span>
-                {totalSoluciones > 0 ? (
-                  <>
-                    <span aria-hidden className="h-3 w-px bg-white/15" />
-                    <span className="flex items-baseline gap-1.5">
-                      <span className="dato font-semibold text-white">{totalSoluciones}</span>
-                      {totalSoluciones === 1 ? 'solución' : 'soluciones'}
-                    </span>
-                  </>
-                ) : null}
-              </div>
-
-              <p className="mt-6 text-sm text-white/70">
-                ¿Tienes algo que vender?{' '}
-                <Link
-                  href="/entrar?registro=1"
-                  className="font-medium text-white underline decoration-white/30
-                             decoration-1 underline-offset-4
-                             transition-colors duration-fast ease-out hover:text-brand-300
-                             hover:decoration-brand-300"
-                >
-                  Publícalo gratis
-                </Link>
-              </p>
+            <div className="mt-6 max-w-2xl">
+              <Buscador />
             </div>
 
-            {/* Escaparate real: el propio catálogo, no una maqueta. Franja
-                horizontal a todo lo ancho, no una tarjeta flotante — sigue
-                siendo el mismo componente del hero, solo que ahora se lee
-                como continuación de la página, no como un widget aparte. Si
-                todavía no hay nada publicado, el hueco lo dice tal cual —
-                nunca una cifra o una ficha inventada. */}
-            <Reveal delay={80}>
-              <EscaparateProducto productos={recientes} />
-            </Reveal>
-          </div>
-        </section>
-
-        {/* ---- Sectores ---- */}
-        <section className="border-b border-ink/10 py-20 lg:py-28">
-          <div className="container-page">
-            <Reveal>
-              <p className="eyebrow">Categorías</p>
-              <h2 className="mt-3 max-w-[22ch] text-2xl font-medium tracking-tight text-ink sm:text-3xl">
-                Explora por sector
-              </h2>
-              <p className="mt-3 max-w-[48ch] text-ink/60">
-                Una clínica dental no busca un agente conversacional. Busca dejar de perder
-                llamadas.
-              </p>
-            </Reveal>
-
-            {/* Índice, no retícula: numeración editorial en dos columnas, con
-                una sola regla horizontal por fila en vez de una caja por
-                categoría. Nada de líneas verticales ni celdas iguales. */}
-            <ul className="mt-12 sm:grid sm:grid-cols-2 sm:gap-x-12">
-              {categorias.map((categoria, i) => (
-                <li
-                  key={categoria.slug}
-                  className={
-                    i === 0
-                      ? '' // primera fila, primera columna: nunca lleva regla arriba
-                      : i === 1
-                        ? 'border-t border-ink/10 sm:border-t-0' // primera fila en desktop, pero segundo en móvil apilado
-                        : 'border-t border-ink/10'
-                  }
-                >
-                  <Reveal delay={Math.min(i, 6) * 40}>
-                    <Link
-                      href={`/categoria/${categoria.slug}`}
-                      className="group flex items-baseline gap-5 py-6
-                                 focus:outline-none focus-visible:relative focus-visible:z-10
-                                 focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:rounded-sm"
-                    >
-                      <span className="dato shrink-0 text-sm text-ink/60" aria-hidden>
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2.5">
-                          <span className="text-lg" aria-hidden>
-                            {categoria.icono}
-                          </span>
-                          <h3 className="font-display text-lg font-semibold tracking-[-0.01em] leading-snug text-ink transition-colors duration-fast ease-out group-hover:text-brand-700">
-                            {categoria.nombre}
-                          </h3>
-                        </span>
-                        <p className="mt-1.5 max-w-[38ch] text-sm leading-relaxed text-ink/60">
-                          {categoria.descripcion}
-                        </p>
-                        {conteo[categoria.id] ? (
-                          <p className="mt-2 text-xs text-ink/60">
-                            {conteo[categoria.id]}{' '}
-                            {conteo[categoria.id] === 1 ? 'solución' : 'soluciones'}
-                          </p>
-                        ) : null}
-                      </span>
-
-                      <Icono
-                        nombre="flecha"
-                        className="h-4 w-4 shrink-0 self-center text-ink/20
-                                   transition-transform duration-base ease-out
-                                   group-hover:translate-x-1 group-hover:text-brand-600"
-                      />
-                    </Link>
-                  </Reveal>
+            <ul className="mt-5 flex flex-wrap gap-2">
+              {FAMILIAS.map((familia) => (
+                <li key={familia.slug}>
+                  <Link
+                    href={`/explorar/${familia.slug}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-superficie-200
+                               bg-superficie-0 px-3 py-1.5 text-sm text-ink/75 transition-colors
+                               duration-fast ease-out hover:border-superficie-300 hover:bg-superficie-100
+                               hover:text-ink focus:outline-none focus-visible:ring-2
+                               focus-visible:ring-brand-500"
+                  >
+                    <Icono nombre={familia.icono} className="h-4 w-4 text-ink/45" />
+                    {familia.nombre}
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
         </section>
 
-        {/* ---- Catálogo ---- */}
-        {!supabaseConfigurado() ? (
-          <section className="py-20">
-            <div className="container-page max-w-2xl">
-              <AvisoSinSupabase que="El catálogo" />
-            </div>
+        {hayCatalogo ? (
+          <>
+            {masVistos.length > 0 ? (
+              <Tira
+                titulo="Lo que más se está mirando"
+                pie="Ordenado por visitas reales de la última semana, no por quién paga más."
+                enlace={{ href: '/buscar?orden=vistos', texto: 'Ver más' }}
+                publicaciones={masVistos}
+              />
+            ) : null}
+
+            <Tira
+              titulo="Recién publicado"
+              enlace={{ href: '/buscar', texto: 'Ver todo el catálogo' }}
+              publicaciones={recientes}
+            />
+
+            {conValoracion.length > 0 ? (
+              <Tira
+                titulo="Mejor valorado"
+                pie="Nota media de las reseñas de gente que lo ha contratado."
+                enlace={{ href: '/buscar?orden=valorados', texto: 'Ver más' }}
+                publicaciones={conValoracion}
+              />
+            ) : null}
+          </>
+        ) : (
+          <section className="container-page py-14">
+            <EstadoVacio
+              icono={<Icono nombre="explorar" className="h-8 w-8" />}
+              titulo="El marketplace está arrancando"
+              texto="Todavía no hay nada publicado. Si tienes una solución, un servicio o un negocio de IA, ahora mismo eres el primero en la portada."
+              accion={{ href: '/publicar', texto: 'Publicar el primero' }}
+            />
           </section>
-        ) : !hayCatalogo ? (
-          <section className="py-24 lg:py-32">
-            <div className="container-page max-w-xl">
-              <p className="eyebrow">Catálogo</p>
-              <h2 className="mt-3 text-2xl font-medium tracking-tight text-ink sm:text-3xl">
-                El catálogo está empezando
+        )}
+
+        {/* ---- Sectores ---- */}
+        <section className="border-t border-superficie-200 py-12 sm:py-16">
+          <div className="container-page">
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+                Por sector
               </h2>
-              <p className="mt-4 max-w-[48ch] leading-relaxed text-ink/60">
-                Todavía no hay soluciones publicadas. Si tienes una automatización, un
-                agente o un bot que funcione, este es el mejor momento para publicarlo: los
-                primeros vendedores salen destacados en portada.
+              <Link
+                href="/explorar"
+                className="text-sm font-medium text-brand-700 transition-colors duration-fast
+                           ease-out hover:text-brand-800 focus:outline-none focus-visible:rounded-sm
+                           focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                Explorar todo
+              </Link>
+            </div>
+
+            <p className="mt-2 max-w-[52ch] text-sm text-ink/60">
+              Una clínica no busca un agente conversacional: busca dejar de perder llamadas.
+            </p>
+
+            <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {categorias.map((categoria) => (
+                <li key={categoria.slug}>
+                  <Link
+                    href={`/categoria/${categoria.slug}`}
+                    className="flex h-full flex-col gap-2 rounded-xl border border-superficie-200
+                               bg-superficie-0 p-4 transition-colors duration-fast ease-out
+                               hover:border-superficie-300 hover:bg-superficie-50
+                               focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  >
+                    <span aria-hidden className="text-xl">
+                      {categoria.icono}
+                    </span>
+                    <span className="text-sm font-medium leading-snug text-ink">
+                      {categoria.nombre}
+                    </span>
+                    {conteo[categoria.id] ? (
+                      <span className="dato mt-auto text-xs text-ink/50">
+                        {conteo[categoria.id]}
+                      </span>
+                    ) : null}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ---- Publicar ---- */}
+        <section className="border-t border-superficie-200 bg-superficie-0 py-12 sm:py-16">
+          <div className="container-page grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-16">
+            <div>
+              <h2 className="max-w-[18ch] font-display text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
+                Súbelo una vez. Véndelo mil.
+              </h2>
+              <p className="mt-4 max-w-[50ch] leading-relaxed text-ink/65">
+                Publicar es gratis y no cobramos comisión. Tú pones el precio, tú cierras el
+                trato y tú cobras como prefieras.
               </p>
-              <Link href="/entrar?registro=1" className="btn-primary mt-8">
-                Publicar el primero
+              <Link href="/publicar" className="btn-primary mt-6">
+                Publicar
                 <Icono nombre="flecha" className="h-4 w-4" />
               </Link>
             </div>
-          </section>
-        ) : (
-          <>
-            {destacados.length > 0 ? (
-              <section className="py-20 lg:py-28">
-                <div className="container-page">
-                  <Reveal>
-                    <div className="flex flex-wrap items-baseline justify-between gap-4">
-                      <div>
-                        <p className="eyebrow">Selección</p>
-                        <h2 className="mt-3 text-2xl font-medium tracking-tight text-ink sm:text-3xl">
-                          Destacados
-                        </h2>
-                      </div>
-                      <Link
-                        href="/buscar"
-                        className="group inline-flex items-center gap-1.5 text-sm font-medium
-                                   text-ink/60 transition-colors duration-fast ease-out
-                                   hover:text-brand-700"
-                      >
-                        Ver todo
-                        <Icono
-                          nombre="flecha"
-                          className="h-4 w-4 transition-transform duration-base ease-out
-                                     group-hover:translate-x-1"
-                        />
-                      </Link>
-                    </div>
-                  </Reveal>
 
-                  <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {destacados.map((producto, i) => (
-                      <Reveal key={producto.id} delay={Math.min(i, 4) * 60} className="h-full">
-                        <ProductoCard producto={producto} />
-                      </Reveal>
-                    ))}
-                  </div>
+            <dl className="grid gap-px overflow-hidden rounded-xl border border-superficie-200 bg-superficie-200 sm:grid-cols-3 lg:grid-cols-1">
+              {[
+                { dato: '0 €', texto: 'por publicar y por vender' },
+                { dato: `${categorias.length}`, texto: 'sectores donde encajar tu ficha' },
+                { dato: 'Revisada', texto: 'cada publicación, antes de salir' },
+              ].map((fila) => (
+                <div key={fila.texto} className="bg-superficie-0 px-4 py-3.5">
+                  <dt className="dato text-lg font-semibold text-ink">{fila.dato}</dt>
+                  <dd className="text-sm text-ink/60">{fila.texto}</dd>
                 </div>
-              </section>
-            ) : null}
-
-            {recientes.length > 0 ? (
-              <section className="border-t border-ink/10 py-20 lg:py-28">
-                <div className="container-page">
-                  <Reveal>
-                    <p className="eyebrow">Novedades</p>
-                    <h2 className="mt-3 text-2xl font-medium tracking-tight text-ink sm:text-3xl">
-                      Recién publicadas
-                    </h2>
-                  </Reveal>
-
-                  <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    {recientes.map((producto, i) => (
-                      <Reveal key={producto.id} delay={Math.min(i, 4) * 60} className="h-full">
-                        <ProductoCard producto={producto} />
-                      </Reveal>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            ) : null}
-          </>
-        )}
-
-        {/* ---- Por qué aquí ---- */}
-        <section className="border-t border-ink/10 py-24 lg:py-32">
-          <div className="container-page grid gap-12 md:grid-cols-3 md:gap-10">
-            {VENTAJAS.map((bloque, i) => (
-              <Reveal key={bloque.titulo} delay={i * 80}>
-                <div className="group">
-                  <Icono
-                    nombre={bloque.icono}
-                    className="h-6 w-6 text-brand-600 transition-transform duration-base ease-out group-hover:-translate-y-0.5"
-                  />
-                  <h3 className="mt-5 font-display text-lg font-semibold tracking-[-0.01em] text-ink">
-                    {bloque.titulo}
-                  </h3>
-                  <p className="mt-2 max-w-[36ch] text-sm leading-relaxed text-ink/60">
-                    {bloque.texto}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
+              ))}
+            </dl>
           </div>
         </section>
       </main>
@@ -322,100 +200,48 @@ export default async function Home() {
 }
 
 /**
- * El escaparate del hero es el propio catálogo, no una maqueta ilustrativa:
- * mismos datos que ve cualquiera en /buscar (precio, tiempo de instalación,
- * valoración), solo que aquí van los 3 más recientes. Sin cifras inventadas
- * — si el catálogo está vacío, el hueco lo dice tal cual.
+ * Tira horizontal del feed. Todas las secciones de descubrimiento usan esta
+ * misma forma para que la portada se lea como una sola lista larga y no como
+ * bloques inconexos, cada uno con su estilo.
  */
-function EscaparateProducto({ productos }: { productos: ProductoConRelaciones[] }) {
-  const items = productos.slice(0, 3);
-
+function Tira({
+  titulo,
+  pie,
+  enlace,
+  publicaciones,
+}: {
+  titulo: string;
+  pie?: string;
+  enlace: { href: string; texto: string };
+  publicaciones: ProductoConRelaciones[];
+}) {
   return (
-    <div className="mt-14 border-t border-white/10 pt-10 sm:mt-16 sm:pt-12">
-      <div className="flex items-center justify-between">
-        <p className="dato text-xs font-medium text-white/50">Catálogo</p>
-        {items.length > 0 ? (
-          <span className="flex items-center gap-1.5 text-xs text-white/50">
-            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent-400" />
-            recién publicadas
-          </span>
-        ) : (
+    <section className="border-t border-superficie-200 py-10 sm:py-12">
+      <div className="container-page">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <h2 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+            {titulo}
+          </h2>
           <Link
-            href="/entrar?registro=1"
-            className="group inline-flex items-center gap-1.5 text-xs font-medium text-white/70
-                       transition-colors duration-fast ease-out hover:text-white"
+            href={enlace.href}
+            className="text-sm font-medium text-brand-700 transition-colors duration-fast ease-out
+                       hover:text-brand-800 focus:outline-none focus-visible:rounded-sm
+                       focus-visible:ring-2 focus-visible:ring-brand-500"
           >
-            Publicar el primero
-            <Icono
-              nombre="flecha"
-              className="h-3 w-3 transition-transform duration-base ease-out group-hover:translate-x-1"
-            />
+            {enlace.texto}
           </Link>
-        )}
-      </div>
+        </div>
 
-      {items.length > 0 ? (
-        <ul className="mt-5 grid gap-3 sm:grid-cols-3">
-          {items.map((producto) => {
-            const precio = precioResumido(producto);
-            return (
-              <li key={producto.id}>
-                <Link
-                  href={`/p/${producto.slug}`}
-                  className="group block rounded-lg border border-white/10 bg-white/[0.04] p-4
-                             transition-colors duration-fast ease-out hover:border-white/20 hover:bg-white/[0.07]
-                             focus:outline-none focus-visible:relative focus-visible:z-10
-                             focus-visible:ring-2 focus-visible:ring-brand-400"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-base"
-                      aria-hidden
-                    >
-                      {producto.categories?.icono ?? '·'}
-                    </span>
-                    <span className="dato shrink-0 text-sm font-medium text-white">
-                      {precio.principal}
-                    </span>
-                  </div>
+        {pie ? <p className="mt-2 max-w-[56ch] text-sm text-ink/60">{pie}</p> : null}
 
-                  <p className="mt-3 flex items-center gap-2">
-                    <span className="truncate font-display text-[15px] font-medium text-white transition-colors duration-fast ease-out group-hover:text-brand-300">
-                      {producto.titulo}
-                    </span>
-                    {producto.rating_total > 0 ? (
-                      <Estrellas puntuacion={producto.rating_promedio} tamano="text-[0.65rem]" />
-                    ) : null}
-                  </p>
-                  <p className="mt-1 flex items-center gap-2 text-xs text-white/55">
-                    <span className="truncate">{producto.categories?.nombre}</span>
-                    <span aria-hidden>·</span>
-                    <span className="shrink-0">{tiempoInstalacion(producto.minutos_instalacion)}</span>
-                  </p>
-                </Link>
-              </li>
-            );
-          })}
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {publicaciones.map((publicacion) => (
+            <li key={publicacion.id}>
+              <ProductoCard producto={publicacion} />
+            </li>
+          ))}
         </ul>
-      ) : (
-        <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-white/55">
-          Todavía no hay nada publicado. Los primeros vendedores salen destacados aquí mismo.
-        </p>
-      )}
-
-      {items.length > 0 ? (
-        <Link
-          href="/buscar"
-          className="group mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-white/70
-                     transition-colors duration-fast ease-out hover:text-white"
-        >
-          Ver el catálogo completo
-          <Icono
-            nombre="flecha"
-            className="h-3.5 w-3.5 transition-transform duration-base ease-out group-hover:translate-x-1"
-          />
-        </Link>
-      ) : null}
-    </div>
+      </div>
+    </section>
   );
 }

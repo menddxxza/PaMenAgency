@@ -1,19 +1,33 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Inter, JetBrains_Mono } from 'next/font/google';
+import { Inter, Instrument_Sans, JetBrains_Mono } from 'next/font/google';
 import FavoritosProvider from '@/components/FavoritosProvider';
+import NavInferior from '@/components/NavInferior';
 import './globals.css';
 
-// Una sola familia para display y cuerpo — Inter, con más peso y tracking
-// negativo en los titulares en vez de una segunda tipografía "de marca".
-// next/font solo necesita cargar el archivo una vez; --font-display y
-// --font-sans apuntan al mismo valor (ver globals.css) para que el resto
-// del sistema pueda seguir distinguiendo el rol sin que sean fuentes
-// distintas de verdad. JetBrains Mono queda como el tercer rol, solo para
-// cifras y datos.
+// Tres roles, tres familias, cada una por un motivo:
+//
+// Inter para interfaz y texto corrido. Es la que mejor aguanta tamaños
+// pequeños y densidad, que es lo que tiene un marketplace: listados, filtros,
+// fichas.
+//
+// Instrument Sans para titulares. Antes display y cuerpo eran la misma fuente,
+// y el resultado era correcto pero anónimo: se parecía a cualquier producto
+// hecho con Inter. Esta grotesca es algo más estrecha y tiene formas propias
+// (la 'a', la 'g'), así que da voz a la marca sin recurrir a una fuente
+// decorativa.
+//
+// JetBrains Mono solo para cifras: precios, contadores, datos que se comparan
+// en columna y necesitan ancho fijo.
 const sans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
+});
+
+const display = Instrument_Sans({
+  subsets: ['latin'],
+  variable: '--font-display',
   display: 'swap',
 });
 
@@ -82,9 +96,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${sans.variable} ${mono.variable}`}>
+    <html lang="es" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <body>
-        <FavoritosProvider>{children}</FavoritosProvider>
+        <FavoritosProvider>
+          {children}
+          <NavInferior />
+        </FavoritosProvider>
         {plausibleDomain ? (
           <Script
             defer

@@ -14,6 +14,37 @@ const config: Config = {
           DEFAULT: 'oklch(17.7% 0.034 269.6 / <alpha-value>)',
           soft: 'oklch(22.5% 0.050 268.8 / <alpha-value>)',
         },
+        /**
+         * Grises del marketplace. Comparten el tono del `ink` (269.6) con muy
+         * poco croma: no son neutros puros, así que conviven con el azul de
+         * marca sin que ninguno parezca sucio al lado del otro.
+         *
+         * La interfaz tiene que funcionar solo con esta escala. El azul entra
+         * después, y únicamente donde hay una acción.
+         */
+        superficie: {
+          0: 'oklch(100% 0 0 / <alpha-value>)',
+          50: 'oklch(98.4% 0.002 269.6 / <alpha-value>)',
+          100: 'oklch(96.6% 0.003 269.6 / <alpha-value>)',
+          200: 'oklch(93.2% 0.004 269.6 / <alpha-value>)',
+          300: 'oklch(88.4% 0.006 269.6 / <alpha-value>)',
+        },
+        /** Semánticos: solo para estado, nunca como decoración. */
+        exito: {
+          50: 'oklch(96.5% 0.028 168.6 / <alpha-value>)',
+          600: 'oklch(56.0% 0.118 168.6 / <alpha-value>)',
+          700: 'oklch(47.5% 0.100 168.6 / <alpha-value>)',
+        },
+        aviso: {
+          50: 'oklch(97.0% 0.035 85.0 / <alpha-value>)',
+          600: 'oklch(64.0% 0.140 68.0 / <alpha-value>)',
+          700: 'oklch(52.0% 0.120 63.0 / <alpha-value>)',
+        },
+        peligro: {
+          50: 'oklch(96.5% 0.022 20.0 / <alpha-value>)',
+          600: 'oklch(56.0% 0.208 24.5 / <alpha-value>)',
+          700: 'oklch(48.0% 0.190 25.5 / <alpha-value>)',
+        },
         brand: {
           50: 'oklch(96.6% 0.016 262.8 / <alpha-value>)',
           100: 'oklch(92.4% 0.036 265.1 / <alpha-value>)',

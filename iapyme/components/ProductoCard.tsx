@@ -1,155 +1,124 @@
-'use client';
-
-import { useRef } from 'react';
 import Link from 'next/link';
-import Icono from './Icono';
 import Estrellas from './Estrellas';
 import BotonFavorito from './BotonFavorito';
+import Avatar from './ui/Avatar';
+import Distintivo from './ui/Distintivo';
 import type { ProductoConRelaciones } from '@/lib/database.types';
-import { precioResumido, tiempoInstalacion } from '@/lib/formato';
+import { NOMBRE_TIPO, precioResumido, tiempoInstalacion } from '@/lib/formato';
 
-// Se lee una sola vez por sesión de navegador, no en cada render.
-const prefiereMovimientoReducido =
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
+/**
+ * Tarjeta de publicación: la pieza que más se repite del marketplace, así que
+ * manda ella sobre el resto del sistema.
+ *
+ * Tres decisiones que la gobiernan:
+ *
+ * 1. Jerarquía en cuatro niveles y punto: imagen, título, precio, vendedor.
+ *    Todo lo demás (tipo, tiempo de instalación, valoración) es secundario y
+ *    se queda en gris. Un listado donde todo pesa igual no se escanea.
+ * 2. Sin inclinación al pasar el cursor. La versión anterior se ladeaba
+ *    siguiendo el ratón; en una retícula de doce tarjetas eso es ruido, y
+ *    obligaba a que fuera componente de cliente. Ahora se renderiza en el
+ *    servidor y solo el corazón lleva JavaScript.
+ * 3. El hueco sin foto no se disimula. Se pinta el icono de la categoría
+ *    sobre color plano en vez de una imagen de archivo genérica.
+ */
 export default function ProductoCard({ producto }: { producto: ProductoConRelaciones }) {
   const precio = precioResumido(producto);
-  const tarjetaRef = useRef<HTMLDivElement>(null);
-
-  /**
-   * Inclinación sutil siguiendo el cursor — la tarjeta se ladea unos
-   * grados hacia donde apunta el ratón, como si tuviera peso real. Se
-   * escribe en variables CSS en vez de en el estado de React para que no
-   * haya un re-render por cada movimiento del ratón.
-   */
-  function onMouseMove(evento: React.MouseEvent<HTMLDivElement>) {
-    if (prefiereMovimientoReducido) return;
-    const tarjeta = tarjetaRef.current;
-    if (!tarjeta) return;
-
-    const rect = tarjeta.getBoundingClientRect();
-    const x = (evento.clientX - rect.left) / rect.width - 0.5;
-    const y = (evento.clientY - rect.top) / rect.height - 0.5;
-
-    tarjeta.style.setProperty('--tilt-x', `${(-y * 5).toFixed(2)}deg`);
-    tarjeta.style.setProperty('--tilt-y', `${(x * 5).toFixed(2)}deg`);
-    tarjeta.style.setProperty('--brillo-x', `${((x + 0.5) * 100).toFixed(1)}%`);
-    tarjeta.style.setProperty('--brillo-y', `${((y + 0.5) * 100).toFixed(1)}%`);
-  }
-
-  function onMouseLeave() {
-    const tarjeta = tarjetaRef.current;
-    if (!tarjeta) return;
-    tarjeta.style.setProperty('--tilt-x', '0deg');
-    tarjeta.style.setProperty('--tilt-y', '0deg');
-  }
+  const vendedor = producto.profiles;
 
   return (
-    <div
-      ref={tarjetaRef}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
-      style={{ transform: 'perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))' }}
-      className="card-interactive group relative flex h-full flex-col
-                 transition-transform duration-fast ease-out will-change-transform"
+    <article
+      className="group relative flex h-full flex-col overflow-hidden rounded-xl border
+                 border-superficie-200 bg-superficie-0 transition-colors duration-fast ease-out
+                 hover:border-superficie-300 focus-within:border-brand-400"
     >
-      <div className="absolute right-3 top-3 z-10">
-        <BotonFavorito productId={producto.id} />
-      </div>
-
-      <Link
-        href={`/p/${producto.slug}`}
-        className="flex h-full flex-col focus:outline-none focus-visible:ring-2
-                   focus-visible:ring-brand-500 focus-visible:ring-offset-2"
-      >
-      <div className="relative aspect-[16/10] overflow-hidden bg-brand-50">
+      <div className="relative aspect-[4/3] overflow-hidden bg-superficie-100">
         {producto.cover_image_url ? (
-          // Imagen de Supabase Storage: dominio variable, por eso <img> y no next/image.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={producto.cover_image_url}
             alt=""
             loading="lazy"
-            className="h-full w-full object-cover
-                       transition-transform duration-slow ease-out
+            className="h-full w-full object-cover transition-transform duration-slow ease-out
                        group-hover:scale-[1.03]"
           />
         ) : (
-          <div
-            className="flex h-full items-center justify-center text-4xl
-                       transition-transform duration-slow ease-out
-                       group-hover:scale-[1.03]"
+          <span
             aria-hidden
+            className="flex h-full w-full items-center justify-center text-4xl opacity-40"
           >
             {producto.categories?.icono ?? '·'}
-          </div>
+          </span>
         )}
 
-        {/* Brillo que sigue al cursor, muy tenue — un acabado de cristal
-            discreto, no un efecto de foco. Solo visible en hover gracias
-            a la opacidad en el propio gradiente. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-base ease-out group-hover:opacity-100"
-          style={{
-            background:
-              'radial-gradient(180px circle at var(--brillo-x, 50%) var(--brillo-y, 50%), rgba(255,255,255,0.35), transparent 65%)',
-          }}
-        />
-      </div>
-
-      <div className="flex flex-1 flex-col p-6">
-        <div className="flex items-center gap-2 text-xs text-ink/65">
-          {producto.categories ? <span>{producto.categories.nombre}</span> : null}
-          {/* Discreto a propósito: un punto y una palabra, no una insignia
-              negra encima de la foto. Sigue siendo información real cuando
-              esta tarjeta aparece mezclada en resultados de búsqueda. */}
-          {producto.is_featured ? (
-            <span className="inline-flex items-center gap-1.5 text-brand-700">
-              {producto.categories ? <span aria-hidden>·</span> : null}
-              Destacado
-            </span>
-          ) : null}
-          {producto.rating_total > 0 ? (
-            <span className="inline-flex items-center gap-1">
-              {producto.categories || producto.is_featured ? <span aria-hidden>·</span> : null}
-              <Estrellas puntuacion={producto.rating_promedio} tamano="text-[0.7rem]" />
-              <span>{producto.rating_promedio.toFixed(1)}</span>
-            </span>
-          ) : null}
+        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          {producto.is_featured ? <Distintivo tono="oscuro">Destacado</Distintivo> : null}
         </div>
 
-        <h3
-          className="mt-1.5 font-display text-[17px] font-semibold leading-snug tracking-[-0.01em] text-ink
-                     transition-colors duration-fast ease-out
-                     group-hover:text-brand-700"
-        >
-          {producto.titulo}
-        </h3>
+        <div className="absolute right-3 top-3">
+          <BotonFavorito productId={producto.id} />
+        </div>
+      </div>
 
-        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink/60">
-          {producto.tagline}
+      <div className="flex flex-1 flex-col p-4">
+        <p className="text-xs text-ink/55">
+          {producto.categories?.nombre}
+          <span aria-hidden> · </span>
+          {NOMBRE_TIPO[producto.product_type]}
         </p>
 
-        <div className="mt-auto flex items-end justify-between gap-3 pt-6">
-          <p className="min-w-0">
-            <span className="dato text-lg font-medium text-ink">{precio.principal}</span>
+        <h3 className="mt-1.5 font-display text-[15px] font-semibold leading-snug tracking-[-0.01em] text-ink">
+          {/* El enlace cubre la tarjeta entera; el corazón queda por encima
+              con su propio z-index para no caer dentro del área clicable. */}
+          <Link
+            href={`/p/${producto.slug}`}
+            className="after:absolute after:inset-0 after:content-[''] focus:outline-none
+                       focus-visible:underline focus-visible:decoration-brand-500
+                       focus-visible:underline-offset-4"
+          >
+            {producto.titulo}
+          </Link>
+        </h3>
+
+        {producto.rating_total > 0 ? (
+          <p className="mt-2 flex items-center gap-1.5">
+            <Estrellas puntuacion={producto.rating_promedio} tamano="text-[0.7rem]" />
+            <span className="text-xs text-ink/50">({producto.rating_total})</span>
+          </p>
+        ) : null}
+
+        <div className="mt-auto pt-4">
+          <p className="flex items-baseline gap-1.5">
+            <span className="dato text-base font-semibold text-ink">{precio.principal}</span>
             {precio.secundario ? (
-              <span className="dato block truncate text-xs text-ink/65">
-                {precio.secundario}
-              </span>
+              <span className="text-xs text-ink/55">{precio.secundario}</span>
             ) : null}
           </p>
 
-          {/* whitespace-nowrap: si el precio secundario es largo, se recorta
-              él (min-w-0 + truncate arriba), nunca esto. */}
-          <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs text-ink/65">
-            <Icono nombre="reloj" className="h-3.5 w-3.5" />
-            {tiempoInstalacion(producto.minutos_instalacion)}
-          </span>
+          <div className="mt-3 flex items-center gap-2 border-t border-superficie-200 pt-3">
+            <Avatar nombre={vendedor?.display_name ?? '—'} url={vendedor?.avatar_url} tamano="sm" />
+            <span className="min-w-0 flex-1 truncate text-xs text-ink/65">
+              {vendedor?.display_name ?? 'Vendedor'}
+            </span>
+            {vendedor?.is_verified ? (
+              <span
+                className="shrink-0 text-brand-600"
+                title="Vendedor verificado"
+                aria-label="Vendedor verificado"
+              >
+                <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="currentColor" aria-hidden>
+                  <path d="M8 0.8l1.7 1.2 2.1-.2.9 1.9 1.9.9-.2 2.1L15.6 8l-1.2 1.7.2 2.1-1.9.9-.9 1.9-2.1-.2L8 15.6l-1.7-1.2-2.1.2-.9-1.9-1.9-.9.2-2.1L.4 8l1.2-1.7-.2-2.1 1.9-.9.9-1.9 2.1.2L8 .4z" />
+                  <path d="M6.9 10.4L4.6 8.1l.9-.9 1.4 1.4 3-3 .9.9z" fill="#fff" />
+                </svg>
+              </span>
+            ) : null}
+          </div>
+
+          <p className="mt-2 text-xs text-ink/50">
+            Listo en {tiempoInstalacion(producto.minutos_instalacion).toLowerCase()}
+          </p>
         </div>
       </div>
-      </Link>
-    </div>
+    </article>
   );
 }
