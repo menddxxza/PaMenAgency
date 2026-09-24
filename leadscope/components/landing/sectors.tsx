@@ -13,6 +13,7 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
+import { TextLoop } from '@/components/landing/text-loop';
 
 const SECTORS: { label: string; examples: string; icon: LucideIcon }[] = [
   { label: 'Talleres', examples: 'Mecánica, chapa y pintura, neumáticos', icon: Wrench },
@@ -42,7 +43,18 @@ export function Sectors() {
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <TextLoop
+          className="mt-10"
+          text="Talleres ✦ Restaurantes ✦ Belleza ✦ Salud ✦ Deporte ✦ Comercio ✦ Reformas ✦ Inmobiliarias ✦ Educación ✦ Mascotas ✦ Hostelería"
+          separator="✦"
+          shape="wave"
+          curviness={50}
+          fontSize={38}
+          ribbonWidth={80}
+          speed={70}
+        />
+
+        <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {SECTORS.map(({ label, examples, icon: Icon }) => (
             <div
               key={label}
