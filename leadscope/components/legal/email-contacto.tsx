@@ -11,8 +11,8 @@ export function EmailContacto({ className }: { className?: string }) {
   const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    const usuario = ['hola', 'leadscope'].join('.');
-    const dominio = ['leadscope', 'app'].join('.');
+    const usuario = ['soporte', 'atiende'].join('.');
+    const dominio = ['gmail', 'com'].join('.');
     setEmail(`${usuario}@${dominio}`);
   }, []);
 

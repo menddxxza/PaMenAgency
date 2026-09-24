@@ -77,7 +77,7 @@ async function fetchWithTimeout(url: string, method: 'HEAD' | 'GET') {
       method,
       redirect: 'follow',
       signal: controller.signal,
-      headers: { 'User-Agent': 'LeadScopeBot/1.0 (+https://leadscope.app)' },
+      headers: { 'User-Agent': 'LeadScopeBot/1.0 (+https://leadscope.es)' },
     });
   } finally {
     clearTimeout(timeout);
