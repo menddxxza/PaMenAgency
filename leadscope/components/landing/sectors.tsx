@@ -45,12 +45,12 @@ export function Sectors() {
 
         <TextLoop
           className="mt-10"
-          text="Talleres ✦ Restaurantes ✦ Belleza ✦ Salud ✦ Deporte ✦ Comercio ✦ Reformas ✦ Inmobiliarias ✦ Educación ✦ Mascotas ✦ Hostelería"
+          text="Talleres ✦ Restaurantes ✦ Belleza ✦ Salud"
           separator="✦"
           shape="wave"
           curviness={50}
-          fontSize={38}
-          ribbonWidth={80}
+          fontSize={56}
+          ribbonWidth={100}
           speed={70}
         />
 
