@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Star, Phone, Mail, MapPin, ExternalLink, MessageCircle } from 'lucide-react';
 import { WebsiteStatusBadge, OpportunityBadge } from '@/components/search/status-badges';
+import { BusinessDetailModal } from '@/components/search/business-detail-modal';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Business } from '@/lib/types';
 
@@ -11,6 +12,7 @@ const ROW_HEIGHT = 64;
 
 export function ResultsTable({ businesses, loading }: { businesses: Business[]; loading: boolean }) {
   const parentRef = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<Business | null>(null);
 
   const virtualizer = useVirtualizer({
     count: businesses.length,
@@ -60,7 +62,16 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
             return (
               <div
                 key={b.id}
-                className="absolute left-0 top-0 grid w-full grid-cols-[1fr_auto_auto] items-center gap-3 border-b border-border px-4 text-sm transition-colors hover:bg-surface-hover lg:grid-cols-[2fr_1.4fr_0.9fr_0.9fr_1fr_1fr]"
+                role="button"
+                tabIndex={0}
+                onClick={() => setSelected(b)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setSelected(b);
+                  }
+                }}
+                className="absolute left-0 top-0 grid w-full cursor-pointer grid-cols-[1fr_auto_auto] items-center gap-3 border-b border-border px-4 text-sm transition-colors hover:bg-surface-hover lg:grid-cols-[2fr_1.4fr_0.9fr_0.9fr_1fr_1fr]"
                 style={{ height: ROW_HEIGHT, transform: `translateY(${virtualRow.start}px)` }}
               >
                 <div className="min-w-0">
@@ -68,6 +79,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                     href={b.mapsUrl}
                     target="_blank"
                     rel="noreferrer"
+                    onClick={(e) => e.stopPropagation()}
                     className="flex items-center gap-1.5 truncate font-medium text-fg hover:text-brand-600"
                   >
                     <span className="truncate">{b.name}</span>
@@ -85,6 +97,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                     <div className="flex items-center gap-1.5">
                       <a
                         href={`tel:${b.phone.replace(/[^\d+]/g, '')}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="flex min-w-0 items-center gap-1.5 hover:text-fg"
                       >
                         <Phone className="h-3 w-3 shrink-0" />
@@ -95,6 +108,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                           href={`https://wa.me/${b.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, os escribo por ${b.name}.`)}`}
                           target="_blank"
                           rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           aria-label="Escribir por WhatsApp"
                           className="shrink-0 hover:text-success"
                         >
@@ -114,6 +128,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                       href={b.socialLinks.whatsapp}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       className="flex items-center gap-1.5 hover:text-success"
                     >
                       <MessageCircle className="h-3 w-3 shrink-0" />
@@ -145,6 +160,8 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
           })}
         </div>
       </div>
+
+      <BusinessDetailModal business={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }
