@@ -1,13 +1,10 @@
-import { createClient } from '@/lib/supabase/server';
+import { getVerifiedUser } from '@/lib/supabase/server';
 import { Topbar } from '@/components/dashboard/topbar';
 import { PlanCard } from '@/components/billing/plan-card';
-import { PLANS, type PlanId } from '@/lib/types';
+import { PLANS, PLAN_ORDER, type PlanId } from '@/lib/types';
 
 export default async function BillingPage() {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getVerifiedUser();
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -34,7 +31,7 @@ export default async function BillingPage() {
       <Topbar title="Plan y facturación" />
 
       <main className="flex-1 space-y-6 p-4 sm:p-6">
-        {plan === 'free' && (
+        {limit !== null && (
           <div className="rounded-2xl border border-border bg-surface p-5">
             <p className="text-sm font-medium text-fg">Uso este mes</p>
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-surface-hover">
@@ -44,14 +41,15 @@ export default async function BillingPage() {
               />
             </div>
             <p className="mt-2 text-xs text-muted">
-              {used} de {limit} búsquedas usadas
+              {used} de {limit} búsquedas usadas · plan {PLANS[plan].name}
             </p>
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <PlanCard plan={PLANS.free} isCurrent={plan === 'free'} isPro={plan === 'pro'} />
-          <PlanCard plan={PLANS.pro} isCurrent={plan === 'pro'} isPro={plan === 'pro'} />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {PLAN_ORDER.map((id) => (
+            <PlanCard key={id} plan={PLANS[id]} currentPlan={plan} />
+          ))}
         </div>
       </main>
     </>

@@ -83,8 +83,24 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                 <div className="hidden min-w-0 space-y-0.5 text-xs text-muted lg:block">
                   {b.phone && (
                     <div className="flex items-center gap-1.5">
-                      <Phone className="h-3 w-3 shrink-0" />
-                      <span className="truncate">{b.phone}</span>
+                      <a
+                        href={`tel:${b.phone.replace(/[^\d+]/g, '')}`}
+                        className="flex min-w-0 items-center gap-1.5 hover:text-fg"
+                      >
+                        <Phone className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{b.phone}</span>
+                      </a>
+                      {!b.socialLinks.whatsapp && b.phone.trim().startsWith('+') && (
+                        <a
+                          href={`https://wa.me/${b.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, os escribo por ${b.name}.`)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label="Escribir por WhatsApp"
+                          className="shrink-0 hover:text-success"
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" />
+                        </a>
+                      )}
                     </div>
                   )}
                   {b.email && (

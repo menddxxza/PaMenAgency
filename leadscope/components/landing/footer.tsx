@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Logomark } from '@/components/logomark';
+import { CookieSettingsButton } from '@/components/cookie-banner';
 
 export function Footer() {
   return (
@@ -48,6 +49,7 @@ export function Footer() {
         <Link href="/legal/tratamiento-datos" className="hover:text-fg">
           Tratamiento de datos
         </Link>
+        <CookieSettingsButton className="hover:text-fg" />
       </div>
     </footer>
   );

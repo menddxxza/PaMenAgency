@@ -1,14 +1,11 @@
 import { notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { getVerifiedUser } from '@/lib/supabase/server';
 import { Topbar } from '@/components/dashboard/topbar';
 import { HistoryResults } from '@/components/search/history-results';
 import type { Business } from '@/lib/types';
 
 export default async function HistoryDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getVerifiedUser();
 
   const { data: search } = await supabase
     .from('searches')

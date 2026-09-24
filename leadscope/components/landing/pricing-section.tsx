@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { Card } from '@/components/ui/card';
-import { PLANS } from '@/lib/types';
+import { PLANS, PLAN_ORDER } from '@/lib/types';
 
 export function PricingSection() {
   return (
@@ -11,27 +11,27 @@ export function PricingSection() {
         <h2 className="font-display text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
           Precios simples, sin sorpresas
         </h2>
-        <p className="mt-4 text-muted">Empieza gratis. Mejora a Pro cuando necesites más volumen.</p>
+        <p className="mt-4 text-muted">Empieza gratis. Sube de plan cuando necesites más búsquedas.</p>
       </div>
 
-      <div className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2">
-        {Object.values(PLANS).map((plan) => (
+      <div className="mx-auto mt-14 grid max-w-6xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {PLAN_ORDER.map((id) => PLANS[id]).map((plan) => (
           <Card
             key={plan.id}
             className={
-              plan.id === 'pro'
+              plan.id === 'plus'
                 ? 'relative overflow-hidden border-brand-500/40 p-7 shadow-glow'
                 : 'p-7'
             }
           >
-            {plan.id === 'pro' && (
-              <span className="absolute right-6 top-6 rounded-full bg-brand-500/10 px-2.5 py-1 text-xs font-medium text-brand-600 dark:text-brand-400">
+            {plan.id === 'plus' && (
+              <span className="absolute right-5 top-5 rounded-full bg-brand-500/10 px-2.5 py-1 text-xs font-medium text-brand-600 dark:text-brand-400">
                 Recomendado
               </span>
             )}
             <h3 className="text-sm font-medium text-muted">{plan.name}</h3>
             <p className="mt-2 flex items-baseline gap-1">
-              <span className="font-display text-4xl font-semibold text-fg">${plan.priceMonthly}</span>
+              <span className="font-display text-4xl font-semibold text-fg">{plan.priceMonthly}€</span>
               <span className="text-sm text-muted">/mes</span>
             </p>
 
@@ -47,11 +47,11 @@ export function PricingSection() {
             <Link
               href="/signup"
               className={buttonVariants({
-                variant: plan.id === 'pro' ? 'brand' : 'secondary',
+                variant: plan.id === 'plus' ? 'brand' : 'secondary',
                 className: 'mt-7 w-full',
               })}
             >
-              {plan.id === 'pro' ? 'Empezar con Pro' : 'Empezar gratis'}
+              {plan.id === 'free' ? 'Empezar gratis' : `Empezar con ${plan.name}`}
             </Link>
           </Card>
         ))}

@@ -8,7 +8,7 @@ export interface Database {
           id: string;
           email: string;
           full_name: string | null;
-          plan: 'free' | 'pro';
+          plan: 'free' | 'basic' | 'plus' | 'pro';
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
           stripe_subscription_status: string | null;

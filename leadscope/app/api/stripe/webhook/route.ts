@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type Stripe from 'stripe';
-import { stripeClient } from '@/lib/stripe';
+import { stripeClient, planForPriceId } from '@/lib/stripe';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 
 export async function POST(request: Request) {
@@ -29,11 +29,12 @@ export async function POST(request: Request) {
   async function setPlanFromSubscription(subscription: Stripe.Subscription) {
     const userId = subscription.metadata?.supabase_user_id;
     const isActive = ['active', 'trialing'].includes(subscription.status);
+    const paidPlan = planForPriceId(subscription.items.data[0]?.price.id);
 
     const query = supabase
       .from('profiles')
       .update({
-        plan: isActive ? 'pro' : 'free',
+        plan: isActive && paidPlan ? paidPlan : 'free',
         stripe_subscription_id: subscription.id,
         stripe_subscription_status: subscription.status,
       });

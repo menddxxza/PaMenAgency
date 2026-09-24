@@ -177,12 +177,15 @@ funciona igual: simplemente no se reclasifican webs "activas" como "antiguas".
 
 ## Modelo de planes
 
-| | Gratis | Pro |
-| --- | --- | --- |
-| Búsquedas / mes | 5 | Ilimitadas |
-| Resultados por búsqueda | 20 | 200 |
-| Exportación | CSV | CSV, Excel, PDF |
-| Clasificación de webs con IA | — | ✓ |
+| | Gratis | Básico | Avanzado | Pro |
+| --- | --- | --- | --- | --- |
+| Precio | 0 € | 10 €/mes | 40 €/mes | 80 €/mes |
+| Búsquedas / mes | 5 | 30 | 150 | Ilimitadas |
+| Resultados por búsqueda | 20 | 60 | 120 | 200 |
+
+Stripe: crea tres precios recurrentes mensuales y pon sus IDs en `STRIPE_PRICE_BASIC_MONTHLY`,
+`STRIPE_PRICE_PLUS_MONTHLY` y `STRIPE_PRICE_PRO_MONTHLY`. Aplica también la migración
+`0005_planes_basic_plus.sql` en Supabase (amplía los valores permitidos de `profiles.plan`).
 
 La configuración vive en `lib/types.ts` (`PLANS`) — cambiar límites o precios no requiere tocar
 ninguna otra parte del código.

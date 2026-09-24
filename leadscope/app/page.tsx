@@ -5,6 +5,7 @@ import { Features } from '@/components/landing/features';
 import { HowItWorks } from '@/components/landing/how-it-works';
 import { PricingSection } from '@/components/landing/pricing-section';
 import { Footer } from '@/components/landing/footer';
+import { InstallDrawer } from '@/components/landing/install-drawer';
 
 export default function LandingPage() {
   return (
@@ -18,6 +19,7 @@ export default function LandingPage() {
         <PricingSection />
       </main>
       <Footer />
+      <InstallDrawer />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 
 interface Profile {
-  plan: 'free' | 'pro';
+  plan: 'free' | 'basic' | 'plus' | 'pro';
   full_name: string | null;
   email: string;
 }

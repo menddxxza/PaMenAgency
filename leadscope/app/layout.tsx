@@ -5,6 +5,9 @@ import { ThemeProvider } from '@/components/providers/theme-provider';
 import { ToastProvider } from '@/components/providers/toast-provider';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { ServiceWorkerRegister } from '@/components/service-worker-register';
+import { SplashIntro } from '@/components/splash-intro';
+import { NavProgress } from '@/components/nav-progress';
+import { CookieBanner } from '@/components/cookie-banner';
 
 export const metadata: Metadata = {
   title: 'LeadScope — Encuentra clientes para tu negocio',
@@ -33,6 +36,10 @@ try {
   const preferred = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   if (preferred === 'dark') document.documentElement.classList.add('dark');
 } catch {}
+try {
+  if (sessionStorage.getItem('leadscope-splash')) document.documentElement.classList.add('splash-seen');
+  else sessionStorage.setItem('leadscope-splash', '1');
+} catch {}
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -42,11 +49,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased`}>
+        <SplashIntro />
+        <NavProgress />
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>{children}</AuthProvider>
           </ToastProvider>
         </ThemeProvider>
+        <CookieBanner />
         <ServiceWorkerRegister />
       </body>
     </html>

@@ -7,6 +7,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import { PLANS } from '@/lib/types';
 
 export function Topbar({ title }: { title?: string }) {
   const { profile } = useAuth();
@@ -29,10 +30,12 @@ export function Topbar({ title }: { title?: string }) {
             className={buttonVariants({ variant: 'brand', size: 'sm' })}
           >
             <Sparkles className="h-3.5 w-3.5" />
-            Mejorar a Pro
+            Mejorar plan
           </Link>
         )}
-        {profile?.plan === 'pro' && <Badge variant="brand">Plan Pro</Badge>}
+        {profile && profile.plan !== 'free' && (
+          <Badge variant="brand">Plan {PLANS[profile.plan].name}</Badge>
+        )}
         <ThemeToggle />
       </div>
     </header>

@@ -1,16 +1,13 @@
 import Link from 'next/link';
 import { ArrowRight, Search as SearchIcon } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
+import { getVerifiedUser } from '@/lib/supabase/server';
 import { Topbar } from '@/components/dashboard/topbar';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDate, formatNumber } from '@/lib/utils';
 
 export default async function HistoryPage() {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getVerifiedUser();
 
   const { data: searches } = await supabase
     .from('searches')

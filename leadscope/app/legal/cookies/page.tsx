@@ -29,11 +29,18 @@ export default function CookiesPage() {
             <strong>Preferencia de tema:</strong> guardamos si prefieres modo claro u oscuro en el{' '}
             <code>localStorage</code> de tu navegador, no en una cookie — no viaja al servidor.
           </li>
+          <li>
+            <strong>Tu elección sobre cookies:</strong> al entrar por primera vez te preguntamos si
+            aceptas o rechazas las cookies opcionales, y guardamos tu respuesta en el{' '}
+            <code>localStorage</code> de tu navegador para no volver a preguntarte.
+          </li>
         </ul>
         <p className="mt-3">
-          No usamos cookies de analítica ni de publicidad de terceros. Las cookies necesarias no
-          requieren tu consentimiento según la normativa vigente (son imprescindibles para prestar
-          el servicio que has solicitado: iniciar sesión).
+          Hoy no usamos cookies de analítica ni de publicidad de terceros. Las cookies necesarias
+          no requieren tu consentimiento según la normativa vigente (son imprescindibles para
+          prestar el servicio que has solicitado: iniciar sesión). Si en el futuro añadiéramos
+          alguna cookie opcional, solo se activaría si has aceptado. Puedes cambiar tu elección en
+          cualquier momento con el enlace «Configurar cookies» del pie de página.
         </p>
       </LegalSection>
 

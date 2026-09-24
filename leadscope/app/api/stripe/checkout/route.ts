@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { stripeClient, STRIPE_PRICES } from '@/lib/stripe';
+import { stripeClient, priceIdForPlan, type PaidPlanId } from '@/lib/stripe';
 
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -12,8 +12,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
   }
 
-  const { interval } = await request.json().catch(() => ({ interval: 'monthly' }));
-  const priceId = interval === 'yearly' ? STRIPE_PRICES.proYearly : STRIPE_PRICES.proMonthly;
+  const { plan } = await request.json().catch(() => ({ plan: null }));
+  if (!['basic', 'plus', 'pro'].includes(plan)) {
+    return NextResponse.json({ error: 'Plan no válido' }, { status: 400 });
+  }
+  const priceId = priceIdForPlan(plan as PaidPlanId);
 
   if (!priceId) {
     return NextResponse.json({ error: 'Precio de Stripe no configurado' }, { status: 500 });

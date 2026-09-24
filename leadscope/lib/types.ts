@@ -2,7 +2,7 @@ export type WebsiteStatus = 'no_website' | 'social_only' | 'broken' | 'outdated'
 
 export type Opportunity = 'alta' | 'media' | 'baja';
 
-export type PlanId = 'free' | 'pro';
+export type PlanId = 'free' | 'basic' | 'plus' | 'pro';
 
 export interface SearchParams {
   niche: string;
@@ -80,6 +80,8 @@ export interface PlanConfig {
   features: string[];
 }
 
+export const PLAN_ORDER: PlanId[] = ['free', 'basic', 'plus', 'pro'];
+
 export const PLANS: Record<PlanId, PlanConfig> = {
   free: {
     id: 'free',
@@ -90,22 +92,47 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     features: [
       '5 búsquedas al mes',
       'Hasta 20 resultados por búsqueda',
-      'Exportación a CSV',
-      'Detección de negocios sin web',
+      'Exportación a CSV, Excel y PDF',
+      'Historial de búsquedas',
+    ],
+  },
+  basic: {
+    id: 'basic',
+    name: 'Básico',
+    priceMonthly: 10,
+    searchLimitPerMonth: 30,
+    resultsPerSearch: 60,
+    features: [
+      '30 búsquedas al mes',
+      'Hasta 60 resultados por búsqueda',
+      'Exportación a CSV, Excel y PDF',
+      'Historial y filtros avanzados',
+    ],
+  },
+  plus: {
+    id: 'plus',
+    name: 'Avanzado',
+    priceMonthly: 40,
+    searchLimitPerMonth: 150,
+    resultsPerSearch: 120,
+    features: [
+      '150 búsquedas al mes',
+      'Hasta 120 resultados por búsqueda',
+      'Exportación a CSV, Excel y PDF',
+      'Historial y filtros avanzados',
     ],
   },
   pro: {
     id: 'pro',
     name: 'Pro',
-    priceMonthly: 39,
+    priceMonthly: 80,
     searchLimitPerMonth: null,
     resultsPerSearch: 200,
     features: [
       'Búsquedas ilimitadas',
       'Hasta 200 resultados por búsqueda',
       'Exportación a CSV, Excel y PDF',
-      'Clasificación de calidad de web con IA',
-      'Historial completo y filtros avanzados',
+      'Historial y filtros avanzados',
       'Soporte prioritario',
     ],
   },

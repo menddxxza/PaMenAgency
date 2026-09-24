@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 import type { Database } from '@/types/database.types';
 
 export function createClient() {
@@ -26,6 +27,16 @@ export function createClient() {
     }
   );
 }
+
+// Verifica al usuario con Supabase Auth una sola vez por petición: el layout y la
+// página comparten el resultado en vez de repetir la llamada de red.
+export const getVerifiedUser = cache(async () => {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { supabase, user };
+});
 
 export function createServiceRoleClient() {
   const cookieStore = cookies();

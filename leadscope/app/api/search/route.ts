@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   if (!allowed) {
     return NextResponse.json(
       {
-        error: `Has alcanzado el límite de ${planConfig.searchLimitPerMonth} búsquedas del plan gratuito este mes. Mejora a Pro para búsquedas ilimitadas.`,
+        error: `Has alcanzado el límite de ${planConfig.searchLimitPerMonth} búsquedas de tu plan este mes. Mejora tu plan para hacer más búsquedas.`,
         code: 'LIMIT_REACHED',
       },
       { status: 402 }

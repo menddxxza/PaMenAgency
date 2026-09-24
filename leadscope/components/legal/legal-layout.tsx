@@ -1,5 +1,6 @@
 'use client';
 
+import { CookieSettingsButton } from '@/components/cookie-banner';
 import Link from 'next/link';
 import { Logomark } from '@/components/logomark';
 
@@ -60,6 +61,7 @@ export function LegalLayout({
                 {l.label}
               </Link>
             ))}
+            <CookieSettingsButton className="hover:text-fg" />
           </div>
         </div>
       </footer>

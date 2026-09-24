@@ -6,5 +6,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  // Solo donde hay sesión: la landing y las páginas legales ya no esperan a Supabase Auth.
+  matcher: ['/dashboard/:path*', '/login', '/signup'],
 };
