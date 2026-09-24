@@ -6,7 +6,7 @@ import { ArrowRight, Zap } from 'lucide-react';
 
 /**
  * Port de un componente de referencia (fondo de canvas con partículas
- * reactivas al ratón). Recoloreado al degradado real del logo de Nexorai
+ * reactivas al ratón). Recoloreado al degradado real del logo de Revynai
  * (violeta #ae36fb → azul #3b87ff, escala `brand` de Tailwind) en vez del
  * morado genérico del original.
  */
@@ -98,7 +98,7 @@ const AetherFlowHero = () => {
         const y = Math.random() * (canvas!.height - size * 4) + size * 2;
         const directionX = Math.random() * 0.4 - 0.2;
         const directionY = Math.random() * 0.4 - 0.2;
-        // Violeta del logo de Nexorai (#ae36fb) en vez del morado genérico original.
+        // Violeta del logo de Revynai (#ae36fb) en vez del morado genérico original.
         const color = 'rgba(174, 54, 251, 0.8)';
         particles.push(new Particle(ctx!, canvas!, { x, y, directionX, directionY, size, color }));
       }

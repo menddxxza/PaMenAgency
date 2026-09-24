@@ -1,5 +1,5 @@
 /**
- * Gráfico de firma de Nexorai: nodos de negocio conectándose a un núcleo de
+ * Gráfico de firma de Revynai: nodos de negocio conectándose a un núcleo de
  * decisión mediante trazos que se "encienden" en secuencia — una metáfora de
  * "detectar oportunidades y activar agentes", sin recurrir a clichés de
  * cerebro digital o robot.

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /*
-  Nexorai es una consola de crecimiento, no una landing de IA genérica: tema oscuro
+  Revynai es una consola de crecimiento, no una landing de IA genérica: tema oscuro
   permanente. Tanto la app autenticada como la landing usan el degradado real del
   logotipo (violeta #ae36fb → azul #3b87ff, escala `brand` de Tailwind) como acento —
   ver .hero-aurora / .text-glow. El oro (`gold`) queda como acento secundario para

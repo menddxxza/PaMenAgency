@@ -47,7 +47,7 @@ export default function SignupPage() {
 
   return (
     <AuthCard
-      title="Crea tu cuenta en Nexorai"
+      title="Crea tu cuenta en Revynai"
       subtitle="Analiza tu negocio y activa tu primer agente en minutos."
       footer={
         <>

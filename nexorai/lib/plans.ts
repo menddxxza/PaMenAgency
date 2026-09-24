@@ -19,7 +19,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '99€',
+    price: '50€',
     priceNote: '/mes',
     description: 'Para validar el motor de oportunidades en un solo negocio.',
     features: [
@@ -33,7 +33,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '499€',
+    price: '100€',
     priceNote: '/mes',
     description: 'Para negocios que quieren todos los agentes trabajando a la vez.',
     features: [
@@ -48,7 +48,7 @@ export const PLANS: PlanConfig[] = [
   {
     id: 'business',
     name: 'Business',
-    price: '1.499€',
+    price: '200€',
     priceNote: '/mes',
     description: 'Para agencias y grupos con varias unidades de negocio.',
     features: [

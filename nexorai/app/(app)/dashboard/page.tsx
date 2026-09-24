@@ -7,11 +7,12 @@ import { RevenueTimeline } from '@/components/dashboard/timeline';
 import { ActiveAgentsList } from '@/components/dashboard/active-agents';
 import { ActionCenter } from '@/components/dashboard/action-center';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RealtimeStatus } from '@/components/live/realtime-status';
 import { getAgentDefinition } from '@/lib/agents/catalog';
 import { formatCurrency } from '@/lib/utils';
 
 export default async function DashboardPage() {
-  const { business } = await requireBusinessContext();
+  const { business, organization } = await requireBusinessContext();
   const supabase = createClient();
 
   const [{ data: opportunities }, { data: agents }, { data: leads }, { data: revenueEvents }] = await Promise.all([
@@ -69,9 +70,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-widest text-brand-400">Dashboard</p>
-        <h1 className="mt-1 text-2xl font-semibold text-fg">Resultados de {business.name}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-400">Dashboard</p>
+          <h1 className="mt-1 text-2xl font-semibold text-fg">Resultados de {business.name}</h1>
+        </div>
+        <RealtimeStatus organizationId={organization.id} />
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
@@ -83,7 +87,12 @@ export default async function DashboardPage() {
           accent="gold"
           note={`desde ${formatCurrency(revenuePotentialMin)}`}
         />
-        <KpiCard label="Leads found" value={String(leadsFound)} icon={Users} />
+        <KpiCard
+          label="Leads found"
+          value={String(leadsFound)}
+          icon={Users}
+          note={leadsFound === 0 ? 'Sube tus contactos en /leads' : undefined}
+        />
         <KpiCard label="Leads contacted" value={String(leadsContacted)} icon={PhoneCall} />
         <KpiCard label="Conversions" value={String(conversions)} icon={Handshake} />
         <KpiCard label="ROI" value={roi} icon={Percent} />

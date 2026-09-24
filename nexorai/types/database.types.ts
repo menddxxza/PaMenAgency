@@ -225,6 +225,8 @@ export interface Database {
           business_id: string;
           agent_id: string | null;
           name: string;
+          email: string | null;
+          phone: string | null;
           source: string | null;
           status: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost';
           estimated_value: number | null;

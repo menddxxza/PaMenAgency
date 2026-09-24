@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label, Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { BusinessDeleteButton } from '@/components/dashboard/business-delete-button';
 
 export default async function SettingsPage() {
   const { organization, business, businesses, businessLimit, userEmail } = await requireOrgContext();
@@ -71,7 +72,10 @@ export default async function SettingsPage() {
                   <p className="text-sm font-medium text-fg">{b.name}</p>
                   <p className="text-xs text-muted">{b.sector}</p>
                 </div>
-                {b.id === business?.id && <Badge variant="brand">Activo</Badge>}
+                <div className="flex items-center gap-2">
+                  {b.id === business?.id && <Badge variant="brand">Activo</Badge>}
+                  <BusinessDeleteButton businessId={b.id} businessName={b.name} />
+                </div>
               </div>
             ))}
             {!canAddBusiness && (
