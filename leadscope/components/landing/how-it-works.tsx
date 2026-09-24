@@ -8,13 +8,13 @@ const STEPS = [
     step: '02',
     title: 'Analizamos cada negocio',
     description:
-      'Consultamos Google Places y comprobamos en vivo el estado de la web de cada resultado.',
+      'Consultamos Google Places y comprobamos en vivo la presencia online de cada resultado.',
   },
   {
     step: '03',
     title: 'Filtra y prioriza',
     description:
-      'Ordena por oportunidad, reseñas o puntuación y quédate solo con los leads que te interesan.',
+      'Ordena por oportunidad, reseñas o puntuación y quédate solo con los clientes potenciales que te interesan.',
   },
   {
     step: '04',

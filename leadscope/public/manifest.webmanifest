@@ -1,7 +1,7 @@
 {
-  "name": "LeadScope — Encuentra negocios sin página web",
+  "name": "LeadScope — Encuentra clientes para tu negocio",
   "short_name": "LeadScope",
-  "description": "Busca negocios locales sin web en cualquier país o ciudad, detecta oportunidades y exporta leads listos para contactar.",
+  "description": "Encuentra clientes potenciales en cualquier país o ciudad, detecta las mejores oportunidades y exporta contactos listos para llamar.",
   "start_url": "/dashboard/search",
   "scope": "/",
   "display": "standalone",

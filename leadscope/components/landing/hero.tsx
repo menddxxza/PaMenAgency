@@ -23,13 +23,13 @@ export function Hero() {
       <div className="container grid grid-cols-1 items-center gap-12 py-20 lg:grid-cols-[1.05fr_1fr] lg:gap-8 lg:py-28">
         <div>
           <p className="animate-slide-up font-display text-xs font-semibold uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400 [animation-delay:0ms]">
-            Detección de negocios en tiempo real
+            Prospección de clientes en tiempo real
           </p>
 
           <h1 className="mt-5 animate-slide-up text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight text-fg sm:text-5xl lg:text-6xl [animation-delay:70ms]">
-            Localiza al negocio que{' '}
+            Encuentra a tus{' '}
             <span className="relative whitespace-nowrap">
-              todavía no tiene web
+              próximos clientes
               <svg
                 viewBox="0 0 300 12"
                 className="absolute -bottom-1 left-0 h-3 w-full text-brand-500"
@@ -48,8 +48,9 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-md animate-slide-up text-lg leading-relaxed text-muted [animation-delay:140ms]">
-            Nicho y ubicación. Nosotros consultamos Google Places, comprobamos cada web en vivo y
-            te devolvemos solo los negocios que de verdad necesitan tus servicios.
+            Indica un sector y una zona. Consultamos Google Places, analizamos la presencia online
+            de cada negocio y te devolvemos los que mejor encajan con lo que ofreces, con
+            teléfono y datos de contacto.
           </p>
 
           <div className="mt-8 flex animate-slide-up flex-col gap-3 sm:flex-row [animation-delay:210ms]">

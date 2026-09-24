@@ -1,9 +1,9 @@
 # LeadScope
 
-SaaS para encontrar negocios locales **sin página web** (o con web rota, desactualizada, o solo
-en redes sociales) en cualquier país, ciudad o código postal del mundo, usando datos en vivo de
-Google Places. Pensado para agencias de diseño web, freelancers y comerciales que venden
-presencia digital a negocios locales.
+SaaS para **encontrar clientes**: busca negocios locales por sector en cualquier país, ciudad o
+código postal del mundo, usando datos en vivo de Google Places, y los puntúa según su presencia
+online (sin web, web rota, solo redes sociales…). Pensado para agencias, freelancers y
+comerciales que venden servicios a negocios locales.
 
 ## Stack
 

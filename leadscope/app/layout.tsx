@@ -7,9 +7,9 @@ import { AuthProvider } from '@/components/providers/auth-provider';
 import { ServiceWorkerRegister } from '@/components/service-worker-register';
 
 export const metadata: Metadata = {
-  title: 'LeadScope — Encuentra negocios sin página web',
+  title: 'LeadScope — Encuentra clientes para tu negocio',
   description:
-    'Busca negocios locales sin web en cualquier país o ciudad, detecta oportunidades y exporta leads listos para contactar.',
+    'Encuentra clientes potenciales en cualquier país o ciudad, detecta las mejores oportunidades y exporta contactos listos para llamar.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
   manifest: '/manifest.webmanifest',
   icons: {

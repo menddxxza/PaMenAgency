@@ -14,9 +14,10 @@ export default function TerminosPage() {
     <LegalLayout title="Términos y condiciones" updated="19 de agosto de 2026">
       <LegalSection title="1. Objeto">
         <p>
-          LeadScope es una herramienta que te permite buscar negocios locales por nicho y
-          ubicación, usando datos de Google Places, y te ayuda a identificar cuáles no tienen
-          página web o la tienen desactualizada. Al usar LeadScope aceptas estos términos.
+          LeadScope es una herramienta que te permite encontrar clientes potenciales entre los
+          negocios locales, por sector y ubicación, usando datos de Google Places, y te ayuda a
+          identificar cuáles encajan mejor con lo que ofreces. Al usar LeadScope aceptas estos
+          términos.
         </p>
       </LegalSection>
 

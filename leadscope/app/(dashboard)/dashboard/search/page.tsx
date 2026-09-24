@@ -25,7 +25,7 @@ export default function SearchPage() {
 
   return (
     <>
-      <Topbar title="Buscador de negocios" />
+      <Topbar title="Buscador de clientes" />
 
       <main className="flex-1 space-y-5 p-4 sm:p-6">
         <div className="space-y-5 rounded-2xl border border-border bg-surface p-5">

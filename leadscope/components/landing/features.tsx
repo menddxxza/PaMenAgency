@@ -10,7 +10,7 @@ export function Features() {
             Todo lo que hace falta para prospectar
           </h2>
           <p className="mt-3 text-muted">
-            Pensado para quien vende webs a negocios locales: agencias, freelancers y comerciales.
+            Pensado para quien vende a negocios locales: agencias, freelancers y comerciales.
           </p>
         </div>
 
@@ -18,7 +18,7 @@ export function Features() {
           {/* Card grande: detección de estado de web */}
           <Card className="overflow-hidden p-7 hover:-translate-y-0.5 hover:shadow-card-hover lg:col-span-7">
             <h3 className="font-display text-xl font-semibold text-fg">
-              Detecta el estado real de cada web
+              Conoce la presencia online de cada cliente
             </h3>
             <p className="mt-2 max-w-sm text-sm text-muted">
               Comprobamos en vivo si existe, si está rota, si solo hay una red social o si el
