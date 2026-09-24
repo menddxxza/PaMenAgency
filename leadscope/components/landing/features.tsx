@@ -1,18 +1,19 @@
 import { Filter, FileDown, History, Sparkles } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { ScrollReveal } from '@/components/landing/scroll-reveal';
 
 export function Features() {
   return (
     <section id="features" className="border-b border-border py-24">
       <div className="container">
-        <div className="max-w-lg">
+        <ScrollReveal className="max-w-lg">
           <h2 className="font-display text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
             Todo lo que hace falta para prospectar
           </h2>
           <p className="mt-3 text-muted">
             Pensado para quien vende a negocios locales: agencias, freelancers y comerciales.
           </p>
-        </div>
+        </ScrollReveal>
 
         <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-12">
           {/* Card grande: detección de estado de web */}

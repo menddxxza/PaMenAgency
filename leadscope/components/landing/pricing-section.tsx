@@ -3,21 +3,22 @@ import { Check } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { Card } from '@/components/ui/card';
 import { PLANS, PLAN_ORDER } from '@/lib/types';
+import { ScrollReveal } from '@/components/landing/scroll-reveal';
 
 export function PricingSection() {
   return (
     <section id="pricing" className="container py-24">
-      <div className="mx-auto max-w-2xl text-center">
+      <ScrollReveal className="mx-auto max-w-2xl text-center">
         <h2 className="font-display text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
           Precios simples, sin sorpresas
         </h2>
         <p className="mt-4 text-muted">Empieza gratis. Sube de plan cuando necesites más búsquedas.</p>
-      </div>
+      </ScrollReveal>
 
       <div className="mx-auto mt-14 grid max-w-6xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {PLAN_ORDER.map((id) => PLANS[id]).map((plan) => (
+        {PLAN_ORDER.map((id) => PLANS[id]).map((plan, i) => (
+          <ScrollReveal key={plan.id} delayMs={i * 90}>
           <Card
-            key={plan.id}
             className={
               plan.id === 'plus'
                 ? 'relative overflow-hidden border-brand-500/40 p-7 shadow-glow'
@@ -54,6 +55,7 @@ export function PricingSection() {
               {plan.id === 'free' ? 'Empezar gratis' : `Empezar con ${plan.name}`}
             </Link>
           </Card>
+          </ScrollReveal>
         ))}
       </div>
     </section>

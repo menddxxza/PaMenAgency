@@ -1,3 +1,5 @@
+import { ScrollReveal } from '@/components/landing/scroll-reveal';
+
 const STEPS = [
   {
     step: '01',
@@ -27,19 +29,19 @@ export function HowItWorks() {
   return (
     <section id="how" className="border-y border-border bg-surface/50 py-24">
       <div className="container">
-        <div className="mx-auto max-w-2xl text-center">
+        <ScrollReveal className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
             De la búsqueda al lead en segundos
           </h2>
-        </div>
+        </ScrollReveal>
 
         <div className="relative mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map(({ step, title, description }) => (
-            <div key={step} className="relative">
+          {STEPS.map(({ step, title, description }, i) => (
+            <ScrollReveal key={step} delayMs={i * 90}>
               <span className="font-display text-4xl font-semibold text-brand-500/40">{step}</span>
               <h3 className="mt-3 font-display text-base font-semibold text-fg">{title}</h3>
               <p className="mt-2 text-sm text-muted">{description}</p>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>
