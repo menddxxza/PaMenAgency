@@ -11,7 +11,7 @@ const RadarScene = dynamic(() => import('@/components/three/radar-scene').then((
 
 const DETECTIONS = [
   { name: 'Clínica Dental Rivas', status: 'Sin web', opportunity: 'Alta' },
-  { name: 'Gimnasio PowerFit', status: 'Solo Instagram', opportunity: 'Alta' },
+  { name: 'Gimnasio PowerFit', status: 'Teléfono y WhatsApp', opportunity: 'Alta' },
   { name: 'Bufete García & Asoc.', status: 'Web rota', opportunity: 'Media' },
 ];
 
@@ -84,7 +84,7 @@ export function Hero() {
                 <div className="min-w-0">
                   <p className="truncate font-medium text-fg">{d.name}</p>
                   <p className="flex items-center gap-1 text-xs text-muted">
-                    {d.status === 'Sin web' ? (
+                    {d.status.includes('Teléfono') ? (
                       <Phone className="h-3 w-3" />
                     ) : (
                       <Star className="h-3 w-3" />

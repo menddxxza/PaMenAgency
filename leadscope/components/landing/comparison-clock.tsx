@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 const TICKS = Array.from({ length: 12 }, (_, i) => i * 30);
 
 const ROWS = [
-  { key: 'manual', label: 'A mano', task: 'Revisar cada negocio y su web una a una', done: 1, total: 6 },
+  { key: 'manual', label: 'A mano', task: 'Buscar cliente por cliente, negocio a negocio', done: 1, total: 6 },
   { key: 'leadscope', label: 'Con LeadScope', task: 'Analizar los negocios de tu zona', done: 5, total: 6 },
 ] as const;
 
@@ -61,9 +61,9 @@ export function ComparisonClock() {
           </h2>
 
           <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
-            El mismo rato de prospección, dos resultados muy distintos. A mano, comprobar webs una
-            a una da tiempo a revisar un puñado de negocios. Con LeadScope, analizas cientos — y
-            te queda la tarde libre para vender, no para buscar.
+            El mismo rato de prospección, dos resultados muy distintos. A mano, buscar negocio por
+            negocio da tiempo a revisar un puñado de clientes potenciales. Con LeadScope, analizas
+            cientos de un tirón — y te queda la tarde libre para vender, no para buscar.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">

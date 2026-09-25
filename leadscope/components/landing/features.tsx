@@ -1,5 +1,12 @@
-import { Filter, FileDown, History, Sparkles } from 'lucide-react';
+import { Filter, FileDown, History, Sparkles, Phone, Mail, MessageCircle, Clock3, Globe, type LucideIcon } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+
+const CONTACT_FIELDS: [string, LucideIcon][] = [
+  ['Teléfono', Phone],
+  ['Email', Mail],
+  ['WhatsApp', MessageCircle],
+  ['Horario', Clock3],
+];
 import { ScrollReveal } from '@/components/landing/scroll-reveal';
 
 export function Features() {
@@ -16,35 +23,22 @@ export function Features() {
         </ScrollReveal>
 
         <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-12">
-          {/* Card grande: detección de estado de web */}
+          {/* Card grande: todos los datos de cada cliente de un vistazo */}
           <Card className="overflow-hidden p-7 hover:-translate-y-0.5 hover:shadow-card-hover lg:col-span-7">
             <h3 className="font-display text-xl font-semibold text-fg">
-              Conoce la presencia online de cada cliente
+              Todos los datos de tus clientes, de un vistazo
             </h3>
             <p className="mt-2 max-w-sm text-sm text-muted">
-              Comprobamos en vivo si existe, si está rota, si solo hay una red social o si el
-              diseño se quedó anclado en 2012 (con IA, opcional).
+              Nada de buscar negocio por negocio. Cada resultado trae ya todo lo que necesitas para
+              contactar y cerrar la venta.
             </p>
-            <div className="mt-6 space-y-2">
-              {[
-                ['Sin página web', 'danger'],
-                ['Solo redes sociales', 'warning'],
-                ['Web rota', 'danger'],
-                ['Web activa', 'success'],
-              ].map(([label, tone]) => (
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              {CONTACT_FIELDS.map(([label, Icon]) => (
                 <div
                   key={label}
-                  className="flex items-center gap-3 rounded-lg border border-border bg-bg px-3.5 py-2.5"
+                  className="flex items-center gap-2.5 rounded-lg border border-border bg-bg px-3.5 py-2.5"
                 >
-                  <span
-                    className={
-                      tone === 'danger'
-                        ? 'h-2 w-2 shrink-0 rounded-full bg-danger'
-                        : tone === 'warning'
-                          ? 'h-2 w-2 shrink-0 rounded-full bg-warning'
-                          : 'h-2 w-2 shrink-0 rounded-full bg-success'
-                    }
-                  />
+                  <Icon className="h-3.5 w-3.5 shrink-0 text-brand-600 dark:text-brand-400" />
                   <span className="text-sm text-fg">{label}</span>
                 </div>
               ))}
@@ -58,7 +52,7 @@ export function Features() {
                 Puntuación de oportunidad
               </h3>
               <p className="mt-2 text-sm text-muted">
-                Cada negocio recibe un score de 0 a 100 según su reputación y el estado de su web.
+                Cada negocio recibe un score de 0 a 100 según su reputación y su presencia online.
               </p>
             </div>
             <div className="mt-6 space-y-3">
@@ -114,6 +108,17 @@ export function Features() {
           </Card>
 
           <Card className="p-7 hover:-translate-y-0.5 hover:shadow-card-hover lg:col-span-6">
+            <Globe className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+            <h3 className="mt-4 font-display text-lg font-semibold text-fg">
+              Presencia online de cada negocio
+            </h3>
+            <p className="mt-1.5 text-sm text-muted">
+              Sin web, solo redes, web rota o activa — un dato más para priorizar a quién
+              contactar primero.
+            </p>
+          </Card>
+
+          <Card className="p-7 hover:-translate-y-0.5 hover:shadow-card-hover lg:col-span-6">
             <Sparkles className="h-5 w-5 text-brand-600 dark:text-brand-400" />
             <h3 className="mt-4 font-display text-lg font-semibold text-fg">
               Clasificación de calidad con IA
@@ -124,7 +129,7 @@ export function Features() {
             </p>
           </Card>
 
-          <Card className="flex items-center p-7 lg:col-span-6">
+          <Card className="flex items-center p-7 lg:col-span-12">
             <p className="text-sm text-muted">
               Toda la información proviene de{' '}
               <span className="font-medium text-fg">Google Places API</span> — fiable y siempre
