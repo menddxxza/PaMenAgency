@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Despiece · Plataforma técnica de vehículos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0d10; --surface:#14171b; --surface-2:#1b1f24; --line:#262b31; --line-2:#333a42;
+  --text:#e6e9ec; --text-2:#98a1ab; --text-3:#626b75;
+  --accent:#f0662b; --accent-dim:#5c2711; --ok:#4ea86b;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="light"]{
+  --bg:#f5f6f8; --surface:#fff; --surface-2:#eceef1; --line:#dde1e6; --line-2:#c6ccd3;
+  --text:#14171b; --text-2:#576069; --text-3:#8a939c; --accent:#cf4e19; --accent-dim:#f6d9cc;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);
+     font-size:14px;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:5px}
+::-webkit-scrollbar-track{background:transparent}
+
+.app{display:flex;flex-direction:column;height:100%;min-height:0}
+
+/* ---------- NAV ---------- */
+nav{flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:0 18px;height:52px;
+    background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;font-weight:600;letter-spacing:-.02em;font-size:15px}
+.brand .mk{width:19px;height:19px;border:1.5px solid var(--accent);border-radius:3px;position:relative}
+.brand .mk::after{content:'';position:absolute;inset:4px;border:1.5px solid var(--accent);border-radius:1px}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-2);min-width:0}
+.crumbs span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumbs i{color:var(--text-3);font-style:normal}
+.sp{flex:1}
+.nav-link{padding:6px 11px;border-radius:4px;font-size:12.5px;color:var(--text-2);transition:.14s}
+.nav-link:hover{color:var(--text);background:var(--surface-2)}
+.nav-link.on{color:var(--accent)}
+.ibtn{width:30px;height:30px;display:grid;place-items:center;border:1px solid var(--line);
+      border-radius:4px;color:var(--text-2);transition:.14s;flex:0 0 auto}
+.ibtn:hover{color:var(--text);border-color:var(--line-2)}
+.ibtn.on{color:var(--accent);border-color:var(--accent)}
+
+main{flex:1;min-height:0;position:relative;overflow:hidden}
+.view{position:absolute;inset:0;overflow-y:auto;display:none}
+.view.on{display:block}
+.view.flex.on{display:flex}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 24px 80px}
+
+.demo-flag{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;color:var(--accent);
+  border:1px solid var(--accent-dim);padding:3px 7px;border-radius:3px;display:inline-block}
+
+/* ---------- HOME ---------- */
+.hero{padding:74px 0 40px;text-align:center;border-bottom:1px solid var(--line)}
+.hero h1{margin:16px 0 0;font-size:40px;font-weight:700;letter-spacing:-.035em;line-height:1.08}
+.hero p{margin:14px auto 0;max-width:520px;color:var(--text-2);font-size:14.5px;line-height:1.65}
+.bigsearch{max-width:620px;margin:34px auto 0;position:relative}
+.bigsearch input{width:100%;padding:15px 17px 15px 44px;background:var(--surface);
+  border:1px solid var(--line);border-radius:7px;font-size:15px;outline:none;transition:.16s}
+.bigsearch input:focus{border-color:var(--accent)}
+.bigsearch svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--text-3)}
+.examples{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:15px}
+.ex{font-family:var(--mono);font-size:11px;padding:5px 10px;border:1px solid var(--line);
+    border-radius:20px;color:var(--text-3);transition:.14s}
+.ex:hover{border-color:var(--accent);color:var(--accent)}
+
+.secthead{display:flex;align-items:baseline;gap:12px;margin:0 0 18px}
+.secthead h2{margin:0;font-size:12px;font-family:var(--mono);letter-spacing:.11em;color:var(--text-3);font-weight:500}
+.secthead .n{font-family:var(--mono);font-size:11px;color:var(--text-3);margin-left:auto}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1px;
+      background:var(--line);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.card{background:var(--surface);padding:17px 18px;display:flex;flex-direction:column;gap:9px;
+      transition:background .14s;cursor:pointer;text-align:left}
+.card:hover{background:var(--surface-2)}
+.card .top{display:flex;align-items:flex-start;gap:10px}
+.card h3{margin:0;font-size:14.5px;font-weight:600;letter-spacing:-.01em;line-height:1.3;flex:1}
+.card .spec{font-family:var(--mono);font-size:11px;color:var(--text-2);line-height:1.7}
+.card .foot{display:flex;align-items:center;gap:7px;margin-top:3px}
+.pill{font-family:var(--mono);font-size:9.5px;letter-spacing:.07em;padding:3px 7px;
+      border-radius:3px;border:1px solid var(--line-2);color:var(--text-3)}
+.pill.has3d{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- FICHA ---------- */
+.vhead{border-bottom:1px solid var(--line);background:var(--surface)}
+.vhead .in{max-width:1180px;margin:0 auto;padding:30px 24px 26px}
+.vhead h1{margin:9px 0 0;font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1.15}
+.vhead .sub{margin:9px 0 0;font-family:var(--mono);font-size:12.5px;color:var(--text-2)}
+.vhead .acts{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+.btn{padding:10px 17px;border-radius:5px;font-size:13.5px;font-weight:500;
+     border:1px solid var(--line-2);color:var(--text);transition:.15s;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--text-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.1)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+
+.specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1px;
+       background:var(--line);border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-top:26px}
+.sp-item{background:var(--surface);padding:14px 16px}
+.sp-item dt{margin:0 0 5px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--text-3)}
+.sp-item dd{margin:0;font-size:14px;font-weight:500}
+.na{color:var(--text-3);font-style:italic;font-weight:400;font-size:13px}
+
+.syslist{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1px;
+         background:var(--line);border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-top:14px}
+.sysc{background:var(--surface);padding:15px 16px;text-align:left;transition:.14s;cursor:pointer}
+.sysc:hover{background:var(--surface-2)}
+.sysc .nm{font-size:14px;font-weight:500}
+.sysc .ct{font-family:var(--mono);font-size:10.5px;color:var(--text-3);margin-top:4px}
+
+/* ---------- EXPLORADOR 3D ---------- */
+#v3d{display:none}
+#v3d.on{display:flex}
+aside{flex:0 0 234px;background:var(--surface);border-right:1px solid var(--line);
+      display:flex;flex-direction:column;min-height:0}
+aside.right{flex-basis:326px;border-right:0;border-left:1px solid var(--line)}
+.pane-head{padding:12px 16px 10px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+           color:var(--text-3);border-bottom:1px solid var(--line);display:flex;align-items:center}
+.pane-body{flex:1;overflow-y:auto;overscroll-behavior:contain}
+.psearch{padding:9px 12px;border-bottom:1px solid var(--line)}
+.psearch input{width:100%;padding:7px 10px;background:var(--surface-2);border:1px solid var(--line);
+               border-radius:4px;font-size:13px;outline:none}
+.psearch input:focus{border-color:var(--accent)}
+.sys{border-bottom:1px solid var(--line)}
+.sys-row{width:100%;display:flex;align-items:center;gap:9px;padding:10px 16px;text-align:left;transition:.12s}
+.sys-row:hover{background:var(--surface-2)}
+.sys-row .dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);flex:0 0 auto}
+.sys-row.active .dot{background:var(--accent)}
+.sys-row .nm{flex:1;font-size:13px;font-weight:500}
+.sys-row.active .nm{color:var(--accent)}
+.sys-row .ct{font-family:var(--mono);font-size:10.5px;color:var(--text-3)}
+.sub{background:var(--bg)}
+.sub button{width:100%;display:flex;gap:8px;align-items:baseline;padding:7px 16px 7px 31px;
+            text-align:left;font-size:12.5px;color:var(--text-2);transition:.12s}
+.sub button:hover{background:var(--surface-2);color:var(--text)}
+.sub button.sel{background:var(--accent-dim);color:var(--text)}
+.sub button .c{font-family:var(--mono);font-size:9.5px;color:var(--text-3);margin-left:auto}
+
+.viewport{flex:1;position:relative;min-width:0;background:var(--bg)}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.hud{position:absolute;left:0;right:0;bottom:0;padding:14px;pointer-events:none}
+.controls{pointer-events:auto;display:flex;align-items:center;gap:13px;max-width:570px;margin:0 auto;
+  background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);
+  border-radius:6px;padding:10px 14px;backdrop-filter:blur(8px)}
+.ctl-l{font-family:var(--mono);font-size:10px;letter-spacing:.09em;color:var(--text-3);white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:2px;background:var(--line);
+  border-radius:2px;outline:none;min-width:64px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+  background:var(--accent);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border:0;border-radius:50%;background:var(--accent)}
+.tbtn{padding:6px 11px;border:1px solid var(--line);border-radius:4px;font-size:12px;
+      color:var(--text-2);transition:.15s;white-space:nowrap}
+.tbtn:hover{color:var(--text);border-color:var(--line-2)}
+.tbtn.on{color:var(--accent);border-color:var(--accent)}
+.vbadge{position:absolute;top:13px;left:13px}
+.vhint{position:absolute;top:13px;right:13px;font-size:11px;color:var(--text-3);text-align:right;line-height:1.75}
+
+.empty{padding:32px 22px;color:var(--text-3);font-size:12.5px;line-height:1.75}
+.part-hd{padding:17px 18px 14px;border-bottom:1px solid var(--line)}
+.part-hd .c{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--accent)}
+.part-hd h2{margin:7px 0 0;font-size:18px;font-weight:600;letter-spacing:-.015em;line-height:1.25}
+.part-hd .path{margin:6px 0 0;font-size:11.5px;color:var(--text-2)}
+.field{padding:12px 18px;border-bottom:1px solid var(--line)}
+.field dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--text-3);margin:0 0 5px}
+.field dd{margin:0;font-size:13px;line-height:1.55}
+.meter{display:flex;gap:3px;margin-top:4px}
+.meter i{width:17px;height:3px;background:var(--line);border-radius:2px}
+.meter i.f{background:var(--accent)}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-family:var(--mono);font-size:10px;padding:3px 7px;border:1px solid var(--line);
+     border-radius:3px;color:var(--text-2)}
+.tag.link{cursor:pointer;transition:.15s}
+.tag.link:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- ADMIN ---------- */
+.adm-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:26px}
+.adm-tab{padding:10px 15px;font-size:13px;color:var(--text-2);border-bottom:2px solid transparent;transition:.14s}
+.adm-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+.drop{border:1.5px dashed var(--line-2);border-radius:8px;padding:38px 24px;text-align:center;
+      transition:.16s;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--surface)}
+.drop h3{margin:12px 0 5px;font-size:15px;font-weight:600}
+.drop p{margin:0;font-size:12.5px;color:var(--text-2);line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--text-3);
+   padding:10px 11px;border-bottom:1px solid var(--line);font-weight:500;white-space:nowrap}
+td{padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:hover td{background:var(--surface)}
+td.mono{font-family:var(--mono);font-size:11px;color:var(--text-2)}
+select,input.num{background:var(--surface-2);border:1px solid var(--line);border-radius:4px;
+                 padding:5px 7px;font-size:12px;outline:none}
+select:focus,input.num:focus{border-color:var(--accent)}
+input.num{width:62px;font-family:var(--mono)}
+.tbl-wrap{border:1px solid var(--line);border-radius:7px;overflow-x:auto;background:var(--bg)}
+.ok-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);display:inline-block}
+.no-dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);display:inline-block}
+.note{background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--accent);
+      border-radius:5px;padding:14px 16px;font-size:12.5px;color:var(--text-2);line-height:1.7;margin-top:22px}
+
+.sheet-close{display:none}
+.scrim{display:none;position:absolute;inset:0;z-index:15;background:rgba(0,0,0,.55)}
+.scrim.on{display:block}
+
+@media (max-width:900px){
+  .wrap{padding:26px 16px 70px}
+  .hero{padding:44px 0 30px}
+  .hero h1{font-size:29px}
+  .vhead .in{padding:22px 16px 20px}
+  .vhead h1{font-size:22px}
+  .crumbs{display:none}
+  aside{position:absolute;z-index:20;top:0;bottom:0;width:82%;max-width:310px;flex-basis:auto;
+        transform:translateX(-100%);transition:transform .22s ease}
+  aside.right{right:0;left:auto;transform:translateX(100%);width:90%;max-width:360px}
+  aside.open{transform:translateX(0)}
+  .sheet-close{display:grid;place-items:center;margin-left:auto;width:24px;height:24px;color:var(--text-3)}
+  .vhint{display:none}
+  .ctl-l{display:none}
+  nav{padding:0 12px;gap:10px}
+  .nav-link{padding:6px 8px}
+}
+@media (min-width:901px){.scrim{display:none!important}.m-only{display:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<nav>
+  <button class="ibtn m-only" id="btn3dLeft" style="display:none" aria-label="Sistemas">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+  </button>
+  <a class="brand" href="#/"><span class="mk"></span>Despiece</a>
+  <div class="crumbs" id="crumbs"></div>
+  <div class="sp"></div>
+  <a class="nav-link" href="#/" data-nav="home">Vehículos</a>
+  <a class="nav-link" href="#/admin" data-nav="admin">Admin</a>
+  <button class="ibtn" id="btnTheme" aria-label="Tema">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="3.4"/><path d="M8 1v1.6M8 13.4V15M15 8h-1.6M2.6 8H1M12.9 3.1l-1.1 1.1M4.2 11.8l-1.1 1.1M12.9 12.9l-1.1-1.1M4.2 4.2L3.1 3.1"/></svg>
+  </button>
+  <button class="ibtn m-only" id="btn3dRight" style="display:none" aria-label="Ficha">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="2" width="10" height="12" rx="1"/><path d="M5.5 5.5h5M5.5 8h5M5.5 10.5h3"/></svg>
+  </button>
+</nav>
+
+<main>
+  <!-- HOME -->
+  <section class="view on" id="vHome">
+    <div class="hero">
+      <span class="demo-flag">DEMO DATA · CATÁLOGO PARCIAL</span>
+      <h1>Explora cualquier vehículo<br>pieza por pieza</h1>
+      <p>Selecciona tu coche, ábrelo en 3D, desmóntalo virtualmente y consulta cada componente: qué es, dónde está y qué hay que quitar para llegar hasta él.</p>
+      <div class="bigsearch">
+        <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5L14 14"/></svg>
+        <input id="homeQ" type="search" placeholder="SEAT León 2.0 TDI · turbo EA288 · alternador…" autocomplete="off">
+      </div>
+      <div class="examples" id="examples"></div>
+    </div>
+    <div class="wrap">
+      <div class="secthead"><h2 id="resTitle">VEHÍCULOS</h2><span class="n" id="resCount"></span></div>
+      <div class="grid" id="results"></div>
+      <div class="secthead" style="margin-top:44px"><h2>COMPONENTES</h2><span class="n" id="cmpCount"></span></div>
+      <div class="grid" id="cmpResults"></div>
+    </div>
+  </section>
+
+  <!-- FICHA VEHÍCULO -->
+  <section class="view" id="vCar"><div id="carBody"></div></section>
+
+  <!-- EXPLORADOR 3D -->
+  <section class="view flex" id="v3d">
+    <div class="scrim" id="scrim"></div>
+    <aside id="paneLeft">
+      <div class="pane-head">SISTEMAS<button class="sheet-close" data-close>✕</button></div>
+      <div class="psearch"><input id="q3d" type="search" placeholder="Buscar componente…" autocomplete="off"></div>
+      <div class="pane-body" id="tree"></div>
+    </aside>
+    <div class="viewport" id="viewport">
+      <canvas id="cv"></canvas>
+      <span class="demo-flag vbadge">DEMO DATA · GEOMETRÍA ESQUEMÁTICA</span>
+      <div class="vhint">Arrastrar · rotar<br>Rueda · zoom<br>Clic · seleccionar</div>
+      <div class="hud"><div class="controls">
+        <span class="ctl-l">DESPIECE</span>
+        <input type="range" id="explode" min="0" max="100" value="0">
+        <button class="tbtn" id="btnIso">Aislar</button>
+        <button class="tbtn" id="btnReset">Restaurar</button>
+      </div></div>
+    </div>
+    <aside class="right" id="paneRight">
+      <div class="pane-head">FICHA DE COMPONENTE<button class="sheet-close" data-close>✕</button></div>
+      <div class="pane-body" id="detail"></div>
+    </aside>
+  </section>
+
+  <!-- ADMIN -->
+  <section class="view" id="vAdmin"><div class="wrap" id="admBody"></div></section>
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ════════════════════════════════════════════════════════════
+   CAPA DE DATOS — espejo de schema.sql
+   Sustituir por fetch() a la API cuando exista el backend.
+   ════════════════════════════════════════════════════════════ */
+
+const DB = {
+  manufacturer:[{id:'mf-seat',slug:'seat',name:'SEAT',country:'ES',group:'Volkswagen Group'}],
+  model:[{id:'md-leon',manufacturer_id:'mf-seat',slug:'leon',name:'León'}],
+  generation:[{id:'gn-5f',model_id:'md-leon',slug:'5f',name:'III (5F)',platform:'MQB',year_start:2012,year_end:2020}],
+  body_style:[
+    {id:'bs-5d',slug:'hatchback-5d',name:'5 puertas',doors:5},
+    {id:'bs-3d',slug:'hatchback-3d',name:'SC 3 puertas',doors:3},
+    {id:'bs-st',slug:'estate',name:'ST familiar',doors:5}
+  ],
+  engine:[
+    {id:'en-ea288-150',code:'CRLB / DFGA',family:'EA288',cc:1968,cyl:4,fuel:'diesel',asp:'Turbo VGT',kw:110,nm:340,euro:'Euro 6'},
+    {id:'en-ea288-184',code:'CUNA / DFHA',family:'EA288',cc:1968,cyl:4,fuel:'diesel',asp:'Turbo VGT',kw:135,nm:380,euro:'Euro 6'},
+    {id:'en-ea288-115',code:'CXXB / DDYA',family:'EA288',cc:1598,cyl:4,fuel:'diesel',asp:'Turbo VGT',kw:85,nm:250,euro:'Euro 6'},
+    {id:'en-ea211-125',code:'CZEA',family:'EA211',cc:1395,cyl:4,fuel:'petrol',asp:'Turbo',kw:92,nm:200,euro:'Euro 6'},
+    {id:'en-ea211-150',code:'DADA',family:'EA211 evo',cc:1498,cyl:4,fuel:'petrol',asp:'Turbo',kw:110,nm:250,euro:'Euro 6'},
+    {id:'en-ea888-290',code:'DJHA',family:'EA888 gen3',cc:1984,cyl:4,fuel:'petrol',asp:'Turbo',kw:213,nm:380,euro:'Euro 6'}
+  ],
+  transmission:[
+    {id:'tr-mq6',code:'MQ350 / 02Q',type:'manual',gears:6,name:'Manual 6v'},
+    {id:'tr-dq381',code:'DQ381',type:'dsg',gears:7,name:'DSG 7v'},
+    {id:'tr-dq250',code:'DQ250',type:'dsg',gears:6,name:'DSG 6v'}
+  ],
+  vehicle:[
+    {id:'vh-1',slug:'seat-leon-5f-2-0-tdi-150-fr-2017',gen:'gn-5f',body:'bs-5d',engine:'en-ea288-150',trans:'tr-dq381',
+     trim:'FR',y0:2016,y1:2020,dt:'fwd',L:4282,W:1816,H:1459,WB:2636,kg:1350,tank:50,model3d:'m3d-1'},
+    {id:'vh-2',slug:'seat-leon-5f-2-0-tdi-150-style-2017',gen:'gn-5f',body:'bs-5d',engine:'en-ea288-150',trans:'tr-mq6',
+     trim:'Style',y0:2016,y1:2020,dt:'fwd',L:4282,W:1816,H:1459,WB:2636,kg:1320,tank:50,model3d:'m3d-1'},
+    {id:'vh-3',slug:'seat-leon-st-5f-2-0-tdi-150-xcellence-2018',gen:'gn-5f',body:'bs-st',engine:'en-ea288-150',trans:'tr-dq381',
+     trim:'Xcellence',y0:2016,y1:2020,dt:'fwd',L:4548,W:1816,H:1454,WB:2636,kg:1405,tank:50,model3d:'m3d-1'},
+    {id:'vh-4',slug:'seat-leon-5f-2-0-tdi-184-fr-2016',gen:'gn-5f',body:'bs-5d',engine:'en-ea288-184',trans:'tr-dq381',
+     trim:'FR',y0:2014,y1:2020,dt:'fwd',L:4282,W:1816,H:1459,WB:2636,kg:1375,tank:50,model3d:'m3d-1'},
+    {id:'vh-5',slug:'seat-leon-5f-1-6-tdi-115-reference-2018',gen:'gn-5f',body:'bs-5d',engine:'en-ea288-115',trans:'tr-mq6',
+     trim:'Reference',y0:2017,y1:2020,dt:'fwd',L:4282,W:1816,H:1459,WB:2636,kg:1280,tank:50,model3d:null},
+    {id:'vh-6',slug:'seat-leon-5f-1-4-tsi-125-style-2016',gen:'gn-5f',body:'bs-5d',engine:'en-ea211-125',trans:'tr-mq6',
+     trim:'Style',y0:2014,y1:2018,dt:'fwd',L:4282,W:1816,H:1459,WB:2636,kg:1205,tank:50,model3d:null},
+    {id:'vh-7',slug:'seat-leon-5f-1-5-tsi-150-fr-2019',gen:'gn-5f',body:'bs-5d',engine:'en-ea211-150',trans:'tr-dq381',
+     trim:'FR',y0:2018,y1:2020,dt:'fwd',L:4282,W:1816,H:1459,WB:2636,kg:1245,tank:50,model3d:null},
+    {id:'vh-8',slug:'seat-leon-cupra-5f-290-2017',gen:'gn-5f',body:'bs-5d',engine:'en-ea888-290',trans:'tr-dq250',
+     trim:'Cupra 290',y0:2016,y1:2018,dt:'fwd',L:4282,W:1816,H:1449,WB:2636,kg:1375,tank:50,model3d:null}
+  ],
+  model_3d:[{id:'m3d-1',code:'SEAT_5F_20TDI_2017_MAIN',storage_key:'models/seat/5f_20tdi_2017_v1.glb',
+             version:1,status:'published',source:'procedural-demo'}]
+};
+
+const SYSTEMS=[
+  {code:'ENG',name:'Motor'},{code:'INT',name:'Admisión'},{code:'EXH',name:'Escape'},
+  {code:'FUEL',name:'Combustible'},{code:'COOL',name:'Refrigeración'},
+  {code:'ELE',name:'Eléctrico'},{code:'TRN',name:'Transmisión'}
+];
+
+const C=[
+ {code:'ENG.BLOCK.MAIN',sys:'ENG',sub:'Bloque',name:'Bloque motor',pos:'Centro del conjunto, transversal',
+  fn:'Aloja cilindros, cigüeñal y circuitos de aceite y refrigerante. Fundición de hierro en el EA288 diésel.',
+  mat:'Fundición gris',diff:5,time:960,tools:['Grúa de motor','Llave dinamométrica','Juego Torx'],deps:[]},
+ {code:'ENG.HEAD.MAIN',sys:'ENG',sub:'Culata',name:'Culata',pos:'Sobre el bloque, lado superior',
+  fn:'Cierra las cámaras de combustión. Aloja árboles de levas, válvulas e inyectores.',
+  mat:'Aluminio',diff:5,time:600,tools:['Llave dinamométrica','Torx T45','Útil de calado'],deps:['ENG.HEAD.COVER','FUEL.RAIL.MAIN','INT.MANIFOLD.MAIN']},
+ {code:'ENG.HEAD.COVER',sys:'ENG',sub:'Culata',name:'Tapa de balancines',pos:'Parte superior de la culata',
+  fn:'Sella la zona de árboles de levas y separa los vapores de aceite.',
+  mat:'Polímero reforzado',diff:2,time:45,tools:['Torx T30','Llave dinamométrica'],deps:['INT.COVER.MAIN']},
+ {code:'ENG.SUMP.PAN',sys:'ENG',sub:'Lubricación',name:'Cárter de aceite',pos:'Parte inferior del bloque',
+  fn:'Depósito de aceite del motor. Aloja la aspiración de la bomba.',
+  mat:'Aluminio',diff:3,time:120,tools:['Torx T30','Rascador de juntas'],deps:[]},
+ {code:'ENG.OIL.FILTER',sys:'ENG',sub:'Lubricación',name:'Filtro de aceite',pos:'Módulo frontal, lado admisión',
+  fn:'Retiene partículas del circuito de lubricación. Cartucho en carcasa fija.',
+  mat:'Celulosa / carcasa polímero',diff:1,time:15,tools:['Vaso 32 mm'],deps:[]},
+ {code:'ENG.CRANK.PULLEY',sys:'ENG',sub:'Distribución',name:'Polea de cigüeñal',pos:'Extremo derecho del cigüeñal',
+  fn:'Transmite el giro a la correa de accesorios. Damper de vibraciones torsionales.',
+  mat:'Acero / caucho',diff:4,time:90,tools:['Útil de retención','Triple cuadrado M16'],deps:[]},
+ {code:'ENG.BELT.AUX',sys:'ENG',sub:'Distribución',name:'Correa de accesorios',pos:'Lado derecho del motor',
+  fn:'Arrastra alternador, bomba de agua y compresor de clima.',
+  mat:'Caucho EPDM',diff:2,time:40,tools:['Útil tensor','Carraca'],deps:[]},
+ {code:'INT.TURBO.HOUSING',sys:'INT',sub:'Sobrealimentación',name:'Turbo — carcasa turbina',pos:'Lado escape, parte trasera del bloque',
+  fn:'Aprovecha los gases de escape para accionar la turbina. Geometría variable.',
+  mat:'Fundición refractaria',diff:4,time:300,tools:['E-Torx','Llave dinamométrica','Penetrante'],deps:['EXH.MANIFOLD.MAIN','EXH.DOWNPIPE.MAIN','INT.TURBO.ACTUATOR']},
+ {code:'INT.TURBO.COMPRESSOR',sys:'INT',sub:'Sobrealimentación',name:'Turbo — carcasa compresora',pos:'Solidaria a la turbina, lado admisión',
+  fn:'Comprime el aire de admisión que entra al intercooler.',
+  mat:'Aluminio',diff:4,time:300,tools:['E-Torx','Llave dinamométrica'],deps:['INT.PIPE.CHARGE']},
+ {code:'INT.TURBO.ACTUATOR',sys:'INT',sub:'Sobrealimentación',name:'Actuador de geometría variable',pos:'Lateral del turbo',
+  fn:'Regula el ángulo de los álabes según la carga. Mando eléctrico, requiere adaptación tras sustituir.',
+  mat:'Aluminio / polímero',diff:3,time:120,tools:['Torx T25','Equipo de diagnosis'],deps:[]},
+ {code:'INT.MANIFOLD.MAIN',sys:'INT',sub:'Admisión',name:'Colector de admisión',pos:'Cara delantera de la culata',
+  fn:'Distribuye el aire a los cilindros. Incorpora mariposas de turbulencia.',
+  mat:'Polímero reforzado',diff:3,time:150,tools:['Torx T30','Juego de juntas'],deps:['INT.COVER.MAIN']},
+ {code:'INT.INTERCOOLER.MAIN',sys:'INT',sub:'Admisión',name:'Intercooler',pos:'Frontal, delante del radiador',
+  fn:'Enfría el aire comprimido por el turbo, aumentando la densidad de la carga.',
+  mat:'Aluminio',diff:3,time:180,tools:['Torx T25','Pinzas de abrazadera'],deps:['INT.PIPE.CHARGE']},
+ {code:'INT.PIPE.CHARGE',sys:'INT',sub:'Admisión',name:'Conducto de sobrealimentación',pos:'Entre turbo e intercooler',
+  fn:'Canaliza el aire presurizado. Punto habitual de fugas de presión.',
+  mat:'Aluminio / silicona',diff:2,time:45,tools:['Destornillador plano','Pinzas'],deps:[]},
+ {code:'INT.COVER.MAIN',sys:'INT',sub:'Admisión',name:'Cubierta insonorizante',pos:'Sobre el motor',
+  fn:'Cubierta estética y acústica. Primer elemento a retirar en casi cualquier intervención.',
+  mat:'Polímero espumado',diff:1,time:5,tools:[],deps:[]},
+ {code:'INT.EGR.COOLER',sys:'INT',sub:'EGR',name:'Refrigerador EGR',pos:'Lateral trasero de la culata',
+  fn:'Enfría los gases recirculados antes de reintroducirlos en la admisión.',
+  mat:'Acero inoxidable',diff:4,time:240,tools:['Torx T30','Llave dinamométrica'],deps:['INT.COVER.MAIN','INT.MANIFOLD.MAIN']},
+ {code:'INT.EGR.VALVE',sys:'INT',sub:'EGR',name:'Válvula EGR',pos:'Junto al refrigerador EGR',
+  fn:'Regula el caudal de gases recirculados. Fuente frecuente de carbonilla.',
+  mat:'Aluminio / acero',diff:3,time:150,tools:['Torx T30','Limpiador de admisión'],deps:['INT.COVER.MAIN']},
+ {code:'EXH.MANIFOLD.MAIN',sys:'EXH',sub:'Escape',name:'Colector de escape',pos:'Cara trasera de la culata',
+  fn:'Conduce los gases de los cilindros hacia la turbina.',
+  mat:'Fundición refractaria',diff:4,time:270,tools:['E-Torx','Penetrante','Llave dinamométrica'],deps:['INT.COVER.MAIN']},
+ {code:'EXH.DOWNPIPE.MAIN',sys:'EXH',sub:'Escape',name:'Bajante de escape',pos:'Bajo el turbo, hacia el tren trasero',
+  fn:'Conecta la salida de turbina con el sistema de postratamiento.',
+  mat:'Acero inoxidable',diff:3,time:120,tools:['Vaso','Penetrante'],deps:[]},
+ {code:'FUEL.RAIL.MAIN',sys:'FUEL',sub:'Alta presión',name:'Rail de alta presión',pos:'Parte superior de la culata',
+  fn:'Acumulador común de gasoil a alta presión para los inyectores.',
+  mat:'Acero forjado',diff:4,time:180,tools:['Llave de tubos 17 mm','Llave dinamométrica'],deps:['INT.COVER.MAIN']},
+ {code:'FUEL.INJ.CYL',sys:'FUEL',sub:'Inyección',name:'Inyector (×4)',pos:'Verticales en la culata, uno por cilindro',
+  fn:'Pulverizan el gasoil en la cámara. Requieren codificación IMA tras sustitución.',
+  mat:'Acero',diff:4,time:210,tools:['Extractor de inyectores','Llave dinamométrica','Equipo de diagnosis'],deps:['INT.COVER.MAIN','FUEL.RAIL.MAIN']},
+ {code:'FUEL.PUMP.HP',sys:'FUEL',sub:'Alta presión',name:'Bomba de alta presión',pos:'Extremo izquierdo de la culata',
+  fn:'Eleva la presión del combustible hasta el valor de rail. Accionada por el árbol de levas.',
+  mat:'Aluminio / acero',diff:5,time:300,tools:['Extractor','Útil de calado','Llave dinamométrica'],deps:['INT.COVER.MAIN','ENG.BELT.AUX']},
+ {code:'COOL.PUMP.WATER',sys:'COOL',sub:'Refrigeración',name:'Bomba de agua',pos:'Lado derecho del bloque',
+  fn:'Impulsa el refrigerante por el circuito. En el EA288 forma módulo con el termostato.',
+  mat:'Aluminio / polímero',diff:4,time:240,tools:['Torx T30','Recipiente de vaciado'],deps:['ENG.BELT.AUX']},
+ {code:'COOL.THERMO.MAIN',sys:'COOL',sub:'Refrigeración',name:'Termostato',pos:'Integrado en el módulo de bomba',
+  fn:'Regula la temperatura de funcionamiento abriendo el circuito al radiador.',
+  mat:'Polímero / latón',diff:3,time:150,tools:['Torx T30'],deps:['COOL.PUMP.WATER']},
+ {code:'COOL.RAD.MAIN',sys:'COOL',sub:'Refrigeración',name:'Radiador',pos:'Frontal, tras el intercooler',
+  fn:'Disipa el calor del refrigerante al aire ambiente.',
+  mat:'Aluminio / polímero',diff:3,time:210,tools:['Pinzas de abrazadera','Torx T25'],deps:['INT.INTERCOOLER.MAIN']},
+ {code:'ELE.ALT.MAIN',sys:'ELE',sub:'Carga',name:'Alternador',pos:'Lado derecho, arrastrado por la correa',
+  fn:'Genera corriente y mantiene la carga de la batería. Polea de rueda libre.',
+  mat:'Aluminio / cobre',diff:3,time:120,tools:['Útil tensor','Vaso 16 mm'],deps:['ENG.BELT.AUX']},
+ {code:'ELE.START.MAIN',sys:'ELE',sub:'Arranque',name:'Motor de arranque',pos:'Unión bloque-caja, zona trasera',
+  fn:'Arrastra el volante motor en el arranque.',
+  mat:'Acero / aluminio',diff:3,time:150,tools:['Vaso largo 16 mm','Extensión'],deps:[]},
+ {code:'TRN.FLY.DMF',sys:'TRN',sub:'Embrague',name:'Volante bimasa',pos:'Extremo izquierdo del cigüeñal',
+  fn:'Absorbe las vibraciones torsionales entre motor y caja de cambios.',
+  mat:'Acero',diff:5,time:480,tools:['Grúa','Útil de retención','Dinamométrica angular'],deps:['ELE.START.MAIN']}
+];
+
+const byCode=Object.fromEntries(C.map(c=>[c.code,c]));
+const sysName=Object.fromEntries(SYSTEMS.map(s=>[s.code,s.name]));
+const get=(t,id)=>DB[t].find(x=>x.id===id);
+
+function vehicleLabel(v){
+  const e=get('engine',v.engine), g=get('generation',v.gen), m=get('model',g.model_id),
+        mf=get('manufacturer',m.manufacturer_id), b=get('body_style',v.body);
+  const disp=(e.cc/1000).toFixed(1);
+  const fuelName={diesel:'TDI',petrol:'TSI'}[e.fuel]||'';
+  return {
+    mf:mf.name, model:m.name, gen:g.name, body:b.name, engine:e, trans:get('transmission',v.trans),
+    title:`${mf.name} ${m.name}${b.slug==='estate'?' ST':''} ${disp} ${fuelName} ${Math.round(e.kw*1.36)}`,
+    full:`${mf.name} ${m.name}${b.slug==='estate'?' ST':''} ${g.name} ${disp} ${fuelName} ${v.trim}`,
+    spec:`${disp} ${e.fuel==='diesel'?'Diésel':'Gasolina'} · ${Math.round(e.kw*1.36)} CV · ${get('transmission',v.trans).name}`,
+    years:`${v.y0}–${v.y1||''}`
+  };
+}
+
+/* ════════════════════════════════════════════════════════════
+   ROUTER
+   ════════════════════════════════════════════════════════════ */
+const views={home:'vHome',car:'vCar',explore:'v3d',admin:'vAdmin'};
+let current=null, currentVehicle=null;
+
+function route(){
+  const h=(location.hash||'#/').slice(2).split('/');
+  let view='home';
+  if(h[0]==='admin'){ view='admin'; renderAdmin(); }
+  else if(h[0]==='v' && h[1]){
+    const v=DB.vehicle.find(x=>x.slug===h[1]);
+    if(v){ currentVehicle=v;
+      if(h[2]==='3d' && v.model3d){ view='explore'; ensure3D(); }
+      else { view='car'; renderCar(v); } }
+  }
+  Object.values(views).forEach(id=>document.getElementById(id).classList.remove('on'));
+  document.getElementById(views[view]).classList.add('on');
+  current=view;
+  document.querySelectorAll('[data-nav]').forEach(a=>
+    a.classList.toggle('on', a.dataset.nav===(view==='admin'?'admin':'home')));
+  renderCrumbs(view);
+  syncChrome();
+  if(view==='explore'){ requestAnimationFrame(resize3D); }
+  closePanes();
+}
+addEventListener('hashchange',route);
+
+function renderCrumbs(view){
+  const el=document.getElementById('crumbs');
+  if(view==='home'){ el.innerHTML=''; return; }
+  if(view==='admin'){ el.innerHTML='<i>/</i><span>Administración</span>'; return; }
+  const L=vehicleLabel(currentVehicle);
+  el.innerHTML=`<i>/</i><span>${L.mf}</span><i>/</i><span>${L.model} ${L.gen}</span>`+
+    (view==='explore'?`<i>/</i><span style="color:var(--accent)">Explorador 3D</span>`:'');
+}
+
+/* ════════════════════════════════════════════════════════════
+   HOME — buscador
+   ════════════════════════════════════════════════════════════ */
+const homeQ=document.getElementById('homeQ');
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+
+const EXAMPLES=['SEAT León 2.0 TDI','León ST','turbo','EA288','inyector','Cupra','alternador','1.6 TDI'];
+document.getElementById('examples').innerHTML=EXAMPLES.map(e=>`<button class="ex">${e}</button>`).join('');
+document.querySelectorAll('.ex').forEach(b=>b.onclick=()=>{homeQ.value=b.textContent;renderHome()});
+
+function renderHome(){
+  const q=norm(homeQ.value.trim());
+  const vs=DB.vehicle.filter(v=>{
+    if(!q) return true;
+    const L=vehicleLabel(v);
+    return norm([L.full,L.spec,v.trim,L.engine.code,L.engine.family,v.y0,L.body].join(' ')).includes(q);
+  });
+  document.getElementById('resCount').textContent=`${vs.length} de ${DB.vehicle.length}`;
+  document.getElementById('results').innerHTML = vs.length? vs.map(v=>{
+    const L=vehicleLabel(v);
+    return `<button class="card" data-slug="${v.slug}">
+      <div class="top"><h3>${L.full}</h3></div>
+      <div class="spec">${L.spec}<br>${L.engine.code} · ${L.years} · ${L.body}</div>
+      <div class="foot">
+        <span class="pill ${v.model3d?'has3d':''}">${v.model3d?'MODELO 3D':'SIN 3D'}</span>
+        <span class="pill">${L.engine.family}</span>
+      </div></button>`;
+  }).join('') : '<div class="card" style="cursor:default"><span class="na">Ningún vehículo coincide con la búsqueda.</span></div>';
+  document.querySelectorAll('#results .card[data-slug]').forEach(b=>
+    b.onclick=()=>location.hash='#/v/'+b.dataset.slug);
+
+  const cs=q? C.filter(c=>norm([c.name,c.code,c.sub,c.fn,sysName[c.sys]].join(' ')).includes(q)) : [];
+  document.getElementById('cmpCount').textContent = q? `${cs.length} resultados` : 'escribe para buscar';
+  document.getElementById('cmpResults').innerHTML = cs.length? cs.slice(0,12).map(c=>
+    `<button class="card" data-c="${c.code}">
+       <div class="top"><h3>${c.name}</h3></div>
+       <div class="spec">${sysName[c.sys]} › ${c.sub}</div>
+       <div class="foot"><span class="pill">${c.code}</span></div>
+     </button>`).join('')
+    : `<div class="card" style="cursor:default"><span class="na">${q?'Sin componentes para esa búsqueda.':'Busca "turbo", "inyector", "alternador"…'}</span></div>`;
+  document.querySelectorAll('#cmpResults .card[data-c]').forEach(b=>
+    b.onclick=()=>{ pendingSelect=b.dataset.c; location.hash='#/v/seat-leon-5f-2-0-tdi-150-fr-2017/3d'; });
+}
+homeQ.oninput=renderHome;
+
+/* ════════════════════════════════════════════════════════════
+   FICHA DE VEHÍCULO
+   ════════════════════════════════════════════════════════════ */
+let pendingSelect=null;
+
+function renderCar(v){
+  const L=vehicleLabel(v), e=L.engine, t=L.trans;
+  const counts=SYSTEMS.map(s=>({s,n:C.filter(c=>c.sys===s.code).length}));
+  const sp=(k,val)=>`<div class="sp-item"><dt>${k}</dt><dd>${val??'<span class="na">Información no disponible</span>'}</dd></div>`;
+
+  document.getElementById('carBody').innerHTML=`
+  <div class="vhead"><div class="in">
+    <span class="demo-flag">DEMO DATA</span>
+    <h1>${L.full}</h1>
+    <div class="sub">${L.spec} · ${e.code} · ${L.years} · ${L.body}</div>
+    <div class="acts">
+      ${v.model3d
+        ? `<a class="btn primary" href="#/v/${v.slug}/3d">
+             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1.5l5.5 3.2v6.6L8 14.5 2.5 11.3V4.7L8 1.5z"/><path d="M2.5 4.7L8 8m0 0l5.5-3.3M8 8v6.5"/></svg>
+             Explorar en 3D</a>`
+        : `<button class="btn" disabled>Modelo 3D no disponible</button>`}
+      <button class="btn" onclick="history.back()">Volver</button>
+    </div>
+  </div></div>
+  <div class="wrap">
+    <div class="secthead"><h2>ESPECIFICACIONES</h2></div>
+    <div class="specs">
+      ${sp('FABRICANTE',L.mf)}${sp('MODELO',L.model+' '+L.gen)}${sp('ACABADO',v.trim)}
+      ${sp('CARROCERÍA',L.body)}${sp('AÑOS',L.years)}${sp('PLATAFORMA',get('generation',v.gen).platform)}
+    </div>
+    <div class="secthead" style="margin-top:34px"><h2>MOTOR Y TRANSMISIÓN</h2></div>
+    <div class="specs">
+      ${sp('CÓDIGO DE MOTOR',e.code)}${sp('FAMILIA',e.family)}${sp('CILINDRADA',e.cc+' cm³')}
+      ${sp('CILINDROS',e.cyl)}${sp('COMBUSTIBLE',e.fuel==='diesel'?'Diésel':'Gasolina')}
+      ${sp('SOBREALIMENTACIÓN',e.asp)}${sp('POTENCIA',e.kw+' kW · '+Math.round(e.kw*1.36)+' CV')}
+      ${sp('PAR MÁXIMO',e.nm+' Nm')}${sp('EMISIONES',e.euro)}
+      ${sp('TRANSMISIÓN',t.name+' ('+t.code+')')}${sp('TRACCIÓN',v.dt==='fwd'?'Delantera':v.dt.toUpperCase())}
+    </div>
+    <div class="secthead" style="margin-top:34px"><h2>DIMENSIONES</h2></div>
+    <div class="specs">
+      ${sp('LONGITUD',v.L+' mm')}${sp('ANCHURA',v.W+' mm')}${sp('ALTURA',v.H+' mm')}
+      ${sp('BATALLA',v.WB+' mm')}${sp('PESO EN VACÍO',v.kg+' kg')}${sp('DEPÓSITO',v.tank+' l')}
+    </div>
+    <div class="secthead" style="margin-top:34px"><h2>IDENTIFICADORES</h2></div>
+    <div class="specs">
+      ${sp('VEHICLE_ID','<span class="mono" style="font-size:12px">'+v.id+'</span>')}
+      ${sp('SLUG','<span class="mono" style="font-size:11.5px">'+v.slug+'</span>')}
+      ${sp('MODEL_3D_ID', v.model3d?'<span class="mono" style="font-size:12px">'+v.model3d+'</span>':null)}
+      ${sp('VIN',null)}${sp('TYPE APPROVAL',null)}${sp('REFERENCIAS OEM',null)}
+    </div>
+    ${v.model3d?`
+    <div class="secthead" style="margin-top:34px"><h2>SISTEMAS DISPONIBLES</h2><span class="n">${C.length} componentes</span></div>
+    <div class="syslist">
+      ${counts.map(({s,n})=>`<button class="sysc" data-sys="${s.code}">
+         <div class="nm">${s.name}</div><div class="ct">${n} componente${n>1?'s':''}</div></button>`).join('')}
+    </div>`:''}
+    <div class="note">
+      Las referencias OEM, equivalencias, proveedores y precios aparecen como <strong>Información no disponible</strong>
+      hasta que exista una fuente licenciada o carga manual verificada. La plataforma no genera datos técnicos
+      inventados en ningún punto.
+    </div>
+  </div>`;
+
+  document.querySelectorAll('.sysc').forEach(b=>b.onclick=()=>{
+    pendingSys=b.dataset.sys; location.hash='#/v/'+v.slug+'/3d';
+  });
+  document.getElementById('vCar').scrollTop=0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MOTOR 3D
+   ════════════════════════════════════════════════════════════ */
+let three=null, pendingSys=null;
+
+function ensure3D(){ if(!three) three=build3D(); if(pendingSys){three.setSys(pendingSys);pendingSys=null;}
+                     if(pendingSelect){three.select(pendingSelect);pendingSelect=null;} }
+function resize3D(){ if(three) three.resize(); }
+
+function build3D(){
+const canvas=document.getElementById('cv'), viewport=document.getElementById('viewport');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(38,1,.05,60);
+
+scene.add(new THREE.HemisphereLight(0xdfe6ef,0x1a1d21,.85));
+const k=new THREE.DirectionalLight(0xffffff,1.15);k.position.set(2.2,3.4,2.6);scene.add(k);
+const f=new THREE.DirectionalLight(0xbcd0e6,.5);f.position.set(-2.6,1.2,-2.2);scene.add(f);
+const r=new THREE.DirectionalLight(0xffffff,.35);r.position.set(0,-2,-1.5);scene.add(r);
+const grid=new THREE.GridHelper(4,20,0x2a3038,0x1e2329);
+grid.position.y=-.62;grid.material.transparent=true;grid.material.opacity=.5;scene.add(grid);
+const root=new THREE.Group();scene.add(root);
+
+const M={
+ iron:new THREE.MeshStandardMaterial({color:0x4a4f55,roughness:.82,metalness:.55}),
+ alu:new THREE.MeshStandardMaterial({color:0x9aa3ac,roughness:.42,metalness:.85}),
+ steel:new THREE.MeshStandardMaterial({color:0x757d86,roughness:.32,metalness:.92}),
+ plastic:new THREE.MeshStandardMaterial({color:0x22262b,roughness:.72,metalness:.05}),
+ rubber:new THREE.MeshStandardMaterial({color:0x14171a,roughness:.95,metalness:0}),
+ hot:new THREE.MeshStandardMaterial({color:0x5c5148,roughness:.88,metalness:.45}),
+ copper:new THREE.MeshStandardMaterial({color:0xa9764a,roughness:.45,metalness:.8})
+};
+const nodes=[];
+const BOX=(x,y,z)=>new THREE.BoxGeometry(x,y,z);
+const CYL=(a,b,h,s=18)=>new THREE.CylinderGeometry(a,b,h,s);
+const TOR=(a,b,s=14)=>new THREE.TorusGeometry(a,b,8,s);
+function add(code,mat,parts,pos){
+  const g=new THREE.Group();
+  parts.forEach(([geo,p,rot,m])=>{const me=new THREE.Mesh(geo,m||mat);
+    if(p)me.position.set(...p); if(rot)me.rotation.set(...rot); g.add(me);});
+  g.position.set(...pos); g.traverse(o=>o.userData.code=code); root.add(g);
+  nodes.push({mesh:g,code,home:g.position.clone(),explode:new THREE.Vector3()});
+}
+const P2=Math.PI/2;
+add('ENG.BLOCK.MAIN',M.iron,[[BOX(.42,.30,.30)],[BOX(.44,.05,.32),[0,-.155,0]],
+ [CYL(.055,.055,.29,14),[-.145,.02,0],[P2,0,0]],[CYL(.055,.055,.29,14),[-.048,.02,0],[P2,0,0]],
+ [CYL(.055,.055,.29,14),[.048,.02,0],[P2,0,0]],[CYL(.055,.055,.29,14),[.145,.02,0],[P2,0,0]]],[0,0,0]);
+add('ENG.HEAD.MAIN',M.alu,[[BOX(.42,.13,.28)],[CYL(.032,.032,.40,12),[0,.045,-.07],[0,0,P2]],
+ [CYL(.032,.032,.40,12),[0,.045,.07],[0,0,P2]]],[0,.215,0]);
+add('ENG.HEAD.COVER',M.plastic,[[BOX(.43,.075,.29)],[CYL(.032,.032,.06,14),[.13,.05,.09]]],[0,.318,0]);
+add('ENG.SUMP.PAN',M.alu,[[BOX(.40,.095,.27)],[BOX(.17,.05,.20),[-.08,-.06,0]],
+ [CYL(.012,.012,.03,10),[-.08,-.095,0]]],[0,-.235,0]);
+add('ENG.OIL.FILTER',M.plastic,[[CYL(.045,.045,.11,16)],[CYL(.05,.05,.02,16),[0,.06,0],null,M.alu]],[.14,.06,.19]);
+add('ENG.CRANK.PULLEY',M.steel,[[CYL(.085,.085,.028,24),null,[0,0,P2]],
+ [CYL(.095,.095,.012,24),[.022,0,0],[0,0,P2],M.rubber],[CYL(.03,.03,.05,12),[-.02,0,0],[0,0,P2]]],[.255,-.05,0]);
+add('ENG.BELT.AUX',M.rubber,[[TOR(.15,.009,28),null,[0,P2,0]]],[.30,.03,.02]);
+add('INT.TURBO.HOUSING',M.hot,[[TOR(.058,.038,16)],[CYL(.042,.042,.06,14),[0,0,.05],[P2,0,0]],
+ [BOX(.09,.07,.02),[0,-.055,0]]],[-.11,.05,-.23]);
+add('INT.TURBO.COMPRESSOR',M.alu,[[TOR(.05,.032,16)],[CYL(.032,.032,.05,14),[0,0,-.045],[P2,0,0]],
+ [CYL(.024,.024,.05,12),[.055,0,0],[0,0,P2]]],[-.11,.05,-.115]);
+add('INT.TURBO.ACTUATOR',M.plastic,[[BOX(.075,.05,.045)],[CYL(.008,.008,.055,8),[-.04,0,0],[0,0,P2],M.steel]],[-.20,.10,-.20]);
+add('INT.MANIFOLD.MAIN',M.plastic,[[BOX(.38,.075,.06)],[CYL(.022,.022,.075,10),[-.145,-.05,0]],
+ [CYL(.022,.022,.075,10),[-.048,-.05,0]],[CYL(.022,.022,.075,10),[.048,-.05,0]],
+ [CYL(.022,.022,.075,10),[.145,-.05,0]],[CYL(.032,.032,.05,12),[.21,.01,0],[0,0,P2]]],[0,.21,.205]);
+add('INT.INTERCOOLER.MAIN',M.alu,[[BOX(.52,.16,.045)],[BOX(.05,.17,.055),[-.275,0,0]],
+ [BOX(.05,.17,.055),[.275,0,0]],[CYL(.028,.028,.05,12),[-.275,.09,0]],[CYL(.028,.028,.05,12),[.275,-.09,0]]],[0,-.14,.50]);
+add('INT.PIPE.CHARGE',M.steel,[[CYL(.024,.024,.30,12),null,[P2,0,0]],
+ [CYL(.028,.028,.04,12),[0,0,.16],[P2,0,0],M.rubber],[CYL(.028,.028,.04,12),[0,0,-.16],[P2,0,0],M.rubber]],[-.16,-.02,.18]);
+add('INT.COVER.MAIN',M.plastic,[[BOX(.46,.045,.32)],[BOX(.30,.02,.10),[0,.03,0]]],[0,.40,0]);
+add('INT.EGR.COOLER',M.steel,[[BOX(.20,.06,.07)],[CYL(.022,.022,.05,10),[-.11,0,0],[0,0,P2]],
+ [CYL(.022,.022,.05,10),[.11,0,0],[0,0,P2]]],[.12,.16,-.20]);
+add('INT.EGR.VALVE',M.alu,[[CYL(.035,.035,.06,14)],[BOX(.05,.035,.05),[0,.045,0],null,M.plastic]],[.255,.17,-.16]);
+add('EXH.MANIFOLD.MAIN',M.hot,[[BOX(.30,.05,.045)],[CYL(.018,.018,.06,10),[-.11,.045,0]],
+ [CYL(.018,.018,.06,10),[-.037,.045,0]],[CYL(.018,.018,.06,10),[.037,.045,0]],
+ [CYL(.018,.018,.06,10),[.11,.045,0]]],[.02,.155,-.19]);
+add('EXH.DOWNPIPE.MAIN',M.steel,[[CYL(.032,.032,.22,14)],[CYL(.036,.036,.03,14),[0,.10,0]],
+ [CYL(.032,.032,.12,14),[0,-.15,-.05],[Math.PI/5,0,0]]],[-.11,-.16,-.27]);
+add('FUEL.RAIL.MAIN',M.steel,[[CYL(.018,.018,.34,14),null,[0,0,P2]],
+ [CYL(.012,.012,.03,8),[-.12,-.02,0]],[CYL(.012,.012,.03,8),[-.04,-.02,0]],
+ [CYL(.012,.012,.03,8),[.04,-.02,0]],[CYL(.012,.012,.03,8),[.12,-.02,0]]],[0,.30,-.085]);
+add('FUEL.INJ.CYL',M.steel,[[CYL(.011,.011,.15,10),[-.145,0,0]],[CYL(.011,.011,.15,10),[-.048,0,0]],
+ [CYL(.011,.011,.15,10),[.048,0,0]],[CYL(.011,.011,.15,10),[.145,0,0]],
+ [BOX(.026,.03,.026),[-.145,.085,0],null,M.plastic],[BOX(.026,.03,.026),[-.048,.085,0],null,M.plastic],
+ [BOX(.026,.03,.026),[.048,.085,0],null,M.plastic],[BOX(.026,.03,.026),[.145,.085,0],null,M.plastic]],[0,.235,0]);
+add('FUEL.PUMP.HP',M.alu,[[CYL(.05,.05,.09,16),null,[0,0,P2]],[BOX(.05,.06,.06),[0,.05,0]],
+ [CYL(.012,.012,.05,8),[.02,.08,0],null,M.steel]],[-.245,.20,.02]);
+add('COOL.PUMP.WATER',M.alu,[[CYL(.052,.052,.055,16),null,[0,0,P2]],
+ [CYL(.062,.062,.012,20),[.04,0,0],[0,0,P2],M.steel],[BOX(.05,.07,.05),[-.03,.02,0]]],[.255,.05,.14]);
+add('COOL.THERMO.MAIN',M.plastic,[[CYL(.032,.032,.045,14),null,[0,0,P2]],[CYL(.022,.022,.04,10),[0,-.035,0]]],[.25,.05,.215]);
+add('COOL.RAD.MAIN',M.alu,[[BOX(.50,.28,.035)],[BOX(.045,.30,.045),[-.265,0,0],null,M.plastic],
+ [BOX(.045,.30,.045),[.265,0,0],null,M.plastic],[CYL(.024,.024,.05,12),[-.265,.13,0],[P2,0,0],M.plastic]],[0,-.02,.42]);
+add('ELE.ALT.MAIN',M.alu,[[CYL(.055,.055,.115,18),null,[0,0,P2]],
+ [CYL(.032,.032,.018,16),[.068,0,0],[0,0,P2],M.steel],[CYL(.045,.045,.02,14),[-.065,0,0],[0,0,P2],M.copper],
+ [BOX(.03,.03,.03),[-.05,.045,0],null,M.plastic]],[.255,.155,-.02]);
+add('ELE.START.MAIN',M.steel,[[CYL(.045,.045,.14,16),null,[0,0,P2]],
+ [CYL(.022,.022,.06,12),[-.09,-.03,0],[0,0,P2]],[CYL(.028,.028,.06,12),[.03,.05,0],[0,0,P2],M.alu]],[-.24,-.09,-.14]);
+add('TRN.FLY.DMF',M.steel,[[CYL(.135,.135,.028,28),null,[0,0,P2]],
+ [CYL(.14,.14,.012,32),[-.02,0,0],[0,0,P2],M.iron],[CYL(.05,.05,.04,16),[.025,0,0],[0,0,P2]]],[-.245,-.05,0]);
+
+// vectores de despiece
+const center=new THREE.Vector3();
+nodes.forEach(n=>center.add(n.home)); center.divideScalar(nodes.length);
+nodes.forEach(n=>{const d=n.home.clone().sub(center);
+  if(d.length()<.02)d.set(0,1,0);
+  n.explode.copy(d.normalize().multiplyScalar(.35+d.length()*.9));});
+const fix={'INT.COVER.MAIN':[0,.55,0],'ENG.HEAD.COVER':[0,.38,0],'ENG.HEAD.MAIN':[0,.24,0],
+           'ENG.SUMP.PAN':[0,-.40,0],'FUEL.INJ.CYL':[0,.46,0],'FUEL.RAIL.MAIN':[0,.34,-.10]};
+nodes.forEach(n=>{if(fix[n.code])n.explode.set(...fix[n.code])});
+
+const cam={theta:.72,phi:1.12,dist:2.05,target:new THREE.Vector3(0,.03,0)};
+let tT=.72,tP=1.12,tD=2.05,drag=null,moved=0,pinch=0;
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY};moved=0});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);
+  tT-=dx*.006;tP=Math.max(.18,Math.min(Math.PI-.18,tP-dy*.006));drag={x:e.clientX,y:e.clientY}});
+canvas.addEventListener('pointerup',e=>{if(drag&&moved<6)pick(e);drag=null});
+canvas.addEventListener('pointercancel',()=>drag=null);
+canvas.addEventListener('wheel',e=>{e.preventDefault();
+  tD=Math.max(.7,Math.min(5,tD*(1+Math.sign(e.deltaY)*.09)))},{passive:false});
+canvas.addEventListener('touchmove',e=>{if(e.touches.length===2){e.preventDefault();
+  const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+  if(pinch)tD=Math.max(.7,Math.min(5,tD*(pinch/d)));pinch=d;drag=null}},{passive:false});
+canvas.addEventListener('touchend',()=>pinch=0);
+
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+let selected=null,isolate=false,amt=0,activeSys=null;
+
+function pick(e){const b=canvas.getBoundingClientRect();
+  ndc.x=((e.clientX-b.left)/b.width)*2-1; ndc.y=-((e.clientY-b.top)/b.height)*2+1;
+  ray.setFromCamera(ndc,camera);
+  const h=ray.intersectObjects(root.children,true).filter(x=>x.object.visible&&x.object.parent.visible);
+  doSelect(h.length?h[0].object.userData.code:null);}
+
+function doSelect(code){selected=code;visual();detail();tree();
+  if(code&&innerWidth<=900)openPane('paneRight');}
+
+function visual(){nodes.forEach(n=>{
+  const inSys=!activeSys||n.code.startsWith(activeSys+'.');
+  const sel=n.code===selected, hide=(isolate&&selected&&!sel)||!inSys;
+  n.mesh.visible=!hide;
+  n.mesh.traverse(o=>{if(!o.isMesh)return;
+    const dim=selected&&!sel;
+    o.material.transparent=dim;o.material.opacity=dim?.24:1;
+    o.material.emissive=new THREE.Color(sel?0x6b2408:0x000000);
+    o.material.emissiveIntensity=sel?1:0;o.material.depthWrite=!dim;});});}
+
+const treeEl=document.getElementById('tree'),detEl=document.getElementById('detail'),q=document.getElementById('q3d');
+function tree(){
+  const s=norm(q.value.trim());treeEl.innerHTML='';
+  SYSTEMS.forEach(sy=>{
+    let it=C.filter(c=>c.sys===sy.code);
+    if(s)it=it.filter(c=>norm(c.name+' '+c.code+' '+c.sub).includes(s));
+    if(!it.length)return;
+    const w=document.createElement('div');w.className='sys';
+    const row=document.createElement('button');row.className='sys-row'+(activeSys===sy.code?' active':'');
+    row.innerHTML=`<span class="dot"></span><span class="nm">${sy.name}</span><span class="ct">${it.length}</span>`;
+    row.onclick=()=>{activeSys=activeSys===sy.code?null:sy.code;doSelect(null)};
+    w.appendChild(row);
+    const sub=document.createElement('div');sub.className='sub';
+    it.forEach(c=>{const b=document.createElement('button');
+      b.className=c.code===selected?'sel':'';
+      b.innerHTML=`<span>${c.name}</span><span class="c">${c.code.split('.').slice(1).join('.')}</span>`;
+      b.onclick=()=>{doSelect(c.code);if(innerWidth<=900)closePanes()};sub.appendChild(b)});
+    w.appendChild(sub);treeEl.appendChild(w)});
+  if(!treeEl.children.length)treeEl.innerHTML='<div class="empty">Sin resultados.</div>';}
+q.oninput=tree;
+
+const na='<span class="na">Información no disponible</span>';
+function detail(){
+  if(!selected){detEl.innerHTML='<div class="empty">Selecciona un componente en el modelo 3D o en el árbol de sistemas para ver su ficha técnica, referencias y procedimiento de acceso.</div>';return}
+  const c=byCode[selected];
+  const deps=c.deps.map(d=>`<span class="tag link" data-go="${d}">${byCode[d]?byCode[d].name:d}</span>`).join('');
+  const tools=c.tools.length?c.tools.map(t=>`<span class="tag">${t}</span>`).join(''):na;
+  const meter=[1,2,3,4,5].map(i=>`<i class="${i<=c.diff?'f':''}"></i>`).join('');
+  const hh=Math.floor(c.time/60),mm=c.time%60;
+  detEl.innerHTML=`
+   <div class="part-hd"><div class="c">${c.code}</div><h2>${c.name}</h2>
+     <div class="path">${sysName[c.sys]} › ${c.sub}</div></div>
+   <div class="field"><dt>FUNCIÓN</dt><dd>${c.fn}</dd></div>
+   <div class="field"><dt>POSICIÓN</dt><dd>${c.pos}</dd></div>
+   <div class="field"><dt>MATERIAL</dt><dd>${c.mat}</dd></div>
+   <div class="field"><dt>REFERENCIA OEM</dt><dd>${na}</dd></div>
+   <div class="field"><dt>REFERENCIAS EQUIVALENTES</dt><dd>${na}</dd></div>
+   <div class="field"><dt>PROVEEDORES Y PRECIO</dt><dd>${na}</dd></div>
+   <div class="field"><dt>DIFICULTAD</dt><dd>${c.diff} / 5<div class="meter">${meter}</div></dd></div>
+   <div class="field"><dt>TIEMPO ESTIMADO</dt><dd>${hh?hh+' h ':''}${mm?mm+' min':''} <span class="na">· orientativo</span></dd></div>
+   <div class="field"><dt>HERRAMIENTAS</dt><dd><div class="tags">${tools}</div></dd></div>
+   <div class="field"><dt>DESMONTAR PREVIAMENTE</dt><dd>${deps?'<div class="tags">'+deps+'</div>':'<span class="na">Acceso directo</span>'}</dd></div>
+   <div class="field"><dt>PROCEDIMIENTO DETALLADO</dt><dd>${na}
+     <div style="margin-top:6px;font-size:11.5px;color:var(--text-3);line-height:1.6">Requiere fuente propia o licenciada.</div></dd></div>`;
+  detEl.querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>doSelect(el.dataset.go));
+  detEl.scrollTop=0;}
+
+const slider=document.getElementById('explode');
+slider.oninput=()=>amt=+slider.value/100;
+document.getElementById('btnIso').onclick=e=>{isolate=!isolate;e.currentTarget.classList.toggle('on',isolate);visual()};
+document.getElementById('btnReset').onclick=()=>{slider.value=0;amt=0;isolate=false;
+  document.getElementById('btnIso').classList.remove('on');activeSys=null;doSelect(null);
+  tT=.72;tP=1.12;tD=2.05};
+
+function resize(){const w=viewport.clientWidth,h=viewport.clientHeight;
+  if(!w||!h)return; renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+addEventListener('resize',resize);
+
+const tmp=new THREE.Vector3();
+(function loop(){requestAnimationFrame(loop);
+  cam.theta+=(tT-cam.theta)*.16;cam.phi+=(tP-cam.phi)*.16;cam.dist+=(tD-cam.dist)*.16;
+  const s=Math.sin(cam.phi);
+  camera.position.set(cam.target.x+cam.dist*s*Math.sin(cam.theta),
+    cam.target.y+cam.dist*Math.cos(cam.phi), cam.target.z+cam.dist*s*Math.cos(cam.theta));
+  camera.lookAt(cam.target);
+  nodes.forEach(n=>{tmp.copy(n.home).addScaledVector(n.explode,amt);n.mesh.position.lerp(tmp,.14)});
+  renderer.render(scene,camera);})();
+
+tree();visual();detail();resize();
+
+return {
+  resize, select:doSelect, nodes, grid,
+  setSys(s){activeSys=s;doSelect(null)},
+  setExplode(code,v){const n=nodes.find(x=>x.code===code); if(n)n.explode.set(...v);}
+};
+}
+
+/* ════════════════════════════════════════════════════════════
+   ADMIN — incluye parser real de GLB (sin dependencias)
+   ════════════════════════════════════════════════════════════ */
+let admTab='models', uploaded=null;
+
+function parseGLB(buf){
+  const dv=new DataView(buf);
+  if(dv.getUint32(0,true)!==0x46546C67) throw new Error('No es un archivo GLB válido');
+  const len=Math.min(dv.getUint32(8,true), buf.byteLength);
+  let off=12, json=null;
+  while(off+8<=len){
+    const cl=dv.getUint32(off,true), ct=dv.getUint32(off+4,true);
+    if(ct===0x4E4F534A){                       // 'JSON'
+      json=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,off+8,cl)));
+      break;
+    }
+    off += 8 + cl + ((4-(cl%4))%4);            // cabecera + datos + padding
+  }
+  if(!json) throw new Error('No se encontró el chunk JSON');
+  return json;
+}
+
+function glbNodes(json){
+  const out=[], nodes=json.nodes||[];
+  const path=(i,pre)=>{
+    const n=nodes[i], p=(pre?pre+'/':'')+(n.name||('node_'+i));
+    if(n.mesh!==undefined) out.push({
+      index:i, name:n.name||('node_'+i), path:p,
+      node_uuid:(n.extras&&n.extras.node_uuid)||null,
+      explode:(n.extras&&n.extras.explode)||null
+    });
+    (n.children||[]).forEach(c=>path(c,p));
+  };
+  const scene=json.scenes?json.scenes[json.scene||0]:null;
+  (scene&&scene.nodes?scene.nodes:nodes.map((_,i)=>i)).forEach(i=>path(i,''));
+  return out;
+}
+
+function renderAdmin(){
+  const el=document.getElementById('admBody');
+  const tabs=[['models','Modelos 3D'],['mapping','Mapeo de nodos'],['catalog','Catálogo']];
+  el.innerHTML=`
+    <span class="demo-flag">PANEL ADMINISTRATIVO</span>
+    <h1 style="margin:14px 0 22px;font-size:25px;font-weight:700;letter-spacing:-.03em">Administración</h1>
+    <div class="adm-tabs">${tabs.map(([k,n])=>`<button class="adm-tab ${admTab===k?'on':''}" data-t="${k}">${n}</button>`).join('')}</div>
+    <div id="admPane"></div>`;
+  el.querySelectorAll('.adm-tab').forEach(b=>b.onclick=()=>{admTab=b.dataset.t;renderAdmin()});
+  ({models:admModels,mapping:admMapping,catalog:admCatalog})[admTab]();
+  document.getElementById('vAdmin').scrollTop=0;
+}
+
+function admModels(){
+  const p=document.getElementById('admPane');
+  p.innerHTML=`
+    <div class="drop" id="drop">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="1.3"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M3 15v4a2 2 0 002 2h14a2 2 0 002-2v-4"/></svg>
+      <h3>Subir modelo GLB</h3>
+      <p>Arrastra aquí el archivo exportado desde Blender, o pulsa para seleccionarlo.<br>
+         Se leen los nodos y sus <span class="mono">extras.node_uuid</span> directamente del contenedor.</p>
+      <input type="file" id="file" accept=".glb,.gltf" hidden>
+    </div>
+    <div id="upRes"></div>
+    <div class="secthead" style="margin-top:34px"><h2>MODELOS REGISTRADOS</h2></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>CÓDIGO</th><th>VEHÍCULO</th><th>STORAGE KEY</th><th>V</th><th>NODOS</th><th>ESTADO</th></tr></thead>
+      <tbody>${DB.model_3d.map(m=>{
+        const v=DB.vehicle.find(x=>x.model3d===m.id);
+        return `<tr><td class="mono">${m.code}</td>
+          <td>${v?vehicleLabel(v).full:'—'}</td>
+          <td class="mono">${m.storage_key}</td>
+          <td class="mono">${m.version}</td>
+          <td class="mono">${C.length}</td>
+          <td><span class="ok-dot"></span> ${m.status}</td></tr>`}).join('')}
+      </tbody></table></div>
+    <div class="note">Los vectores de despiece se guardan en <span class="mono">model_node</span>, no dentro del GLB.
+      Así se ajusta la animación sin reexportar el archivo desde Blender.</div>`;
+
+  const drop=document.getElementById('drop'), file=document.getElementById('file');
+  drop.onclick=()=>file.click();
+  drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};
+  drop.ondragleave=()=>drop.classList.remove('over');
+  drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');
+    if(e.dataTransfer.files[0])readGLB(e.dataTransfer.files[0])};
+  file.onchange=()=>file.files[0]&&readGLB(file.files[0]);
+}
+
+function readGLB(f){
+  const out=document.getElementById('upRes');
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const json=parseGLB(rd.result);
+      const ns=glbNodes(json);
+      uploaded={name:f.name,size:f.size,nodes:ns,asset:json.asset||{}};
+      const withUuid=ns.filter(n=>n.node_uuid).length;
+      out.innerHTML=`
+        <div class="secthead" style="margin-top:30px"><h2>ARCHIVO LEÍDO</h2>
+          <span class="n">${(f.size/1e6).toFixed(2)} MB</span></div>
+        <div class="specs">
+          <div class="sp-item"><dt>ARCHIVO</dt><dd style="font-size:13px">${f.name}</dd></div>
+          <div class="sp-item"><dt>GENERADOR</dt><dd style="font-size:13px">${json.asset&&json.asset.generator||'—'}</dd></div>
+          <div class="sp-item"><dt>NODOS CON MALLA</dt><dd>${ns.length}</dd></div>
+          <div class="sp-item"><dt>CON node_uuid</dt><dd>${withUuid} / ${ns.length}${withUuid<ns.length?' <span class="na">· faltan UUID</span>':''}</dd></div>
+        </div>
+        <div class="tbl-wrap" style="margin-top:16px"><table>
+          <thead><tr><th>NODO</th><th>RUTA</th><th>NODE_UUID</th><th>COMPONENTE</th></tr></thead>
+          <tbody>${ns.map(n=>`<tr>
+            <td class="mono">${n.name}</td>
+            <td class="mono" style="max-width:260px;overflow:hidden;text-overflow:ellipsis">${n.path}</td>
+            <td>${n.node_uuid?'<span class="ok-dot"></span>':'<span class="no-dot"></span> <span class="na">sin UUID</span>'}</td>
+            <td>${compSelect(byCode[guessCode(n.name)]?guessCode(n.name):'')}</td></tr>`).join('')}
+          </tbody></table></div>`;
+    }catch(err){
+      out.innerHTML=`<div class="note" style="border-left-color:#c0392b">No se pudo leer el archivo: ${err.message}</div>`;
+    }
+  };
+  rd.readAsArrayBuffer(f);
+}
+
+function guessCode(name){
+  const base=name.split('.').slice(0,3).join('.').toUpperCase();
+  return byCode[base]?base:'';
+}
+function compSelect(sel){
+  return `<select><option value="">— sin asignar —</option>${
+    C.map(c=>`<option value="${c.code}" ${c.code===sel?'selected':''}>${c.code} · ${c.name}</option>`).join('')}</select>`;
+}
+
+function admMapping(){
+  const p=document.getElementById('admPane');
+  const m=DB.model_3d[0];
+  p.innerHTML=`
+    <div class="secthead"><h2>MODEL_NODE · ${m.code}</h2><span class="n">${C.length} nodos</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>NODO 3D</th><th>COMPONENTE</th><th>GRUPO</th><th>EX X</th><th>EX Y</th><th>EX Z</th><th>ORDEN</th></tr></thead>
+      <tbody>${C.map((c,i)=>{
+        const n=three?three.nodes.find(x=>x.code===c.code):null;
+        const e=n?n.explode:{x:0,y:0,z:0};
+        return `<tr data-code="${c.code}">
+          <td class="mono">${c.code}.001</td>
+          <td>${c.name}</td>
+          <td class="mono">${c.sys}</td>
+          <td><input class="num" type="number" step="0.05" value="${e.x.toFixed(2)}" data-ax="0"></td>
+          <td><input class="num" type="number" step="0.05" value="${e.y.toFixed(2)}" data-ax="1"></td>
+          <td><input class="num" type="number" step="0.05" value="${e.z.toFixed(2)}" data-ax="2"></td>
+          <td class="mono">${i}</td></tr>`}).join('')}
+      </tbody></table></div>
+    <div class="note">Edita cualquier vector y pulsa <strong>Ver en 3D</strong>: el cambio se aplica al viewer en vivo,
+      igual que hará la API cuando escriba en <span class="mono">model_node</span>.</div>
+    <div style="margin-top:18px;display:flex;gap:9px;flex-wrap:wrap">
+      <button class="btn primary" id="apply">Aplicar y ver en 3D</button>
+      <button class="btn" id="dumpSql">Generar SQL</button>
+    </div>
+    <pre id="sqlOut" style="display:none;margin-top:18px;background:var(--surface);border:1px solid var(--line);
+      border-radius:6px;padding:15px;overflow-x:auto;font-family:var(--mono);font-size:11px;
+      line-height:1.7;color:var(--text-2)"></pre>`;
+
+  document.getElementById('apply').onclick=()=>{
+    ensure3D();
+    p.querySelectorAll('tr[data-code]').forEach(tr=>{
+      const v=[...tr.querySelectorAll('input.num')].map(i=>+i.value);
+      three.setExplode(tr.dataset.code,v);
+    });
+    location.hash='#/v/seat-leon-5f-2-0-tdi-150-fr-2017/3d';
+  };
+  document.getElementById('dumpSql').onclick=()=>{
+    const rows=[...p.querySelectorAll('tr[data-code]')].map((tr,i)=>{
+      const v=[...tr.querySelectorAll('input.num')].map(x=>(+x.value).toFixed(3));
+      const c=tr.dataset.code;
+      return `  ('${m.id}', '${c}.001', (SELECT id FROM component WHERE code='${c}'), ${v[0]}, ${v[1]}, ${v[2]}, ${i}, '${c.split('.')[0]}')`;
+    });
+    const out=document.getElementById('sqlOut');
+    out.style.display='block';
+    out.textContent=
+`INSERT INTO model_node
+  (model_3d_id, node_path, component_id, explode_x, explode_y, explode_z, explode_order, explode_group)
+VALUES
+${rows.join(',\n')}
+ON CONFLICT (model_3d_id, node_uuid) DO UPDATE
+  SET explode_x = EXCLUDED.explode_x,
+      explode_y = EXCLUDED.explode_y,
+      explode_z = EXCLUDED.explode_z;`;
+  };
+}
+
+function admCatalog(){
+  const p=document.getElementById('admPane');
+  p.innerHTML=`
+    <div class="secthead"><h2>VEHÍCULOS</h2><span class="n">${DB.vehicle.length}</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>SLUG</th><th>MOTOR</th><th>CAMBIO</th><th>AÑOS</th><th>3D</th><th>ESTADO</th></tr></thead>
+      <tbody>${DB.vehicle.map(v=>{const L=vehicleLabel(v);
+        return `<tr><td class="mono" style="max-width:280px;overflow:hidden;text-overflow:ellipsis">${v.slug}</td>
+        <td class="mono">${L.engine.code}</td><td>${L.trans.name}</td>
+        <td class="mono">${L.years}</td>
+        <td>${v.model3d?'<span class="ok-dot"></span>':'<span class="no-dot"></span>'}</td>
+        <td>published</td></tr>`}).join('')}
+      </tbody></table></div>
+    <div class="secthead" style="margin-top:34px"><h2>COMPONENTES</h2><span class="n">${C.length}</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>CÓDIGO</th><th>NOMBRE</th><th>SISTEMA</th><th>DIF.</th><th>TIEMPO</th><th>DEPENDENCIAS</th></tr></thead>
+      <tbody>${C.map(c=>`<tr><td class="mono">${c.code}</td><td>${c.name}</td>
+        <td>${sysName[c.sys]}</td><td class="mono">${c.diff}/5</td>
+        <td class="mono">${c.time} min</td><td class="mono">${c.deps.length||'—'}</td></tr>`).join('')}
+      </tbody></table></div>
+    <div class="note">El catálogo de componentes es <strong>conceptual</strong> (tabla <span class="mono">component</span>).
+      Las referencias comprables viven en <span class="mono">part</span> y todavía no tienen fuente licenciada cargada.</div>`;
+}
+
+/* ════════════════════════════════════════════════════════════
+   CHROME
+   ════════════════════════════════════════════════════════════ */
+const scrim=document.getElementById('scrim');
+function openPane(id){closePanes();document.getElementById(id).classList.add('open');scrim.classList.add('on')}
+function closePanes(){document.querySelectorAll('aside').forEach(a=>a.classList.remove('open'));scrim.classList.remove('on')}
+scrim.onclick=closePanes;
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closePanes);
+document.getElementById('btn3dLeft').onclick=()=>openPane('paneLeft');
+document.getElementById('btn3dRight').onclick=()=>openPane('paneRight');
+
+function syncChrome(){
+  const mob=innerWidth<=900, is3d=current==='explore';
+  document.getElementById('btn3dLeft').style.display=(mob&&is3d)?'grid':'none';
+  document.getElementById('btn3dRight').style.display=(mob&&is3d)?'grid':'none';
+  if(!mob)closePanes();
+}
+addEventListener('resize',()=>{syncChrome();resize3D()});
+
+document.getElementById('btnTheme').onclick=()=>{
+  const next=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',next);
+  if(three)three.grid.material.color.set(next==='light'?0xc2c8ce:0x2a3038);
+};
+
+renderHome();
+route();
+})();
+</script>
+</body>
+</html>
