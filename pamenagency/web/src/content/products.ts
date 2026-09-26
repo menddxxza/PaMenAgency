@@ -28,14 +28,14 @@ export const productos: Producto[] = [
     prueba: 'En producción, con catálogo real y pago de comisión al 0 % desde el primer día.',
   },
   {
-    slug: 'revynai',
-    nombre: 'Revynai',
-    icon: 'gauge',
-    tagline: 'Auditoría de crecimiento con IA para empresas',
+    slug: 'leadscope',
+    nombre: 'LeadScope',
+    icon: 'target',
+    tagline: 'Encuentra clientes mucho más fácil: la IA lo hace todo por ti',
     descripcion:
-      'Analiza un negocio, detecta oportunidades de ingreso con un cálculo determinista (nunca inventado por IA) y activa agentes especializados para trabajarlas.',
-    url: 'https://revynai.es',
-    prueba: 'En producción, con cálculo de negocio siempre determinista: la IA redacta, nunca calcula cifras.',
+      'Localiza, cualifica y prioriza leads con IA de principio a fin, para dejar de buscar clientes a mano uno por uno.',
+    url: 'https://leadscope.es',
+    prueba: 'En producción, ya usado por clientes reales.',
   },
   {
     slug: 'notiq',

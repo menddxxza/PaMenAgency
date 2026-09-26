@@ -12,6 +12,6 @@ export const founder = {
   foto: '/pablo-mendoza.jpg',
   anosExperiencia: 2,
   formacionesIa: 4,
-  productos: ['IAPyme', 'Revynai', 'Notiq'],
+  productos: ['IAPyme', 'LeadScope', 'Notiq'],
   lema: 'No vendemos humo.',
 }
