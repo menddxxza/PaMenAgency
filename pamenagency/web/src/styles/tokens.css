@@ -1,66 +1,78 @@
 /* ------------------------------------------------------------------
    PaMenAgency — tokens de diseño
-   Negro dominante, dorado como acento. Nada más entra en la paleta.
+   Vacío negro, dorado como único acento, aire en vez de cajas.
    ------------------------------------------------------------------ */
 :root {
-  /* Superficies (de más profunda a más elevada) */
-  --pm-void: #050506;
-  --pm-black: #08080A;
-  --pm-surface: #0E0E11;
-  --pm-surface-2: #141418;
-  --pm-surface-3: #1B1B20;
+  /* Superficies. El fondo es negro puro; lo demás apenas se separa de él,
+     porque los elementos flotan sobre el vacío en vez de vivir en tarjetas. */
+  --pm-void: #000000;
+  --pm-black: #000000;
+  --pm-surface: #070707;
+  --pm-surface-2: #0C0C0C;
+  --pm-surface-3: #141414;
 
   /* Dorado — acento, nunca fondo amplio */
   --pm-gold: #D4AF37;
   --pm-gold-bright: #F0D680;
   --pm-gold-deep: #8A6F1E;
-  --pm-gold-soft: rgba(212, 175, 55, 0.12);
-  --pm-gold-line: rgba(212, 175, 55, 0.28);
+  --pm-gold-soft: rgba(212, 175, 55, 0.10);
+  --pm-gold-line: rgba(212, 175, 55, 0.24);
 
   /* Texto */
-  --pm-text: #F4F4F2;
-  --pm-text-soft: #C4C4C8;
-  --pm-muted: #8E8E96;
+  --pm-text: #FFFFFF;
+  --pm-text-soft: #B8B8B8;
+  --pm-muted: #8E8E8E;
   /* Elevado desde #5C5C64: el original no llegaba a 4.5:1 y se usa en texto
      real (copyright, migas de pan, contadores), no sólo en adornos. */
-  --pm-faint: #7A7A83;
+  --pm-faint: #7A7A7A;
 
-  /* Líneas y bordes */
-  --pm-line: rgba(255, 255, 255, 0.07);
-  --pm-line-strong: rgba(255, 255, 255, 0.13);
+  /* Líneas. Quedan pocas a propósito: separa el aire, no el trazo. */
+  --pm-line: rgba(255, 255, 255, 0.06);
+  --pm-line-strong: rgba(255, 255, 255, 0.12);
 
-  /* Tipografía */
-  --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  /* Tipografía — una sola familia, distinguida por peso y tamaño */
+  --font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  /* Escala tipográfica fluida — nunca desborda, nunca se corta */
-  --fs-hero: clamp(2.6rem, 8vw, 6.5rem);
-  --fs-h1: clamp(2.1rem, 5.2vw, 4rem);
-  --fs-h2: clamp(1.8rem, 4vw, 3rem);
-  --fs-h3: clamp(1.25rem, 2.4vw, 1.75rem);
-  --fs-h4: clamp(1.05rem, 1.6vw, 1.25rem);
-  --fs-body: clamp(1rem, 1.05vw, 1.075rem);
-  --fs-small: 0.875rem;
-  --fs-micro: 0.75rem;
+  /* Pesos: titulares en normal (nunca negrita), cuerpo en ultraligero */
+  --w-display: 400;
+  --w-body: 200;
+  --w-medium: 400;
+  --w-strong: 500;
 
-  /* Ritmo vertical */
-  --space-section: clamp(4.5rem, 9vw, 9rem);
-  --space-xl: clamp(2.5rem, 5vw, 4.5rem);
-  --space-lg: clamp(1.75rem, 3vw, 2.75rem);
-  --space-md: 1.25rem;
+  /* Interletraje: cuanto más grande el texto, más se cierra */
+  --track-display: -0.04em;
+  --track-title: -0.03em;
+  --track-eyebrow: 0.025em;
+
+  /* Escala tipográfica fluida — nunca desborda, nunca se corta */
+  --fs-hero: clamp(3rem, 7.6vw, 7rem);
+  --fs-h1: clamp(2.5rem, 5.6vw, 4.6rem);
+  --fs-h2: clamp(2rem, 4.2vw, 3.4rem);
+  --fs-h3: clamp(1.3rem, 2vw, 1.65rem);
+  --fs-h4: clamp(1.05rem, 1.5vw, 1.2rem);
+  --fs-body: 1.125rem;
+  --fs-small: 0.9375rem;
+  --fs-micro: 0.8125rem;
+
+  /* Ritmo vertical — el aire es el elemento de diseño principal */
+  --space-section: clamp(4rem, 8vw, 7.5rem);
+  --space-xl: clamp(2.25rem, 4.5vw, 3.75rem);
+  --space-lg: clamp(1.5rem, 3vw, 2.5rem);
+  --space-md: 1.125rem;
   --space-sm: 0.75rem;
 
   /* Layout */
-  --container: 1240px;
-  --container-wide: 1480px;
+  --container: 1280px;
+  --container-wide: 1440px;
   --container-reading: 760px;
-  --gutter: clamp(1.15rem, 4vw, 2.75rem);
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
   --header-h: 76px;
 
-  /* Formas */
-  --radius-sm: 8px;
-  --radius: 14px;
-  --radius-lg: 22px;
+  /* Formas — esquinas generosas, nada afilado */
+  --radius-sm: 12px;
+  --radius: 24px;
+  --radius-lg: 24px;
   --radius-pill: 999px;
 
   /* Movimiento */
@@ -70,10 +82,11 @@
   --dur: 320ms;
   --dur-slow: 620ms;
 
-  /* Sombras — negras y profundas, nunca grises lechosas */
-  --shadow-card: 0 18px 50px -24px rgba(0, 0, 0, 0.9);
-  --shadow-lift: 0 30px 70px -28px rgba(0, 0, 0, 1);
-  --glow-gold: 0 0 0 1px var(--pm-gold-line), 0 12px 40px -18px rgba(212, 175, 55, 0.45);
+  /* Sombras: ninguna. Sobre negro puro no separan nada, sólo ensucian.
+     Las variables se mantienen porque las usan componentes ya escritos. */
+  --shadow-card: none;
+  --shadow-lift: none;
+  --glow-gold: none;
 
   --z-cursor: 9000;
   --z-cookie: 8000;

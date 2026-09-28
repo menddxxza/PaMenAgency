@@ -60,9 +60,9 @@ export function ContactSection() {
             <div
               style={{
                 padding: '1.1rem 1.25rem',
-                border: '1px solid var(--pm-line)',
+                border: 'none',
                 borderRadius: 'var(--radius)',
-                background: 'var(--pm-surface)',
+                background: 'none',
               }}
             >
               <p style={{ fontSize: '0.88rem', color: 'var(--pm-muted)' }}>

@@ -81,7 +81,7 @@ export function DiagnosticTool() {
                   key={key}
                   style={{
                     padding: '1.1rem 1.25rem',
-                    border: '1px solid var(--pm-line)',
+                    border: 'none',
                     borderRadius: 'var(--radius)',
                     background: 'var(--pm-black)',
                   }}

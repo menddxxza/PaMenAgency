@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<Props, State> {
           minHeight: '100dvh',
           display: 'grid',
           placeItems: 'center',
-          background: '#050506',
+          background: '#000000',
           color: '#F4F4F2',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           padding: '2rem',
@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
             onClick={() => window.location.reload()}
             style={{
               background: '#D4AF37',
-              color: '#050506',
+              color: '#000000',
               border: 'none',
               borderRadius: '999px',
               padding: '0.75rem 1.75rem',

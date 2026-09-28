@@ -92,7 +92,7 @@ export function UseCasesSection() {
                   key={m.titulo}
                   style={{
                     padding: '1rem 1.1rem',
-                    border: '1px solid var(--pm-line)',
+                    border: 'none',
                     borderRadius: 'var(--radius)',
                     background: 'var(--pm-black)',
                   }}

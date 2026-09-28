@@ -115,7 +115,7 @@ export function Problem() {
           <div
             style={{
               padding: 'clamp(1.5rem, 3vw, 2.25rem)',
-              border: '1px solid var(--pm-gold-line)',
+              border: 'none',
               borderRadius: 'var(--radius-lg)',
               background:
                 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(212,175,55,0.10), transparent 70%), var(--pm-black)',

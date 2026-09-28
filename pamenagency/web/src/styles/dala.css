@@ -1,0 +1,347 @@
+/* ------------------------------------------------------------------
+   Capa de estilo "vacío".
+
+   Va la última a propósito: no reescribe los componentes, los aplana.
+   La regla es una sola — sobre negro puro, lo que separa el contenido es
+   el aire, no la caja. Se quitan fondos de tarjeta, bordes decorativos y
+   sombras; se mantienen las líneas que de verdad separan dos cosas
+   (divisores dentro de un bloque) y los fondos de lo que flota sobre el
+   contenido (menús, buscador, aviso de cookies), porque ahí el fondo no
+   es decoración: es legibilidad.
+
+   Para volver al estilo anterior basta con quitar el import de main.tsx.
+   ------------------------------------------------------------------ */
+
+/* ----------------------------- Tarjetas ----------------------------- */
+
+.pm-card {
+  padding: 0;
+  gap: 1rem;
+  background: none;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.pm-card::before { content: none; }
+
+.pm-card:hover,
+.pm-card:focus-within {
+  transform: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* El icono deja de ser un botón enmarcado y pasa a ser un signo dorado. */
+.pm-card__icon {
+  width: auto;
+  height: auto;
+  border: none;
+  background: none;
+  border-radius: 0;
+  place-items: center start;
+  margin-bottom: 0.25rem;
+}
+
+.pm-card:hover .pm-card__icon { transform: none; }
+
+.pm-card__title {
+  font-size: var(--fs-h3);
+  letter-spacing: var(--track-title);
+}
+
+.pm-card__text {
+  color: var(--pm-text-soft);
+  font-size: var(--fs-small);
+  font-weight: var(--w-body);
+}
+
+/* Sin marco, las tarjetas necesitan más aire entre ellas para leerse
+   como bloques distintos. */
+.pm-grid--cards,
+.pm-grid--2 { gap: var(--space-xl); }
+
+.pm-grid--cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+
+/* ------------------------------ Badges ------------------------------ */
+
+.pm-badge {
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 0;
+  letter-spacing: var(--track-eyebrow);
+  color: var(--pm-faint);
+}
+
+.pm-badge--gold { color: var(--pm-gold); }
+
+/* ------------------------------ Botones ------------------------------ */
+
+.pm-btn--primary {
+  background: var(--pm-gold);
+  border: none;
+  box-shadow: none;
+  font-weight: var(--w-strong);
+}
+
+.pm-btn--primary:hover {
+  background: var(--pm-gold-bright);
+  box-shadow: none;
+}
+
+/* El secundario deja de ser un botón con borde: es texto que lleva a un
+   sitio. Mantiene el área de pulsación, pierde la caja. */
+.pm-btn--ghost {
+  border: none;
+  background: none;
+  padding-inline: 0;
+  color: var(--pm-text);
+}
+
+.pm-btn--ghost:hover {
+  background: none;
+  color: var(--pm-gold);
+}
+
+.pm-btn--solid {
+  background: none;
+  border: none;
+  color: var(--pm-text);
+  padding-inline: 0;
+}
+
+.pm-btn--solid:hover { color: var(--pm-gold); }
+
+/* Dos secundarios seguidos sin caja necesitan separación propia: sin borde
+   que los delimite, el hueco es lo único que los separa. */
+.pm-row { gap: clamp(1.25rem, 2vw, 2rem); }
+
+/* ------------------------------ Header ------------------------------ */
+
+.pm-header { border-bottom: none; }
+
+.pm-header[data-scrolled='true'] {
+  background: rgba(0, 0, 0, 0.78);
+  border-bottom: none;
+}
+
+.pm-burger,
+.pm-header__iconbtn {
+  border: none;
+  background: none;
+}
+
+.pm-burger:hover,
+.pm-header__iconbtn:hover,
+.pm-header__iconbtn:focus-visible { background: none; color: var(--pm-gold); }
+
+/* El desplegable flota sobre el contenido: conserva fondo por legibilidad,
+   pierde borde grueso y sombra. */
+.pm-navgroup__panel {
+  background: rgba(0, 0, 0, 0.94);
+  border: 1px solid var(--pm-line);
+  box-shadow: none;
+  border-radius: var(--radius);
+}
+
+.pm-navgroup__link:hover { background: none; color: var(--pm-gold); }
+.pm-navgroup__link[aria-current='page'] { background: none; }
+
+.pm-mobilemenu { background: #000; }
+
+/* ---------------------------- Formularios ---------------------------- */
+
+/* Los campos sí tienen que decir dónde se escribe: se quedan con una línea
+   inferior en vez de una caja completa.
+   Ojo: `background-color`, no el atajo `background` — el atajo borraría la
+   flecha del desplegable, que viaja como background-image. */
+.pm-input,
+.pm-textarea,
+.pm-select {
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--pm-line-strong);
+  border-radius: 0;
+  padding-inline: 0;
+}
+
+.pm-select { background-position: right 0 center; padding-right: 1.75rem; }
+
+.pm-input:hover,
+.pm-textarea:hover,
+.pm-select:hover { border-bottom-color: var(--pm-gold-line); background-color: transparent; }
+
+.pm-input:focus-visible,
+.pm-textarea:focus-visible,
+.pm-select:focus-visible {
+  border-bottom-color: var(--pm-gold);
+  background-color: transparent;
+}
+
+.pm-input[aria-invalid='true'],
+.pm-textarea[aria-invalid='true'],
+.pm-select[aria-invalid='true'] { border-bottom-color: #C4544A; }
+
+.pm-select option { background: #0C0C0C; }
+
+.pm-label {
+  letter-spacing: var(--track-eyebrow);
+  color: var(--pm-muted);
+}
+
+/* La casilla de consentimiento mantiene su marco: es un control, no adorno. */
+
+/* ---------------------------- Acordeones ---------------------------- */
+
+.pm-accordion__icon { border: none; }
+
+/* ------------------------------ Footer ------------------------------ */
+
+.pm-footer {
+  background: #000;
+  border-top: 1px solid var(--pm-line);
+}
+
+/* ------------------------ Paneles de sección ------------------------ */
+
+/* Todo lo que era una caja pasa a flotar sobre el negro. */
+.pm-visual,
+.pm-painlist__item,
+.pm-pipe,
+.pm-crack-card,
+.pm-path,
+.pm-usecases__panel,
+.pm-diag,
+.pm-example,
+.pm-docnav__item,
+.pm-case,
+.pm-scenario,
+.pm-workday,
+.pm-workday__col,
+.pm-doc__toc {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.pm-visual { border-radius: var(--radius); }
+
+.pm-painlist__item { border-left: 2px solid rgba(196, 84, 74, 0.45); }
+
+.pm-path:hover {
+  background: none;
+  border-color: transparent;
+  transform: none;
+}
+
+.pm-crack-card__fix { border-top: 1px solid var(--pm-line); }
+
+.pm-usecases__tab[aria-selected='true'] { background: none; color: var(--pm-gold); }
+.pm-usecases__tab:hover { background: none; color: var(--pm-text); }
+
+.pm-diag__opt {
+  background: none;
+  border: 1px solid var(--pm-line-strong);
+  border-radius: var(--radius-pill);
+}
+
+.pm-diag__opt:hover { background: none; border-color: var(--pm-gold-line); }
+.pm-diag__opt[aria-pressed='true'] { background: none; border-color: var(--pm-gold); }
+.pm-diag__key { border: none; }
+
+.pm-workday__col--ia { background: none; }
+
+.pm-score { border: none; }
+
+/* Los bloques de acento se quedan, sin borde: un lavado dorado muy tenue
+   basta para distinguirlos sobre negro. */
+.pm-cta,
+.pm-audit,
+.pm-calc__resultado,
+.pm-callout {
+  border: none;
+  border-radius: var(--radius);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.pm-callout--warn { background: rgba(196, 84, 74, 0.06); }
+
+.pm-placeholder { border: 1px dashed var(--pm-gold-line); background: none; }
+
+.pm-founder__photo {
+  border: none;
+  box-shadow: none;
+  background: none;
+  border-radius: var(--radius);
+}
+
+/* --------------------------- Texto largo --------------------------- */
+
+.pm-prose h2 { border-top: none; }
+
+.pm-prose p,
+.pm-prose li { font-weight: var(--w-body); }
+
+.pm-pagehead { border-bottom: none; }
+
+/* ------------------------ Elementos flotantes ------------------------ */
+
+/* Buscador, cookies y asistente siguen estando sobre el contenido:
+   conservan fondo por legibilidad y pierden borde grueso y sombra. */
+.pm-search__panel,
+.pm-cookie__panel,
+.pm-assistant__panel {
+  background: rgba(0, 0, 0, 0.96);
+  border: 1px solid var(--pm-line);
+  box-shadow: none;
+  border-radius: var(--radius);
+}
+
+.pm-assistant__launcher { box-shadow: none; background: var(--pm-gold); }
+.pm-assistant__launcher:hover { box-shadow: none; background: var(--pm-gold-bright); }
+
+.pm-assistant__bubble--assistant { background: #0C0C0C; border: none; }
+.pm-assistant__bubble--user { background: var(--pm-gold-soft); border: none; }
+
+.pm-assistant__input {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--pm-line-strong);
+  border-radius: 0;
+}
+
+.pm-backtotop {
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: var(--pm-muted);
+}
+
+.pm-backtotop:hover { color: var(--pm-gold); }
+
+.pm-copybtn { border: none; }
+
+/* ------------------------------ Fondos ------------------------------ */
+
+/* El vacío es negro de verdad: la retícula de fondo se retira y el ruido
+   baja a un rastro, para que el negro no se vea gris. */
+.pm-grid-lines { display: none; }
+.pm-glow { opacity: 0.28; }
+.pm-noise { opacity: 0.02; }
+
+.pm-cracks {
+  background: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(212, 175, 55, 0.05), transparent 70%), #000;
+  border-block: none;
+}
+
+/* Las secciones ya se separan con aire: la línea divisoria sobra. */
+.pm-section--divided::before { content: none; }
+
+/* ------------------------------ Portada ------------------------------ */
+
+.pm-journey__title,
+.pm-journey__title--xl { letter-spacing: var(--track-display); }
+
+.pm-journey__subtitle { font-weight: var(--w-body); color: var(--pm-text-soft); }
+.pm-journey__lead { font-weight: var(--w-body); font-size: var(--fs-body); }

@@ -119,9 +119,9 @@ function SolucionContenido({ solution }: { solution: NonNullable<ReturnType<type
               <div
                 style={{
                   padding: 'clamp(1.25rem, 2.5vw, 1.75rem)',
-                  border: '1px solid var(--pm-line)',
+                  border: 'none',
                   borderRadius: 'var(--radius-lg)',
-                  background: 'var(--pm-surface)',
+                  background: 'none',
                 }}
               >
                 <p className="pm-eyebrow">Para quién</p>
@@ -149,7 +149,7 @@ function SolucionContenido({ solution }: { solution: NonNullable<ReturnType<type
                   style={{
                     marginTop: 'var(--space-md)',
                     padding: 'clamp(1.25rem, 2.5vw, 1.75rem)',
-                    border: '1px solid var(--pm-gold-line)',
+                    border: 'none',
                     borderRadius: 'var(--radius-lg)',
                     background: 'var(--pm-gold-soft)',
                   }}

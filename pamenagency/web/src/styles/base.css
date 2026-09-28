@@ -38,7 +38,8 @@ body {
   color: var(--pm-text);
   font-family: var(--font-body);
   font-size: var(--fs-body);
-  line-height: 1.65;
+  font-weight: var(--w-body);
+  line-height: 1.6;
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -63,14 +64,14 @@ p, li, h1, h2, h3, h4, h5, h6, dd, dt, blockquote, figcaption, td, th, label {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-weight: var(--w-display);
+  line-height: 1.05;
+  letter-spacing: var(--track-title);
   text-wrap: balance;
 }
 
-h1 { font-size: var(--fs-h1); }
-h2 { font-size: var(--fs-h2); }
+h1 { font-size: var(--fs-h1); letter-spacing: var(--track-display); }
+h2 { font-size: var(--fs-h2); letter-spacing: var(--track-display); }
 h3 { font-size: var(--fs-h3); }
 h4 { font-size: var(--fs-h4); }
 
@@ -163,7 +164,7 @@ ul, ol { list-style: none; }
   gap: 0.6rem;
   font-family: var(--font-display);
   font-size: var(--fs-micro);
-  letter-spacing: 0.22em;
+  letter-spacing: var(--track-eyebrow);
   text-transform: uppercase;
   color: var(--pm-gold);
   font-weight: 500;
@@ -178,9 +179,10 @@ ul, ol { list-style: none; }
   flex: none;
 }
 
-.pm-title { font-size: var(--fs-h2); margin-block: 0.6rem 0; }
+.pm-title { font-size: var(--fs-h2); letter-spacing: var(--track-display); margin-block: 0.75rem 0; }
 .pm-lead {
-  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  font-size: var(--fs-body);
+  font-weight: var(--w-body);
   color: var(--pm-text-soft);
   max-width: 62ch;
   line-height: 1.6;
@@ -192,8 +194,8 @@ ul, ol { list-style: none; }
 /* Tratamiento propio del nombre de la marca. */
 .pm-wordmark {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: var(--w-strong);
+  letter-spacing: -0.01em;
 }
 
 .pm-wordmark .pm-wordmark__accent {

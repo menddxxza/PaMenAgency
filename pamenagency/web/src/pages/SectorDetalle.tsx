@@ -100,9 +100,9 @@ function SectorContenido({ caso }: { caso: NonNullable<ReturnType<typeof getUseC
                 style={{
                   marginTop: 'var(--space-md)',
                   padding: 'clamp(1.25rem, 2.5vw, 1.75rem)',
-                  border: '1px solid var(--pm-line)',
+                  border: 'none',
                   borderRadius: 'var(--radius-lg)',
-                  background: 'var(--pm-surface)',
+                  background: 'none',
                 }}
               >
                 <p className="pm-eyebrow">Siguiente paso</p>

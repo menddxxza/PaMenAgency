@@ -110,7 +110,7 @@ function ServicioContenido({ service }: { service: NonNullable<ReturnType<typeof
               <div
                 style={{
                   padding: '1.35rem 1.5rem',
-                  border: '1px solid var(--pm-gold-line)',
+                  border: 'none',
                   borderRadius: 'var(--radius-lg)',
                   background: 'var(--pm-gold-soft)',
                 }}
@@ -133,9 +133,9 @@ function ServicioContenido({ service }: { service: NonNullable<ReturnType<typeof
               <div
                 style={{
                   padding: '1.35rem 1.5rem',
-                  border: '1px solid var(--pm-line)',
+                  border: 'none',
                   borderRadius: 'var(--radius-lg)',
-                  background: 'var(--pm-surface)',
+                  background: 'none',
                 }}
               >
                 <p className="pm-eyebrow">Para quién</p>
