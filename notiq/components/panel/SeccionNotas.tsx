@@ -6,6 +6,7 @@ import { limitesDe } from '@/lib/planes';
 import { PLANTILLAS } from '@/lib/plantillas';
 import NotaEditor, { type NotaEditorHandle } from '@/components/NotaEditor';
 import IlustracionVacia from '@/components/ui/IlustracionVacia';
+import IconoCarga from '@/components/ui/IconoCarga';
 import {
   crearCarpeta,
   borrarCarpeta,
@@ -545,6 +546,12 @@ export default function SeccionNotas() {
               #{e.nombre}
             </button>
           ))}
+        </div>
+      )}
+
+      {cargando && (
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <IconoCarga />
         </div>
       )}
 

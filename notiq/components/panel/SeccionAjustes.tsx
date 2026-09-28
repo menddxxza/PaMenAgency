@@ -6,6 +6,7 @@ import TablaPrecios from '@/components/TablaPrecios';
 import BotonesPlan from '@/components/BotonesPlan';
 import InterruptorTema from '@/components/InterruptorTema';
 import NotificacionesPush from '@/components/NotificacionesPush';
+import IconoCarga from '@/components/ui/IconoCarga';
 import { obtenerAjustes } from '@/app/(app)/ajustes/actions';
 
 /** Cómo se le cuenta al usuario lo que dice `subscription_status` de Stripe. */
@@ -34,7 +35,13 @@ export default function SeccionAjustes({ pago }: { pago?: string }) {
     cargar();
   }, [cargar]);
 
-  if (!datos) return null;
+  if (!datos) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <IconoCarga />
+      </div>
+    );
+  }
 
   const { email, plan, consumo, cupoNotas, perfil, asientosTeam, pagosActivos } = datos;
   const limites = limitesDe(plan);

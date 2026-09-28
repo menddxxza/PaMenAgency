@@ -13,6 +13,7 @@ import {
 } from '@/app/(app)/inicio/actions';
 import ChecklistInicio from './ChecklistInicio';
 import type { Pestana } from './pestanas';
+import IconoCarga from '@/components/ui/IconoCarga';
 
 function fecha(iso: string): string {
   return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
@@ -58,7 +59,13 @@ export default function SeccionInicio({
     });
   }
 
-  if (!resumen) return null;
+  if (!resumen) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <IconoCarga />
+      </div>
+    );
+  }
 
   if (carpetaAbierta) {
     const { carpeta, notas, tareas } = carpetaAbierta;

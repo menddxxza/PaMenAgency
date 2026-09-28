@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition, type FormEvent } from 'react';
 import VistasTareas from '@/components/VistasTareas';
+import IconoCarga from '@/components/ui/IconoCarga';
 import { PRIORIDADES, type Tarea } from '@/lib/tareas';
 import { crearTarea, obtenerTareas } from '@/app/(app)/tareas/actions';
 
@@ -99,7 +100,11 @@ export default function SeccionTareas() {
       </form>
 
       <div className="mt-8">
-        {!cargando && (
+        {cargando ? (
+          <div className="flex min-h-[40vh] items-center justify-center">
+            <IconoCarga />
+          </div>
+        ) : (
           <VistasTareas tareas={tareas} carpetas={carpetas} onCambio={cargar} />
         )}
       </div>

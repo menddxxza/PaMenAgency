@@ -6,6 +6,7 @@ import AnalizarVideo from './AnalizarVideo';
 import ResolverEjercicio from './ResolverEjercicio';
 import EscanearDocumento from './EscanearDocumento';
 import IlustracionVacia from '@/components/ui/IlustracionVacia';
+import IconoCarga from '@/components/ui/IconoCarga';
 import {
   borrarExamen,
   borrarFlashcard,
@@ -61,7 +62,13 @@ export default function SeccionEstudio() {
     cargar();
   }, []);
 
-  if (!datos) return null;
+  if (!datos) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <IconoCarga />
+      </div>
+    );
+  }
 
   if (vista === 'repaso') {
     return <RepasoFlashcards onSalir={() => { setVista('inicio'); cargar(); }} />;
@@ -351,7 +358,13 @@ function RepasoFlashcards({ onSalir }: { onSalir: () => void }) {
     }
   }
 
-  if (!cola) return null;
+  if (!cola) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <IconoCarga />
+      </div>
+    );
+  }
 
   if (cola.length === 0) {
     return (
@@ -906,7 +919,13 @@ function TomarExamen({ examenId, onSalir }: { examenId: string; onSalir: () => v
     if (creado.ok) setFlashcardsCreadas(creado.creadas ?? 0);
   }
 
-  if (!examen) return null;
+  if (!examen) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <IconoCarga />
+      </div>
+    );
+  }
 
   if (resultado) {
     return (
