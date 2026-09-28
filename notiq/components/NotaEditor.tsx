@@ -386,7 +386,7 @@ const NotaEditor = forwardRef<
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0 imprimir-nota">
-        <div className="mb-4 flex items-center gap-3 text-xs text-ink/45 no-imprimir">
+        <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-ink/45 no-imprimir">
           <span aria-live="polite">
             {estado === 'guardando'
               ? 'Guardando…'
@@ -435,7 +435,7 @@ const NotaEditor = forwardRef<
                   onClick={() => setRecordatorioAbierto(false)}
                   className="fixed inset-0 z-10 cursor-default"
                 />
-                <div className="card absolute left-0 top-full z-20 mt-2 w-64 p-3.5 text-sm">
+                <div className="card absolute left-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-2.5rem)] p-3.5 text-sm">
                   <p className="mb-2 text-ink/70">
                     Crea una tarea con esta nota y la fecha que elijas — la verás en Tareas.
                   </p>
@@ -470,7 +470,7 @@ const NotaEditor = forwardRef<
                   onClick={() => setMenuVincular(false)}
                   className="fixed inset-0 z-10 cursor-default"
                 />
-                <div className="card absolute left-0 top-full z-20 mt-2 w-64 overflow-hidden p-2">
+                <div className="card absolute left-0 top-full z-20 mt-2 w-64 max-w-[calc(100vw-2.5rem)] overflow-hidden p-2">
                   <input
                     autoFocus
                     value={qVincular}
@@ -525,7 +525,7 @@ const NotaEditor = forwardRef<
                   onClick={() => setMenuCompartir(false)}
                   className="fixed inset-0 z-10 cursor-default"
                 />
-                <div className="card absolute right-0 top-full z-20 mt-2 w-72 p-3.5 text-sm">
+                <div className="card absolute right-0 top-full z-20 mt-2 w-72 max-w-[calc(100vw-2.5rem)] p-3.5 text-sm">
                   <label className="flex items-start gap-2.5">
                     <input
                       type="checkbox"
@@ -576,7 +576,7 @@ const NotaEditor = forwardRef<
                   onClick={() => setMenuExportar(false)}
                   className="fixed inset-0 z-10 cursor-default"
                 />
-                <div className="card absolute right-0 top-full z-20 mt-2 w-52 overflow-hidden py-1.5 text-sm text-ink/80">
+                <div className="card absolute right-0 top-full z-20 mt-2 w-52 max-w-[calc(100vw-2.5rem)] overflow-hidden py-1.5 text-sm text-ink/80">
                   <button
                     type="button"
                     onClick={() => {

@@ -432,7 +432,7 @@ export default function EditorBloques({
         </p>
       )}
 
-      <div className="flex items-center gap-2 pt-6">
+      <div className="flex flex-wrap items-center gap-2 pt-6">
         <button
           type="button"
           onClick={() => {
