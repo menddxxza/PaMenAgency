@@ -18,6 +18,9 @@ export function LandingNav() {
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
+          <a href="#demo" className="hover:text-fg transition-colors">
+            Demo
+          </a>
           <a href="#features" className="hover:text-fg transition-colors">
             Funciones
           </a>
@@ -26,6 +29,9 @@ export function LandingNav() {
           </a>
           <a href="#pricing" className="hover:text-fg transition-colors">
             Precios
+          </a>
+          <a href="#faq" className="hover:text-fg transition-colors">
+            FAQ
           </a>
         </nav>
 

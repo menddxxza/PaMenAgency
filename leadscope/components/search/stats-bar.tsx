@@ -1,4 +1,5 @@
 import { Card } from '@/components/ui/card';
+import { CountUp } from '@/components/ui/count-up';
 import { formatNumber } from '@/lib/utils';
 import type { Business } from '@/lib/types';
 
@@ -19,7 +20,9 @@ export function StatsBar({ businesses }: { businesses: Business[] }) {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {stats.map((s) => (
         <Card key={s.label} className="p-4">
-          <p className="text-2xl font-semibold text-fg">{formatNumber(s.value)}</p>
+          <p className="text-2xl font-semibold text-fg">
+            <CountUp value={s.value} formatter={formatNumber} />
+          </p>
           <p className="mt-0.5 text-xs text-muted">{s.label}</p>
         </Card>
       ))}

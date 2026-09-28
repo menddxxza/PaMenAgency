@@ -2,6 +2,7 @@ import { getVerifiedUser } from '@/lib/supabase/server';
 import { Topbar } from '@/components/dashboard/topbar';
 import { PlanCard } from '@/components/billing/plan-card';
 import { PLANS, PLAN_ORDER, type PlanId } from '@/lib/types';
+import { CountUp } from '@/components/ui/count-up';
 
 export default async function BillingPage() {
   const { supabase, user } = await getVerifiedUser();
@@ -41,7 +42,7 @@ export default async function BillingPage() {
               />
             </div>
             <p className="mt-2 text-xs text-muted">
-              {used} de {limit} búsquedas usadas · plan {PLANS[plan].name}
+              <CountUp value={used} /> de {limit} búsquedas usadas · plan {PLANS[plan].name}
             </p>
           </div>
         )}

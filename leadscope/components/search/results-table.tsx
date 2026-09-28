@@ -5,14 +5,33 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { Star, Phone, Mail, MapPin, ExternalLink, MessageCircle } from 'lucide-react';
 import { WebsiteStatusBadge, OpportunityBadge } from '@/components/search/status-badges';
 import { BusinessDetailModal } from '@/components/search/business-detail-modal';
+import { CopyButton } from '@/components/ui/copy-button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import type { Business } from '@/lib/types';
 
 const ROW_HEIGHT = 64;
+const GRID_COLS =
+  'grid-cols-[auto_1fr_auto_auto] gap-3 lg:grid-cols-[auto_2fr_1.4fr_0.9fr_0.9fr_1fr_1fr]';
 
-export function ResultsTable({ businesses, loading }: { businesses: Business[]; loading: boolean }) {
+interface ResultsTableProps {
+  businesses: Business[];
+  loading: boolean;
+  selectedIds?: Set<string>;
+  onToggleRow?: (id: string) => void;
+  onToggleAll?: () => void;
+}
+
+export function ResultsTable({
+  businesses,
+  loading,
+  selectedIds,
+  onToggleRow,
+  onToggleAll,
+}: ResultsTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
-  const [selected, setSelected] = useState<Business | null>(null);
+  const [detailBusiness, setDetailBusiness] = useState<Business | null>(null);
+  const selectable = !!selectedIds && !!onToggleRow;
 
   const virtualizer = useVirtualizer({
     count: businesses.length,
@@ -34,7 +53,10 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
   if (businesses.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface py-20 text-center">
-        <MapPin className="h-8 w-8 text-muted" />
+        <span className="relative flex h-12 w-12 items-center justify-center">
+          <span className="absolute inset-0 animate-signal-pulse rounded-full bg-brand-500/10" />
+          <MapPin className="relative h-6 w-6 text-muted" />
+        </span>
         <p className="mt-3 text-sm text-muted">
           Ningún resultado todavía. Ajusta tu búsqueda o tus filtros.
         </p>
@@ -43,10 +65,27 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
   }
 
   const items = virtualizer.getVirtualItems();
+  const allSelected = selectable && businesses.length > 0 && businesses.every((b) => selectedIds!.has(b.id));
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface">
-      <div className="grid grid-cols-[1fr_auto_auto] gap-3 border-b border-border bg-surface-hover px-4 py-3 text-xs font-medium uppercase tracking-wide text-muted lg:grid-cols-[2fr_1.4fr_0.9fr_0.9fr_1fr_1fr]">
+      <div
+        className={cn(
+          'grid items-center border-b border-border bg-surface-hover px-4 py-3 text-xs font-medium uppercase tracking-wide text-muted',
+          GRID_COLS
+        )}
+      >
+        {selectable ? (
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={onToggleAll}
+            aria-label="Seleccionar todos los resultados"
+            className="h-3.5 w-3.5 accent-brand-500"
+          />
+        ) : (
+          <span />
+        )}
         <span>Negocio</span>
         <span className="hidden lg:block">Contacto</span>
         <span className="hidden lg:block">Rating</span>
@@ -59,21 +98,39 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
         <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
           {items.map((virtualRow) => {
             const b = businesses[virtualRow.index]!;
+            const checked = selectable && selectedIds!.has(b.id);
             return (
               <div
                 key={b.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => setSelected(b)}
+                onClick={() => setDetailBusiness(b)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    setSelected(b);
+                    setDetailBusiness(b);
                   }
                 }}
-                className="absolute left-0 top-0 grid w-full cursor-pointer grid-cols-[1fr_auto_auto] items-center gap-3 border-b border-border px-4 text-sm transition-colors hover:bg-surface-hover lg:grid-cols-[2fr_1.4fr_0.9fr_0.9fr_1fr_1fr]"
+                className={cn(
+                  'absolute left-0 top-0 grid w-full cursor-pointer items-center border-b border-border px-4 text-sm transition-colors hover:bg-surface-hover',
+                  GRID_COLS,
+                  checked && 'bg-brand-500/5'
+                )}
                 style={{ height: ROW_HEIGHT, transform: `translateY(${virtualRow.start}px)` }}
               >
+                {selectable ? (
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={() => onToggleRow!(b.id)}
+                    aria-label={`Seleccionar ${b.name}`}
+                    className="h-3.5 w-3.5 accent-brand-500"
+                  />
+                ) : (
+                  <span />
+                )}
+
                 <div className="min-w-0">
                   <a
                     href={b.mapsUrl}
@@ -103,6 +160,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                         <Phone className="h-3 w-3 shrink-0" />
                         <span className="truncate">{b.phone}</span>
                       </a>
+                      <CopyButton value={b.phone} />
                       {!b.socialLinks.whatsapp && b.phone.trim().startsWith('+') && (
                         <a
                           href={`https://wa.me/${b.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola, os escribo por ${b.name}.`)}`}
@@ -121,6 +179,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
                     <div className="flex items-center gap-1.5">
                       <Mail className="h-3 w-3 shrink-0" />
                       <span className="truncate">{b.email}</span>
+                      <CopyButton value={b.email} />
                     </div>
                   )}
                   {b.socialLinks.whatsapp && (
@@ -161,7 +220,7 @@ export function ResultsTable({ businesses, loading }: { businesses: Business[]; 
         </div>
       </div>
 
-      <BusinessDetailModal business={selected} onClose={() => setSelected(null)} />
+      <BusinessDetailModal business={detailBusiness} onClose={() => setDetailBusiness(null)} />
     </div>
   );
 }
