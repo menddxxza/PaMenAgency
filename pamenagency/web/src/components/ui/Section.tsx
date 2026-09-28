@@ -37,7 +37,14 @@ export function Section({
   )
 }
 
-/** Cabecera común: antetítulo, título y entradilla. */
+/**
+ * Cabecera común: antetítulo, título y entradilla.
+ *
+ * Se compone a dos columnas asimétricas — el titular ocupa su mitad a tamaño
+ * de cartel y la etiqueta con la entradilla van al lado, no debajo. Las
+ * secciones pares invierten los lados (lo hace el CSS) para que la lectura
+ * baje en zigzag en vez de en columna.
+ */
 export function SectionHead({
   eyebrow,
   title,
@@ -52,24 +59,13 @@ export function SectionHead({
   as?: 'h1' | 'h2'
 }) {
   return (
-    <header
-      className="pm-reveal"
-      style={{
-        marginBottom: 'var(--space-xl)',
-        textAlign: align,
-        marginInline: align === 'center' ? 'auto' : undefined,
-        maxWidth: align === 'center' ? '46rem' : undefined,
-      }}
-    >
-      {eyebrow && <p className="pm-eyebrow">{eyebrow}</p>}
-      <Tag className="pm-title">{title}</Tag>
-      {lead && (
-        <p
-          className="pm-lead"
-          style={{ marginTop: '1rem', marginInline: align === 'center' ? 'auto' : undefined }}
-        >
-          {lead}
-        </p>
+    <header className={`pm-reveal pm-sectionhead${align === 'center' ? ' pm-sectionhead--center' : ''}`}>
+      <Tag className="pm-title pm-sectionhead__title">{title}</Tag>
+      {(eyebrow || lead) && (
+        <div className="pm-sectionhead__aside">
+          {eyebrow && <p className="pm-eyebrow">{eyebrow}</p>}
+          {lead && <p className="pm-lead">{lead}</p>}
+        </div>
       )}
     </header>
   )

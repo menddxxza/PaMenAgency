@@ -345,3 +345,140 @@
 
 .pm-journey__subtitle { font-weight: var(--w-body); color: var(--pm-text-soft); }
 .pm-journey__lead { font-weight: var(--w-body); font-size: var(--fs-body); }
+
+/* ==================================================================
+   Composición
+   Aquí es donde el estilo deja de ser "otra tipografía" y pasa a ser
+   otro diseño: titulares a tamaño de cartel, bloques a dos columnas
+   que alternan de lado, dos elementos por pantalla y ninguna línea.
+   ================================================================== */
+
+/* ------------------- Cabeceras a dos columnas ------------------- */
+
+.pm-sectionhead {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: end;
+  column-gap: clamp(2.5rem, 6vw, 7.5rem);
+  row-gap: 1.5rem;
+  margin-bottom: clamp(2.5rem, 6vw, 5.625rem);
+}
+
+.pm-sectionhead__title {
+  margin: 0;
+  font-size: var(--fs-h2);
+  letter-spacing: var(--track-display);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.pm-sectionhead__aside {
+  display: grid;
+  gap: 1.125rem;
+  align-content: end;
+  justify-items: start;
+  max-width: 34rem;
+}
+
+.pm-sectionhead__aside .pm-lead { max-width: none; }
+
+/* El zigzag: una sección con el titular a la izquierda, la siguiente con
+   el titular a la derecha. Es lo que hace que la página no se lea como
+   una columna de bloques iguales. */
+.pm-section:nth-of-type(even) .pm-sectionhead__title { order: 2; }
+.pm-section:nth-of-type(even) .pm-sectionhead__aside { order: 1; }
+
+.pm-sectionhead--center {
+  grid-template-columns: minmax(0, 60rem);
+  justify-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.pm-sectionhead--center .pm-sectionhead__aside { justify-items: center; }
+
+.pm-sectionhead--page { align-items: end; margin-bottom: clamp(2rem, 4vw, 3.75rem); }
+.pm-pagehead__title { margin-block: 0; }
+
+@media (max-width: 900px) {
+  .pm-sectionhead { grid-template-columns: 1fr; align-items: start; }
+  .pm-sectionhead__aside { align-content: start; }
+  .pm-section:nth-of-type(even) .pm-sectionhead__title,
+  .pm-section:nth-of-type(even) .pm-sectionhead__aside { order: 0; }
+}
+
+/* ---------------------- Menos columnas, más aire ---------------------- */
+
+/* Dos bloques por fila como mucho, y muy separados: el prompt pide una o
+   dos cosas por pantalla, no una rejilla de fichas. */
+.pm-grid--cards,
+.pm-grid--2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+  column-gap: clamp(2.5rem, 5vw, 5rem);
+  row-gap: clamp(3rem, 6vw, 6rem);
+}
+
+.pm-card { gap: 0.875rem; }
+.pm-card__title { line-height: 1.15; }
+
+/* ------------------------ Ni una línea más ------------------------ */
+
+/* El prompt es explícito: sin bordes ni divisores. Lo que separa es el
+   hueco. Se mantienen sólo las marcas que significan algo (la barra roja
+   de los problemas y la de las citas), no las que decoran. */
+.pm-card__benefit,
+.pm-crack-card__fix,
+.pm-case__resultado,
+.pm-calc__detalle,
+.pm-solution__lista,
+.pm-docnav,
+.pm-accordion,
+.pm-accordion__item,
+.pm-step,
+.pm-step:last-child,
+.pm-footer,
+.pm-footer__bottom,
+.pm-assistant__header,
+.pm-assistant__form,
+.pm-search__field,
+.pm-cookie__cat,
+.pm-doc__toclink {
+  border: none;
+}
+
+.pm-card__benefit { padding-top: 0.25rem; }
+.pm-accordion__item { padding-block: 0.5rem; }
+
+/* --------------------------- Navegación --------------------------- */
+
+/* 14px en versales, gris ceniza; blanco sólo el activo. */
+.pm-navlink,
+.pm-navgroup__trigger {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: var(--track-eyebrow);
+  text-transform: uppercase;
+  color: #9A9A9A;
+}
+
+.pm-navlink:hover,
+.pm-navgroup__trigger:hover,
+.pm-navlink[aria-current='page'] { color: #FFFFFF; }
+
+.pm-btn { letter-spacing: var(--track-eyebrow); font-size: 0.875rem; }
+
+/* Las píldoras del recorrido pierden relleno y borde: el prompt reserva el
+   color relleno para el botón principal, nada más. */
+.pm-journey__pipenode {
+  border: none;
+  background: none;
+  padding-inline: 0;
+  padding-block: 0.25rem;
+}
+
+.pm-journey__pipeline { column-gap: 1.75rem; }
+
+.pm-journey__gallery-link { border-bottom: none; }
+.pm-journey__gallery-link:hover,
+.pm-journey__gallery-link:focus-visible { border-color: transparent; }
+.pm-journey__gallery-link:hover .pm-journey__gallery-name { color: var(--pm-gold); }

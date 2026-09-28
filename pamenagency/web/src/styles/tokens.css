@@ -46,19 +46,19 @@
   --track-eyebrow: 0.025em;
 
   /* Escala tipográfica fluida — nunca desborda, nunca se corta */
-  --fs-hero: clamp(3rem, 7.6vw, 7rem);
-  --fs-h1: clamp(2.5rem, 5.6vw, 4.6rem);
-  --fs-h2: clamp(2rem, 4.2vw, 3.4rem);
-  --fs-h3: clamp(1.3rem, 2vw, 1.65rem);
-  --fs-h4: clamp(1.05rem, 1.5vw, 1.2rem);
+  --fs-hero: clamp(3.25rem, 8.8vw, 7.0625rem);
+  --fs-h1: clamp(2.75rem, 6.4vw, 4.875rem);
+  --fs-h2: clamp(2.5rem, 6vw, 4.875rem);
+  --fs-h3: clamp(1.5rem, 2.4vw, 1.6875rem);
+  --fs-h4: clamp(1.25rem, 1.8vw, 1.5rem);
   --fs-body: 1.125rem;
   --fs-small: 0.9375rem;
-  --fs-micro: 0.8125rem;
+  --fs-micro: 0.875rem;
 
   /* Ritmo vertical — el aire es el elemento de diseño principal */
-  --space-section: clamp(4rem, 8vw, 7.5rem);
-  --space-xl: clamp(2.25rem, 4.5vw, 3.75rem);
-  --space-lg: clamp(1.5rem, 3vw, 2.5rem);
+  --space-section: clamp(3.75rem, 8vw, 7.5rem);
+  --space-xl: clamp(2.25rem, 5vw, 6rem);
+  --space-lg: clamp(1.5rem, 3vw, 2.25rem);
   --space-md: 1.125rem;
   --space-sm: 0.75rem;
 

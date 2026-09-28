@@ -45,9 +45,17 @@ export function PageHead({
           </nav>
         )}
 
-        {eyebrow && <p className="pm-eyebrow" style={{ marginTop: '1.25rem' }}>{eyebrow}</p>}
-        <h1 className="pm-pagehead__title">{title}</h1>
-        {lead && <p className="pm-lead">{lead}</p>}
+        {/* Misma composición a dos columnas que las cabeceras de sección: el
+            título a tamaño de cartel y, al lado, la etiqueta con la entradilla. */}
+        <div className="pm-sectionhead pm-sectionhead--page">
+          <h1 className="pm-pagehead__title pm-sectionhead__title">{title}</h1>
+          {(eyebrow || lead) && (
+            <div className="pm-sectionhead__aside">
+              {eyebrow && <p className="pm-eyebrow">{eyebrow}</p>}
+              {lead && <p className="pm-lead">{lead}</p>}
+            </div>
+          )}
+        </div>
         {children}
       </div>
     </header>
