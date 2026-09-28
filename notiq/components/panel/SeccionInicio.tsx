@@ -11,12 +11,20 @@ import {
   type ContenidoCarpeta,
   type Resumen,
 } from '@/app/(app)/inicio/actions';
+import ChecklistInicio from './ChecklistInicio';
+import type { Pestana } from './pestanas';
 
 function fecha(iso: string): string {
   return new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
 }
 
-export default function SeccionInicio({ email }: { email: string | null }) {
+export default function SeccionInicio({
+  email,
+  onCambiarPestana,
+}: {
+  email: string | null;
+  onCambiarPestana: (p: Pestana) => void;
+}) {
   const [resumen, setResumen] = useState<Resumen | null>(null);
   const [carpetaAbierta, setCarpetaAbierta] = useState<ContenidoCarpeta | null>(null);
   const [abriendoCarpeta, setAbriendoCarpeta] = useState(false);
@@ -111,7 +119,7 @@ export default function SeccionInicio({ email }: { email: string | null }) {
                       disabled={hecha}
                       aria-label={`Marcar "${tarea.titulo}" como hecha`}
                       onChange={() => marcarHecha(tarea)}
-                      className="h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
+                      className="check-tarea h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
                     />
                     <div className="min-w-0 flex-1">
                       <p className={`truncate text-sm font-medium ${hecha ? 'text-ink/40 line-through' : ''}`}>
@@ -157,6 +165,8 @@ export default function SeccionInicio({ email }: { email: string | null }) {
         <h1 className="text-2xl font-extrabold tracking-tight">Inicio</h1>
         <p className="mt-1 text-sm text-ink/55">{email}</p>
       </header>
+
+      <ChecklistInicio resumen={resumen} onCambiarPestana={onCambiarPestana} />
 
       {(cercaDeIa || cercaDeNotas) && (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-50 px-4 py-3 text-sm text-brand-800">

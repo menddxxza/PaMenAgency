@@ -5,6 +5,7 @@ import { comoBloques, extracto } from '@/lib/bloques';
 import { limitesDe } from '@/lib/planes';
 import { PLANTILLAS } from '@/lib/plantillas';
 import NotaEditor, { type NotaEditorHandle } from '@/components/NotaEditor';
+import IlustracionVacia from '@/components/ui/IlustracionVacia';
 import {
   crearCarpeta,
   borrarCarpeta,
@@ -345,7 +346,8 @@ export default function SeccionNotas() {
           <p className="text-sm text-ink/50">Cargando…</p>
         ) : papelera.length === 0 ? (
           <div className="card p-10 text-center">
-            <p className="text-lg font-semibold">La papelera está vacía</p>
+            <IlustracionVacia tipo="papelera" className="mx-auto h-20 w-20" />
+            <p className="mt-4 text-lg font-semibold">La papelera está vacía</p>
             <p className="mt-2 text-sm text-ink/60">Las notas que borres aparecerán aquí antes de irse para siempre.</p>
           </div>
         ) : (
@@ -588,7 +590,8 @@ export default function SeccionNotas() {
 
       {!cargando && notas.length === 0 ? (
         <div className="card mt-8 p-10 text-center">
-          <p className="text-lg font-semibold">
+          {!q && <IlustracionVacia tipo="notas" className="mx-auto h-20 w-20" />}
+          <p className={`text-lg font-semibold ${q ? '' : 'mt-4'}`}>
             {q ? 'Ninguna nota coincide con esa búsqueda' : 'Todavía no hay notas aquí'}
           </p>
           <p className="mt-2 text-sm text-ink/60">

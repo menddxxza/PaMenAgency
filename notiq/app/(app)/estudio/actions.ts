@@ -9,7 +9,7 @@ import { fechaValidaONull } from '@/lib/tareas';
 export type Resultado = { ok: true } | { ok: false; error: string };
 
 const ESTADOS_FLASHCARD = ['nueva', 'repasar', 'progreso', 'dominada'] as const;
-type EstadoFlashcard = (typeof ESTADOS_FLASHCARD)[number];
+export type EstadoFlashcard = (typeof ESTADOS_FLASHCARD)[number];
 
 export type FlashcardResumen = {
   id: string;
@@ -126,7 +126,10 @@ const ESTADO_SIGUIENTE: Record<EstadoFlashcard, EstadoFlashcard> = {
   dominada: 'dominada',
 };
 
-export async function responderFlashcard(id: string, acierto: boolean): Promise<Resultado> {
+export async function responderFlashcard(
+  id: string,
+  acierto: boolean,
+): Promise<Resultado & { nuevoEstado?: EstadoFlashcard }> {
   const sesion = await getSesion();
   if (!sesion) return { ok: false, error: 'Sesión caducada.' };
   if (!esUuid(id)) return { ok: false, error: 'Flashcard no válida.' };
@@ -155,7 +158,7 @@ export async function responderFlashcard(id: string, acierto: boolean): Promise<
   }
 
   revalidatePath('/estudio');
-  return { ok: true };
+  return { ok: true, nuevoEstado: estadoSiguiente };
 }
 
 export async function borrarFlashcard(id: string): Promise<Resultado> {

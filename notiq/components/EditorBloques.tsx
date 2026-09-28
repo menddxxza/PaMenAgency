@@ -349,7 +349,7 @@ export default function EditorBloques({
               checked={bloque.hecho ?? false}
               onChange={(e) => actualizar(indice, { hecho: e.target.checked })}
               aria-label={`Marcar "${bloque.texto || 'tarea'}" como hecha`}
-              className="mt-2 h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
+              className="check-tarea mt-2 h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
             />
           )}
 

@@ -13,6 +13,7 @@ import {
 } from '@/lib/tareas';
 import { borrarTarea, cambiarCarpetaTarea, cambiarEstado, cambiarPrioridad } from '@/app/(app)/tareas/actions';
 import Adjuntos from '@/components/panel/Adjuntos';
+import IlustracionVacia from '@/components/ui/IlustracionVacia';
 
 type Vista = 'lista' | 'kanban' | 'calendario';
 type Carpeta = { id: string; nombre: string };
@@ -134,7 +135,7 @@ function FilaTarea({
               onCambio();
             })
           }
-          className="h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
+          className="check-tarea h-4 w-4 shrink-0 rounded border-ink/25 text-brand-600 focus:ring-brand-400"
         />
 
         <button
@@ -374,7 +375,8 @@ function VistaCalendario({
 function Vacio() {
   return (
     <div className="card max-w-3xl p-10 text-center">
-      <p className="text-lg font-semibold">Todavía no hay tareas</p>
+      <IlustracionVacia tipo="tareas" className="mx-auto h-20 w-20" />
+      <p className="mt-4 text-lg font-semibold">Todavía no hay tareas</p>
       <p className="mt-2 text-sm text-ink/60">
         Añade una arriba, o abre una nota de reunión y pulsa «Extraer tareas».
       </p>

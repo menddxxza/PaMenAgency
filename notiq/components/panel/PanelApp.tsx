@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Logo from '@/components/Logo';
+import Avatar from '@/components/Avatar';
 import Asistente from '@/components/Asistente';
 import type { Plan } from '@/lib/planes';
 import NavPestanas from './NavPestanas';
 import NavPestanasMovil from './NavPestanasMovil';
+import Novedades from './Novedades';
 import PaletaComandos from './PaletaComandos';
 import { PESTANAS, type Pestana } from './pestanas';
 import SeccionInicio from './SeccionInicio';
@@ -116,6 +118,8 @@ export default function PanelApp({
             <kbd className="rounded border border-ink/15 px-1 font-sans text-[10px]">Ctrl/⌘ K</kbd>
           </button>
 
+          <Novedades />
+
           {/* Versión compacta (móvil Y tablet, hasta lg): el medidor con la barra de
               progreso completa necesita más ancho del que suele sobrar entre sm y
               lg, justo el rango donde antes se solapaba con el nav. */}
@@ -155,6 +159,7 @@ export default function PanelApp({
             )}
           </div>
 
+          {email && <Avatar email={email} className="hidden lg:flex" />}
           <p className="hidden truncate text-xs text-ink/55 lg:block" title={email ?? undefined}>
             {email}
           </p>
@@ -172,7 +177,7 @@ export default function PanelApp({
       <main className="min-h-0 flex-1 overflow-y-auto bg-surface pb-16 sm:pb-0">
         {abiertas.has('inicio') && (
           <div className={activa === 'inicio' ? '' : 'hidden'}>
-            <SeccionInicio email={email} />
+            <SeccionInicio email={email} onCambiarPestana={cambiar} />
           </div>
         )}
 

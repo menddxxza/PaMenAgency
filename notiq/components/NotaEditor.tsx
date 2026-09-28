@@ -68,6 +68,8 @@ const NotaEditor = forwardRef<
   const [bloques, setBloques] = useState(bloquesIniciales);
   const [favorita, setFavorita] = useState(favoritaInicial);
   const [estado, setEstado] = useState<Estado>('guardado');
+  const [confirmacionGuardado, setConfirmacionGuardado] = useState(false);
+  const estadoAnterior = useRef<Estado>('guardado');
   const [menuExportar, setMenuExportar] = useState(false);
   const [recordatorioAbierto, setRecordatorioAbierto] = useState(false);
   const [mensajeRecordatorio, setMensajeRecordatorio] = useState<string | null>(null);
@@ -200,6 +202,21 @@ const NotaEditor = forwardRef<
     }
     void guardar();
   }, [guardar]);
+
+  // Aviso breve de "Guardado ✓" que aparece y se desvanece solo, además del
+  // texto fijo de arriba (que se queda para quien vuelva a mirar más tarde y
+  // quiera confirmar el estado actual, no solo el momento del cambio). Solo
+  // se dispara al pasar a 'guardado' desde otro estado — no en cada render
+  // mientras ya está guardado, ni en el montaje inicial.
+  useEffect(() => {
+    const anterior = estadoAnterior.current;
+    estadoAnterior.current = estado;
+    if (estado === 'guardado' && anterior !== 'guardado') {
+      setConfirmacionGuardado(true);
+      const temporizadorAviso = setTimeout(() => setConfirmacionGuardado(false), 1800);
+      return () => clearTimeout(temporizadorAviso);
+    }
+  }, [estado]);
 
   // Cerrar la pestaña con cambios sin guardar avisa. No siempre se puede evitar la
   // pérdida (el navegador puede matar la petición), pero al menos no es silenciosa.
@@ -387,7 +404,7 @@ const NotaEditor = forwardRef<
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0 imprimir-nota">
         <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-ink/45 no-imprimir">
-          <span aria-live="polite">
+          <span aria-live="polite" className="relative">
             {estado === 'guardando'
               ? 'Guardando…'
               : estado === 'escribiendo'
@@ -395,6 +412,14 @@ const NotaEditor = forwardRef<
                 : estado === 'error'
                   ? '⚠ No se ha podido guardar'
                   : 'Guardado'}
+            {confirmacionGuardado && (
+              <span
+                aria-hidden
+                className="animate-fade-in-out pointer-events-none absolute left-0 top-full z-10 mt-1 whitespace-nowrap rounded-full bg-lima-500 px-2 py-0.5 text-[11px] font-semibold text-white shadow"
+              >
+                Guardado ✓
+              </span>
+            )}
           </span>
           {(estado === 'escribiendo' || estado === 'error') && (
             <button type="button" onClick={guardarYa} className="font-semibold text-brand-700 hover:underline">

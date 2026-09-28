@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import AnalizarVideo from './AnalizarVideo';
 import ResolverEjercicio from './ResolverEjercicio';
 import EscanearDocumento from './EscanearDocumento';
+import IlustracionVacia from '@/components/ui/IlustracionVacia';
 import {
   borrarExamen,
   borrarFlashcard,
@@ -30,6 +31,7 @@ import {
 import { obtenerContenidoCarpeta, type ContenidoCarpeta } from '@/app/(app)/inicio/actions';
 import { obtenerAdjuntosDeCarpeta, borrarAdjunto, type Adjunto } from '@/app/(app)/adjuntos/actions';
 import { diasHasta, generarPlanRepaso } from '@/lib/estudio';
+import { celebrarFinal } from '@/lib/celebrar';
 
 type Vista = 'inicio' | 'repaso' | 'generar' | 'flashcards' | 'biblioteca' | 'ejercicio';
 
@@ -321,6 +323,7 @@ function RepasoFlashcards({ onSalir }: { onSalir: () => void }) {
   const [indice, setIndice] = useState(0);
   const [volteada, setVolteada] = useState(false);
   const [respondiendo, setRespondiendo] = useState(false);
+  const [dominada, setDominada] = useState(false);
 
   useEffect(() => {
     obtenerRepasoDeHoy().then((r) => setCola(r ?? []));
@@ -329,11 +332,23 @@ function RepasoFlashcards({ onSalir }: { onSalir: () => void }) {
   async function responder(acierto: boolean) {
     if (!cola) return;
     setRespondiendo(true);
-    await responderFlashcard(cola[indice].id, acierto);
+    const resultado = await responderFlashcard(cola[indice].id, acierto);
     setRespondiendo(false);
     setVolteada(false);
-    if (indice + 1 >= cola.length) onSalir();
-    else setIndice(indice + 1);
+
+    // "Dominada" es el último escalón (ver ESTADO_SIGUIENTE en estudio/actions.ts):
+    // un aviso breve antes de pasar a la siguiente, en vez de nada.
+    if (resultado.ok && resultado.nuevoEstado === 'dominada') {
+      setDominada(true);
+      setTimeout(() => setDominada(false), 900);
+    }
+
+    if (indice + 1 >= cola.length) {
+      celebrarFinal();
+      onSalir();
+    } else {
+      setIndice(indice + 1);
+    }
   }
 
   if (!cola) return null;
@@ -364,7 +379,15 @@ function RepasoFlashcards({ onSalir }: { onSalir: () => void }) {
         </p>
       </div>
 
-      <div className="mx-auto mt-8 max-w-lg">
+      <div className="relative mx-auto mt-8 max-w-lg">
+        {dominada && (
+          <div
+            aria-live="polite"
+            className="animate-pop-in absolute inset-x-0 -top-3 z-10 mx-auto w-fit rounded-full bg-lima-500 px-4 py-1.5 text-sm font-bold text-white shadow-lg"
+          >
+            🟢 ¡Dominada!
+          </div>
+        )}
         <button
           type="button"
           onClick={() => setVolteada((v) => !v)}
@@ -444,7 +467,10 @@ function VerFlashcards({
       </h1>
 
       {!tarjetas ? null : tarjetas.length === 0 ? (
-        <p className="mt-6 text-sm text-ink/55">No hay flashcards aquí todavía.</p>
+        <div className="card mt-6 max-w-md p-10 text-center">
+          <IlustracionVacia tipo="estudio" className="mx-auto h-20 w-20" />
+          <p className="mt-4 text-sm text-ink/55">No hay flashcards aquí todavía.</p>
+        </div>
       ) : (
         <ul className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {tarjetas.map((t) => (
@@ -868,6 +894,7 @@ function TomarExamen({ examenId, onSalir }: { examenId: string; onSalir: () => v
         total: resultadoIntento.total,
         porTema: resultadoIntento.porTema,
       });
+      celebrarFinal();
     }
   }
 

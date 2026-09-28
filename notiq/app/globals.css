@@ -147,6 +147,65 @@
   .sin-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Pequeño "pop" al marcar algo como hecho (tareas en Tareas, Inicio y el
+     bloque de tipo tarea del editor) — solo una confirmación visual más viva
+     que el simple tachado, nada que dependa de JS. */
+  .check-tarea:checked {
+    animation: notiq-check-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-pop-in {
+    animation: notiq-pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .animate-fade-in-out {
+    animation: notiq-fade-in-out 1.8s ease-in-out forwards;
+  }
+}
+
+@keyframes notiq-check-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes notiq-pop-in {
+  0% {
+    transform: scale(0.6) translateY(4px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes notiq-fade-in-out {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 /*

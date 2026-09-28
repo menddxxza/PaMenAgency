@@ -25,6 +25,11 @@ export type Resumen = {
   plan: string;
   consumoIa: { usadas: number; limite: number };
   cupoNotas: { permitido: boolean; usadas: number; limite: number | null };
+  /** Para la lista de primeros pasos de Inicio (ver ChecklistInicio.tsx):
+   * cuántas tareas se han creado en total (no solo las abiertas) y cuántas
+   * flashcards/exámenes hay en Estudio, en total. */
+  totalTareasCreadas: number;
+  totalEstudio: number;
 };
 
 /**
@@ -44,6 +49,8 @@ export async function obtenerResumen(): Promise<Resumen | null> {
     [filaAbiertas],
     [filaVencidas],
     [filaAdjuntos],
+    [filaTareasCreadas],
+    [filaEstudio],
     notasRecientes,
     tareasAbiertas,
     carpetas,
@@ -64,6 +71,14 @@ export async function obtenerResumen(): Promise<Resumen | null> {
     `,
     sql<{ total: number }[]>`
       select count(*)::int as total from attachments where user_id = ${userId}::uuid
+    `,
+    sql<{ total: number }[]>`
+      select count(*)::int as total from tasks where user_id = ${userId}::uuid
+    `,
+    sql<{ total: number }[]>`
+      select
+        (select count(*) from examenes where user_id = ${userId}::uuid)::int
+        + (select count(*) from flashcards where user_id = ${userId}::uuid)::int as total
     `,
     sql<NotaResumen[]>`
       select n.id, n.titulo, n.content, n.favorita, n.folder_id, n.created_at, n.updated_at,
@@ -109,6 +124,8 @@ export async function obtenerResumen(): Promise<Resumen | null> {
     plan: sesion.plan,
     consumoIa: consumo,
     cupoNotas,
+    totalTareasCreadas: filaTareasCreadas.total,
+    totalEstudio: filaEstudio.total,
   };
 }
 
