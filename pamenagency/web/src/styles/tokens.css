@@ -20,11 +20,11 @@
 
   /* Texto */
   --pm-text: #FFFFFF;
-  --pm-text-soft: #B8B8B8;
-  --pm-muted: #8E8E8E;
+  --pm-text-soft: #BDBDBD;
+  --pm-muted: #9A9A9A;
   /* Elevado desde #5C5C64: el original no llegaba a 4.5:1 y se usa en texto
      real (copyright, migas de pan, contadores), no sólo en adornos. */
-  --pm-faint: #7A7A7A;
+  --pm-faint: #9A9A9A;
 
   /* Líneas. Quedan pocas a propósito: separa el aire, no el trazo. */
   --pm-line: rgba(255, 255, 255, 0.06);
@@ -38,7 +38,7 @@
   --w-display: 400;
   --w-body: 200;
   --w-medium: 400;
-  --w-strong: 500;
+  --w-strong: 600;
 
   /* Interletraje: cuanto más grande el texto, más se cierra */
   --track-display: -0.04em;

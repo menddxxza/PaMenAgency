@@ -482,3 +482,63 @@
 .pm-journey__gallery-link:hover,
 .pm-journey__gallery-link:focus-visible { border-color: transparent; }
 .pm-journey__gallery-link:hover .pm-journey__gallery-name { color: var(--pm-gold); }
+
+/* ==================================================================
+   Últimos detalles del documento de referencia
+   ================================================================== */
+
+/* "No border, no backdrop blur on the nav itself." */
+.pm-header,
+.pm-header[data-scrolled='true'] {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.pm-cookie__panel,
+.pm-assistant__panel,
+.pm-search__panel,
+.pm-navgroup__panel,
+.pm-mobilemenu {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Radio de 24px en botones, que es lo que dice la tabla de formas.
+   En un botón de 45px de alto el resultado sigue siendo una píldora. */
+.pm-btn { border-radius: 24px; }
+
+/* "Do not add gradients to UI components" — los degradados se quedan sólo
+   en el logotipo y en la constelación de partículas. Todo lo demás, plano. */
+.pm-btn::before { content: none; }
+
+.pm-diag__fill,
+.pm-loader__fill,
+.pm-progress__fill,
+.pm-workday__col--ia .pm-workday__bar span,
+.pm-crack-card::after,
+.pm-scrollcue__track::after,
+.pm-step__line {
+  background: var(--pm-gold);
+}
+
+.pm-visual,
+.pm-score,
+.pm-cracks,
+.pm-pagehead,
+.pm-journey__stage::before {
+  background: #000;
+}
+
+/* El velo degradado sobre la foto desaparece del todo: si se dejara plano
+   taparía el retrato entero. */
+.pm-founder__photo::after { content: none; }
+
+.pm-cta,
+.pm-audit,
+.pm-calc__resultado,
+.pm-callout,
+.pm-workday__col--ia { background-image: none; }
+
+.pm-sectionhead__title { line-height: 1.1; }
+
+.pm-founder__datos { border-block: none; }

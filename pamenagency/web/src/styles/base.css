@@ -39,7 +39,9 @@ body {
   font-family: var(--font-body);
   font-size: var(--fs-body);
   font-weight: var(--w-body);
-  line-height: 1.6;
+  line-height: 1.5;
+  /* El documento pide la variante estilística ss01 de la tipografía. */
+  font-feature-settings: 'ss01' 1;
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -65,7 +67,7 @@ p, li, h1, h2, h3, h4, h5, h6, dd, dt, blockquote, figcaption, td, th, label {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: var(--w-display);
-  line-height: 1.05;
+  line-height: 1.1;
   letter-spacing: var(--track-title);
   text-wrap: balance;
 }
