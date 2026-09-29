@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient, getPerfilActual } from '@/lib/supabase/server';
+import { getAlertas } from '@/lib/queries';
 import type { Product } from '@/lib/database.types';
 import EstadoFicha from '@/components/EstadoFicha';
 
@@ -25,6 +26,16 @@ export default async function ResumenPanel() {
     .select('id', { count: 'exact', head: true })
     .eq('seller_id', perfil.id)
     .eq('status', 'new');
+
+  const { count: leadsRespondidos } = await supabase
+    .from('leads')
+    .select('id', { count: 'exact', head: true })
+    .eq('seller_id', perfil.id)
+    .neq('status', 'new');
+
+  // Tolerante a que la tabla de alertas todavía no exista: getAlertas() ya
+  // devuelve [] en ese caso, así que este paso simplemente no se marca.
+  const alertas = await getAlertas();
 
   const publicados = productos.filter((p) => p.status === 'published');
   const visitas = productos.reduce((suma, p) => suma + p.view_count, 0);
@@ -60,6 +71,8 @@ export default async function ResumenPanel() {
         perfilCompleto={Boolean(perfil.bio)}
         tieneFicha={productos.length > 0}
         tienePublicada={publicados.length > 0}
+        haRespondido={(leadsRespondidos ?? 0) > 0}
+        tieneAlerta={alertas.length > 0}
       />
 
       <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
@@ -148,17 +161,27 @@ export default async function ResumenPanel() {
 }
 
 /**
- * Se oculta sola en cuanto se completan los tres pasos: no tiene sentido
- * seguir mostrándole una lista de tareas a quien ya lleva meses vendiendo.
+ * Guía de uso del panel, no solo un aviso de bienvenida: por eso no
+ * desaparece al completar el primer paso, sino que se queda como referencia
+ * de qué se puede hacer aquí — completar el perfil, publicar, responder,
+ * guardar alertas — con lo ya hecho tachado y lo pendiente explicado.
+ *
+ * Cuando los cinco pasos están completos se compacta a una línea de éxito en
+ * vez de desaparecer del todo: sigue sirviendo para recordar qué se puede
+ * hacer desde aquí, solo que sin ocupar sitio.
  */
 function ChecklistInicio({
   perfilCompleto,
   tieneFicha,
   tienePublicada,
+  haRespondido,
+  tieneAlerta,
 }: {
   perfilCompleto: boolean;
   tieneFicha: boolean;
   tienePublicada: boolean;
+  haRespondido: boolean;
+  tieneAlerta: boolean;
 }) {
   const pasos = [
     {
@@ -170,7 +193,7 @@ function ChecklistInicio({
     {
       hecho: tieneFicha,
       texto: 'Publica tu primera ficha',
-      ayuda: 'Cuéntanos qué resuelve, para quién y cuánto cuesta.',
+      ayuda: 'Cuéntanos qué resuelve, para quién y cuánto cuesta. También puedes publicar una petición de compra si lo que buscas es que te resuelvan algo.',
       href: '/dashboard/productos/nuevo',
     },
     {
@@ -179,13 +202,46 @@ function ChecklistInicio({
       ayuda: 'La revisamos y, si todo encaja, sale al catálogo.',
       href: '/dashboard/productos',
     },
+    {
+      hecho: haRespondido,
+      texto: 'Responde a tu primer mensaje',
+      ayuda: 'Cuando alguien pregunte por una ficha tuya, contéstale desde el propio panel — no hace falta salir a tu email.',
+      href: '/dashboard/leads',
+    },
+    {
+      hecho: tieneAlerta,
+      texto: 'Guarda una búsqueda como alerta',
+      ayuda: 'Así te avisamos por email en cuanto se publique algo que encaje, sin que tengas que volver a buscarlo.',
+      href: '/dashboard/alertas',
+    },
   ];
 
-  if (pasos.every((paso) => paso.hecho)) return null;
+  const completos = pasos.filter((paso) => paso.hecho).length;
+
+  if (completos === pasos.length) {
+    return (
+      <section className="card mt-8 flex items-center gap-3 p-4">
+        <span
+          aria-hidden
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-500 text-xs font-bold text-white"
+        >
+          ✓
+        </span>
+        <p className="text-sm text-ink/70">
+          Ya conoces todo lo que se puede hacer en tu panel: perfil, fichas, mensajes y alertas.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="card mt-8 p-6">
-      <h2 className="font-bold">Primeros pasos</h2>
+      <div className="flex items-baseline justify-between">
+        <h2 className="font-bold">Cómo usar tu panel</h2>
+        <span className="text-xs font-semibold text-ink/50">
+          {completos} de {pasos.length}
+        </span>
+      </div>
       <ul className="mt-4 space-y-1">
         {pasos.map((paso) => (
           <li key={paso.texto}>
