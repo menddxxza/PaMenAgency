@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { FAMILIAS } from '@/lib/tipos-publicacion';
 
 const PRECIOS = [
   { valor: '100', etiqueta: 'Menos de 100 €' },
@@ -23,6 +24,7 @@ const ORDENES = [
   { valor: 'recientes', etiqueta: 'Más recientes' },
   { valor: 'vistos', etiqueta: 'Más vistas' },
   { valor: 'baratos', etiqueta: 'Precio más bajo' },
+  { valor: 'valorados', etiqueta: 'Mejor valoradas' },
 ];
 
 export default function FiltrosCatalogo() {
@@ -37,12 +39,40 @@ export default function FiltrosCatalogo() {
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  const hayFiltros = ['precioMax', 'minutosMax', 'idioma', 'orden'].some((k) =>
-    searchParams.has(k),
-  );
+  const hayFiltros = [
+    'precioMax',
+    'minutosMax',
+    'idioma',
+    'orden',
+    'familia',
+    'provincia',
+    'peticion',
+  ].some((k) => searchParams.has(k));
+
+  function actualizarTexto(clave: string, valor: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (valor.trim()) params.set(clave, valor.trim());
+    else params.delete(clave);
+    router.push(`${pathname}?${params.toString()}`);
+  }
 
   return (
     <div className="space-y-6">
+      <Grupo
+        titulo="¿Ofrece o busca?"
+        opciones={[
+          { valor: 'no', etiqueta: 'Ofertas' },
+          { valor: 'si', etiqueta: 'Se busca' },
+        ]}
+        activo={searchParams.get('peticion')}
+        onSelect={(v) => alternar('peticion', v)}
+      />
+      <Grupo
+        titulo="Tipo de publicación"
+        opciones={FAMILIAS.map((f) => ({ valor: f.slug, etiqueta: f.nombre }))}
+        activo={searchParams.get('familia')}
+        onSelect={(v) => alternar('familia', v)}
+      />
       <Grupo
         titulo="Precio de entrada"
         opciones={PRECIOS}
@@ -61,6 +91,24 @@ export default function FiltrosCatalogo() {
         activo={searchParams.get('idioma')}
         onSelect={(v) => alternar('idioma', v)}
       />
+
+      <fieldset>
+        <legend className="text-xs font-bold uppercase tracking-wider text-ink/65">
+          Provincia
+        </legend>
+        <input
+          type="text"
+          defaultValue={searchParams.get('provincia') ?? ''}
+          onBlur={(e) => actualizarTexto('provincia', e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur();
+          }}
+          placeholder="Cádiz, Madrid…"
+          className="mt-3 w-full rounded-lg border border-ink/15 px-3 py-1.5 text-sm outline-none
+                     focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+        />
+      </fieldset>
+
       <Grupo
         titulo="Ordenar por"
         opciones={ORDENES}

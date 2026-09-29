@@ -77,6 +77,44 @@ export async function avisarNuevoLead(datos: {
   }
 }
 
+/**
+ * Aviso de una alerta guardada: "esto que buscabas ya está publicado". Lo
+ * dispara el cron diario, nunca una acción del usuario, así que aquí no hay
+ * nada que no deba tumbarse si Resend falla — solo se pierde ese aviso.
+ */
+export async function avisarAlertaCoincidencias(datos: {
+  destinatario: string;
+  descripcionAlerta: string;
+  publicaciones: { titulo: string; slug: string }[];
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.info('[email] Resend no configurado, aviso de alerta omitido.');
+    return;
+  }
+
+  const items = datos.publicaciones
+    .map((p) => `<li><a href="${SITE_URL}/p/${p.slug}">${escapeHtml(p.titulo)}</a></li>`)
+    .join('');
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from: 'IAPyme <onboarding@resend.dev>',
+      to: datos.destinatario,
+      subject: `Nuevo en tu alerta: ${datos.descripcionAlerta}`,
+      html: `
+        <p>Hay ${datos.publicaciones.length === 1 ? 'una publicación nueva' : `${datos.publicaciones.length} publicaciones nuevas`}
+        que coinciden con tu alerta <b>${escapeHtml(datos.descripcionAlerta)}</b>:</p>
+        <ul>${items}</ul>
+        <p><a href="${SITE_URL}/dashboard/alertas">Gestionar mis alertas →</a></p>
+      `,
+    });
+  } catch (error) {
+    console.error('[email] Error al avisar de alerta:', error);
+  }
+}
+
 /** Aviso al vendedor de que le han dejado una reseña nueva. */
 export async function avisarNuevaResena(datos: {
   sellerEmail: string;

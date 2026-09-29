@@ -16,7 +16,12 @@ export type ProductType =
   | 'saas'
   | 'script'
   | 'template'
-  | 'service';
+  | 'service'
+  // Los cuatro del enum ya ampliado en producción (migración 0006, parte 1).
+  | 'negocio'
+  | 'trabajo'
+  | 'profesional'
+  | 'proyecto';
 
 export type PricingModel = 'one_time' | 'setup_plus_monthly' | 'monthly' | 'free';
 
@@ -80,6 +85,16 @@ export type Product = {
   meta_description: string | null;
   created_at: string;
   updated_at: string;
+  /**
+   * Estas cuatro llegan con la migración 0006. Se declaran opcionales — no
+   * `| null` — porque en un proyecto sin migrar directamente no vienen en la
+   * fila (Supabase omite la clave), y eso es distinto de que valgan `null`.
+   */
+  ubicacion?: string | null;
+  provincia?: string | null;
+  es_remoto?: boolean;
+  /** Es una petición de compra ("busco...") y no una oferta. */
+  es_peticion?: boolean;
 };
 
 export type Review = {
@@ -123,4 +138,30 @@ export type Lead = {
 export type ProductoConRelaciones = Product & {
   categories: Pick<Category, 'slug' | 'nombre' | 'icono'> | null;
   profiles: Pick<Profile, 'slug' | 'display_name' | 'avatar_url' | 'is_verified'> | null;
+};
+
+/** Un mensaje dentro de la conversación de un lead. Tabla de la migración 0006. */
+export type LeadMensaje = {
+  id: string;
+  lead_id: string;
+  autor_id: string;
+  cuerpo: string;
+  leido_at: string | null;
+  created_at: string;
+};
+
+export type LeadMensajeConAutor = LeadMensaje & {
+  profiles: Pick<Profile, 'display_name' | 'avatar_url'> | null;
+};
+
+/** Búsqueda guardada con aviso por email. Tabla de la migración 0006. */
+export type AlertaBusqueda = {
+  id: string;
+  usuario_id: string;
+  termino: string | null;
+  tipos: string[];
+  provincia: string | null;
+  activa: boolean;
+  ultima_ejecucion: string;
+  created_at: string;
 };

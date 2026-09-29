@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Category, Product } from '@/lib/database.types';
 import { guardarProducto } from '@/app/dashboard/actions';
+import { familiaDeTipo, familiaPorSlug, type SlugFamilia } from '@/lib/tipos-publicacion';
 import SubirImagen from './SubirImagen';
 
 const PASOS = ['Lo básico', 'La ficha', 'El precio', 'La entrega'] as const;
 
-const TIPOS = [
+const TODOS_LOS_TIPOS = [
   { valor: 'automation', etiqueta: 'Automatización' },
   { valor: 'agent', etiqueta: 'Agente de IA' },
   { valor: 'bot', etiqueta: 'Bot' },
@@ -18,6 +19,10 @@ const TIPOS = [
   { valor: 'script', etiqueta: 'Script' },
   { valor: 'template', etiqueta: 'Template' },
   { valor: 'service', etiqueta: 'Servicio' },
+  { valor: 'negocio', etiqueta: 'Negocio' },
+  { valor: 'trabajo', etiqueta: 'Trabajo' },
+  { valor: 'profesional', etiqueta: 'Profesional' },
+  { valor: 'proyecto', etiqueta: 'Proyecto' },
 ];
 
 const MODELOS = [
@@ -31,17 +36,34 @@ export default function AsistentePublicacion({
   categorias,
   producto,
   userId,
+  familiaInicial,
 }: {
   categorias: Category[];
   producto?: Product;
   userId: string;
+  /**
+   * Slug de familia con el que se llegó desde /publicar (`?familia=negocios`).
+   * Filtra qué tipos se pueden elegir, para no enseñar "Trabajo" a quien ya
+   * dijo que quería publicar un negocio. Al editar una ficha existente no
+   * llega — se deduce del `product_type` que ya tiene.
+   */
+  familiaInicial?: SlugFamilia;
 }) {
   const router = useRouter();
   const [paso, setPaso] = useState(0);
   const [modelo, setModelo] = useState(producto?.pricing_model ?? 'setup_plus_monthly');
   const [portada, setPortada] = useState(producto?.cover_image_url ?? '');
+  const [esPeticion, setEsPeticion] = useState(producto?.es_peticion ?? false);
+  const [esRemoto, setEsRemoto] = useState(producto?.es_remoto ?? true);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
+
+  const familia =
+    (familiaInicial && familiaPorSlug(familiaInicial)) ??
+    (producto ? familiaDeTipo(producto.product_type) : undefined);
+  const TIPOS = familia
+    ? TODOS_LOS_TIPOS.filter((t) => (familia.tipos as string[]).includes(t.valor))
+    : TODOS_LOS_TIPOS;
 
   async function enviar(formData: FormData, aRevision: boolean) {
     if (guardando) return; // evita el doble envío por doble clic
@@ -106,6 +128,47 @@ export default function AsistentePublicacion({
         {/* Todos los pasos se mantienen montados: si se desmontaran, al volver atrás
             se perderían los campos que el vendedor ya había rellenado. */}
         <div className={paso === 0 ? 'block' : 'hidden'}>
+          {/* Ofrecer/buscar como campos ocultos: los botones de abajo son los
+              controles reales (más claros que un <select> de dos opciones),
+              y estos inputs son los que de verdad viajan en el FormData. */}
+          <input type="hidden" name="es_peticion" value={esPeticion ? 'si' : 'no'} />
+          <input type="hidden" name="es_remoto" value={esRemoto ? 'si' : 'no'} />
+
+          <Campo etiqueta="¿Ofreces o buscas?">
+            <div className="mt-1.5 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setEsPeticion(false)}
+                aria-pressed={!esPeticion}
+                className={`rounded-xl border px-4 py-3 text-left text-sm transition ${
+                  !esPeticion
+                    ? 'border-brand-500 bg-brand-50 font-semibold text-brand-800'
+                    : 'border-ink/15 text-ink/70 hover:border-ink/30'
+                }`}
+              >
+                Ofrezco esto
+                <span className="mt-0.5 block text-xs font-normal opacity-70">
+                  Tengo algo hecho y lo publico
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setEsPeticion(true)}
+                aria-pressed={esPeticion}
+                className={`rounded-xl border px-4 py-3 text-left text-sm transition ${
+                  esPeticion
+                    ? 'border-brand-500 bg-brand-50 font-semibold text-brand-800'
+                    : 'border-ink/15 text-ink/70 hover:border-ink/30'
+                }`}
+              >
+                Busco esto
+                <span className="mt-0.5 block text-xs font-normal opacity-70">
+                  Necesito que alguien me lo haga
+                </span>
+              </button>
+            </div>
+          </Campo>
+
           <Campo etiqueta="Título" ayuda="El nombre de tu solución. Corto y reconocible.">
             <input name="titulo" defaultValue={producto?.titulo} required maxLength={120} className={INPUT} />
           </Campo>
@@ -282,6 +345,54 @@ export default function AsistentePublicacion({
         </div>
 
         <div className={paso === 3 ? 'block' : 'hidden'}>
+          <Campo etiqueta="Ubicación">
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setEsRemoto(true)}
+                aria-pressed={esRemoto}
+                className={`rounded-lg border px-3 py-1.5 text-sm transition ${
+                  esRemoto
+                    ? 'border-brand-500 bg-brand-50 font-semibold text-brand-800'
+                    : 'border-ink/15 text-ink/70 hover:border-ink/30'
+                }`}
+              >
+                En remoto / cualquier sitio
+              </button>
+              <button
+                type="button"
+                onClick={() => setEsRemoto(false)}
+                aria-pressed={!esRemoto}
+                className={`rounded-lg border px-3 py-1.5 text-sm transition ${
+                  !esRemoto
+                    ? 'border-brand-500 bg-brand-50 font-semibold text-brand-800'
+                    : 'border-ink/15 text-ink/70 hover:border-ink/30'
+                }`}
+              >
+                Sitio concreto
+              </button>
+            </div>
+
+            {!esRemoto ? (
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <input
+                  name="ubicacion"
+                  defaultValue={producto?.ubicacion ?? ''}
+                  placeholder="Jerez de la Frontera"
+                  maxLength={200}
+                  className={INPUT}
+                />
+                <input
+                  name="provincia"
+                  defaultValue={producto?.provincia ?? ''}
+                  placeholder="Cádiz"
+                  maxLength={80}
+                  className={INPUT}
+                />
+              </div>
+            ) : null}
+          </Campo>
+
           <Campo
             etiqueta="Tiempo de instalación (minutos)"
             ayuda="Sé honesto. Es el dato que más miran las pymes, y quedar mal aquí cuesta reviews."

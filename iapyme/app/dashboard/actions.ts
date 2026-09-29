@@ -12,6 +12,11 @@ export type ResultadoAccion = { ok: true; slug?: string } | { ok: false; error: 
 
 const TIPOS: ProductType[] = [
   'automation', 'agent', 'bot', 'app', 'web', 'saas', 'script', 'template', 'service',
+  // Los cuatro de la migración 0006. Si `product_type` en la base todavía no
+  // los tiene dados de alta, Postgres devuelve un error de enum al guardar —
+  // se deja igualmente en la lista de válidos porque el error real (falta la
+  // migración) es más claro que uno silencioso cayendo a 'automation'.
+  'negocio', 'trabajo', 'profesional', 'proyecto',
 ];
 const MODELOS: PricingModel[] = ['one_time', 'setup_plus_monthly', 'monthly', 'free'];
 
@@ -23,6 +28,24 @@ function numero(valor: FormDataEntryValue | null, porDefecto = 0): number {
   const n = Number(valor);
   return Number.isFinite(n) && n >= 0 ? n : porDefecto;
 }
+
+/** Postgres: 42703 es "la columna no existe". */
+function esErrorColumnaInexistente(error: { code?: string } | null): boolean {
+  return error?.code === '42703';
+}
+
+/** Quita los cuatro campos de la migración 0006, para el reintento sin ellos. */
+function sinCamposDeMigracion0006<T extends Record<string, unknown>>(campos: T) {
+  const { es_peticion, es_remoto, ubicacion, provincia, ...resto } = campos;
+  void es_peticion;
+  void es_remoto;
+  void ubicacion;
+  void provincia;
+  return resto;
+}
+
+const AVISO_MIGRACION_0006 =
+  '[guardarProducto] La migración 0006 no está aplicada todavía — se guarda sin ubicación/peticiones.';
 
 /**
  * Crea o actualiza una ficha. El `status` que llega del formulario solo puede ser
@@ -82,10 +105,25 @@ export async function guardarProducto(
     cover_image_url: limpiar(formData.get('cover_image_url'), 500) || null,
     demo_video_url: limpiar(formData.get('demo_video_url'), 500) || null,
     status: enviarARevision ? ('pending_review' as const) : ('draft' as const),
+    // Campos de la migración 0006. Si esa migración no se ha ejecutado, la
+    // columna no existe y Supabase devuelve un error claro de "column does
+    // not exist" al insertar — no se puede fallar en silencio aquí porque
+    // entonces el vendedor no sabría por qué no se guarda.
+    es_peticion: formData.get('es_peticion') === 'si',
+    es_remoto: formData.get('es_remoto') !== 'no',
+    ubicacion: limpiar(formData.get('ubicacion'), 200) || null,
+    provincia: limpiar(formData.get('provincia'), 80) || null,
   };
 
   if (id) {
-    const { error } = await supabase.from('products').update(campos).eq('id', id);
+    let { error } = await supabase.from('products').update(campos).eq('id', id);
+    if (esErrorColumnaInexistente(error)) {
+      console.warn(AVISO_MIGRACION_0006);
+      ({ error } = await supabase
+        .from('products')
+        .update(sinCamposDeMigracion0006(campos))
+        .eq('id', id));
+    }
     if (error) return { ok: false, error: traducir(error.message) };
 
     if (enviarARevision) {
@@ -97,18 +135,31 @@ export async function guardarProducto(
   }
 
   // Slug único: se reintenta una vez con sufijo si el título ya está cogido.
+  // Y, aparte, sin los campos de la 0006 si esa migración no está aplicada —
+  // por eso son dos condiciones independientes, no un solo `else if`.
   let slug = slugificar(titulo);
+  let camposAInsertar: Record<string, unknown> = campos;
   let { data, error } = await supabase
     .from('products')
-    .insert({ ...campos, slug })
+    .insert({ ...camposAInsertar, slug })
     .select('slug')
     .single();
+
+  if (esErrorColumnaInexistente(error)) {
+    console.warn(AVISO_MIGRACION_0006);
+    camposAInsertar = sinCamposDeMigracion0006(campos);
+    ({ data, error } = await supabase
+      .from('products')
+      .insert({ ...camposAInsertar, slug })
+      .select('slug')
+      .single());
+  }
 
   if (error?.code === '23505') {
     slug = slugConSufijo(slug);
     ({ data, error } = await supabase
       .from('products')
-      .insert({ ...campos, slug })
+      .insert({ ...camposAInsertar, slug })
       .select('slug')
       .single());
   }

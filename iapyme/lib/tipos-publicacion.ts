@@ -6,10 +6,12 @@ import type { ProductType } from './database.types';
  * base de datos a lo que entiende quien entra: nadie busca "un template",
  * busca "algo hecho que pueda usar".
  *
- * Cada familia agrupa uno o varios `product_type`. Las cuatro últimas
- * (negocio, trabajo, profesional, proyecto) dependen de la migración 0006: sin
- * ejecutarla existen en la interfaz pero no hay nada publicado en ellas, que
- * es justo lo que se ve —un estado vacío honesto—, no una sección falsa.
+ * Cada familia agrupa uno o varios `product_type`. Los cuatro tipos nuevos
+ * (negocio, trabajo, profesional, proyecto) ya están dados de alta en el enum
+ * de producción, así que las cuatro familias últimas aceptan publicaciones
+ * de verdad. Lo que sí depende de la segunda mitad de la migración 0006 son
+ * la ubicación y las peticiones de compra — ver `Product['ubicacion']` y
+ * `Product['es_peticion']` en database.types.ts.
  */
 export type SlugFamilia =
   | 'soluciones'
@@ -27,8 +29,6 @@ export type Familia = {
   icono: NombreIcono;
   /** Valores de `product_type` que caen en esta familia. */
   tipos: ProductType[];
-  /** Necesita la migración 0006 para poder publicarse. */
-  requiereMigracion?: boolean;
 };
 
 export const FAMILIAS: Familia[] = [
@@ -51,32 +51,28 @@ export const FAMILIAS: Familia[] = [
     nombre: 'Negocios',
     descripcion: 'Empresas que aplican IA y buscan clientes, socios o traspaso.',
     icono: 'negocio',
-    tipos: ['negocio' as ProductType],
-    requiereMigracion: true,
+    tipos: ['negocio'],
   },
   {
     slug: 'profesionales',
     nombre: 'Profesionales',
     descripcion: 'Perfiles que ofrecen su trabajo: desarrollo, datos, automatización.',
     icono: 'profesional',
-    tipos: ['profesional' as ProductType],
-    requiereMigracion: true,
+    tipos: ['profesional'],
   },
   {
     slug: 'trabajos',
     nombre: 'Trabajos',
     descripcion: 'Ofertas de empleo y encargos puntuales relacionados con IA.',
     icono: 'trabajo',
-    tipos: ['trabajo' as ProductType],
-    requiereMigracion: true,
+    tipos: ['trabajo'],
   },
   {
     slug: 'proyectos',
     nombre: 'Proyectos',
     descripcion: 'Ideas en marcha que buscan equipo, socios o financiación.',
     icono: 'proyecto',
-    tipos: ['proyecto' as ProductType],
-    requiereMigracion: true,
+    tipos: ['proyecto'],
   },
 ];
 

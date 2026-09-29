@@ -52,6 +52,7 @@ export default function ProductoCard({ producto }: { producto: ProductoConRelaci
         )}
 
         <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          {producto.es_peticion ? <Distintivo tono="marca">Se busca</Distintivo> : null}
           {producto.is_featured ? <Distintivo tono="oscuro">Destacado</Distintivo> : null}
         </div>
 
@@ -114,8 +115,14 @@ export default function ProductoCard({ producto }: { producto: ProductoConRelaci
             ) : null}
           </div>
 
-          <p className="mt-2 text-xs text-ink/50">
-            Listo en {tiempoInstalacion(producto.minutos_instalacion).toLowerCase()}
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-ink/50">
+            <span>Listo en {tiempoInstalacion(producto.minutos_instalacion).toLowerCase()}</span>
+            {!producto.es_remoto && producto.ubicacion ? (
+              <>
+                <span aria-hidden>·</span>
+                <span className="truncate">{producto.ubicacion}</span>
+              </>
+            ) : null}
           </p>
         </div>
       </div>

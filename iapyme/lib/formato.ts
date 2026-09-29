@@ -79,4 +79,8 @@ export const NOMBRE_TIPO: Record<Product['product_type'], string> = {
   script: 'Script',
   template: 'Template',
   service: 'Servicio',
+  negocio: 'Negocio',
+  trabajo: 'Trabajo',
+  profesional: 'Profesional',
+  proyecto: 'Proyecto',
 };

@@ -86,12 +86,8 @@ export default async function FamiliaPage({ params }: { params: { familia: strin
             className="mt-8"
             icono={<Icono nombre={familia.icono} className="h-8 w-8" />}
             titulo={`Todavía no hay nada en ${familia.nombre.toLowerCase()}`}
-            texto={
-              familia.requiereMigracion
-                ? 'Esta parte del marketplace está recién abierta. En cuanto alguien publique aquí, aparecerá en esta página.'
-                : 'Nadie ha publicado aún en esta sección. Si tienes algo que encaje, eres el primero.'
-            }
-            accion={{ href: '/publicar', texto: 'Publicar aquí' }}
+            texto="Nadie ha publicado aún en esta sección. Si tienes algo que encaje, eres el primero."
+            accion={{ href: `/publicar?familia=${familia.slug}`, texto: 'Publicar aquí' }}
           />
         )}
       </main>

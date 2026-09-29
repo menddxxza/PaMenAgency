@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createPublicClient } from '@/lib/supabase/public';
 import type {
+  AlertaBusqueda,
   Category,
   ProductoConRelaciones,
   ProductType,
@@ -34,6 +35,8 @@ export type FiltrosCatalogo = {
   provincia?: string;
   /** Nota media mínima, de 1 a 5. */
   valoracionMin?: number;
+  /** Solo peticiones de compra ("busco...") o solo ofertas, según el valor. */
+  esPeticion?: boolean;
 };
 
 /**
@@ -104,6 +107,7 @@ export async function getProductos(
   if (filtros.tipos?.length) consulta = consulta.in('product_type', filtros.tipos);
   if (filtros.provincia) consulta = consulta.eq('provincia', filtros.provincia);
   if (filtros.valoracionMin) consulta = consulta.gte('rating_promedio', filtros.valoracionMin);
+  if (filtros.esPeticion !== undefined) consulta = consulta.eq('es_peticion', filtros.esPeticion);
 
   switch (filtros.orden) {
     case 'vistos':
@@ -238,6 +242,34 @@ export async function getFavoritos(): Promise<ProductoConRelaciones[]> {
   return ((data ?? []) as unknown as { products: ProductoConRelaciones | null }[])
     .map((fila) => fila.products)
     .filter((p): p is ProductoConRelaciones => p !== null);
+}
+
+/**
+ * Alertas guardadas del usuario. Devuelve [] tanto si no hay sesión como si
+ * la tabla `alertas_busqueda` todavía no existe (falta ejecutar la migración
+ * 0006) — en ambos casos la página debe verse vacía, no romperse.
+ */
+export async function getAlertas(): Promise<AlertaBusqueda[]> {
+  const supabase = createClient();
+  if (!supabase) return [];
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('alertas_busqueda')
+    .select('*')
+    .eq('usuario_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    if (error.code !== '42P01') console.error('[queries] getAlertas:', error.message);
+    return [];
+  }
+
+  return (data ?? []) as unknown as AlertaBusqueda[];
 }
 
 /**

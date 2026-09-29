@@ -8,6 +8,7 @@ const ENLACES = [
   { href: '/dashboard/productos', etiqueta: 'Mis productos', icono: '📦' },
   { href: '/dashboard/leads', etiqueta: 'Mensajes', icono: '💬' },
   { href: '/dashboard/favoritos', etiqueta: 'Mis favoritos', icono: '🤍' },
+  { href: '/dashboard/alertas', etiqueta: 'Mis alertas', icono: '🔔' },
   { href: '/dashboard/perfil', etiqueta: 'Mi perfil', icono: '👤' },
   { href: '/dashboard/cuenta', etiqueta: 'Mi cuenta', icono: '⚙️' },
 ];

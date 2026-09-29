@@ -1,9 +1,10 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Icono from '@/components/Icono';
 import Distintivo from '@/components/ui/Distintivo';
-import { FAMILIAS } from '@/lib/tipos-publicacion';
+import { FAMILIAS, familiaPorSlug } from '@/lib/tipos-publicacion';
 import { getPerfilActual } from '@/lib/supabase/server';
 
 export const metadata = {
@@ -15,7 +16,11 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function PublicarPage() {
+export default async function PublicarPage({
+  searchParams,
+}: {
+  searchParams: { familia?: string };
+}) {
   const perfil = await getPerfilActual();
 
   /** Sin cuenta se pasa por el registro, pero volviendo aquí después. */
@@ -23,6 +28,12 @@ export default async function PublicarPage() {
     perfil
       ? `/dashboard/productos/nuevo?familia=${slug}`
       : `/entrar?registro=1&volver=${encodeURIComponent(`/dashboard/productos/nuevo?familia=${slug}`)}`;
+
+  // Se llega aquí ya con la familia decidida (desde el botón "Publicar aquí"
+  // de una sección concreta): no tiene sentido volver a preguntar.
+  if (searchParams.familia && familiaPorSlug(searchParams.familia)) {
+    redirect(destino(searchParams.familia));
+  }
 
   return (
     <>

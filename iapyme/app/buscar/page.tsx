@@ -2,6 +2,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import FiltrosCatalogo from '@/components/FiltrosCatalogo';
 import ResultadosCatalogo from '@/components/ResultadosCatalogo';
+import BotonGuardarBusqueda from '@/components/BotonGuardarBusqueda';
 import { getProductosConAmpliacion } from '@/lib/queries';
 import { leerFiltros, type ParamsBusqueda } from '@/lib/filtros';
 
@@ -36,15 +37,18 @@ export default async function BuscarPage({
           </aside>
 
           <div>
-            <p className="mb-6 text-sm text-ink/60">
-              {productos.length}{' '}
-              {productos.length === 1 ? 'solución encontrada' : 'soluciones encontradas'}
-              {ampliadoConIA ? (
-                <span className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-brand-500/10 px-3 py-1 text-xs font-medium text-brand-700">
-                  ✨ Ampliado con IA a partir de «{filtros.q}»
-                </span>
-              ) : null}
-            </p>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-ink/60">
+                {productos.length}{' '}
+                {productos.length === 1 ? 'solución encontrada' : 'soluciones encontradas'}
+                {ampliadoConIA ? (
+                  <span className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-brand-500/10 px-3 py-1 text-xs font-medium text-brand-700">
+                    ✨ Ampliado con IA a partir de «{filtros.q}»
+                  </span>
+                ) : null}
+              </p>
+              <BotonGuardarBusqueda />
+            </div>
             <ResultadosCatalogo
               productos={productos}
               vacio={{

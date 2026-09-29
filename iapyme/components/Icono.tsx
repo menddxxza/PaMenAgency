@@ -27,6 +27,7 @@ export type NombreIcono =
   | 'filtro'
   | 'ubicacion'
   | 'escudo'
+  | 'campana'
   // Tipos de publicación
   | 'negocio'
   | 'servicio'
@@ -152,6 +153,12 @@ const TRAZOS: Record<NombreIcono, React.ReactNode> = {
     <>
       <path d="M12 3.2 5 6v5.5c0 4.2 2.9 7.6 7 9.3 4.1-1.7 7-5.1 7-9.3V6z" />
       <path d="m9 11.8 2.2 2.2 4-4.3" />
+    </>
+  ),
+  campana: (
+    <>
+      <path d="M6 10.5a6 6 0 0 1 12 0c0 4 1.3 5.6 2 6.5H4c.7-.9 2-2.5 2-6.5Z" />
+      <path d="M9.5 19.5a2.5 2.5 0 0 0 5 0" />
     </>
   ),
 
