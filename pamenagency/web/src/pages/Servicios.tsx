@@ -1,6 +1,7 @@
 import { PageHead } from '@/components/ui/PageHead'
 import { Section } from '@/components/ui/Section'
 import { ServiceCard } from '@/components/sections/ServiceCard'
+import { ServiceGuide } from '@/components/sections/ServiceGuide'
 import ScrollStack, { ScrollStackItem } from '@/components/ui/ScrollStack'
 import { CtaBand } from '@/components/sections/CtaBand'
 import { MethodologySection } from '@/components/sections/MethodologySection'
@@ -42,6 +43,8 @@ export default function Servicios() {
         lead="Diez formas de trabajar la Inteligencia Artificial, desde entender qué te conviene hasta dejarlo funcionando y documentado. Casi nadie necesita las diez: se empieza por una."
         breadcrumb={[{ label: 'Servicios' }]}
       />
+
+      <ServiceGuide />
 
       <Section divided={false}>
         <ScrollStack

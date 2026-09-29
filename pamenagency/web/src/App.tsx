@@ -29,6 +29,8 @@ const SectorDetalle = lazy(() => import('@/pages/SectorDetalle'))
 const Escenarios = lazy(() => import('@/pages/Escenarios'))
 const Faq = lazy(() => import('@/pages/Faq'))
 const Contacto = lazy(() => import('@/pages/Contacto'))
+const Referidos = lazy(() => import('@/pages/Referidos'))
+const Novedades = lazy(() => import('@/pages/Novedades'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 const LegalIndex = lazy(() => import('@/pages/legal/Index'))
@@ -67,6 +69,8 @@ export function App() {
           <Route path="escenarios" element={<Escenarios />} />
           <Route path="faq" element={<Faq />} />
           <Route path="contacto" element={<Contacto />} />
+          <Route path="referidos" element={<Referidos />} />
+          <Route path="novedades" element={<Novedades />} />
 
           <Route path="legal">
             <Route index element={<LegalIndex />} />

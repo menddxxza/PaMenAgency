@@ -116,10 +116,13 @@ export function AssistantWidget() {
         className="pm-assistant__launcher"
         aria-expanded={open}
         aria-controls="pm-assistant-panel"
-        aria-label={open ? 'Cerrar el asistente de IA' : 'Abrir el asistente de IA'}
+        aria-label={open ? 'Cerrar el asistente de IA' : 'Abrir el asistente de IA, disponible 24 horas'}
         onClick={() => setOpen((v) => !v)}
       >
         <Icon name={open ? 'close' : 'chat'} size={22} />
+        {/* Es honesto: al ser un sistema automático, no tiene horario — está
+            disponible siempre, así que el punto no simula una persona conectada. */}
+        {!open && <span className="pm-assistant__status" aria-hidden="true" />}
       </button>
 
       {open && (
@@ -142,7 +145,7 @@ export function AssistantWidget() {
                   <span className="pm-badge pm-badge--gold" style={{ padding: '0.1rem 0.5rem' }}>
                     IA
                   </span>{' '}
-                  Puede cometer errores
+                  Disponible 24/7 · Puede cometer errores
                 </p>
               </div>
             </div>

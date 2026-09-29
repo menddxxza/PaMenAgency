@@ -1397,3 +1397,96 @@
     height: min(70dvh, 560px);
   }
 }
+
+/* -------------------- Progreso de formulario largo -------------------- */
+
+.pm-formprogress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.pm-formprogress__track {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--pm-surface-3);
+  overflow: hidden;
+}
+
+.pm-formprogress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pm-gold-deep), var(--pm-gold-bright));
+  transition: width var(--dur) var(--ease-out);
+}
+
+.pm-formprogress__texto {
+  font-size: var(--fs-micro);
+  color: var(--pm-muted);
+  white-space: nowrap;
+}
+
+/* --------------------------- Aviso de confianza --------------------------- */
+
+.pm-trustbadge {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: var(--fs-small);
+  color: var(--pm-muted);
+}
+
+.pm-trustbadge svg { flex: none; margin-top: 2px; color: var(--pm-gold); }
+
+/* ----------------------- Aviso de nuevas guías ----------------------- */
+
+.pm-newsletter__texto {
+  color: var(--pm-muted);
+  font-size: var(--fs-small);
+  margin-bottom: 0.85rem;
+  max-width: 46ch;
+}
+
+.pm-newsletter__campo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.pm-newsletter__campo .pm-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.pm-newsletter .pm-error { margin-top: 0.6rem; }
+
+/* Punto de "disponible" en el lanzador del asistente — ver el comentario en
+   AssistantWidget.tsx sobre por qué es honesto mostrarlo siempre. */
+.pm-assistant__status {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #4ADE80;
+  border: 2px solid var(--pm-void);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pm-assistant__status::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 1px solid #4ADE80;
+    animation: pm-status-ping 2.4s ease-out infinite;
+  }
+}
+
+@keyframes pm-status-ping {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
+}

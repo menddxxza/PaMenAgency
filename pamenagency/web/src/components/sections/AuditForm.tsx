@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
+import { FormProgress } from '@/components/ui/FormProgress'
+import { TrustBadge } from '@/components/ui/TrustBadge'
 import { site } from '@/content/site'
 import { obtenerUtm } from '@/lib/utm'
 import { enviarLead, type EstadoEnvio } from '@/lib/lead'
@@ -73,6 +75,16 @@ const objetivos = [
 function leadScore(values: Fields): number {
   const conEquipo = values.tamano !== '' && values.tamano !== 'Solo yo'
   return conEquipo ? 5 : 4
+}
+
+/** Campos obligatorios, en el mismo orden que valida `validate()`. */
+const CAMPOS_OBLIGATORIOS = ['nombre', 'empresa', 'email', 'objetivo', 'reto', 'consentimiento'] as const
+
+function camposCompletos(values: Fields): number {
+  return CAMPOS_OBLIGATORIOS.filter((campo) => {
+    const v = values[campo]
+    return typeof v === 'boolean' ? v : v.trim().length > 0
+  }).length
 }
 
 function validate(values: Fields): Partial<Record<keyof Fields, string>> {
@@ -187,6 +199,8 @@ export function AuditForm() {
 
   return (
     <form className="pm-diag" onSubmit={onSubmit} noValidate>
+      <FormProgress hechos={camposCompletos(values)} total={CAMPOS_OBLIGATORIOS.length} />
+
       <div
         className="pm-grid"
         style={{ gap: '1.1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))' }}
@@ -332,6 +346,7 @@ export function AuditForm() {
             {errors.consentimiento}
           </p>
         )}
+        <TrustBadge />
       </div>
 
       {status === 'error' && (

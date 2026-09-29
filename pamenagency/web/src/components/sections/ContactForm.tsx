@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
+import { TrustBadge } from '@/components/ui/TrustBadge'
 import { services } from '@/content/services'
 import { site } from '@/content/site'
 import { obtenerUtm } from '@/lib/utm'
@@ -393,6 +394,7 @@ export function ContactForm() {
             {errors.consentimiento}
           </p>
         )}
+        <TrustBadge />
       </div>
 
       {status === 'error' && (

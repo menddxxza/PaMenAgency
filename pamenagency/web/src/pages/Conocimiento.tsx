@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { PageHead } from '@/components/ui/PageHead'
 import { Section, Reveal } from '@/components/ui/Section'
 import { DocCard } from '@/components/sections/DocCard'
+import { NewsletterSignup } from '@/components/sections/NewsletterSignup'
 import { CtaBand } from '@/components/sections/CtaBand'
 import { docs, getCategories, upcomingTopics } from '@/content/knowledge'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
@@ -102,6 +103,13 @@ export default function Conocimiento() {
                 </span>
               ))}
             </div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={160}>
+          <div style={{ marginTop: 'var(--space-xl)' }}>
+            <p className="pm-eyebrow">Avisos, no boletín</p>
+            <NewsletterSignup />
           </div>
         </Reveal>
       </Section>

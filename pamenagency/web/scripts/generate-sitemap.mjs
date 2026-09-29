@@ -33,6 +33,8 @@ const staticRoutes = [
   ['/diagnostico', 0.8, 'monthly'],
   ['/faq', 0.7, 'monthly'],
   ['/contacto', 0.7, 'yearly'],
+  ['/referidos', 0.6, 'monthly'],
+  ['/novedades', 0.6, 'weekly'],
 ]
 
 const slugsFrom = (source) => [...source.matchAll(/slug:\s*'([^']+)'/g)].map((m) => m[1])

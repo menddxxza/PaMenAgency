@@ -1,11 +1,24 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Section, SectionHead, Reveal } from '@/components/ui/Section'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
-import { casos } from '@/content/cases'
+import { casos, type Caso } from '@/content/cases'
+import { descargarCasoPdf } from '@/lib/casePdf'
 
 /** Casos de ejemplo por sector. El aviso de que son ilustrativos va en la cabecera y en cada tarjeta. */
 export function CasesSection() {
+  const [descargando, setDescargando] = useState<string | null>(null)
+
+  const descargar = async (caso: Caso) => {
+    setDescargando(caso.sectorSlug)
+    try {
+      await descargarCasoPdf(caso)
+    } finally {
+      setDescargando(null)
+    }
+  }
+
   return (
     <Section id="casos">
       <SectionHead
@@ -53,10 +66,22 @@ export function CasesSection() {
                 <span className="pm-case__metrica">{c.metrica}</span>
               </div>
 
-              <Link to={`/sectores/${c.sectorSlug}`} className="pm-link" style={{ marginTop: '1rem' }}>
-                Ver el sector
-                <Icon name="arrow" size={13} className="pm-btn__arrow" />
-              </Link>
+              <div className="pm-row" style={{ marginTop: '1rem', justifyContent: 'space-between' }}>
+                <Link to={`/sectores/${c.sectorSlug}`} className="pm-link">
+                  Ver el sector
+                  <Icon name="arrow" size={13} className="pm-btn__arrow" />
+                </Link>
+                <button
+                  type="button"
+                  className="pm-link"
+                  onClick={() => descargar(c)}
+                  disabled={descargando === c.sectorSlug}
+                  aria-label={`Descargar el caso de ${c.sector} en PDF`}
+                >
+                  <Icon name="copy" size={13} />
+                  {descargando === c.sectorSlug ? 'Generando…' : 'PDF'}
+                </button>
+              </div>
             </article>
           </Reveal>
         ))}
