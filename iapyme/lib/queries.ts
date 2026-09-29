@@ -3,6 +3,8 @@ import { createPublicClient } from '@/lib/supabase/public';
 import type {
   AlertaBusqueda,
   Category,
+  ConversacionResumen,
+  LeadMensajeConAutor,
   ProductoConRelaciones,
   ProductType,
   Profile,
@@ -270,6 +272,71 @@ export async function getAlertas(): Promise<AlertaBusqueda[]> {
   }
 
   return (data ?? []) as unknown as AlertaBusqueda[];
+}
+
+/**
+ * Todas las conversaciones de una persona: los leads que ha recibido como
+ * vendedor y los que ha enviado como comprador, en un único hilo temporal.
+ * La política de RLS de `leads` ya solo deja ver `seller_id = auth.uid() or
+ * buyer_id = auth.uid()`, así que el `.or()` de aquí solo evita depender
+ * únicamente de esa capa.
+ */
+export async function getConversaciones(perfilId: string): Promise<ConversacionResumen[]> {
+  const supabase = createClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*, products ( titulo, slug ), vendedor:profiles!seller_id ( display_name, slug )')
+    .or(`seller_id.eq.${perfilId},buyer_id.eq.${perfilId}`)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[queries] getConversaciones:', error.message);
+    return [];
+  }
+
+  return (data ?? []) as unknown as ConversacionResumen[];
+}
+
+/**
+ * Un hilo concreto: el lead (con producto y vendedor resueltos) más los
+ * mensajes que se han cruzado dentro. Devuelve `null` si el lead no existe o
+ * si `perfilId` no es ninguna de las dos partes — cinturón y tirantes sobre
+ * lo que ya impide la política de RLS.
+ *
+ * Los mensajes vienen [] si `lead_mensajes` todavía no existe (falta la
+ * migración 0006): el hilo se ve con solo el mensaje original, no se rompe.
+ */
+export async function getConversacion(
+  leadId: string,
+  perfilId: string,
+): Promise<{ lead: ConversacionResumen; mensajes: LeadMensajeConAutor[] } | null> {
+  const supabase = createClient();
+  if (!supabase) return null;
+
+  const { data: lead } = await supabase
+    .from('leads')
+    .select('*, products ( titulo, slug ), vendedor:profiles!seller_id ( display_name, slug )')
+    .eq('id', leadId)
+    .maybeSingle();
+
+  if (!lead) return null;
+  const conversacion = lead as unknown as ConversacionResumen;
+  if (conversacion.seller_id !== perfilId && conversacion.buyer_id !== perfilId) return null;
+
+  const { data: mensajes, error } = await supabase
+    .from('lead_mensajes')
+    .select('*, profiles ( display_name, avatar_url )')
+    .eq('lead_id', leadId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    if (error.code !== '42P01') console.error('[queries] getConversacion:', error.message);
+    return { lead: conversacion, mensajes: [] };
+  }
+
+  return { lead: conversacion, mensajes: (mensajes ?? []) as unknown as LeadMensajeConAutor[] };
 }
 
 /**

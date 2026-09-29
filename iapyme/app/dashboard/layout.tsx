@@ -23,13 +23,28 @@ export default async function DashboardLayout({
   if (!perfil) redirect('/entrar?volver=/dashboard');
 
   const supabase = createClient();
-  const { count: mensajesSinLeer } = supabase
-    ? await supabase
-        .from('leads')
-        .select('id', { count: 'exact', head: true })
-        .eq('seller_id', perfil.id)
-        .eq('status', 'new')
-    : { count: 0 };
+  let mensajesSinLeer = 0;
+
+  if (supabase) {
+    const { count: leadsSinResponder } = await supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .eq('seller_id', perfil.id)
+      .eq('status', 'new');
+    mensajesSinLeer += leadsSinResponder ?? 0;
+
+    // Respuestas sin leer dentro de un hilo ya abierto, en cualquiera de los
+    // dos papeles (vendedor o comprador). Si `lead_mensajes` todavía no
+    // existe (falta la migración 0006), el error se ignora: el contador
+    // simplemente se queda solo con los leads sin responder de arriba.
+    const { count: respuestasSinLeer } = await supabase
+      .from('lead_mensajes')
+      .select('id, leads!inner(seller_id,buyer_id)', { count: 'exact', head: true })
+      .is('leido_at', null)
+      .neq('autor_id', perfil.id)
+      .or(`seller_id.eq.${perfil.id},buyer_id.eq.${perfil.id}`, { referencedTable: 'leads' });
+    mensajesSinLeer += respuestasSinLeer ?? 0;
+  }
 
   return (
     <div className="min-h-screen bg-ink/[0.02]">
@@ -39,7 +54,7 @@ export default async function DashboardLayout({
             <Logo />
           </Link>
 
-          <NavPanel esAdmin={perfil.role === 'admin'} mensajesSinLeer={mensajesSinLeer ?? 0} />
+          <NavPanel esAdmin={perfil.role === 'admin'} mensajesSinLeer={mensajesSinLeer} />
 
           <div className="mt-8 border-t border-ink/10 px-2 pt-5">
             <p className="truncate text-sm font-semibold">{perfil.display_name}</p>

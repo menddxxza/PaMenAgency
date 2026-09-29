@@ -154,6 +154,12 @@ export type LeadMensajeConAutor = LeadMensaje & {
   profiles: Pick<Profile, 'display_name' | 'avatar_url'> | null;
 };
 
+/** Un lead con su producto y (si existe) el vendedor resueltos, para el panel de mensajes. */
+export type ConversacionResumen = Lead & {
+  products: Pick<Product, 'titulo' | 'slug'> | null;
+  vendedor: Pick<Profile, 'display_name' | 'slug'> | null;
+};
+
 /** Búsqueda guardada con aviso por email. Tabla de la migración 0006. */
 export type AlertaBusqueda = {
   id: string;

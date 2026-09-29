@@ -115,6 +115,41 @@ export async function avisarAlertaCoincidencias(datos: {
   }
 }
 
+/**
+ * Aviso de que ha llegado un mensaje dentro de una conversación ya abierta
+ * (a diferencia de `avisarNuevoLead`, que es el primer contacto). Lo dispara
+ * `enviarMensaje` tanto si escribe el vendedor como si escribe el comprador,
+ * así que nunca debe tumbar el envío del mensaje si falla.
+ */
+export async function avisarNuevoMensaje(datos: {
+  destinatario: string;
+  nombreRemitente: string;
+  cuerpo: string;
+  leadId: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.info('[email] Resend no configurado, aviso de mensaje omitido.');
+    return;
+  }
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from: 'IAPyme <onboarding@resend.dev>',
+      to: datos.destinatario,
+      subject: `Nuevo mensaje de ${datos.nombreRemitente}`,
+      html: `
+        <p><b>${escapeHtml(datos.nombreRemitente)}</b> te ha escrito:</p>
+        <p>"${escapeHtml(datos.cuerpo)}"</p>
+        <p><a href="${SITE_URL}/dashboard/leads/${datos.leadId}">Responder →</a></p>
+      `,
+    });
+  } catch (error) {
+    console.error('[email] Error al avisar de nuevo mensaje:', error);
+  }
+}
+
 /** Aviso al vendedor de que le han dejado una reseña nueva. */
 export async function avisarNuevaResena(datos: {
   sellerEmail: string;

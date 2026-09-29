@@ -3,6 +3,7 @@ import Script from 'next/script';
 import { Inter, Instrument_Sans, JetBrains_Mono } from 'next/font/google';
 import FavoritosProvider from '@/components/FavoritosProvider';
 import NavInferior from '@/components/NavInferior';
+import PantallaCarga from '@/components/PantallaCarga';
 import './globals.css';
 
 // Tres roles, tres familias, cada una por un motivo:
@@ -98,6 +99,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <body>
+        <PantallaCarga />
         <FavoritosProvider>
           {children}
           <NavInferior />
