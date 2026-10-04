@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import {
@@ -20,6 +20,20 @@ export function DiagnosticTool() {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [done, setDone] = useState(false)
+  // Hallado al probar sólo con teclado, no se ve mirando la pantalla: al
+  // avanzar de pregunta (clic en una opción, o "Siguiente"/"Anterior") el
+  // foco se quedaba huérfano en <body>, porque el botón enfocado desaparece
+  // del DOM en el re-render. Quien navega con teclado o lector de pantalla
+  // tenía que volver a tabular desde arriba del todo tras cada respuesta.
+  // Este ref mueve el foco al enunciado nuevo, que además lleva aria-live
+  // para que se anuncie solo. Se reutiliza en el <h3> de la pregunta y en
+  // el <p> del resultado, de ahí el ref-callback: un RefObject normal no
+  // es asignable a la vez a un <h3> y a un <p> (TypeScript los trata como
+  // tipos de elemento distintos e invariantes).
+  const preguntaRef = useRef<HTMLElement | null>(null)
+  const setPreguntaRef = (el: HTMLElement | null) => {
+    preguntaRef.current = el
+  }
 
   const total = questions.length
   const current = questions[step]
@@ -30,19 +44,28 @@ export function DiagnosticTool() {
     return idx === undefined ? sum : sum + q.options[idx].score
   }, 0)
 
+  const enfocarPregunta = () => window.requestAnimationFrame(() => preguntaRef.current?.focus())
+
   const choose = (index: number) => {
     setAnswers((prev) => ({ ...prev, [current.id]: index }))
     // Avance automático, con una pausa mínima para que se vea la selección.
     window.setTimeout(() => {
       if (step < total - 1) setStep((s) => s + 1)
       else setDone(true)
+      enfocarPregunta()
     }, 240)
+  }
+
+  const ir = (nuevoStep: number) => {
+    setStep(nuevoStep)
+    enfocarPregunta()
   }
 
   const restart = () => {
     setAnswers({})
     setStep(0)
     setDone(false)
+    enfocarPregunta()
   }
 
   if (done) {
@@ -52,7 +75,9 @@ export function DiagnosticTool() {
 
     return (
       <div className="pm-diag">
-        <p className="pm-eyebrow">Resultado orientativo</p>
+        <p className="pm-eyebrow" ref={setPreguntaRef} tabIndex={-1} aria-live="polite">
+          Resultado orientativo
+        </p>
 
         <div className="pm-score" style={{ marginBlock: '1.75rem' }}>
           <span className="pm-score__value">{level.label}</span>
@@ -139,7 +164,13 @@ export function DiagnosticTool() {
         <div className="pm-diag__fill" style={{ transform: `scaleX(${(step + 1) / total})` }} />
       </div>
 
-      <h3 className="pm-diag__q">{current.question}</h3>
+      {/* h2, no h3: en /diagnostico el H1 de la página va seguido directo de
+          esta pregunta, sin ningún H2 de por medio — un escaneo automático
+          lo marcó como salto de nivel. En la Home sigue siendo un paso
+          legal, porque va detrás del H2 de SectionHead. */}
+      <h2 className="pm-diag__q" ref={setPreguntaRef} tabIndex={-1} aria-live="polite">
+        {current.question}
+      </h2>
       {current.help && (
         <p className="pm-muted" style={{ fontSize: 'var(--fs-small)', marginTop: '-1rem', marginBottom: '1.5rem' }}>
           {current.help}
@@ -164,16 +195,23 @@ export function DiagnosticTool() {
       </div>
 
       <div className="pm-diag__nav">
-        <Button variant="solid" size="sm" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
+        <Button variant="solid" size="sm" onClick={() => ir(Math.max(0, step - 1))} disabled={step === 0}>
           Anterior
         </Button>
         {answered && step < total - 1 && (
-          <Button size="sm" onClick={() => setStep((s) => s + 1)} arrow>
+          <Button size="sm" onClick={() => ir(step + 1)} arrow>
             Siguiente
           </Button>
         )}
         {answered && step === total - 1 && (
-          <Button size="sm" onClick={() => setDone(true)} arrow>
+          <Button
+            size="sm"
+            onClick={() => {
+              setDone(true)
+              enfocarPregunta()
+            }}
+            arrow
+          >
             Ver resultado
           </Button>
         )}

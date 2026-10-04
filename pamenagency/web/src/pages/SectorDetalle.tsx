@@ -4,6 +4,7 @@ import { Section, Reveal } from '@/components/ui/Section'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { CtaBand } from '@/components/sections/CtaBand'
+import { MiniDiagnostic } from '@/components/sections/MiniDiagnostic'
 import { getUseCase, useCases } from '@/content/useCases'
 import { site } from '@/content/site'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
@@ -120,6 +121,10 @@ function SectorContenido({ caso }: { caso: NonNullable<ReturnType<typeof getUseC
           </div>
         </div>
       </Section>
+
+      <MiniDiagnostic
+        lead={`Tres preguntas rápidas sobre ${caso.sector.toLowerCase()}, sin formulario: el resultado sale al momento y no se envía a ningún sitio.`}
+      />
 
       <Section>
         <h2 className="pm-title" style={{ marginBottom: 'var(--space-lg)' }}>

@@ -1364,3 +1364,7 @@
 
 .pm-update__titulo { font-size: var(--fs-h4); margin-bottom: 0.5rem; }
 .pm-update__texto { color: var(--pm-text-soft); margin-bottom: 0.75rem; max-width: 62ch; }
+
+/* ---------------------- Mini-diagnóstico contextual ---------------------- */
+
+.pm-diag--mini { max-width: 620px; }

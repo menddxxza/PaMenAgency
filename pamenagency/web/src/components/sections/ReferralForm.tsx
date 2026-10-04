@@ -14,6 +14,13 @@ type Fields = {
 
 const empty: Fields = { tuNombre: '', tuEmail: '', contactoReferido: '' }
 
+/** El id del campo en el DOM no coincide 1:1 con la clave del estado. */
+const idDeCampo: Record<keyof Fields, string> = {
+  tuNombre: 'pm-ref-nombre',
+  tuEmail: 'pm-ref-email',
+  contactoReferido: 'pm-ref-contacto',
+}
+
 /** Formulario de /referidos: quién recomienda y a quién. */
 export function ReferralForm() {
   const [values, setValues] = useState<Fields>(empty)
@@ -34,7 +41,15 @@ export function ReferralForm() {
     if (values.contactoReferido.trim().length < 3)
       found.contactoReferido = 'Indica un nombre, email o teléfono de contacto.'
     setErrors(found)
-    if (Object.keys(found).length > 0) return
+    if (Object.keys(found).length > 0) {
+      // Mismo patrón que AuditForm/ContactForm: el foco salta al primer
+      // campo inválido. Sin esto, quien navega con teclado o lector de
+      // pantalla no se entera de que el envío falló — el error se ve en
+      // pantalla, pero nada mueve su atención hacia él.
+      const primerCampo = Object.keys(found)[0] as keyof Fields
+      document.getElementById(idDeCampo[primerCampo])?.focus()
+      return
+    }
 
     setStatus('sending')
     const resultado = await enviarLead({
@@ -81,10 +96,11 @@ export function ReferralForm() {
             type="text"
             value={values.tuNombre}
             aria-invalid={!!errors.tuNombre}
+            aria-describedby={errors.tuNombre ? 'pm-ref-nombre-err' : undefined}
             onChange={(e) => set('tuNombre', e.target.value)}
           />
           {errors.tuNombre && (
-            <p className="pm-error">
+            <p className="pm-error" id="pm-ref-nombre-err">
               <Icon name="alert" size={14} />
               {errors.tuNombre}
             </p>
@@ -101,10 +117,11 @@ export function ReferralForm() {
             type="email"
             value={values.tuEmail}
             aria-invalid={!!errors.tuEmail}
+            aria-describedby={errors.tuEmail ? 'pm-ref-email-err' : undefined}
             onChange={(e) => set('tuEmail', e.target.value)}
           />
           {errors.tuEmail && (
-            <p className="pm-error">
+            <p className="pm-error" id="pm-ref-email-err">
               <Icon name="alert" size={14} />
               {errors.tuEmail}
             </p>
@@ -123,10 +140,11 @@ export function ReferralForm() {
           type="text"
           value={values.contactoReferido}
           aria-invalid={!!errors.contactoReferido}
+          aria-describedby={errors.contactoReferido ? 'pm-ref-contacto-err' : undefined}
           onChange={(e) => set('contactoReferido', e.target.value)}
         />
         {errors.contactoReferido && (
-          <p className="pm-error">
+          <p className="pm-error" id="pm-ref-contacto-err">
             <Icon name="alert" size={14} />
             {errors.contactoReferido}
           </p>

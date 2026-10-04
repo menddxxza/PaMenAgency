@@ -121,7 +121,14 @@ function ServicioContenido({ service }: { service: NonNullable<ReturnType<typeof
                 </p>
                 <p style={{ marginTop: '0.6rem', fontSize: '0.85rem', color: 'var(--pm-muted)' }}>
                   El precio final depende del alcance concreto.{' '}
-                  <Link to="/conocimiento/cuanto-cuesta-implementar-ia-en-una-pyme" style={{ color: 'var(--pm-gold)' }}>
+                  {/* Subrayado explícito: un enlace dentro de un párrafo no puede
+                      distinguirse solo por el color — quien no percibe bien el
+                      color o mira en escala de grises no vería que es un enlace
+                      (hallado con un escaneo automático de accesibilidad, WCAG 1.4.1). */}
+                  <Link
+                    to="/conocimiento/cuanto-cuesta-implementar-ia-en-una-pyme"
+                    style={{ color: 'var(--pm-gold)', textDecoration: 'underline' }}
+                  >
                     Cómo se calcula
                   </Link>
                   .

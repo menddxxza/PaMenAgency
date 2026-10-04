@@ -25,6 +25,7 @@ export function NewsletterSignup({ compact = false }: { compact?: boolean }) {
     const limpio = email.trim()
     if (!limpio || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(limpio)) {
       setError('Escribe un email válido.')
+      document.getElementById('pm-newsletter-email')?.focus()
       return
     }
     setError(null)
@@ -74,6 +75,7 @@ export function NewsletterSignup({ compact = false }: { compact?: boolean }) {
           placeholder="tu@email.com"
           value={email}
           aria-invalid={!!error}
+          aria-describedby={error ? 'pm-newsletter-email-err' : undefined}
           onChange={(e) => {
             setEmail(e.target.value)
             if (error) setError(null)
@@ -84,7 +86,7 @@ export function NewsletterSignup({ compact = false }: { compact?: boolean }) {
         </Button>
       </div>
       {error && (
-        <p className="pm-error" role="alert">
+        <p className="pm-error" id="pm-newsletter-email-err" role="alert">
           <Icon name="alert" size={14} />
           {error}
         </p>

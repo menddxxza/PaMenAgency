@@ -74,6 +74,12 @@ export default function Conocimiento() {
           </div>
         </Reveal>
 
+        {/* Encabezado invisible: hallado con un escaneo de accesibilidad —
+            sin él, el H1 de la página salta directo a los H3 de las
+            tarjetas, y quien navega por encabezados con lector de pantalla
+            pierde la referencia de que esta es una sección propia. No
+            cambia nada visualmente. */}
+        <h2 className="pm-sr-only">Guías disponibles</h2>
         <div className="pm-grid pm-grid--cards">
           {shown.map((doc, i) => (
             <Reveal key={doc.slug} delay={(i % 3) * 80}>
