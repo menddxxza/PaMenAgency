@@ -1,10 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import { createClient } from '@/lib/supabase/client';
 
 type Modo = 'entrar' | 'registro' | 'recuperar';
+
+// Público a propósito: una sitekey de Turnstile no es un secreto, va en el
+// HTML que recibe el navegador. El secreto de verdad (la Secret key) vive
+// solo en la configuración de Supabase, nunca en el código.
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 export default function FormularioAcceso({
   volver,
@@ -25,6 +31,15 @@ export default function FormularioAcceso({
     errorInicial ? traducirError(errorInicial) : null,
   );
   const [aviso, setAviso] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string>();
+  const turnstileRef = useRef<TurnstileInstance>(null);
+
+  // El token de Turnstile es de un solo uso: se gasta en el intento (haya
+  // ido bien o mal) y hay que pedir uno nuevo para el siguiente.
+  function reiniciarCaptcha() {
+    setCaptchaToken(undefined);
+    turnstileRef.current?.reset();
+  }
 
   if (errorInicial) {
     // Mensaje sin traducir en consola: el de la UI está simplificado a propósito,
@@ -43,8 +58,10 @@ export default function FormularioAcceso({
 
     if (modo === 'recuperar') {
       const { error: errorRecuperar } = await supabase.auth.resetPasswordForEmail(email, {
+        captchaToken,
         redirectTo: `${window.location.origin}/auth/callback?volver=${encodeURIComponent('/dashboard/cuenta?recuperada=1')}`,
       });
+      reiniciarCaptcha();
 
       if (errorRecuperar) {
         setError(traducirError(errorRecuperar.message));
@@ -64,9 +81,11 @@ export default function FormularioAcceso({
         password,
         options: {
           data: { full_name: nombre },
+          captchaToken,
           emailRedirectTo: `${window.location.origin}/auth/callback?volver=${encodeURIComponent(volver)}`,
         },
       });
+      reiniciarCaptcha();
 
       if (errorRegistro) {
         setError(traducirError(errorRegistro.message));
@@ -84,7 +103,9 @@ export default function FormularioAcceso({
       const { error: errorLogin } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: { captchaToken },
       });
+      reiniciarCaptcha();
 
       if (errorLogin) {
         setError(traducirError(errorLogin.message));
@@ -207,7 +228,23 @@ export default function FormularioAcceso({
           </p>
         ) : null}
 
-        <button type="submit" disabled={cargando} className="btn-primary mt-6 w-full disabled:opacity-60">
+        {TURNSTILE_SITE_KEY ? (
+          <div className="mt-4 flex justify-center">
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={TURNSTILE_SITE_KEY}
+              onSuccess={setCaptchaToken}
+              onExpire={() => setCaptchaToken(undefined)}
+              options={{ size: 'flexible' }}
+            />
+          </div>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={cargando || (Boolean(TURNSTILE_SITE_KEY) && !captchaToken)}
+          className="btn-primary mt-6 w-full disabled:opacity-60"
+        >
           {cargando
             ? 'Un momento…'
             : modo === 'registro'
@@ -259,5 +296,6 @@ function traducirError(mensaje: string): string {
   if (m.includes('email not confirmed')) return 'Confirma tu email antes de entrar.';
   if (m.includes('password should be')) return 'La contraseña debe tener al menos 8 caracteres.';
   if (m.includes('provider is not enabled')) return 'El acceso con Google no está activado todavía.';
+  if (m.includes('captcha')) return 'No hemos podido verificar que no eres un robot. Inténtalo de nuevo.';
   return 'No hemos podido completar la operación. Inténtalo de nuevo.';
 }
