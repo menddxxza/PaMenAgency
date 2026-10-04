@@ -3,6 +3,7 @@ import { createClient, getPerfilActual } from '@/lib/supabase/server';
 import { getAlertas } from '@/lib/queries';
 import type { Product } from '@/lib/database.types';
 import EstadoFicha from '@/components/EstadoFicha';
+import IntroPanel from '@/components/IntroPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,6 +52,8 @@ export default async function ResumenPanel() {
 
   return (
     <div>
+      <IntroPanel />
+
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
