@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getPerfilActual } from '@/lib/supabase/server';
 import { getConversacion } from '@/lib/queries';
 import EstadoLead from '@/components/EstadoLead';
+import { decodificarOferta, euros } from '@/lib/formato';
 import MarcarLeido from './MarcarLeido';
 import FormularioMensaje from './FormularioMensaje';
 
@@ -31,18 +32,27 @@ function Burbuja({
   cuerpo: string;
   creadoEn: string;
 }) {
+  const { oferta, texto } = decodificarOferta(cuerpo);
+
   return (
     <div className={`flex flex-col ${propio ? 'items-end' : 'items-start'}`}>
-      <p
-        className={`whitespace-pre-line rounded-2xl px-4 py-3 text-sm ${
+      <div
+        className={`rounded-2xl px-4 py-3 text-sm ${
           propio
             ? 'rounded-br-sm bg-brand-500 text-white'
             : 'rounded-bl-sm bg-ink/[0.05] text-ink/85'
         }`}
         style={{ maxWidth: '38rem' }}
       >
-        {cuerpo}
-      </p>
+        {oferta !== null ? (
+          <p
+            className={`mb-1.5 text-base font-bold ${propio ? 'text-white' : 'text-brand-700'}`}
+          >
+            💶 Propone {euros(oferta)}
+          </p>
+        ) : null}
+        {texto ? <p className="whitespace-pre-line">{texto}</p> : null}
+      </div>
       <p className="mt-1 px-1 text-[11px] text-ink/40">
         {propio ? 'Tú' : autor} · {fecha(creadoEn)}
       </p>

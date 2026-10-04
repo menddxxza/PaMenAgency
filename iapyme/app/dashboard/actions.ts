@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getServiceClient } from '@/lib/supabase';
 import { slugConSufijo, slugificar } from '@/lib/slug';
-import { avisarNuevaRevision } from '@/lib/email';
+import { avisarNuevaRevision, avisarSolicitudDestacado } from '@/lib/email';
 import type { PricingModel, ProductType } from '@/lib/database.types';
 
 export type ResultadoAccion = { ok: true; slug?: string } | { ok: false; error: string };
@@ -196,6 +196,42 @@ export async function enviarARevision(id: string): Promise<ResultadoAccion> {
   await avisarNuevaRevision({ titulo: data.titulo, vendedor: user?.email ?? 'un vendedor' });
 
   revalidatePath('/dashboard/productos');
+  return { ok: true };
+}
+
+/**
+ * Pide destacar una ficha ya publicada. No cobra nada por sí misma — solo
+ * avisa al admin por email, igual que `enviarARevision` avisa de una ficha
+ * nueva. El pago y la activación son manuales, por fuera de la plataforma.
+ */
+export async function solicitarDestacado(id: string): Promise<ResultadoAccion> {
+  const supabase = createClient();
+  if (!supabase) return { ok: false, error: 'La base de datos no está configurada.' };
+
+  const { data: producto } = await supabase
+    .from('products')
+    .select('titulo, status, is_featured, seller_id')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (!producto || producto.status !== 'published') {
+    return { ok: false, error: 'Solo se puede destacar una ficha ya publicada.' };
+  }
+  if (producto.is_featured) return { ok: false, error: 'Esta ficha ya está destacada.' };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || user.id !== producto.seller_id) {
+    return { ok: false, error: 'No tienes acceso a esta ficha.' };
+  }
+
+  await avisarSolicitudDestacado({
+    titulo: producto.titulo,
+    vendedor: user.email ?? 'un vendedor',
+    productId: id,
+  });
+
   return { ok: true };
 }
 

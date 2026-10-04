@@ -48,6 +48,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               >
                 Vendedores
               </Link>
+              <Link
+                href="/admin/destacadas"
+                className="rounded-lg px-3 py-1.5 text-sm font-medium text-ink/70 transition hover:bg-ink/[0.04] hover:text-ink"
+              >
+                Destacadas
+              </Link>
             </nav>
           </div>
 

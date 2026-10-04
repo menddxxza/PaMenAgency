@@ -4,6 +4,7 @@ import type {
   AlertaBusqueda,
   Category,
   ConversacionResumen,
+  Lead,
   LeadMensajeConAutor,
   ProductoConRelaciones,
   ProductType,
@@ -12,6 +13,7 @@ import type {
 } from '@/lib/database.types';
 import { CATEGORIAS } from '@/lib/categorias';
 import { expandirBusqueda } from '@/lib/groq';
+import { decodificarOferta } from '@/lib/formato';
 
 /** Columnas de producto + categoría + vendedor, para las tarjetas y la ficha. */
 const SELECT_PRODUCTO = `
@@ -337,6 +339,99 @@ export async function getConversacion(
   }
 
   return { lead: conversacion, mensajes: (mensajes ?? []) as unknown as LeadMensajeConAutor[] };
+}
+
+export type Notificacion = {
+  leadId: string;
+  titulo: string;
+  detalle: string;
+  fecha: string;
+};
+
+/**
+ * Para la campana del panel: une leads nuevos sin responder (como vendedor)
+ * y respuestas sin leer dentro de un hilo ya abierto (como vendedor o
+ * comprador) en una sola lista, de más reciente a más antigua.
+ *
+ * `total` es el recuento exacto (para el número del badge); `items` es la
+ * vista recortada que se enseña en el desplegable — no hace falta traer 200
+ * filas para pintar una lista de 10.
+ */
+export async function getNotificaciones(
+  perfilId: string,
+): Promise<{ items: Notificacion[]; total: number }> {
+  const supabase = createClient();
+  if (!supabase) return { items: [], total: 0 };
+
+  const [{ count: totalLeads }, { data: leadsNuevos }] = await Promise.all([
+    supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .eq('seller_id', perfilId)
+      .eq('status', 'new'),
+    supabase
+      .from('leads')
+      .select('id, nombre, mensaje, created_at, products ( titulo )')
+      .eq('seller_id', perfilId)
+      .eq('status', 'new')
+      .order('created_at', { ascending: false })
+      .limit(8),
+  ]);
+
+  const items: Notificacion[] = ((leadsNuevos ?? []) as unknown as (Lead & {
+    products: { titulo: string } | null;
+  })[]).map((lead) => ({
+    leadId: lead.id,
+    titulo: `${lead.nombre} te ha escrito`,
+    detalle: lead.products?.titulo ?? lead.mensaje.slice(0, 90),
+    fecha: lead.created_at,
+  }));
+
+  let total = totalLeads ?? 0;
+
+  // Tolerante a que `lead_mensajes` todavía no exista (falta la migración
+  // 0006): en ese caso se queda solo con los leads nuevos de arriba.
+  const [{ count: totalMensajes }, { data: mensajes, error }] = await Promise.all([
+    supabase
+      .from('lead_mensajes')
+      .select('id, leads!inner(seller_id,buyer_id)', { count: 'exact', head: true })
+      .is('leido_at', null)
+      .neq('autor_id', perfilId)
+      .or(`seller_id.eq.${perfilId},buyer_id.eq.${perfilId}`, { referencedTable: 'leads' }),
+    supabase
+      .from('lead_mensajes')
+      .select('lead_id, cuerpo, created_at, leads!inner ( seller_id, buyer_id, nombre, products ( titulo ) )')
+      .is('leido_at', null)
+      .neq('autor_id', perfilId)
+      .or(`seller_id.eq.${perfilId},buyer_id.eq.${perfilId}`, { referencedTable: 'leads' })
+      .order('created_at', { ascending: false })
+      .limit(8),
+  ]);
+
+  if (!error) {
+    total += totalMensajes ?? 0;
+
+    type MensajeConLead = {
+      lead_id: string;
+      cuerpo: string;
+      created_at: string;
+      leads: { nombre: string; products: { titulo: string } | null } | null;
+    };
+
+    for (const m of (mensajes ?? []) as unknown as MensajeConLead[]) {
+      const { texto, oferta } = decodificarOferta(m.cuerpo);
+      items.push({
+        leadId: m.lead_id,
+        titulo: m.leads?.products?.titulo ?? `Mensaje de ${m.leads?.nombre ?? 'alguien'}`,
+        detalle: oferta !== null ? `Propone ${oferta} €` : texto.slice(0, 90),
+        fecha: m.created_at,
+      });
+    }
+  }
+
+  items.sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+
+  return { items: items.slice(0, 10), total };
 }
 
 /**

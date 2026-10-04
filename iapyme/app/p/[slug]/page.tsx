@@ -55,9 +55,60 @@ export default async function FichaProducto({ params }: { params: { slug: string
   const precio = precioResumido(producto);
   const vendedor = producto.profiles;
 
+  // El precio "real" para el schema, no el resumido para humanos (que puede
+  // llevar un "+" o un "/mes" que un validador de datos estructurados no
+  // sabe interpretar). 'free' y 'setup_plus_monthly' no tienen un único
+  // número que los represente del todo, así que se quedan sin `offers`: es
+  // preferible omitir el precio a declarar uno engañoso.
+  const precioSchema =
+    producto.pricing_model === 'one_time'
+      ? producto.precio_unico
+      : producto.pricing_model === 'monthly'
+        ? producto.precio_mensual
+        : null;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: producto.titulo,
+    description: producto.tagline,
+    image: producto.cover_image_url ?? undefined,
+    category: producto.categories?.nombre,
+    brand: vendedor ? { '@type': 'Organization', name: vendedor.display_name } : undefined,
+    ...(precioSchema !== null
+      ? {
+          offers: {
+            '@type': 'Offer',
+            price: precioSchema,
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+            url: `${SITE_URL}/p/${producto.slug}`,
+          },
+        }
+      : {}),
+    ...(producto.rating_total > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: producto.rating_promedio,
+            reviewCount: producto.rating_total,
+          },
+        }
+      : {}),
+  };
+
   return (
     <>
       <Header />
+
+      {/* El título y la frase gancho los escribe el propio vendedor: hay que
+          neutralizar un posible "</script>" antes de inyectarlo, o rompería
+          fuera de este <script> (JSON.stringify no escapa "<" por defecto). */}
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
 
       <main className="container-page py-10">
         {producto.status !== 'published' ? (

@@ -4,20 +4,23 @@ import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import type { ProductStatus } from '@/lib/database.types';
-import { archivarProducto, enviarARevision } from '@/app/dashboard/actions';
+import { archivarProducto, enviarARevision, solicitarDestacado } from '@/app/dashboard/actions';
 
 export default function AccionesFicha({
   id,
   slug,
   status,
+  destacada = false,
 }: {
   id: string;
   slug: string;
   status: ProductStatus;
+  destacada?: boolean;
 }) {
   const router = useRouter();
   const [pendiente, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [solicitado, setSolicitado] = useState(false);
 
   function ejecutar(accion: () => Promise<{ ok: boolean; error?: string }>) {
     setError(null);
@@ -40,6 +43,28 @@ export default function AccionesFicha({
         <Link href={`/p/${slug}`} className="btn-secondary py-2 text-center">
           Ver ficha
         </Link>
+      ) : null}
+
+      {status === 'published' && !destacada ? (
+        <button
+          type="button"
+          disabled={pendiente || solicitado}
+          onClick={() => {
+            setError(null);
+            startTransition(async () => {
+              const resultado = await solicitarDestacado(id);
+              if (!resultado.ok) setError(resultado.error ?? 'Algo ha fallado.');
+              else setSolicitado(true);
+            });
+          }}
+          className="text-xs font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-60"
+        >
+          {solicitado ? '✓ Solicitud enviada' : '★ Destacar esta ficha'}
+        </button>
+      ) : null}
+
+      {status === 'published' && destacada ? (
+        <p className="text-xs font-semibold text-brand-700">★ Destacada</p>
       ) : null}
 
       {puedeEnviar ? (

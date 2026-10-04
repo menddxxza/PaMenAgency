@@ -18,6 +18,23 @@ export function tiempoInstalacion(minutos: number): string {
   return dias === 1 ? '1 día' : `${dias} días`;
 }
 
+/**
+ * Una oferta de precio dentro de un mensaje se codifica como un prefijo al
+ * principio del propio texto (`[[oferta:150]] el resto del mensaje`), en vez
+ * de en una columna nueva de `lead_mensajes` — así no hace falta ninguna
+ * migración para algo que es, en el fondo, una forma concreta de redactar un
+ * mensaje de texto.
+ */
+export function codificarOferta(precio: number, texto: string): string {
+  return `[[oferta:${Math.round(precio)}]] ${texto}`.trim();
+}
+
+export function decodificarOferta(cuerpo: string): { oferta: number | null; texto: string } {
+  const m = /^\[\[oferta:(\d+)\]\]\s*/.exec(cuerpo);
+  if (!m) return { oferta: null, texto: cuerpo };
+  return { oferta: Number(m[1]), texto: cuerpo.slice(m[0].length) };
+}
+
 /** Precio de una ficha, resumido para la tarjeta y la ficha de producto. */
 export function precioResumido(producto: Pick<
   Product,

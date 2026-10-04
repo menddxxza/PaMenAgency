@@ -150,6 +150,43 @@ export async function avisarNuevoMensaje(datos: {
   }
 }
 
+/**
+ * Aviso al admin de que un vendedor quiere pagar por destacar una ficha ya
+ * publicada. No hay pasarela de pago en esta fase — el cobro se arregla por
+ * fuera (Bizum, transferencia) y esto es solo el aviso para que el admin lo
+ * active a mano en /admin/destacadas una vez cobrado.
+ */
+export async function avisarSolicitudDestacado(datos: {
+  titulo: string;
+  vendedor: string;
+  productId: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const destino = process.env.ADMIN_EMAIL;
+
+  if (!apiKey || !destino) {
+    console.info('[email] Resend no configurado, solicitud de destacado omitida:', datos.titulo);
+    return;
+  }
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from: 'IAPyme <onboarding@resend.dev>',
+      to: destino,
+      subject: `Solicitud de destacado: ${datos.titulo}`,
+      html: `
+        <p><b>${escapeHtml(datos.vendedor)}</b> quiere destacar
+        <b>${escapeHtml(datos.titulo)}</b>.</p>
+        <p>Una vez acordado el pago, actívalo desde el panel de admin.</p>
+        <p><a href="${SITE_URL}/admin/destacadas">Ir a Destacadas →</a></p>
+      `,
+    });
+  } catch (error) {
+    console.error('[email] Error al avisar de solicitud de destacado:', error);
+  }
+}
+
 /** Aviso al vendedor de que le han dejado una reseña nueva. */
 export async function avisarNuevaResena(datos: {
   sellerEmail: string;

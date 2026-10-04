@@ -108,6 +108,7 @@ export default async function MisProductos() {
                     id={producto.id}
                     slug={producto.slug}
                     status={producto.status}
+                    destacada={producto.is_featured}
                   />
                 </div>
               </li>

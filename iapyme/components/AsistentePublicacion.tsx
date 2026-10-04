@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Category, Product } from '@/lib/database.types';
 import { guardarProducto } from '@/app/dashboard/actions';
@@ -32,6 +32,22 @@ const MODELOS = [
   { valor: 'free', etiqueta: 'Gratis' },
 ];
 
+/**
+ * Solo para fichas nuevas: una editada ya tiene su estado real en el
+ * servidor, así que ahí el autoguardado no aporta nada y solo podría
+ * confundir (¿el borrador es el de localStorage o el que ya está guardado?).
+ */
+const CLAVE_BORRADOR = 'iapyme_borrador_publicacion';
+
+type Borrador = {
+  campos: Record<string, string>;
+  modelo: string;
+  esPeticion: boolean;
+  esRemoto: boolean;
+  portada: string;
+  guardadoEn: number;
+};
+
 export default function AsistentePublicacion({
   categorias,
   producto,
@@ -50,6 +66,7 @@ export default function AsistentePublicacion({
   familiaInicial?: SlugFamilia;
 }) {
   const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [paso, setPaso] = useState(0);
   const [modelo, setModelo] = useState(producto?.pricing_model ?? 'setup_plus_monthly');
   const [portada, setPortada] = useState(producto?.cover_image_url ?? '');
@@ -57,6 +74,72 @@ export default function AsistentePublicacion({
   const [esRemoto, setEsRemoto] = useState(producto?.es_remoto ?? true);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [borradorRecuperado, setBorradorRecuperado] = useState(false);
+
+  function guardarBorrador() {
+    if (producto || !formRef.current) return; // solo para fichas nuevas
+    try {
+      const campos: Record<string, string> = {};
+      for (const [clave, valor] of new FormData(formRef.current).entries()) {
+        if (typeof valor === 'string' && clave !== 'enviar' && clave !== 'id') campos[clave] = valor;
+      }
+      const borrador: Borrador = { campos, modelo, esPeticion, esRemoto, portada, guardadoEn: Date.now() };
+      window.localStorage.setItem(CLAVE_BORRADOR, JSON.stringify(borrador));
+    } catch {
+      // Modo privado o localStorage lleno: el autoguardado simplemente no
+      // pasa nada, no es razón para romper el formulario.
+    }
+  }
+
+  // Restaura un borrador anterior al montar, antes de que el vendedor vuelva
+  // a escribir nada. Solo aplica a fichas nuevas y una vez.
+  useEffect(() => {
+    if (producto || !formRef.current) return;
+    try {
+      const guardado = window.localStorage.getItem(CLAVE_BORRADOR);
+      if (!guardado) return;
+      const borrador = JSON.parse(guardado) as Borrador;
+
+      for (const [clave, valor] of Object.entries(borrador.campos)) {
+        const campo = formRef.current.elements.namedItem(clave);
+        // RadioNodeList (varios campos con el mismo name) también tiene
+        // `.value`, pero no se usa ningún radio aquí — el cast pasa por
+        // `unknown` porque los dos tipos no se solapan lo suficiente para TS.
+        if (campo && 'value' in campo) (campo as unknown as HTMLInputElement).value = valor;
+      }
+      setModelo(borrador.modelo as typeof modelo);
+      setEsPeticion(borrador.esPeticion);
+      setEsRemoto(borrador.esRemoto);
+      setPortada(borrador.portada);
+      setBorradorRecuperado(true);
+    } catch {
+      // Un borrador corrupto se ignora igual que si no existiera.
+    }
+    // Solo al montar: restaurar de nuevo en cada cambio de estado borraría lo
+    // que el vendedor acaba de escribir encima.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Vuelve a guardar cada vez que cambia algo que no pasa por `onChange` del
+  // formulario (son botones, no inputs nativos).
+  useEffect(() => {
+    guardarBorrador();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modelo, esPeticion, esRemoto, portada]);
+
+  function descartarBorrador() {
+    try {
+      window.localStorage.removeItem(CLAVE_BORRADOR);
+    } catch {
+      // Sin acceso a localStorage no hay nada que descartar.
+    }
+    formRef.current?.reset();
+    setModelo('setup_plus_monthly');
+    setEsPeticion(false);
+    setEsRemoto(true);
+    setPortada('');
+    setBorradorRecuperado(false);
+  }
 
   const familia =
     (familiaInicial && familiaPorSlug(familiaInicial)) ??
@@ -83,6 +166,13 @@ export default function AsistentePublicacion({
         return;
       }
 
+      try {
+        window.localStorage.removeItem(CLAVE_BORRADOR);
+      } catch {
+        // Si no se pudo borrar, como mucho queda un borrador obsoleto —
+        // no vale la pena interrumpir el guardado por esto.
+      }
+
       router.push('/dashboard/productos');
       router.refresh();
     } catch {
@@ -96,6 +186,8 @@ export default function AsistentePublicacion({
 
   return (
     <form
+      ref={formRef}
+      onChange={guardarBorrador}
       onSubmit={(e) => {
         e.preventDefault();
         const datos = new FormData(e.currentTarget);
@@ -104,6 +196,19 @@ export default function AsistentePublicacion({
         void enviar(datos, true);
       }}
     >
+      {borradorRecuperado ? (
+        <p className="mb-4 flex flex-wrap items-center gap-2 rounded-xl bg-amber-50 px-4 py-2.5 text-sm text-amber-900">
+          Hemos recuperado lo que estabas escribiendo antes de salir.
+          <button
+            type="button"
+            onClick={descartarBorrador}
+            className="ml-auto text-xs font-semibold underline underline-offset-2 hover:text-amber-700"
+          >
+            Empezar de cero
+          </button>
+        </p>
+      ) : null}
+
       <ol className="flex gap-2">
         {PASOS.map((nombre, indice) => (
           <li key={nombre} className="flex-1">
