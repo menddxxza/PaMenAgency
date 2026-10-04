@@ -61,6 +61,16 @@
         justify-items: center;
         padding: 1.5rem;
       }
+      /* Mismo archivo que el logo real (`public/logo.jpg`, ver Logo.tsx):
+         se referencia tal cual porque esta pantalla vive en index.html y se
+         pinta antes de que llegue React, no porque sea un logo aparte. */
+      #pm-boot .pm-boot__logo {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        animation: pm-boot-pulse 1.8s ease-in-out infinite;
+      }
       #pm-boot .pm-boot__name {
         font-family: 'Space Grotesk', system-ui, sans-serif;
         font-weight: 700;
@@ -68,6 +78,10 @@
         font-size: 0.85rem;
         color: #8e8e96;
         text-align: center;
+      }
+      @keyframes pm-boot-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
       }
       #pm-boot .pm-boot__name b { color: #d4af37; font-weight: 700; }
       #pm-boot .pm-boot__bar {
@@ -89,12 +103,14 @@
       }
       @media (prefers-reduced-motion: reduce) {
         #pm-boot .pm-boot__fill { animation: none; }
+        #pm-boot .pm-boot__logo { animation: none; }
       }
     </style>
   </head>
   <body>
     <div id="pm-boot" role="status" aria-live="polite">
       <div class="pm-boot__inner">
+        <img class="pm-boot__logo" src="/logo.jpg" alt="" width="64" height="64" />
         <p class="pm-boot__name">PAMEN <b>AGENCY</b></p>
         <div class="pm-boot__bar"><div class="pm-boot__fill"></div></div>
         <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Cargando</span>
