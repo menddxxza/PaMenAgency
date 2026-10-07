@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getServiceClient } from '@/lib/supabase';
 import { avisarNuevoMensaje } from '@/lib/email';
+import { excedeLimite } from '@/lib/security/rate-limit';
 import type { LeadStatus } from '@/lib/database.types';
 import type { ResultadoAccion } from '@/app/dashboard/actions';
 
@@ -41,6 +42,15 @@ export async function enviarMensaje(leadId: string, cuerpoBruto: string): Promis
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: 'Tienes que iniciar sesión.' };
+
+  // Cada mensaje manda un email de verdad a la otra parte (avisarNuevoMensaje):
+  // sin tope, esto sería tanto una vía para acosar a alguien a mensajes como
+  // una forma de agotar la cuota de envío que comparten leads, reseñas,
+  // alertas, destacados y denuncias. El límite es generoso a propósito — es
+  // una conversación de verdad, no un formulario de una vez.
+  if (excedeLimite(`mensaje:${user.id}`, 20, 5 * 60_000)) {
+    return { ok: false, error: 'Estás enviando mensajes muy rápido. Espera un momento.' };
+  }
 
   const cuerpo = cuerpoBruto.trim().slice(0, 4000);
   if (cuerpo.length < 1) return { ok: false, error: 'Escribe algo antes de enviar.' };

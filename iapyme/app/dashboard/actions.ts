@@ -7,6 +7,7 @@ import { getServiceClient } from '@/lib/supabase';
 import { slugConSufijo, slugificar } from '@/lib/slug';
 import { avisarNuevaRevision, avisarSolicitudDestacado } from '@/lib/email';
 import { esImagenDeStorageConfiable } from '@/lib/supabase/config';
+import { excedeLimite } from '@/lib/security/rate-limit';
 import type { PricingModel, ProductType } from '@/lib/database.types';
 
 export type ResultadoAccion = { ok: true; slug?: string } | { ok: false; error: string };
@@ -237,6 +238,13 @@ export async function solicitarDestacado(id: string): Promise<ResultadoAccion> {
   } = await supabase.auth.getUser();
   if (!user || user.id !== producto.seller_id) {
     return { ok: false, error: 'No tienes acceso a esta ficha.' };
+  }
+
+  // Mismo motivo que en denunciarFicha: cada llamada manda un email de
+  // verdad, así que sin tope se podría agotar la cuota de envío que
+  // comparten leads, reseñas, alertas y denuncias.
+  if (excedeLimite(`destacado:${user.id}`, 5, 10 * 60_000)) {
+    return { ok: false, error: 'Demasiadas solicitudes seguidas. Prueba de nuevo más tarde.' };
   }
 
   await avisarSolicitudDestacado({

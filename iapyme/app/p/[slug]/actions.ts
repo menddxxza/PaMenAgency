@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { avisarDenuncia } from '@/lib/email';
+import { excedeLimite } from '@/lib/security/rate-limit';
 
 export type ResultadoDenuncia = { ok: true } | { ok: false; error: string };
 
@@ -26,6 +27,16 @@ export async function denunciarFicha(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: 'Tienes que iniciar sesión para denunciar una ficha.' };
+
+  // Sin esto, una cuenta podía llamar a esta acción en bucle: cada llamada
+  // manda un email de verdad (vía Resend), así que sin tope esto es tanto
+  // una vía para acosar a un vendedor a base de denuncias falsas como una
+  // forma de agotar la cuota de envío que comparten leads, reseñas, alertas
+  // y destacados. Server Action, no Route Handler — no hay IP a mano, así
+  // que la clave es la propia cuenta.
+  if (excedeLimite(`denuncia:${user.id}`, 5, 10 * 60_000)) {
+    return { ok: false, error: 'Demasiadas denuncias seguidas. Prueba de nuevo más tarde.' };
+  }
 
   if (!MOTIVOS.includes(motivo as (typeof MOTIVOS)[number])) {
     return { ok: false, error: 'Elige un motivo.' };
