@@ -8,11 +8,15 @@ import ResenasProducto from '@/components/ResenasProducto';
 import BotonFavorito from '@/components/BotonFavorito';
 import Compartir from '@/components/Compartir';
 import ProductoCard from '@/components/ProductoCard';
+import VerTelefono from '@/components/VerTelefono';
+import DenunciarFicha from '@/components/DenunciarFicha';
 import {
   getMiResena,
   getProducto,
   getProductosRelacionados,
   getResenas,
+  getTelefonoVendedor,
+  puedeResenar,
   registrarVisita,
 } from '@/lib/queries';
 import { getPerfilActual } from '@/lib/supabase/server';
@@ -53,12 +57,15 @@ export default async function FichaProducto({ params }: { params: { slug: string
     await registrarVisita(producto.id);
   }
 
-  const [resenas, perfil, miResena, relacionados] = await Promise.all([
-    getResenas(producto.id),
-    getPerfilActual(),
-    getMiResena(producto.id),
-    getProductosRelacionados(producto),
-  ]);
+  const [resenas, perfil, miResena, relacionados, telefonoVendedor, sePuedeResenar] =
+    await Promise.all([
+      getResenas(producto.id),
+      getPerfilActual(),
+      getMiResena(producto.id),
+      getProductosRelacionados(producto),
+      getTelefonoVendedor(producto.seller_id),
+      puedeResenar(producto.id),
+    ]);
 
   const precio = precioResumido(producto);
   const vendedor = producto.profiles;
@@ -265,6 +272,7 @@ export default async function FichaProducto({ params }: { params: { slug: string
                 ratingTotal={producto.rating_total}
                 sesionIniciada={Boolean(perfil)}
                 yaHaResenado={Boolean(miResena)}
+                puedeResenar={sePuedeResenar}
               />
             </div>
           </article>
@@ -338,11 +346,22 @@ export default async function FichaProducto({ params }: { params: { slug: string
                     ) : null}
                   </div>
                 </div>
+                {telefonoVendedor ? (
+                  <div className="mt-4">
+                    <VerTelefono telefono={telefonoVendedor} />
+                  </div>
+                ) : null}
                 {vendedor.slug ? (
-                  <Link href={`/vendedor/${vendedor.slug}`} className="btn-secondary mt-4 w-full">
+                  <Link href={`/vendedor/${vendedor.slug}`} className="btn-secondary mt-2 w-full">
                     Ver sus soluciones
                   </Link>
                 ) : null}
+              </div>
+            ) : null}
+
+            {producto.status === 'published' ? (
+              <div className="mt-4 text-center">
+                <DenunciarFicha productId={producto.id} />
               </div>
             ) : null}
           </aside>

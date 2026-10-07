@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { codificarOferta } from '@/lib/formato';
 
 type Estado = 'cerrado' | 'abierto' | 'enviando' | 'ok';
 
@@ -15,13 +16,19 @@ export default function FormularioLead({
 }) {
   const [estado, setEstado] = useState<Estado>('cerrado');
   const [error, setError] = useState<string | null>(null);
+  const [conOferta, setConOferta] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setEstado('enviando');
     setError(null);
 
-    const datos = Object.fromEntries(new FormData(event.currentTarget));
+    const datos = Object.fromEntries(new FormData(event.currentTarget)) as Record<string, string>;
+    const precio = Number(datos.precio);
+    delete datos.precio;
+    if (conOferta && Number.isFinite(precio) && precio > 0) {
+      datos.mensaje = codificarOferta(precio, datos.mensaje);
+    }
 
     try {
       const res = await fetch('/api/leads', {
@@ -133,6 +140,43 @@ export default function FormularioLead({
                      focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
         />
       </div>
+
+      {conOferta ? (
+        <div>
+          <label htmlFor="lead-precio" className="text-xs font-semibold text-ink/70">
+            💶 Propones
+          </label>
+          <div className="mt-1 flex items-center gap-1.5">
+            <input
+              id="lead-precio"
+              name="precio"
+              type="number"
+              min={1}
+              step={1}
+              autoFocus
+              placeholder="150"
+              className="w-28 rounded-lg border border-ink/15 px-2.5 py-1.5 text-sm outline-none
+                         focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+            />
+            <span className="text-sm text-ink/60">€</span>
+            <button
+              type="button"
+              onClick={() => setConOferta(false)}
+              className="ml-auto text-xs font-medium text-ink/50 hover:text-ink"
+            >
+              Quitar
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConOferta(true)}
+          className="text-xs font-semibold text-brand-600 hover:underline"
+        >
+          💶 Proponer un precio
+        </button>
+      )}
 
       {error ? (
         <p role="alert" className="text-sm font-medium text-red-600">

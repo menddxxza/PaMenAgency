@@ -39,6 +39,8 @@ export type Profile = {
   is_founder: boolean;
   created_at: string;
   updated_at: string;
+  /** Migración 0007. Opcional por el mismo motivo que los campos de la 0006: puede no existir todavía. */
+  telefono?: string | null;
 };
 
 export type Category = {
@@ -137,7 +139,7 @@ export type Lead = {
 /** Producto con su categoría y su vendedor resueltos, tal como lo devuelven las consultas del catálogo. */
 export type ProductoConRelaciones = Product & {
   categories: Pick<Category, 'slug' | 'nombre' | 'icono'> | null;
-  profiles: Pick<Profile, 'slug' | 'display_name' | 'avatar_url' | 'is_verified'> | null;
+  profiles: Pick<Profile, 'slug' | 'display_name' | 'avatar_url' | 'is_verified' | 'telefono'> | null;
 };
 
 /** Un mensaje dentro de la conversación de un lead. Tabla de la migración 0006. */

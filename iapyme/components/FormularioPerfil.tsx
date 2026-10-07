@@ -83,6 +83,25 @@ export default function FormularioPerfil({ perfil }: { perfil: Profile }) {
       </div>
 
       <div>
+        <label htmlFor="perfil-telefono" className="text-sm font-semibold">
+          Teléfono (opcional)
+        </label>
+        <input
+          id="perfil-telefono"
+          name="telefono"
+          type="tel"
+          defaultValue={perfil.telefono ?? ''}
+          placeholder="+34 600 000 000"
+          className="mt-1.5 w-full rounded-lg border border-ink/15 px-3 py-2 text-sm outline-none
+                     focus:border-brand-500 focus:ring-1 focus:ring-brand-500"
+        />
+        <p className="mt-1 text-xs text-ink/50">
+          Se enseña con un botón de "Ver teléfono" en tus fichas, para quien prefiera llamar
+          antes de escribir. Déjalo en blanco si no quieres recibir llamadas.
+        </p>
+      </div>
+
+      <div>
         <label className="text-sm font-semibold">Foto o logo (opcional)</label>
         <div className="mt-1.5 max-w-[220px]">
           <SubirImagen userId={perfil.id} valor={avatar} onChange={setAvatar} aspecto="aspect-square" />

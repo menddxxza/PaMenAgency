@@ -63,6 +63,23 @@ export async function POST(request: Request) {
     .eq('id', productId)
     .maybeSingle();
 
+  // Igual que Vinted o Wallapop: solo valora quien de verdad ha hablado con
+  // el vendedor. La interfaz ya oculta el formulario si esto no se cumple,
+  // pero esta es la comprobación que de verdad importa — la otra es solo
+  // para que la persona no llegue a intentarlo en balde.
+  const { count: contactos } = await supabase
+    .from('leads')
+    .select('id', { count: 'exact', head: true })
+    .eq('product_id', productId)
+    .eq('buyer_id', user.id);
+
+  if (!contactos) {
+    return NextResponse.json(
+      { error: 'Escríbele primero al vendedor para poder valorar esta ficha.' },
+      { status: 403 },
+    );
+  }
+
   const { error } = await supabase.from('reviews').insert({
     product_id: productId,
     buyer_id: user.id,

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductoCard from '@/components/ProductoCard';
+import VerTelefono from '@/components/VerTelefono';
 import { getProductosDeVendedor, getVendedor } from '@/lib/queries';
 
 export const dynamic = 'force-dynamic';
@@ -72,6 +73,12 @@ export default async function PerfilVendedor({ params }: { params: { slug: strin
               >
                 {vendedor.website_url.replace(/^https?:\/\//, '')}
               </a>
+            ) : null}
+
+            {vendedor.telefono ? (
+              <div className="mt-3 inline-block w-fit">
+                <VerTelefono telefono={vendedor.telefono} />
+              </div>
             ) : null}
 
             <dl className="mt-5 flex gap-8">

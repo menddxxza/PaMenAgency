@@ -315,6 +315,18 @@ function limpiarUrl(valor: FormDataEntryValue | null): string | null {
   }
 }
 
+/**
+ * Deja solo lo que de verdad forma parte de un teléfono (dígitos y los
+ * símbolos habituales para escribirlo en distintos formatos: +34 123 456
+ * 789, (91) 123-45-67...). Es un campo de contacto que se enseña tal cual,
+ * no un dato que valga la pena validar en formato estricto — cualquier otra
+ * cosa simplemente se descarta en vez de devolver un error.
+ */
+function limpiarTelefono(valor: FormDataEntryValue | null): string | null {
+  const texto = limpiar(valor, 30).replace(/[^\d+\-() ]/g, '').trim();
+  return texto || null;
+}
+
 /** Actualiza los datos del perfil público: nombre, bio, foto y web. */
 export async function actualizarPerfil(formData: FormData): Promise<ResultadoAccion> {
   const supabase = createClient();
@@ -331,18 +343,36 @@ export async function actualizarPerfil(formData: FormData): Promise<ResultadoAcc
   const bio = limpiar(formData.get('bio'), 500) || null;
   const websiteUrl = limpiarUrl(formData.get('website_url'));
   const avatarUrl = limpiarUrl(formData.get('avatar_url'));
+  const telefono = limpiarTelefono(formData.get('telefono'));
 
-  const { data: actualizado, error } = await supabase
+  const camposPerfil = {
+    display_name: displayName,
+    bio,
+    website_url: websiteUrl,
+    avatar_url: avatarUrl,
+    telefono,
+  };
+
+  let { data: actualizado, error } = await supabase
     .from('profiles')
-    .update({
-      display_name: displayName,
-      bio,
-      website_url: websiteUrl,
-      avatar_url: avatarUrl,
-    })
+    .update(camposPerfil)
     .eq('id', user.id)
     .select('slug')
     .single();
+
+  // `telefono` es de la migración 0007 — si todavía no se ha ejecutado, se
+  // reintenta sin ese campo para no bloquear el resto del perfil por él.
+  if (esErrorColumnaInexistente(error)) {
+    console.warn('[actualizarPerfil] La migración 0007 no está aplicada todavía — se guarda sin teléfono.');
+    const { telefono: _telefono, ...sinTelefono } = camposPerfil;
+    void _telefono;
+    ({ data: actualizado, error } = await supabase
+      .from('profiles')
+      .update(sinTelefono)
+      .eq('id', user.id)
+      .select('slug')
+      .single());
+  }
 
   if (error) return { ok: false, error: 'No hemos podido guardar los cambios.' };
 

@@ -28,6 +28,8 @@ export type NombreIcono =
   | 'ubicacion'
   | 'escudo'
   | 'campana'
+  | 'telefono'
+  | 'bandera'
   // Tipos de publicación
   | 'negocio'
   | 'servicio'
@@ -159,6 +161,17 @@ const TRAZOS: Record<NombreIcono, React.ReactNode> = {
     <>
       <path d="M6 10.5a6 6 0 0 1 12 0c0 4 1.3 5.6 2 6.5H4c.7-.9 2-2.5 2-6.5Z" />
       <path d="M9.5 19.5a2.5 2.5 0 0 0 5 0" />
+    </>
+  ),
+  // Auricular clásico: llamar, no escribir.
+  telefono: (
+    <path d="M6.5 4.5h3l1.5 4-2 1.5a11 11 0 0 0 5 5l1.5-2 4 1.5v3a1.5 1.5 0 0 1-1.6 1.5A16 16 0 0 1 5 5.9a1.5 1.5 0 0 1 1.5-1.4Z" />
+  ),
+  // Bandera: marcar algo para que alguien lo revise. Denuncias, no países.
+  bandera: (
+    <>
+      <path d="M6 20V4" />
+      <path d="M6 5h11l-2.5 3.5L17 12H6" />
     </>
   ),
 

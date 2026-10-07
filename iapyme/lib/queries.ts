@@ -580,6 +580,28 @@ export async function getProductoPublico(slug: string): Promise<ProductoConRelac
   return (data as unknown as ProductoConRelaciones) ?? null;
 }
 
+/**
+ * El teléfono del vendedor, aparte del resto de la ficha a propósito:
+ * `SELECT_PRODUCTO` nombra las columnas de `profiles` una a una, y una
+ * columna que no existe todavía (telefono es de la migración 0007) hace que
+ * Postgres rechace la consulta entera — eso rompería el catálogo completo,
+ * no solo el teléfono. Aquí, en cambio, un error (incluido 42703, "la
+ * columna no existe") se traduce sin más en "no hay teléfono que enseñar".
+ */
+export async function getTelefonoVendedor(sellerId: string): Promise<string | null> {
+  const supabase = createClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('telefono')
+    .eq('id', sellerId)
+    .maybeSingle();
+
+  if (error) return null;
+  return (data as { telefono: string | null } | null)?.telefono ?? null;
+}
+
 export async function getVendedor(slug: string): Promise<Profile | null> {
   const supabase = createPublicClient();
   if (!supabase) return null;
@@ -669,6 +691,34 @@ export async function getResenas(productId: string): Promise<ResenaConAutor[]> {
 }
 
 /** Si el usuario con sesión ya dejó una reseña en este producto (para no duplicar el formulario). */
+/**
+ * Igual que Vinted o Wallapop, una reseña solo debería poder dejarla quien
+ * de verdad ha hablado con el vendedor de esa ficha — si no, cualquiera con
+ * cuenta podría valorar sin haber tenido contacto nunca, y las reseñas
+ * dejarían de significar algo. Aquí no hay "compra" que comprobar (IAPyme no
+ * cobra), así que el equivalente honesto es "le escribiste": que exista al
+ * menos un lead tuyo sobre este producto. La API de reseñas vuelve a
+ * comprobar esto mismo antes de guardar; esta función es la que decide qué
+ * ve la interfaz antes de que lleguen a intentarlo.
+ */
+export async function puedeResenar(productId: string): Promise<boolean> {
+  const supabase = createClient();
+  if (!supabase) return false;
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { count } = await supabase
+    .from('leads')
+    .select('id', { count: 'exact', head: true })
+    .eq('product_id', productId)
+    .eq('buyer_id', user.id);
+
+  return (count ?? 0) > 0;
+}
+
 export async function getMiResena(productId: string): Promise<ResenaConAutor | null> {
   const supabase = createClient();
   if (!supabase) return null;

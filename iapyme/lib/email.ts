@@ -187,6 +187,55 @@ export async function avisarSolicitudDestacado(datos: {
   }
 }
 
+const MOTIVOS_DENUNCIA: Record<string, string> = {
+  estafa: 'Parece una estafa',
+  inapropiado: 'Contenido inapropiado',
+  falsos: 'Precio o datos falsos',
+  spam: 'Spam o duplicado',
+  otro: 'Otro motivo',
+};
+
+/**
+ * Aviso al admin de que alguien ha denunciado una ficha ya publicada — el
+ * "Denunciar" que tienen Wallapop, Vinted y Milanuncios para lo que se les
+ * cuela después de la revisión inicial. No cambia nada por sí solo (no
+ * oculta la ficha ni nada automático): es un aviso para que un humano la
+ * mire, igual que `avisarNuevaRevision`.
+ */
+export async function avisarDenuncia(datos: {
+  titulo: string;
+  slug: string;
+  motivo: string;
+  detalle: string;
+  denuncianteEmail: string;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const destino = process.env.ADMIN_EMAIL;
+
+  if (!apiKey || !destino) {
+    console.info('[email] Resend no configurado, denuncia omitida:', datos.titulo);
+    return;
+  }
+
+  try {
+    const resend = new Resend(apiKey);
+    await resend.emails.send({
+      from: 'IAPyme <onboarding@resend.dev>',
+      to: destino,
+      subject: `Denuncia: ${datos.titulo}`,
+      html: `
+        <p>Han denunciado <b>${escapeHtml(datos.titulo)}</b>.</p>
+        <p><b>Motivo:</b> ${escapeHtml(MOTIVOS_DENUNCIA[datos.motivo] ?? datos.motivo)}</p>
+        ${datos.detalle ? `<p><b>Detalle:</b> ${escapeHtml(datos.detalle)}</p>` : ''}
+        <p><b>Denunciado por:</b> ${escapeHtml(datos.denuncianteEmail)}</p>
+        <p><a href="${SITE_URL}/p/${datos.slug}">Ver la ficha →</a></p>
+      `,
+    });
+  } catch (error) {
+    console.error('[email] Error al avisar de denuncia:', error);
+  }
+}
+
 /** Aviso al vendedor de que le han dejado una reseña nueva. */
 export async function avisarNuevaResena(datos: {
   sellerEmail: string;

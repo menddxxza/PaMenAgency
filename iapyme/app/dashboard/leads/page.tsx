@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getPerfilActual } from '@/lib/supabase/server';
 import { getConversaciones } from '@/lib/queries';
+import { decodificarOferta, euros } from '@/lib/formato';
 import EstadoLead from '@/components/EstadoLead';
 
 export const dynamic = 'force-dynamic';
@@ -55,6 +56,7 @@ export default async function LeadsPage() {
         <ul className="mt-8 space-y-3">
           {conversaciones.map((lead) => {
             const esVendedor = lead.seller_id === perfil.id;
+            const { oferta, texto } = decodificarOferta(lead.mensaje);
 
             return (
               <li key={lead.id} className="card p-5">
@@ -109,9 +111,16 @@ export default async function LeadsPage() {
                   </p>
                 ) : null}
 
-                <p className="mt-3 line-clamp-3 whitespace-pre-line rounded-xl bg-ink/[0.03] p-4 text-sm text-ink/80">
-                  {lead.mensaje}
-                </p>
+                <div className="mt-3 rounded-xl bg-ink/[0.03] p-4">
+                  {oferta !== null ? (
+                    <p className="mb-1 text-sm font-bold text-brand-700">
+                      💶 Propone {euros(oferta)}
+                    </p>
+                  ) : null}
+                  {texto ? (
+                    <p className="line-clamp-3 whitespace-pre-line text-sm text-ink/80">{texto}</p>
+                  ) : null}
+                </div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link href={`/dashboard/leads/${lead.id}`} className="btn-primary py-2">

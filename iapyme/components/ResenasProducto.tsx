@@ -15,6 +15,7 @@ export default function ResenasProducto({
   ratingTotal,
   sesionIniciada,
   yaHaResenado,
+  puedeResenar,
 }: {
   productId: string;
   tituloProducto: string;
@@ -23,6 +24,8 @@ export default function ResenasProducto({
   ratingTotal: number;
   sesionIniciada: boolean;
   yaHaResenado: boolean;
+  /** Si ya le ha escrito al vendedor por esta ficha — solo entonces puede valorarla. */
+  puedeResenar: boolean;
 }) {
   const [estado, setEstado] = useState<Estado>('cerrado');
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +88,11 @@ export default function ResenasProducto({
               Inicia sesión
             </a>{' '}
             para dejar tu reseña.
+          </p>
+        ) : !puedeResenar ? (
+          <p className="rounded-lg bg-ink/[0.04] px-4 py-3 text-sm text-ink/60">
+            Escríbele primero al vendedor para poder valorar esta ficha — así las reseñas
+            son siempre de alguien que de verdad ha hablado con él.
           </p>
         ) : estado === 'ok' ? (
           <div className="rounded-xl bg-accent-500/10 p-4 text-center">
