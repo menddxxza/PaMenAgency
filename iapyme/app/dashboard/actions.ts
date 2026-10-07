@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getServiceClient } from '@/lib/supabase';
 import { slugConSufijo, slugificar } from '@/lib/slug';
 import { avisarNuevaRevision, avisarSolicitudDestacado } from '@/lib/email';
+import { esImagenDeStorageConfiable } from '@/lib/supabase/config';
 import type { PricingModel, ProductType } from '@/lib/database.types';
 
 export type ResultadoAccion = { ok: true; slug?: string } | { ok: false; error: string };
@@ -81,6 +82,18 @@ export async function guardarProducto(
 
   const enviarARevision = formData.get('enviar') === 'si';
 
+  // `cover_image_url` solo debería llegar desde `SubirImagen`, que siempre
+  // sube al propio bucket de Storage — pero esto es una Server Action, y
+  // nada impide llamarla directamente con cualquier URL. Como esa URL luego
+  // la va a buscar el propio servidor (la ficha de producto la pinta en el
+  // navegador, pero `/p/[slug]/imagen` la renderiza en el Edge Runtime), una
+  // URL ajena aquí sería una puerta a SSRF más adelante. Se corta en el
+  // origen en vez de solo en el punto donde se usa.
+  const coverImageUrlBruta = limpiar(formData.get('cover_image_url'), 500);
+  if (coverImageUrlBruta && !esImagenDeStorageConfiable(coverImageUrlBruta)) {
+    return { ok: false, error: 'La imagen de portada no es válida. Vuelve a subirla.' };
+  }
+
   const campos = {
     seller_id: user.id,
     category_id: categoryId,
@@ -102,7 +115,7 @@ export async function guardarProducto(
       .map((t) => t.trim())
       .filter(Boolean)
       .slice(0, 12),
-    cover_image_url: limpiar(formData.get('cover_image_url'), 500) || null,
+    cover_image_url: coverImageUrlBruta || null,
     demo_video_url: limpiar(formData.get('demo_video_url'), 500) || null,
     status: enviarARevision ? ('pending_review' as const) : ('draft' as const),
     // Campos de la migración 0006. Si esa migración no se ha ejecutado, la

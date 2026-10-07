@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { getProducto } from '@/lib/queries';
 import { NOMBRE_TIPO, precioResumido } from '@/lib/formato';
+import { esImagenDeStorageConfiable } from '@/lib/supabase/config';
 
 export const runtime = 'edge';
 
@@ -25,6 +26,13 @@ export async function GET(_request: Request, { params }: { params: { slug: strin
   const tagline =
     producto.tagline.length > 140 ? `${producto.tagline.slice(0, 140)}…` : producto.tagline;
 
+  // SSRF: esta función corre en el servidor (Edge Runtime) y va a buscar
+  // ella misma la imagen para componerla — nunca se le puede pasar una URL
+  // tal cual venga de la base de datos sin comprobar antes que es del propio
+  // bucket de Storage. `cover_image_url` se guarda como texto libre, así que
+  // en teoría podría llevar cualquier cosa.
+  const fondoConfiable = esImagenDeStorageConfiable(producto.cover_image_url);
+
   return new ImageResponse(
     (
       <div
@@ -35,7 +43,7 @@ export async function GET(_request: Request, { params }: { params: { slug: strin
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '96px 80px',
-          background: producto.cover_image_url
+          background: fondoConfiable
             ? undefined
             : 'linear-gradient(160deg, #15203f 0%, #1f2b52 45%, #3350e6 100%)',
           color: 'white',
@@ -43,11 +51,11 @@ export async function GET(_request: Request, { params }: { params: { slug: strin
           position: 'relative',
         }}
       >
-        {producto.cover_image_url ? (
+        {fondoConfiable ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={producto.cover_image_url}
+              src={producto.cover_image_url!}
               alt=""
               width={1080}
               height={1920}
@@ -115,6 +123,16 @@ export async function GET(_request: Request, { params }: { params: { slug: strin
         </div>
       </div>
     ),
-    { width: 1080, height: 1920 },
+    {
+      width: 1080,
+      height: 1920,
+      // Sin esto, un Route Handler normal no lleva ninguna cabecera de caché
+      // por defecto (al contrario que `opengraph-image.tsx`, que sí la trae
+      // de serie por ser un archivo de convención de Next). Un máximo corto
+      // en el navegador y uno algo más largo en el CDN evita tanto servir
+      // una portada desactualizada mucho tiempo como regenerar la imagen en
+      // cada clic.
+      headers: { 'Cache-Control': 'public, max-age=300, s-maxage=3600' },
+    },
   );
 }
