@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { getProducto } from '@/lib/queries';
+import { getProductoPublico } from '@/lib/queries';
 import { NOMBRE_TIPO, precioResumido } from '@/lib/formato';
 
 export const runtime = 'edge';
@@ -12,9 +12,17 @@ export const contentType = 'image/png';
  * `cover_image_url` existe, `generateMetadata` en page.tsx la usa a ella en
  * su lugar — esta solo entra cuando no hay nada mejor que enseñar, para que
  * ninguna ficha se comparta con la tarjeta genérica en blanco de Next.
+ *
+ * Usa `getProductoPublico` (cliente sin sesión, sin RLS) y no `getProducto`
+ * a propósito: Next cachea y sirve estos archivos de imagen de metadatos de
+ * forma pública por diseño (los piden bots de WhatsApp/redes sin sesión), así
+ * que si usara el cliente con sesión, el vendedor viendo el preview de su
+ * propia ficha sin publicar podría dejar esa respuesta cacheada para
+ * cualquiera que pidiera la misma URL después — RLS protege la fila en la
+ * base de datos, no lo que ya quedó cacheado en el camino.
  */
 export default async function Imagen({ params }: { params: { slug: string } }) {
-  const producto = await getProducto(params.slug);
+  const producto = await getProductoPublico(params.slug);
 
   const titulo = producto?.titulo ?? 'IAPyme';
   const tagline = producto?.tagline ?? 'El marketplace de soluciones de IA para pymes';

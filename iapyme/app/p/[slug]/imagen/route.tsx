@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { getProducto } from '@/lib/queries';
+import { getProductoPublico } from '@/lib/queries';
 import { NOMBRE_TIPO, precioResumido } from '@/lib/formato';
 import { esImagenDeStorageConfiable } from '@/lib/supabase/config';
 
@@ -14,7 +14,10 @@ export const runtime = 'edge';
  * el propio vendedor a propósito desde el botón "Descargar imagen".
  */
 export async function GET(_request: Request, { params }: { params: { slug: string } }) {
-  const producto = await getProducto(params.slug);
+  // Siempre el cliente público, nunca el de sesión: esta ruta es cacheable y
+  // pública por diseño (ver el porqué en getProductoPublico), así que no
+  // puede depender de quién la haya disparado primero.
+  const producto = await getProductoPublico(params.slug);
 
   if (!producto) {
     return new Response('No encontrada', { status: 404 });

@@ -547,6 +547,39 @@ export async function getLeadsPorSemana(sellerId: string, semanas = 8): Promise<
   }));
 }
 
+/**
+ * Igual que `getProducto`, pero para los sitios que generan una imagen a
+ * partir de la ficha (`opengraph-image.tsx`, `/p/[slug]/imagen`): esos
+ * endpoints son cacheables y públicos por diseño (los recorre cualquier bot
+ * de WhatsApp/redes sin sesión, y Vercel los sirve desde CDN compartida), así
+ * que no pueden depender de `getProducto` — ese usa el cliente con sesión, y
+ * respeta RLS para que el propio vendedor pueda ver su ficha sin publicar
+ * antes de que salga al catálogo.
+ *
+ * Esa combinación es la trampa: si el vendedor (con su sesión) es quien
+ * dispara la primera generación de la imagen de una ficha todavía no
+ * publicada, y la respuesta se cachea como pública, cualquier otra persona
+ * que pida esa misma URL después recibiría la imagen cacheada con datos que
+ * se suponía que solo el vendedor podía ver — sin que la CDN vuelva a
+ * comprobar sesión ni RLS. Esta función usa el cliente público (sin cookies,
+ * nunca puede acceder a algo que RLS bloquee) y además filtra
+ * `status = 'published'` ella misma, por si el día de mañana cambiara esa
+ * política de RLS.
+ */
+export async function getProductoPublico(slug: string): Promise<ProductoConRelaciones | null> {
+  const supabase = createPublicClient();
+  if (!supabase) return null;
+
+  const { data } = await supabase
+    .from('products')
+    .select(SELECT_PRODUCTO)
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .maybeSingle();
+
+  return (data as unknown as ProductoConRelaciones) ?? null;
+}
+
 export async function getVendedor(slug: string): Promise<Profile | null> {
   const supabase = createPublicClient();
   if (!supabase) return null;
