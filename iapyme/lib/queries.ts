@@ -452,6 +452,101 @@ export async function getProducto(slug: string): Promise<ProductoConRelaciones |
   return (data as unknown as ProductoConRelaciones) ?? null;
 }
 
+/**
+ * "También te puede interesar" al final de una ficha. Prioriza la misma
+ * categoría (el sector es más relevante que el tipo de publicación para
+ * decidir si algo encaja), y si no hay suficientes, completa con el mismo
+ * `product_type`. Nunca se devuelve a sí misma.
+ */
+export async function getProductosRelacionados(
+  producto: Pick<ProductoConRelaciones, 'id' | 'category_id' | 'product_type'>,
+  limite = 4,
+): Promise<ProductoConRelaciones[]> {
+  const supabase = createClient();
+  if (!supabase) return [];
+
+  const { data: porCategoria } = await supabase
+    .from('products')
+    .select(SELECT_PRODUCTO)
+    .eq('category_id', producto.category_id)
+    .eq('status', 'published')
+    .neq('id', producto.id)
+    .order('view_count', { ascending: false })
+    .limit(limite);
+
+  const relacionados = (porCategoria ?? []) as unknown as ProductoConRelaciones[];
+  if (relacionados.length >= limite) return relacionados;
+
+  // No hay suficientes en la misma categoría: se completa con el mismo tipo,
+  // sin repetir ninguna de las ya elegidas.
+  const vistos = new Set([producto.id, ...relacionados.map((p) => p.id)]);
+  const { data: porTipo } = await supabase
+    .from('products')
+    .select(SELECT_PRODUCTO)
+    .eq('product_type', producto.product_type)
+    .eq('status', 'published')
+    .order('view_count', { ascending: false })
+    .limit(limite);
+
+  for (const p of (porTipo ?? []) as unknown as ProductoConRelaciones[]) {
+    if (relacionados.length >= limite) break;
+    if (!vistos.has(p.id)) {
+      relacionados.push(p);
+      vistos.add(p.id);
+    }
+  }
+
+  return relacionados;
+}
+
+export type SemanaLeads = { etiqueta: string; total: number };
+
+/**
+ * Lunes de la semana en la que cae `fecha`, a medianoche. No es el `view_count`
+ * acumulado de `products` (eso no tiene fecha por fila, así que no se puede
+ * trocear en el tiempo) — es `leads.created_at`, que sí la tiene, y por eso el
+ * gráfico del panel es "mensajes por semana" y no "visitas por semana".
+ */
+function inicioDeSemana(fecha: Date): Date {
+  const d = new Date(fecha);
+  const dia = d.getDay();
+  const diff = (dia === 0 ? -6 : 1) - dia; // lunes como primer día
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+/** Mensajes recibidos por semana, las últimas `semanas` completas, para el gráfico del panel. */
+export async function getLeadsPorSemana(sellerId: string, semanas = 8): Promise<SemanaLeads[]> {
+  const supabase = createClient();
+  if (!supabase) return [];
+
+  const hoy = new Date();
+  const desde = inicioDeSemana(new Date(hoy.getTime() - (semanas - 1) * 7 * 86_400_000));
+
+  const { data } = await supabase
+    .from('leads')
+    .select('created_at')
+    .eq('seller_id', sellerId)
+    .gte('created_at', desde.toISOString());
+
+  const buckets = new Map<string, number>();
+  for (let i = semanas - 1; i >= 0; i--) {
+    const inicio = inicioDeSemana(new Date(hoy.getTime() - i * 7 * 86_400_000));
+    buckets.set(inicio.toISOString().slice(0, 10), 0);
+  }
+
+  for (const lead of data ?? []) {
+    const clave = inicioDeSemana(new Date(lead.created_at)).toISOString().slice(0, 10);
+    if (buckets.has(clave)) buckets.set(clave, (buckets.get(clave) ?? 0) + 1);
+  }
+
+  return Array.from(buckets.entries()).map(([inicio, total]) => ({
+    etiqueta: new Date(inicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
+    total,
+  }));
+}
+
 export async function getVendedor(slug: string): Promise<Profile | null> {
   const supabase = createPublicClient();
   if (!supabase) return null;

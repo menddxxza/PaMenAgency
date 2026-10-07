@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { createClient, getPerfilActual } from '@/lib/supabase/server';
-import { getAlertas } from '@/lib/queries';
+import { getAlertas, getLeadsPorSemana } from '@/lib/queries';
 import type { Product } from '@/lib/database.types';
 import EstadoFicha from '@/components/EstadoFicha';
 import IntroPanel from '@/components/IntroPanel';
+import GraficoSemanal from '@/components/GraficoSemanal';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,7 @@ export default async function ResumenPanel() {
   // Tolerante a que la tabla de alertas todavía no exista: getAlertas() ya
   // devuelve [] en ese caso, así que este paso simplemente no se marca.
   const alertas = await getAlertas();
+  const semanas = await getLeadsPorSemana(perfil.id);
 
   const publicados = productos.filter((p) => p.status === 'published');
   const visitas = productos.reduce((suma, p) => suma + p.view_count, 0);
@@ -93,6 +95,12 @@ export default async function ResumenPanel() {
         />
         <Metrica etiqueta="Sin responder" valor={String(leadsSinLeer ?? 0)} destacar={(leadsSinLeer ?? 0) > 0} />
       </dl>
+
+      {productos.length > 0 ? (
+        <div className="mt-6">
+          <GraficoSemanal datos={semanas} titulo="Mensajes por semana" />
+        </div>
+      ) : null}
 
       {productos.length === 0 ? (
         <div className="card mt-8 p-10 text-center">

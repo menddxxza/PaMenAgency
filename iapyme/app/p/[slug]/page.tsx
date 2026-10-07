@@ -7,7 +7,14 @@ import FormularioLead from '@/components/FormularioLead';
 import ResenasProducto from '@/components/ResenasProducto';
 import BotonFavorito from '@/components/BotonFavorito';
 import Compartir from '@/components/Compartir';
-import { getMiResena, getProducto, getResenas, registrarVisita } from '@/lib/queries';
+import ProductoCard from '@/components/ProductoCard';
+import {
+  getMiResena,
+  getProducto,
+  getProductosRelacionados,
+  getResenas,
+  registrarVisita,
+} from '@/lib/queries';
 import { getPerfilActual } from '@/lib/supabase/server';
 import { NOMBRE_TIPO, euros, precioResumido, tiempoInstalacion } from '@/lib/formato';
 
@@ -46,10 +53,11 @@ export default async function FichaProducto({ params }: { params: { slug: string
     await registrarVisita(producto.id);
   }
 
-  const [resenas, perfil, miResena] = await Promise.all([
+  const [resenas, perfil, miResena, relacionados] = await Promise.all([
     getResenas(producto.id),
     getPerfilActual(),
     getMiResena(producto.id),
+    getProductosRelacionados(producto),
   ]);
 
   const precio = precioResumido(producto);
@@ -290,6 +298,16 @@ export default async function FichaProducto({ params }: { params: { slug: string
                 <Compartir titulo={producto.titulo} url={`${SITE_URL}/p/${producto.slug}`} />
               </div>
 
+              {producto.status === 'published' ? (
+                <a
+                  href={`/p/${producto.slug}/imagen`}
+                  download={`${producto.slug}.png`}
+                  className="mt-2 block text-center text-xs font-medium text-ink/50 hover:text-ink"
+                >
+                  Descargar imagen para Stories/Estado →
+                </a>
+              ) : null}
+
               <ul className="mt-5 space-y-2 border-t border-ink/10 pt-5 text-xs text-ink/60">
                 <li>✓ Listo en {tiempoInstalacion(producto.minutos_instalacion)}</li>
                 <li>✓ Trato directo con quien lo ha construido</li>
@@ -329,6 +347,19 @@ export default async function FichaProducto({ params }: { params: { slug: string
             ) : null}
           </aside>
         </div>
+
+        {relacionados.length > 0 ? (
+          <section className="mt-16 border-t border-superficie-200 pt-10">
+            <h2 className="font-display text-xl font-semibold tracking-tight text-ink">
+              También te puede interesar
+            </h2>
+            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {relacionados.map((p) => (
+                <ProductoCard key={p.id} producto={p} />
+              ))}
+            </div>
+          </section>
+        ) : null}
       </main>
 
       <Footer />

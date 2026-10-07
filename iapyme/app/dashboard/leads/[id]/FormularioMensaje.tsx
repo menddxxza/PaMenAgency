@@ -4,10 +4,12 @@ import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { enviarMensaje } from '@/app/dashboard/leads/actions';
 import { codificarOferta } from '@/lib/formato';
+import RespuestasRapidas from '@/components/RespuestasRapidas';
 
 export default function FormularioMensaje({ leadId }: { leadId: string }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [pendiente, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [conOferta, setConOferta] = useState(false);
@@ -78,7 +80,16 @@ export default function FormularioMensaje({ leadId }: { leadId: string }) {
             </button>
           ) : null}
 
+          <RespuestasRapidas
+            onElegir={(texto) => {
+              if (!textareaRef.current) return;
+              textareaRef.current.value = texto;
+              textareaRef.current.focus();
+            }}
+          />
+
           <textarea
+            ref={textareaRef}
             name="cuerpo"
             required
             rows={1}
