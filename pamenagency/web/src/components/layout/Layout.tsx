@@ -6,6 +6,7 @@ import { CookieBanner } from '@/components/cookies/CookieBanner'
 import { CustomCursor } from '@/components/ui/CustomCursor'
 import { AmbientParticles } from '@/components/ui/AmbientParticles'
 import { BackToTop } from '@/components/ui/BackToTop'
+import { StickyCta } from '@/components/ui/StickyCta'
 import { AssistantWidget } from '@/components/chat/AssistantWidget'
 import { capturarUtm } from '@/lib/utm'
 
@@ -65,6 +66,7 @@ export function Layout() {
       <Footer />
       <CookieBanner />
       <BackToTop />
+      <StickyCta />
       <AssistantWidget />
     </>
   )

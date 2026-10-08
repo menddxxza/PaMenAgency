@@ -1490,3 +1490,42 @@
   0% { transform: scale(0.8); opacity: 0.8; }
   100% { transform: scale(1.8); opacity: 0; }
 }
+
+/* --------------------- Barra fija de auditoría (móvil) --------------------- */
+
+.pm-stickycta {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: var(--z-assistant);
+  padding: 0.75rem var(--gutter) calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(180deg, transparent, var(--pm-void) 35%);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out), visibility var(--dur);
+  pointer-events: none;
+}
+
+.pm-stickycta[data-visible='true'] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+}
+
+@media (min-width: 1240px) {
+  /* El header ya lleva su propio botón de auditoría a partir de aquí. */
+  .pm-stickycta { display: none; }
+}
+
+@media (max-width: 1239px) {
+  /* Mientras la barra está a la vista, el botón de volver arriba y el
+     lanzador del asistente suben por encima para no quedar tapados. El
+     ajuste vive aquí, no en sus propios archivos, para no acoplar un
+     componente al que no conoce. */
+  body.pm-has-stickycta .pm-backtotop,
+  body.pm-has-stickycta .pm-assistant__launcher {
+    bottom: calc(clamp(1rem, 3vw, 1.75rem) + 64px);
+  }
+}

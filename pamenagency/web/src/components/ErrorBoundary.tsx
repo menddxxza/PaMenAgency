@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { Sentry } from '@/lib/sentry'
 import { site } from '@/content/site'
 
 type Props = { children: ReactNode }
@@ -19,6 +20,8 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: unknown, info: unknown) {
     console.error('Error de render capturado por ErrorBoundary:', error, info)
+    // No hace nada si VITE_SENTRY_DSN no está configurada.
+    Sentry.captureException(error)
   }
 
   render() {

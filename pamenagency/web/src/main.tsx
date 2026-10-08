@@ -3,12 +3,16 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { App } from './App'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { initSentry } from './lib/sentry'
 
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/components.css'
 import './styles/sections.css'
 import './styles/journey.css'
+
+// Antes que cualquier otra cosa, para que capture hasta un fallo al montar.
+initSentry()
 
 // La pantalla de carga vive en index.html para aparecer antes que el bundle.
 // Se retira siempre, incluso si algo falla al arrancar: sin esto, un error no

@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
+import { useClarityConsentida } from '@/lib/clarity'
 import { Layout } from '@/components/layout/Layout'
 import Home from '@/pages/Home'
 
@@ -42,6 +43,11 @@ const TratamientoDatos = lazy(() => import('@/pages/legal/TratamientoDatos'))
 const PreferenciasCookies = lazy(() => import('@/pages/legal/PreferenciasCookies'))
 
 export function App() {
+  // Sólo carga Microsoft Clarity si hay VITE_CLARITY_ID configurada en
+  // Vercel y la categoría "Estadísticas" del banner de cookies está
+  // aceptada — ver src/lib/clarity.ts.
+  useClarityConsentida()
+
   return (
     <>
       {/* Sin coste ni cuenta nueva: incluido en el plan Hobby de Vercel
