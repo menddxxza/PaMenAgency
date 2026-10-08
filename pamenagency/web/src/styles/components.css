@@ -1523,9 +1523,13 @@
   /* Mientras la barra está a la vista, el botón de volver arriba y el
      lanzador del asistente suben por encima para no quedar tapados. El
      ajuste vive aquí, no en sus propios archivos, para no acoplar un
-     componente al que no conoce. */
+     componente al que no conoce.
+     --stickycta-h la mide StickyCta.tsx con ResizeObserver, no es un número
+     fijo: en un iPhone con indicador de inicio, el margen de seguridad
+     (env(safe-area-inset-bottom)) hace la barra más alta de lo que
+     cualquier cifra fija habría adivinado — ahí es donde chocaban. */
   body.pm-has-stickycta .pm-backtotop,
   body.pm-has-stickycta .pm-assistant__launcher {
-    bottom: calc(clamp(1rem, 3vw, 1.75rem) + 64px);
+    bottom: calc(clamp(1rem, 3vw, 1.75rem) + var(--stickycta-h, 0px) + 0.75rem);
   }
 }
