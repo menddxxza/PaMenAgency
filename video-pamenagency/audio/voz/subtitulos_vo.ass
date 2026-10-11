@@ -1,0 +1,23 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 2
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: VO,Manrope SemiBold,44,&H00E8F0F3,&H00E8F0F3,&H00000000,&H99000000,0,0,0,0,100,100,0,0,1,0,2,2,110,110,390,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.90,0:00:02.70,VO,,0,0,0,,{\fad(120,120)}Tu empresa no necesita\Ntrabajar más horas.
+Dialogue: 0,0:00:03.00,0:00:04.60,VO,,0,0,0,,{\fad(120,120)}Necesita trabajar mejor.
+Dialogue: 0,0:00:05.50,0:00:07.90,VO,,0,0,0,,{\fad(120,120)}Mientras sigues dedicando tiempo\Na tareas repetitivas,
+Dialogue: 0,0:00:07.90,0:00:10.40,VO,,0,0,0,,{\fad(120,120)}existen formas más inteligentes\Nde trabajar.
+Dialogue: 0,0:00:11.80,0:00:14.60,VO,,0,0,0,,{\fad(120,120)}En PaMenAgency analizamos los problemas\Ny diseñamos soluciones digitales,
+Dialogue: 0,0:00:14.60,0:00:18.90,VO,,0,0,0,,{\fad(120,120)}automatizaciones e inteligencia artificial\Nadaptadas a cada negocio.
+Dialogue: 0,0:00:19.20,0:00:20.90,VO,,0,0,0,,{\fad(120,120)}Sin humo. Sin complicaciones innecesarias.
+Dialogue: 0,0:00:21.30,0:00:23.30,VO,,0,0,0,,{\fad(120,120)}La IA no sustituye tu capacidad.
+Dialogue: 0,0:00:23.50,0:00:26.30,VO,,0,0,0,,{\fad(120,120)}La multiplica con criterio.
+Dialogue: 0,0:00:27.60,0:00:30.50,VO,,0,0,0,,{\fad(120,120)}PaMenAgency. Convierte la IA\Nen una ventaja real.
