@@ -13,7 +13,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: VO,Manrope SemiBold,44,&H00E8F0F3,&H00E8F0F3,&H00000000,&H99000000,0,0,0,0,100,100,0,0,1,0,2,2,110,110,390,1
+Style: VO,Inter SemiBold,44,&H00E8F0F3,&H00E8F0F3,&H00000000,&H99000000,0,0,0,0,100,100,0,0,1,0,2,2,110,110,390,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text

@@ -14,7 +14,7 @@ const C = TL.cues;
 
 const COL = {
   bg: '#050505',
-  white: '#F3F0E8',
+  white: '#F4F4F2',
   cool: [168, 188, 218],
 };
 
@@ -64,18 +64,18 @@ function rrect(c, x, y, w, h, r) {
 /* Degradado dorado metálico, vertical sobre la altura del texto. */
 function goldGrad(c, yTop, yBot, x0 = 0, x1 = 0) {
   const g = x1 ? c.createLinearGradient(x0, yTop, x1, yBot) : c.createLinearGradient(0, yTop, 0, yBot);
-  g.addColorStop(0.0, '#8E6A2D');
-  g.addColorStop(0.32, '#D6B877');
-  g.addColorStop(0.5, '#F0DDAE');
-  g.addColorStop(0.68, '#C7A158');
-  g.addColorStop(1.0, '#7C5C27');
+  g.addColorStop(0.0, '#8A6F1E');
+  g.addColorStop(0.34, '#D4AF37');
+  g.addColorStop(0.52, '#F0D680');
+  g.addColorStop(0.7, '#D4AF37');
+  g.addColorStop(1.0, '#8A6F1E');
   return g;
 }
 
 /* ---------- tipografía ---------- */
-const fontFor = (o, size, weight) =>
-  o.s === 'serif' ? `italic 500 ${Math.round(size * 1.24)}px "Cormorant Garamond"` : `${weight} ${size}px Manrope`;
-const lsFor = (o, size) => (o.s === 'serif' ? '0px' : `${(-0.012 * size).toFixed(2)}px`);
+// Tipografía de marca (la de pamenagency.com): Space Grotesk para titulares, Inter para texto.
+const fontFor = (o, size, weight) => `${weight} ${size}px "${o.f || 'Space Grotesk'}"`;
+const lsFor = (o, size) => `${(-0.02 * size).toFixed(2)}px`;
 
 function layout(spec) {
   if (spec._L) return spec._L;
@@ -89,11 +89,11 @@ function layout(spec) {
       const s = typeof seg === 'string' ? { t: seg } : seg;
       s.t.split(' ')
         .filter(Boolean)
-        .forEach((w) => words.push({ w, s: s.s || 'sans', c: s.c || spec.color || 'white' }));
+        .forEach((w) => words.push({ w, f: spec.font, c: s.c || spec.color || 'white' }));
     });
     words.forEach((o) => {
       ctx.font = fontFor(o, size, weight);
-      ctx.letterSpacing = spec.ls != null && o.s !== 'serif' ? `${spec.ls}px` : lsFor(o, size);
+      ctx.letterSpacing = spec.ls != null ? `${spec.ls}px` : lsFor(o, size);
       o.width = ctx.measureText(o.w).width;
     });
     const space = size * 0.27;
@@ -146,11 +146,11 @@ function drawBlock(spec, t, dy = 0) {
       if (a > 0.002) {
         const yOff = (1 - p) * s * 1.0 - exitP * 26;
         ctx.font = fontFor(o, s, weight);
-        ctx.letterSpacing = spec.ls != null && o.s !== 'serif' ? `${spec.ls}px` : lsFor(o, s);
+        ctx.letterSpacing = spec.ls != null ? `${spec.ls}px` : lsFor(o, s);
         ctx.globalAlpha = a;
         ctx.filter = exitP > 0.001 ? `blur(${(exitP * 9).toFixed(2)}px)` : 'none';
         if (o.c === 'gold') ctx.fillStyle = goldGrad(ctx, by + yOff - s * 0.95, by + yOff + s * 0.2);
-        else if (o.c === 'dim') ctx.fillStyle = 'rgba(243,240,232,0.78)';
+        else if (o.c === 'dim') ctx.fillStyle = 'rgba(244,244,242,0.78)';
         else ctx.fillStyle = COL.white;
         ctx.fillText(o.w, x, by + yOff);
       }
@@ -234,7 +234,7 @@ function drawScreenUI(t) {
     rrect(c, 44, y + 25, 26, 26, 6);
     c.stroke();
     c.fillStyle = 'rgba(236,240,246,0.74)';
-    c.font = '500 27px Manrope';
+    c.font = '500 27px Inter';
     c.fillText(label, 94, y + 47);
     c.fillStyle = 'rgba(255,255,255,0.055)';
     c.fillRect(44, y + rowH - 1, 812, 1);
@@ -242,7 +242,7 @@ function drawScreenUI(t) {
   c.restore();
   // cabecera
   c.fillStyle = 'rgba(236,240,246,0.86)';
-  c.font = '600 30px Manrope';
+  c.font = '600 30px Inter';
   c.fillText('Pendientes', 44, 58);
   c.fillStyle = 'rgba(255,255,255,0.08)';
   c.fillRect(44, 88, 812, 1);
@@ -375,7 +375,7 @@ const S1A = {
   cx: 540, cy: 520, size: 74, at: C.s1a, out: TL.scenes.s1_problema[1] - 0.35,
 };
 const S1B = {
-  lines: [['Necesita trabajar', { t: 'mejor.', s: 'serif', c: 'gold' }]],
+  lines: [['Necesita trabajar', { t: 'mejor.', c: 'gold' }]],
   cx: 540, cy: 760, size: 74, at: C.s1b, out: TL.scenes.s1_problema[1] - 0.25,
 };
 
@@ -441,7 +441,7 @@ function drawCard(o) {
     }
     ctx.globalAlpha = o.alpha * o.textA * lerp(1, 0.42, o.done);
     ctx.fillStyle = COL.white;
-    ctx.font = '500 32px Manrope';
+    ctx.font = '500 32px Inter';
     ctx.letterSpacing = '-0.2px';
     ctx.fillText(o.label, bx + 32, 10);
   }
@@ -452,7 +452,7 @@ function scene2(t) {
   const [a, b] = TL.scenes.s2_oportunidad;
   if (t < a - 0.6 || t > b + 1.2) return;
   reset();
-  ctx.font = '500 32px Manrope';
+  ctx.font = '500 32px Inter';
   const ORDER_Y0 = 800;
   const GAP = 106;
   const LINE_Y = 1170;
@@ -515,21 +515,21 @@ function scene2(t) {
       const top = LINE_Y - open * 1300;
       const bot = LINE_Y + open * 1300;
       const g = ctx.createLinearGradient(0, top, 0, bot);
-      g.addColorStop(0, 'rgba(201,164,92,0)');
-      g.addColorStop(0.5, `rgba(201,164,92,${0.16 * fade})`);
-      g.addColorStop(1, 'rgba(201,164,92,0)');
+      g.addColorStop(0, 'rgba(212,175,55,0)');
+      g.addColorStop(0.5, `rgba(212,175,55,${0.16 * fade})`);
+      g.addColorStop(1, 'rgba(212,175,55,0)');
       ctx.fillStyle = g;
       ctx.fillRect(0, top, W, bot - top);
     }
     const ys = open > 0 ? [LINE_Y - open * 1300, LINE_Y + open * 1300] : [LINE_Y];
     ys.forEach((y) => {
       const g = ctx.createLinearGradient(540 - half, 0, 540 + half, 0);
-      g.addColorStop(0, 'rgba(214,184,119,0)');
-      g.addColorStop(0.5, 'rgba(240,221,174,1)');
-      g.addColorStop(1, 'rgba(214,184,119,0)');
+      g.addColorStop(0, 'rgba(212,175,55,0)');
+      g.addColorStop(0.5, 'rgba(240,214,128,1)');
+      g.addColorStop(1, 'rgba(212,175,55,0)');
       ctx.globalAlpha = fade * clamp(lineIn * 2);
       ctx.fillStyle = g;
-      ctx.shadowColor = 'rgba(214,184,119,0.9)';
+      ctx.shadowColor = 'rgba(212,175,55,0.9)';
       ctx.shadowBlur = lerp(10, 34, ext);
       ctx.fillRect(540 - half, y - 1.5, half * 2, 3);
     });
@@ -545,7 +545,7 @@ const S2A = {
   cx: 540, cy: 470, size: 80, at: C.s2a, out: C.s2b - 0.6,
 };
 const S2B = {
-  lines: [['Más tiempo para lo que'], ['realmente', { t: 'importa.', s: 'serif', c: 'gold' }]],
+  lines: [['Más tiempo para lo que'], ['realmente', { t: 'importa.', c: 'gold' }]],
   cx: 540, cy: 470, size: 74, at: C.s2b, out: TL.scenes.s2_oportunidad[1] - 0.75,
 };
 
@@ -565,7 +565,7 @@ function goldStroke(width = 3) {
   ctx.lineWidth = width;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.shadowColor = 'rgba(214,184,119,0.55)';
+  ctx.shadowColor = 'rgba(212,175,55,0.55)';
   ctx.shadowBlur = 14;
 }
 
@@ -597,7 +597,7 @@ function pictogram(k, x, y, p, t) {
     if (p > 0.6) {
       const ang = a0 + ((t * 1.6) % 1) * (a1 - a0);
       ctx.globalAlpha = A * clamp((p - 0.6) * 3);
-      ctx.fillStyle = '#F0DDAE';
+      ctx.fillStyle = '#F0D680';
       ctx.beginPath();
       ctx.arc(Math.cos(ang) * r, Math.sin(ang) * r, 6, 0, Math.PI * 2);
       ctx.fill();
@@ -631,7 +631,7 @@ function pictogram(k, x, y, p, t) {
     ctx.lineWidth = 3;
     strokeDraw(phone, 480, eInOutCubic(prog(p, 0.3, 0.95)));
     strokeDraw(pl, 28, eInOutCubic(prog(p, 0.85, 1)));
-    ctx.fillStyle = '#C7A158';
+    ctx.fillStyle = '#D4AF37';
     ctx.globalAlpha = A * clamp((p - 0.3) * 4);
     [-136, -122, -108].forEach((dx) => {
       ctx.beginPath();
@@ -650,7 +650,7 @@ function pictogram(k, x, y, p, t) {
       const glow = eInOutSine(prog(p, 0.7, 1));
       ctx.save();
       if (!isPick) {
-        ctx.strokeStyle = `rgba(243,240,232,${lerp(0.55, 0.22, glow)})`;
+        ctx.strokeStyle = `rgba(244,244,242,${lerp(0.55, 0.22, glow)})`;
         ctx.shadowBlur = 0;
         ctx.lineWidth = 2;
       }
@@ -658,7 +658,7 @@ function pictogram(k, x, y, p, t) {
       const dp = prog(p, 0.62 + j * 0.06, 0.8 + j * 0.06);
       if (dp > 0) {
         ctx.globalAlpha = A * dp;
-        ctx.fillStyle = isPick ? '#F0DDAE' : `rgba(243,240,232,${lerp(0.6, 0.25, glow)})`;
+        ctx.fillStyle = isPick ? '#F0D680' : `rgba(244,244,242,${lerp(0.6, 0.25, glow)})`;
         ctx.beginPath();
         ctx.arc(ex, ey, isPick ? lerp(6, 10, glow) : 5, 0, Math.PI * 2);
         ctx.fill();
@@ -672,7 +672,7 @@ function pictogram(k, x, y, p, t) {
       }
       ctx.restore();
     });
-    ctx.fillStyle = '#F0DDAE';
+    ctx.fillStyle = '#F0D680';
     ctx.globalAlpha = A * clamp(p * 5);
     ctx.beginPath();
     ctx.arc(0, 96, 6, 0, Math.PI * 2);
@@ -683,25 +683,31 @@ function pictogram(k, x, y, p, t) {
 
 const CONCEPTS = [
   { lines: [['Automatización']], size: 84 },
-  { lines: [['Soluciones'], [{ t: 'digitales', s: 'serif', c: 'gold' }]], size: 84 },
-  { lines: [['Inteligencia'], ['artificial'], [{ t: 'con criterio', s: 'serif', c: 'gold' }]], size: 84 },
+  { lines: [['Soluciones'], [{ t: 'digitales', c: 'gold' }]], size: 84 },
+  { lines: [['Inteligencia'], ['artificial'], [{ t: 'con criterio', c: 'gold' }]], size: 84 },
 ];
 
 const S3H = {
-  lines: [['Diseñamos soluciones'], ['de IA para'], [{ t: 'problemas reales.', s: 'serif', c: 'gold' }]],
+  lines: [['Diseñamos soluciones'], ['de IA para'], [{ t: 'problemas reales.', c: 'gold' }]],
   cx: 540, cy: 900, size: 82, at: C.s3h, out: C.c1 - 0.55,
 };
 
+/* Marca pequeña recurrente (escenas 3-4): el logotipo original, o la marca tipográfica si falta. */
 function smallWordmark(t, alpha) {
   if (alpha <= 0.002) return;
   reset();
   ctx.globalAlpha = alpha;
-  ctx.font = '600 30px Manrope';
-  ctx.letterSpacing = '11px';
-  ctx.textAlign = 'center';
-  ctx.fillStyle = goldGrad(ctx, 300, 334);
-  ctx.fillText('PAMENAGENCY', 545, 330);
-  ctx.textAlign = 'left';
+  if (LOGO) {
+    const sz = 116;
+    ctx.drawImage(LOGO, 540 - sz / 2, 318 - sz / 2, sz, sz);
+  } else {
+    ctx.font = '700 30px "Space Grotesk"';
+    ctx.letterSpacing = '9px';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = goldGrad(ctx, 300, 334);
+    ctx.fillText('PAMENAGENCY', 545, 330);
+    ctx.textAlign = 'left';
+  }
   reset();
 }
 
@@ -713,7 +719,7 @@ function scene3(t) {
   // atmósfera cálida mínima
   const amb = win(t, a, b + 0.8, 1.0, 1.0);
   let g = ctx.createRadialGradient(540, 980, 40, 540, 980, 900);
-  g.addColorStop(0, `rgba(201,164,92,${0.075 * amb})`);
+  g.addColorStop(0, `rgba(212,175,55,${0.075 * amb})`);
   g.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
@@ -730,7 +736,7 @@ function scene3(t) {
       ctx.beginPath();
       ctx.arc(0, 0, 470, 0, Math.PI * 2);
       ctx.restore();
-      ctx.strokeStyle = `rgba(214,184,119,${0.16 * orb})`;
+      ctx.strokeStyle = `rgba(212,175,55,${0.16 * orb})`;
       ctx.lineWidth = 1.4;
       ctx.stroke();
       // nodo que viaja por la órbita
@@ -738,7 +744,7 @@ function scene3(t) {
       const px = Math.cos(ang) * 470;
       const py = Math.sin(ang) * 470 * 0.34;
       const rr = rot + t * 0.03 * (j ? -1 : 1);
-      ctx.fillStyle = `rgba(240,221,174,${0.7 * orb})`;
+      ctx.fillStyle = `rgba(240,214,128,${0.7 * orb})`;
       ctx.beginPath();
       ctx.arc(px * Math.cos(rr) - py * Math.sin(rr), px * Math.sin(rr) + py * Math.cos(rr), 4.5, 0, Math.PI * 2);
       ctx.fill();
@@ -755,9 +761,9 @@ function scene3(t) {
       const y0 = base + k * 1000 + 470;
       const y1 = base + (k + 1) * 1000 - 150;
       const lg = ctx.createLinearGradient(0, y0, 0, y1);
-      lg.addColorStop(0, 'rgba(214,184,119,0)');
-      lg.addColorStop(0.5, `rgba(214,184,119,${0.42 * threadA})`);
-      lg.addColorStop(1, 'rgba(214,184,119,0)');
+      lg.addColorStop(0, 'rgba(212,175,55,0)');
+      lg.addColorStop(0.5, `rgba(212,175,55,${0.42 * threadA})`);
+      lg.addColorStop(1, 'rgba(212,175,55,0)');
       ctx.fillStyle = lg;
       ctx.fillRect(539, y0, 2, y1 - y0);
     }
@@ -767,8 +773,8 @@ function scene3(t) {
       if (sp > 0 && sp < 1) {
         const y = base + k * 1000 + lerp(470, 850, eInOutCubic(sp));
         ctx.globalAlpha = Math.sin(sp * Math.PI) * threadA;
-        ctx.fillStyle = '#F0DDAE';
-        ctx.shadowColor = 'rgba(240,221,174,0.9)';
+        ctx.fillStyle = '#F0D680';
+        ctx.shadowColor = 'rgba(240,214,128,0.9)';
         ctx.shadowBlur = 18;
         ctx.beginPath();
         ctx.arc(540, y, 5, 0, Math.PI * 2);
@@ -811,9 +817,9 @@ function horizon(t, alpha, boost, cyy, R) {
   ctx.globalAlpha = alpha;
   // atmósfera cálida sobre el borde
   let g = ctx.createRadialGradient(540, cyy - R, 0, 540, cyy - R, 760);
-  g.addColorStop(0, `rgba(214,184,119,${0.2 * boost})`);
-  g.addColorStop(0.5, `rgba(214,184,119,${0.05 * boost})`);
-  g.addColorStop(1, 'rgba(214,184,119,0)');
+  g.addColorStop(0, `rgba(212,175,55,${0.2 * boost})`);
+  g.addColorStop(0.5, `rgba(212,175,55,${0.05 * boost})`);
+  g.addColorStop(1, 'rgba(212,175,55,0)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
   // disco negro que tapa la luz por debajo del horizonte
@@ -841,9 +847,9 @@ function horizon(t, alpha, boost, cyy, R) {
     ctx.stroke();
     ctx.restore();
   };
-  pass(90, 0.14 * boost, 40, '214,184,119');
-  pass(18, 0.4 * boost, 10, '226,198,140');
-  pass(2.6, 0.95, 0, '244,228,190');
+  pass(90, 0.14 * boost, 40, '212,175,55');
+  pass(18, 0.4 * boost, 10, '226,196,96');
+  pass(2.6, 0.95, 0, '246,226,160');
   reset();
 }
 
@@ -852,7 +858,7 @@ const S4A = {
   cx: 540, cy: 800, size: 82, at: C.s4a, out: C.s4b - 0.55,
 };
 const S4B = {
-  lines: [['Saber cómo utilizarla'], [{ t: 'es la ventaja.', s: 'serif', c: 'gold' }]],
+  lines: [['Saber cómo utilizarla'], [{ t: 'es la ventaja.', c: 'gold' }]],
   cx: 540, cy: 800, size: 82, at: C.s4b, out: TL.scenes.s4_posicionamiento[1] - 0.5,
 };
 
@@ -871,61 +877,91 @@ function scene4(t) {
 }
 
 /* ---------- escena 5: cierre ---------- */
-const WM = { text: 'PAMENAGENCY', size: 84, ls: 14, y: 790 };
+// Marca tipográfica como en pamenagency.com: «PAMEN» en blanco, «AGENCY» en dorado.
+const WM = { text: 'PAMEN AGENCY', split: 6, size: 74, ls: 6, y: 878 };
+const LOGO_Y = 612;
+const LOGO_SIZE = 300;
 
 function wordmark(t, cx, y, mode) {
   // mode: 'anim' (entrada) o 'static'
   const c = wctx;
   reset(c);
   c.clearRect(0, 0, W, 400);
-  c.font = `600 ${WM.size}px Manrope`;
+  c.font = `700 ${WM.size}px "Space Grotesk"`;
   c.letterSpacing = '0px';
   const chars = [...WM.text];
-  const widths = chars.map((ch) => c.measureText(ch).width);
+  const widths = chars.map((ch) => (ch === ' ' ? WM.size * 0.32 : c.measureText(ch).width));
   const total = widths.reduce((s, w) => s + w, 0) + WM.ls * (chars.length - 1);
   const by = 200 + WM.size * 0.36;
   let x = cx - total / 2;
   const mid = (chars.length - 1) / 2;
+  const t0 = C.logo + 0.55;
   chars.forEach((ch, i) => {
     let p = 1;
     if (mode === 'anim') {
-      const d = C.logo + Math.abs(i - mid) * 0.07;
-      p = eOutExpo(prog(t, d, d + 1.4));
+      const d = t0 + Math.abs(i - mid) * 0.06;
+      p = eOutExpo(prog(t, d, d + 1.3));
     }
     const cxch = x + widths[i] / 2;
-    const off = (cxch - cx) * (1 - p) * 0.45;
+    const off = (cxch - cx) * (1 - p) * 0.4;
     c.globalAlpha = clamp(p * 1.3);
-    c.filter = p < 0.999 ? `blur(${((1 - p) * 16).toFixed(2)}px)` : 'none';
-    c.fillStyle = goldGrad(c, by - WM.size * 0.78, by + 4);
-    c.fillText(ch, x + off, by);
+    c.filter = p < 0.999 ? `blur(${((1 - p) * 14).toFixed(2)}px)` : 'none';
+    c.fillStyle = i >= WM.split ? goldGrad(c, by - WM.size * 0.78, by + 4) : COL.white;
+    if (ch !== ' ') c.fillText(ch, x + off, by);
     x += widths[i] + WM.ls;
   });
   reset(c);
-  // barrido de luz único sobre el logotipo
-  const sp = mode === 'anim' ? prog(t, C.logo + 1.45, C.logo + 2.55) : 0;
-  if (sp > 0 && sp < 1) {
-    const sx = lerp(-200, W + 200, eInOutSine(sp));
-    const g = c.createLinearGradient(sx - 140, 120, sx + 140, 300);
-    g.addColorStop(0, 'rgba(255,248,228,0)');
-    g.addColorStop(0.5, 'rgba(255,248,228,0.85)');
-    g.addColorStop(1, 'rgba(255,248,228,0)');
-    c.globalCompositeOperation = 'source-atop';
-    c.fillStyle = g;
-    c.fillRect(0, 0, W, 400);
-    reset(c);
-  }
   reset();
   ctx.drawImage(wmCv, 0, y - 200);
   return total;
 }
 
+/* Entrada propia del logotipo: apertura circular desde el centro + enfoque + un único reflejo. */
+const logoCv = document.createElement('canvas');
+logoCv.width = logoCv.height = 512;
+const lctx = logoCv.getContext('2d');
+function drawLogo(t, mode, cx, cy, size) {
+  if (!LOGO) return;
+  const p = mode === 'anim' ? prog(t, C.logo - 0.15, C.logo + 1.25) : 1;
+  if (p <= 0) return;
+  const c = lctx;
+  reset(c);
+  c.clearRect(0, 0, 512, 512);
+  const e = eOutCubic(p);
+  c.save();
+  c.beginPath();
+  c.arc(256, 256, 262 * e, 0, Math.PI * 2);
+  c.clip();
+  c.filter = p < 0.999 ? `blur(${((1 - e) * 10).toFixed(2)}px)` : 'none';
+  c.drawImage(LOGO, 0, 0, 512, 512);
+  c.restore();
+  const sp = mode === 'anim' ? prog(t, C.logo + 1.2, C.logo + 2.2) : 0;
+  if (sp > 0 && sp < 1) {
+    const sx = lerp(-160, 672, eInOutSine(sp));
+    const g = c.createLinearGradient(sx - 110, 60, sx + 110, 450);
+    g.addColorStop(0, 'rgba(255,246,214,0)');
+    g.addColorStop(0.5, 'rgba(255,246,214,0.32)');
+    g.addColorStop(1, 'rgba(255,246,214,0)');
+    c.globalCompositeOperation = 'source-atop';
+    c.fillStyle = g;
+    c.fillRect(0, 0, 512, 512);
+    reset(c);
+  }
+  reset();
+  const sc = lerp(0.94, 1, eOutCubic(p));
+  const sz = size * sc;
+  ctx.globalAlpha = clamp(p * 2);
+  ctx.drawImage(logoCv, cx - sz / 2, cy - sz / 2, sz, sz);
+  reset();
+}
+
 const S5TAG = {
-  lines: [['Convierte la IA en'], ['una', { t: 'ventaja real.', s: 'serif', c: 'gold' }]],
-  cx: 540, cy: 990, size: 62, at: C.tag, out: 99,
+  lines: [['Convierte la IA en'], ['una', { t: 'ventaja real.', c: 'gold' }]],
+  cx: 540, cy: 1030, size: 60, at: C.tag, out: 99,
 };
 const S5CTA = {
   lines: [['Descubre lo que podemos'], ['mejorar en tu empresa.']],
-  cx: 540, cy: 1222, size: 42, weight: 500, color: 'dim', at: C.cta, out: 99, stagger: 0.035,
+  cx: 540, cy: 1232, size: 40, weight: 500, font: 'Inter', color: 'dim', at: C.cta, out: 99, stagger: 0.035,
 };
 
 function urlPill(t, at, cy) {
@@ -944,7 +980,7 @@ function urlPill(t, at, cy) {
   ctx.setLineDash([]);
   const tp = eOutQuint(prog(t, at + 0.25, at + 1.2));
   ctx.globalAlpha = tp;
-  ctx.font = '600 40px Manrope';
+  ctx.font = '600 40px "Space Grotesk"';
   ctx.letterSpacing = '2px';
   ctx.textAlign = 'center';
   ctx.fillStyle = goldGrad(ctx, cy - 22, cy + 14);
@@ -957,32 +993,30 @@ function endCard(t, mode) {
   reset();
   // resplandor cálido detrás del logotipo
   const glow = mode === 'anim' ? eInOutSine(prog(t, C.logo - 0.2, C.logo + 1.6)) : 1;
-  let g = ctx.createRadialGradient(540, WM.y, 20, 540, WM.y, 640);
-  g.addColorStop(0, `rgba(201,164,92,${0.11 * glow})`);
+  let g = ctx.createRadialGradient(540, LOGO_Y, 20, 540, LOGO_Y, 620);
+  g.addColorStop(0, `rgba(212,175,55,${0.1 * glow})`);
   g.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
   if (LOGO) {
-    const lp = mode === 'anim' ? eOutCubic(prog(t, C.logo - 0.2, C.logo + 1.0)) : 1;
-    const lh = 170;
-    const lw = (LOGO.width / LOGO.height) * lh;
-    ctx.globalAlpha = lp;
-    ctx.drawImage(LOGO, 540 - lw / 2, WM.y - 120 - lh, lw, lh);
-    reset();
+    drawLogo(t, mode, 540, LOGO_Y, LOGO_SIZE);
+    wordmark(t, 540, WM.y, mode);
+  } else {
+    wordmark(t, 540, LOGO_Y + 60, mode);
   }
-  wordmark(t, 540, WM.y, mode);
 
-  // filete dorado bajo el logotipo
-  const rp = mode === 'anim' ? eInOutCubic(prog(t, C.logo + 0.9, C.logo + 2.0)) : 1;
+  // filete dorado bajo la marca
+  const rp = mode === 'anim' ? eInOutCubic(prog(t, C.logo + 1.3, C.logo + 2.3)) : 1;
   if (rp > 0) {
-    const half = 190 * rp;
+    const half = 170 * rp;
+    const ry = (LOGO ? WM.y : LOGO_Y + 60) + 62;
     g = ctx.createLinearGradient(540 - half, 0, 540 + half, 0);
-    g.addColorStop(0, 'rgba(214,184,119,0)');
-    g.addColorStop(0.5, 'rgba(214,184,119,0.9)');
-    g.addColorStop(1, 'rgba(214,184,119,0)');
+    g.addColorStop(0, 'rgba(212,175,55,0)');
+    g.addColorStop(0.5, 'rgba(212,175,55,0.9)');
+    g.addColorStop(1, 'rgba(212,175,55,0)');
     ctx.fillStyle = g;
-    ctx.fillRect(540 - half, WM.y + 70, half * 2, 1.5);
+    ctx.fillRect(540 - half, ry, half * 2, 1.5);
   }
 }
 
@@ -992,7 +1026,7 @@ function scene5(t) {
   endCard(t, 'anim');
   drawBlock(S5TAG, t);
   drawBlock(S5CTA, t);
-  urlPill(t, C.url, 1378);
+  urlPill(t, C.url, 1372);
   void b;
 }
 
@@ -1048,24 +1082,29 @@ function renderFrame(t) {
 
 /* Portada vertical (fotograma fijo diseñado aparte). */
 const COVER = {
-  lines: [['La IA no sustituye'], ['tu capacidad.'], [{ t: 'La multiplica', s: 'serif', c: 'gold' }], [{ t: 'con criterio.', s: 'serif', c: 'gold' }]],
-  cx: 540, cy: 780, size: 86, at: -10, out: 99, lh: 96,
+  lines: [['La IA no sustituye'], ['tu capacidad.'], [{ t: 'La multiplica', c: 'gold' }], [{ t: 'con criterio.', c: 'gold' }]],
+  cx: 540, cy: 860, size: 88, at: -10, out: 99, lh: 102,
 };
 function renderCover() {
   reset();
   ctx.fillStyle = COL.bg;
   ctx.fillRect(0, 0, W, H);
   horizon(0, 1, 1, 2760, 1270);
-  smallWordmark(0, 1);
+  if (LOGO) {
+    reset();
+    ctx.drawImage(LOGO, 540 - 100, 390 - 100, 200, 200);
+  } else {
+    smallWordmark(0, 1);
+  }
   drawBlock(COVER, 50);
-  urlPill(50, 0, 1300);
+  urlPill(50, 0, 1330);
   vignette();
   grain(0);
 }
 
 window.ready = (async () => {
-  const fams = ['400 30px Manrope', '500 30px Manrope', '600 30px Manrope', '700 30px Manrope',
-    'italic 500 30px "Cormorant Garamond"', 'italic 600 30px "Cormorant Garamond"'];
+  const fams = ['500 30px "Space Grotesk"', '600 30px "Space Grotesk"', '700 30px "Space Grotesk"',
+    '400 30px Inter', '500 30px Inter', '600 30px Inter'];
   await Promise.all(fams.map((f) => document.fonts.load(f, 'Áéíóúñ¿?')));
   await document.fonts.ready;
   const ok = fams.every((f) => document.fonts.check(f));

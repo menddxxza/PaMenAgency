@@ -4,6 +4,23 @@ Pieza publicitaria de 35 s para Instagram Reels y TikTok, construida íntegramen
 con código: animación, tipografía, música y exportación. Es reproducible y no usa
 metraje, imágenes ni música de terceros.
 
+## Identidad de marca
+
+Tomada de la web de PaMenAgency que vive en este repositorio
+(rama `claude/pamenagency-website-djp4ol`, carpeta `pamenagency/web`):
+
+- **Logotipo original** (`public/logo.jpg`): monograma «PM» dorado en círculo. Se usa
+  tal cual, sólo recortado al círculo como hace la web (`assets/logo/`).
+- **Tipografía:** Space Grotesk (titulares y marca) e Inter (texto), las mismas de la web.
+- **Color:** negro `#050506`, dorados `#D4AF37` / `#F0D680` / `#8A6F1E`, texto `#F4F4F2`
+  (`src/styles/tokens.css` de la web).
+- **Marca tipográfica:** «PAMEN» en blanco + «AGENCY» en degradado dorado, como en la web.
+- **Claim:** «Convierte la IA en una ventaja real», coherente con el de la web
+  («Convierte la Inteligencia Artificial en una ventaja real»).
+- **Servicios:** automatización, asistentes de IA, creación digital, integración y
+  estrategia de IA figuran en `src/content/services.ts` de la web; el anuncio no
+  menciona nada fuera de eso.
+
 ## Entregables (`renders/`)
 
 | Archivo | Qué es |
@@ -19,21 +36,21 @@ un solo comando en cuanto exista la locución (ver «Pendiente»).
 
 | Tiempo | Escena | Texto en pantalla |
 |---|---|---|
-| 0–5,2 s | **El problema.** Oscuridad, un monitor se enciende: una lista de tareas repetitivas que no se acaba. Persona de espaldas a contraluz, desenfocada. El foco pasa de la pantalla al mensaje. | Tu empresa no necesita trabajar más horas. / Necesita trabajar *mejor.* |
-| 5,2–11,2 s | **La oportunidad.** Las tareas se sueltan de la pantalla y flotan desordenadas; se alinean, se completan una a una y se funden en una sola línea dorada. | Menos tareas repetitivas. / Más tiempo para lo que realmente *importa.* |
-| 11,2–20,2 s | **La solución.** La línea se abre como un telón de luz. Aparece la marca. La cámara desciende por un hilo dorado que conecta tres ideas dibujadas a trazo: un ciclo que se cierra solo, web + app, y una decisión entre varios caminos. | Diseñamos soluciones de IA para *problemas reales.* / Automatización / Soluciones *digitales* / Inteligencia artificial *con criterio* |
-| 20,2–27 s | **Posicionamiento.** Un horizonte negro con borde de luz dorada sube y se intensifica con la música. | La tecnología es una herramienta. / Saber cómo utilizarla *es la ventaja.* |
-| 27–35 s | **Cierre.** Entrada específica de la marca (letras que convergen desde el desenfoque + un único barrido de luz), filete dorado, claim y llamada a la acción. Se mantiene ~4 s legible. | PAMENAGENCY / Convierte la IA en una *ventaja real.* / Descubre lo que podemos mejorar en tu empresa. / pamenagency.com |
+| 0–5,2 s | **El problema.** Oscuridad, un monitor se enciende: una lista de tareas repetitivas que no se acaba. Persona de espaldas a contraluz, desenfocada. El foco pasa de la pantalla al mensaje. | Tu empresa no necesita trabajar más horas. / Necesita trabajar **mejor.** |
+| 5,2–11,2 s | **La oportunidad.** Las tareas se sueltan de la pantalla y flotan desordenadas; se alinean, se completan una a una y se funden en una sola línea dorada. | Menos tareas repetitivas. / Más tiempo para lo que realmente **importa.** |
+| 11,2–20,2 s | **La solución.** La línea se abre como un telón de luz. Aparece el logotipo. La cámara desciende por un hilo dorado que conecta tres ideas dibujadas a trazo: un ciclo que se cierra solo, web + app, y una decisión entre varios caminos. | Diseñamos soluciones de IA para **problemas reales.** / Automatización / Soluciones **digitales** / Inteligencia artificial **con criterio** |
+| 20,2–27 s | **Posicionamiento.** Un horizonte negro con borde de luz dorada sube y se intensifica con la música; el logotipo permanece arriba. | La tecnología es una herramienta. / Saber cómo utilizarla **es la ventaja.** |
+| 27–35 s | **Cierre.** Entrada diseñada para el logotipo (apertura circular desde el centro, enfoque y un único reflejo), seguida de la marca «PAMEN AGENCY» con letras que convergen desde el desenfoque, filete dorado, claim y llamada a la acción. Se mantiene ~4 s legible. | PAMEN AGENCY / Convierte la IA en una **ventaja real.** / Descubre lo que podemos mejorar en tu empresa. / pamenagency.com |
 
-Sin teléfonos, direcciones, ofertas, cifras, testimonios ni clientes.
+En **negrita**, las palabras que van en dorado. Sin teléfonos, direcciones, ofertas, cifras, testimonios ni clientes.
 
 ## Cómo está construido
 
 ```
 video-pamenagency/
 ├── assets/
-│   ├── fonts/        Manrope + Cormorant Garamond (Google Fonts, SIL OFL 1.1, licencias incluidas)
-│   └── logo/         hueco para el logotipo original (ver LEEME.md)
+│   ├── fonts/        Space Grotesk + Inter (Google Fonts, SIL OFL 1.1, licencias incluidas)
+│   └── logo/         logotipo original + versión recortada con transparencia (ver LEEME.md)
 ├── audio/
 │   ├── music_main.wav / music_short15.wav   música original normalizada (-14 LUFS, -1,5 dBTP)
 │   └── voz/          guion de locución cronometrado, SRT y ASS de subtítulos
@@ -106,20 +123,18 @@ del mismo archivo, así que los golpes siguen sincronizados).
 
 ## Pendiente (requiere intervención)
 
-1. **Logotipo original.** No estaba en el repositorio y pamenagency.com no era
-   accesible desde el entorno de producción. Se usa una marca tipográfica dorada,
-   no un logotipo inventado. Coloca el archivo en `assets/logo/logo.png` y vuelve a
-   renderizar (instrucciones en `assets/logo/LEEME.md`).
+1. **Logotipo en alta resolución (opcional).** El original disponible mide 507×485 px;
+   el vídeo lo muestra a 300 px como máximo, así que no se amplía. Si existe una versión
+   mayor, sustitúyela en `assets/logo/logo.png` y vuelve a renderizar.
 2. **Voz en off.** No había un motor de voz neuronal en español peninsular disponible
    en el entorno y una voz robótica habría restado calidad. Guion cronometrado y
    dirección de locución en `audio/voz/GUION_VOZ_EN_OFF.md`. Con el WAV grabado:
    `src/mix_vo.sh audio/voz/voz_en_off.wav` genera la mezcla (música atenuada bajo la
    voz) y las versiones **con voz** y **con voz + subtítulos integrados**. El script
    está probado con una señal de prueba; falta sólo la locución real.
-3. **Revisión de la web.** Los servicios mostrados (automatización, soluciones
-   digitales, IA aplicada) se han tomado del brief y de los productos de PaMenAgency
-   presentes en este repositorio; conviene confirmar que coinciden con el texto
-   actual de pamenagency.com.
+3. **Revisión de la web publicada.** La identidad y los servicios se han tomado del código
+   de la web en este repositorio; pamenagency.com no era accesible desde el entorno, así
+   que conviene confirmar que la versión publicada coincide.
 4. **Escucha final.** El audio se ha verificado por medición (sonoridad, picos,
    espectrograma, sincronía de golpes), no de oído: revisa la mezcla en altavoces
    y móvil antes de publicar.
