@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tokens: los mismos valores del prototipo (prototype/app.html). */
+:root {
+  --bg: #0b0d10;
+  --surface: #14171b;
+  --surface-2: #1b1f24;
+  --line: #262b31;
+  --line-2: #333a42;
+  --text: #e6e9ec;
+  --text-2: #98a1ab;
+  --text-3: #626b75;
+  --accent: #f0662b;
+  --accent-dim: #5c2711;
+  --ok: #4ea86b;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f5f6f8;
+  --surface: #fff;
+  --surface-2: #eceef1;
+  --line: #dde1e6;
+  --line-2: #c6ccd3;
+  --text: #14171b;
+  --text-2: #576069;
+  --text-3: #8a939c;
+  --accent: #cf4e19;
+  --accent-dim: #f6d9cc;
+  color-scheme: light;
+}
+
+@layer base {
+  html {
+    height: 100%;
+  }
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  ::selection {
+    background: var(--accent);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Etiqueta de dato: mayúsculas, mono, discreta. */
+  .label {
+    @apply font-mono text-[10px] uppercase tracking-[0.12em] text-text-3;
+  }
+  .panel {
+    @apply border border-line bg-surface;
+  }
+  .row-hover {
+    @apply transition-colors hover:bg-surface-2;
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 border border-line bg-surface-2 px-3 py-2
+           font-mono text-[11px] uppercase tracking-[0.1em] text-text-2
+           transition-colors hover:border-line-2 hover:text-text disabled:opacity-40;
+  }
+  .btn-accent {
+    @apply border-accent bg-accent text-white hover:border-accent hover:text-white;
+  }
+  .input {
+    @apply w-full border border-line bg-surface px-3 py-2 text-text
+           placeholder:text-text-3 focus:border-line-2 focus:outline-none;
+  }
+  /* Tabla de datos: densa, alineada, monoespaciada donde hay códigos. */
+  .tbl {
+    @apply w-full border-collapse text-sm;
+  }
+  .tbl th {
+    @apply border-b border-line px-3 py-2 text-left font-mono text-[10px]
+           uppercase tracking-[0.12em] text-text-3;
+  }
+  .tbl td {
+    @apply border-b border-line px-3 py-2 align-top;
+  }
+}
