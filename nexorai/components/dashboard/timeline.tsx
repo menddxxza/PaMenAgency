@@ -1,5 +1,5 @@
-import { CheckCircle2, Circle } from 'lucide-react';
-import { DemoTag } from '@/components/ui/demo-tag';
+import { DemoTag, AIDraftTag } from '@/components/ui/demo-tag';
+import { TaskCheckbox } from '@/components/dashboard/task-checkbox';
 import { formatDate } from '@/lib/utils';
 import type { AgentTask } from '@/lib/types';
 
@@ -16,19 +16,16 @@ export function RevenueTimeline({ tasks }: { tasks: (AgentTask & { agentName: st
     <ol className="space-y-4">
       {tasks.map((task) => (
         <li key={task.id} className="flex gap-3">
-          <div className="mt-0.5">
-            {task.status === 'done' ? (
-              <CheckCircle2 className="h-4 w-4 text-brand-400" />
-            ) : (
-              <Circle className="h-4 w-4 text-muted" />
-            )}
-          </div>
+          <TaskCheckbox taskId={task.id} done={task.status === 'done'} />
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-sm text-fg">{task.title}</p>
-              {task.is_simulated && <DemoTag />}
+              {task.is_simulated ? <DemoTag /> : <AIDraftTag />}
             </div>
-            <p className="text-xs text-muted">
+            {task.result_summary && (
+              <p className="mt-1 whitespace-pre-line text-xs text-muted">{task.result_summary}</p>
+            )}
+            <p className="mt-1 text-xs text-muted">
               {task.agentName} · {formatDate(task.scheduled_for)}
             </p>
           </div>

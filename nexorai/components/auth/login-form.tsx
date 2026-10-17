@@ -38,7 +38,7 @@ export function LoginForm() {
   return (
     <AuthCard
       title="Inicia sesión"
-      subtitle="Sigue trabajando con tus agentes de Nexorai."
+      subtitle="Sigue trabajando con tus agentes de Revynai."
       footer={
         <>
           ¿Aún no tienes cuenta?{' '}

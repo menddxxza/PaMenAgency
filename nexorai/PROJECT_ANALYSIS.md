@@ -1,4 +1,4 @@
-# PROJECT_ANALYSIS.md — Estado del repositorio antes de construir Nexorai
+# PROJECT_ANALYSIS.md — Estado del repositorio antes de construir Revynai
 
 ## 1. Qué es este repositorio
 
@@ -20,7 +20,7 @@ No existe un "punto de entrada único" ni un paquete raíz que orqueste todo (no
 independiente. La raíz (`src/`, `index.html`, `vite.config.ts`) es en sí misma el producto
 "Atiende", no un contenedor de los demás.
 
-**Conclusión:** integrar Nexorai significa añadir una nueva carpeta hermana (`nexorai/`),
+**Conclusión:** integrar Revynai significa añadir una nueva carpeta hermana (`nexorai/`),
 replicando las convenciones ya probadas en el repo — no modificar la app raíz ni las otras
 carpetas, y no intentar unificarlas en un monolito.
 
@@ -28,7 +28,7 @@ carpetas, y no intentar unificarlas en un monolito.
 
 De los productos existentes, `leadscope` es el más cercano en propósito (SaaS B2B de
 generación de oportunidades comerciales) y el más reciente. Se usa como plantilla de
-convenciones para Nexorai:
+convenciones para Revynai:
 
 - **Next.js 14 App Router + TypeScript estricto**, alias `@/*`.
 - **Tailwind** con tokens de color en HSL vía CSS custom properties (`--bg`, `--surface`,
@@ -47,16 +47,16 @@ convenciones para Nexorai:
 - **Motor de negocio determinista** en `lib/` (p.ej. `opportunity-score.ts`) desacoplado de
   React: funciones puras que calculan un score a partir de datos reales; la IA (opcional, vía
   `ANTHROPIC_API_KEY`/`OPENAI_API_KEY`) sólo se usa como reclasificador opcional, nunca como
-  única fuente de la verdad — exactamente el patrón que pide la spec de Nexorai (estimaciones
+  única fuente de la verdad — exactamente el patrón que pide la spec de Revynai (estimaciones
   deterministas + IA como capa de enriquecimiento, nunca de invención de datos).
 - **Legal**: páginas `/legal/privacidad`, `/legal/cookies`, `/legal/terminos`,
   `/legal/tratamiento-datos` ya existen como páginas propias dentro de `leadscope`. Para
-  Nexorai, el propietario ha pedido explícitamente enlazar las páginas legales de
-  **pamenagency.com** (externas), no crear páginas locales — Nexorai se presenta como un
+  Revynai, el propietario ha pedido explícitamente enlazar las páginas legales de
+  **pamenagency.com** (externas), no crear páginas locales — Revynai se presenta como un
   producto de PaMenAgency.
 - **Pagos**: Stripe Checkout/Portal/Webhook ya resueltos en `leadscope/app/api/stripe/*` y
-  `lib/stripe.ts` — sirven de referencia para cuando Nexorai active pagos reales, pero el MVP
-  de Nexorai no los activa (ver más abajo, sección 21 de la spec: "no implementes pagos reales
+  `lib/stripe.ts` — sirven de referencia para cuando Revynai active pagos reales, pero el MVP
+  de Revynai no los activa (ver más abajo, sección 21 de la spec: "no implementes pagos reales
   todavía salvo que sea necesario").
 
 ## 3. Qué se reutiliza vs. qué se crea
@@ -68,8 +68,8 @@ convenciones para Nexorai:
 - Convención de "motor determinista + IA opcional desacoplada por proveedor".
 - Sistema de componentes UI propio (sin librerías externas de componentes).
 
-**Se crea desde cero para Nexorai:**
-- Identidad visual propia (paleta esmeralda/oro inspirada en el logo Nexorai, tipografía,
+**Se crea desde cero para Revynai:**
+- Identidad visual propia (paleta esmeralda/oro inspirada en el logo Revynai, tipografía,
   fondo oscuro permanente tipo "consola estratégica" — inspirado en la referencia visual
   aportada, sin copiar su paleta cian/violeta genérica de IA).
 - Modelo de datos multi-tenant orientado a **objetivo de crecimiento → auditoría → oportunidad
@@ -77,7 +77,7 @@ convenciones para Nexorai:
   repo.
 - Capa `AIProvider` desacoplada de proveedor (Anthropic/OpenAI/mock) reutilizable más allá de
   un solo caso de uso (en `leadscope` la IA está incrustada directamente en un archivo con
-  fetch a dos proveedores; en Nexorai se abstrae detrás de una interfaz común para poder
+  fetch a dos proveedores; en Revynai se abstrae detrás de una interfaz común para poder
   añadir proveedores sin tocar el resto de la app).
 - Motor de oportunidades y agentes (catálogo de 6 agentes, simulación controlada de tareas).
 

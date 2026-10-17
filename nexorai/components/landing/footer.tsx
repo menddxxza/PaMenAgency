@@ -30,7 +30,7 @@ export function Footer() {
               <Wordmark className="text-xs" />
             </div>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/40">
-              Nexorai es un producto de{' '}
+              Revynai es un producto de{' '}
               <a
                 href="https://pamenagency.com"
                 target="_blank"
@@ -114,7 +114,7 @@ export function Footer() {
 
         <div className="landing-hairline mt-14 flex flex-col gap-4 border-t pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} Nexorai — un producto de PaMenAgency (pamenagency.com). Todos los
+            © {new Date().getFullYear()} Revynai — un producto de PaMenAgency (pamenagency.com). Todos los
             derechos reservados.
           </p>
         </div>

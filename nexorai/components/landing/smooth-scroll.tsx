@@ -22,9 +22,14 @@ export function SmoothScroll() {
     gsap.ticker.add(onTick);
     gsap.ticker.lagSmoothing(0);
 
+    // Expuesto para que otros componentes (ej. botón "volver arriba") puedan
+    // pedirle a Lenis un scroll suave en vez de pelear con window.scrollTo.
+    window.__lenis = lenis;
+
     return () => {
       lenis.destroy();
       gsap.ticker.remove(onTick);
+      delete window.__lenis;
     };
   }, []);
 

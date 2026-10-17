@@ -1,10 +1,10 @@
-# Nexorai
+# Revynai
 
 > "Conecta tu empresa. Dile cuánto quieres crecer. La IA encuentra dónde está el dinero y pone
 > agentes a trabajar para conseguirlo."
 
 Un producto de [PaMenAgency](https://pamenagency.com). No vende IA — vende resultados: una
-empresa introduce su objetivo de crecimiento, Nexorai audita el negocio, detecta oportunidades
+empresa introduce su objetivo de crecimiento, Revynai audita el negocio, detecta oportunidades
 de ingreso con potencial estimado y activa agentes especializados para trabajarlas.
 
 Ver `PROJECT_ANALYSIS.md` (estado del monorepo antes de este proyecto) y

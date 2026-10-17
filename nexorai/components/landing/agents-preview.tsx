@@ -65,7 +65,7 @@ export function AgentsPreview({
             aria-hidden="true"
             tabIndex={-1}
           >
-            Nexorai
+            Revynai
           </button>
 
           {AGENT_CATALOG.map((a, i) => (

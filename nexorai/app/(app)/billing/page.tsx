@@ -59,7 +59,7 @@ export default async function BillingPage() {
       <Card className="p-5">
         <h2 className="text-sm font-semibold text-fg">Modelo Performance (success fee)</h2>
         <p className="mt-2 text-sm text-muted">
-          Con el plan Performance, además de la cuota base, Nexorai cobra un {organization.success_fee_pct || 5}%
+          Con el plan Performance, además de la cuota base, Revynai cobra un {organization.success_fee_pct || 5}%
           sobre el ingreso confirmado y atribuido a la plataforma. Ejemplo: si en un mes se confirman{' '}
           {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(
             10000
