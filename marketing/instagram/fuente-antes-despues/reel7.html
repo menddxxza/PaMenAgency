@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 7 PaMen</title>
+<style>
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+@font-face { font-family: "Archivo Black"; src: url("fonts/ArchivoBlack.font") format("truetype"); }
+:root { --bg:#0a0a0c; --fg:#fafafa; --acc:#ffe14a; --ink:#0b0b0c; --red:#ff5a4e; --mint:#3ddc84; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; background:var(--bg); overflow:hidden; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); font-family:"Anton", sans-serif; color:var(--fg); }
+#grain { position:absolute; inset:0; opacity:.08; pointer-events:none; mix-blend-mode:screen; z-index:50;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-family:"Archivo Black"; font-size:28px; letter-spacing:.32em; color:rgba(250,250,250,.7); z-index:40; }
+#brand b { color:var(--acc); font-weight:400; }
+
+.scene { visibility:hidden; position:absolute; inset:0; }
+
+/* ---- Scene 0 : spotlight wipe intro ---- */
+#s0 { display:flex; align-items:center; justify-content:center; }
+.wipewrap { position:relative; text-align:center; }
+.wipeline { line-height:1.06; text-transform:uppercase; }
+.wmask { position:relative; display:inline-block; overflow:hidden; }
+.wmask > span { display:block; }
+.sweep { position:absolute; top:0; bottom:0; left:-30%; width:30%; background:linear-gradient(100deg, transparent, rgba(255,225,74,.65), transparent); }
+
+/* ---- Scene 1 : split antes/después ---- */
+#s1 { display:flex; }
+.half { position:relative; flex:1; height:100%; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:0 56px; overflow:hidden; }
+.half.left { background:radial-gradient(circle at 30% 40%, rgba(255,90,78,.14), transparent 60%); }
+.half.right { background:radial-gradient(circle at 70% 40%, rgba(61,220,132,.14), transparent 60%); }
+.hlabel { font-family:"Archivo Black"; font-size:38px; letter-spacing:.1em; margin-bottom:38px; padding:12px 26px; border-radius:10px; }
+.hlabel.l { color:var(--red); border:3px solid var(--red); }
+.hlabel.r { color:var(--mint); border:3px solid var(--mint); }
+.brow { display:flex; align-items:flex-start; gap:18px; margin-bottom:38px; max-width:420px; }
+.bicon { font-size:48px; flex:none; margin-top:-6px; }
+.btxt { font-family:"Archivo Black"; font-size:38px; line-height:1.2; text-transform:uppercase; }
+#divider { position:absolute; left:50%; top:0; bottom:0; width:6px; margin-left:-3px; background:var(--acc); transform-origin:top; z-index:20; box-shadow:0 0 40px rgba(255,225,74,.6); }
+
+/* ---- Scene 2 : progress ring ---- */
+#s2 { display:flex; align-items:center; justify-content:center; }
+.ringwrap { position:relative; display:flex; flex-direction:column; align-items:center; }
+.ringnum { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-family:"Anton"; font-size:160px; color:var(--acc); }
+.ringlabel { margin-top:36px; font-family:"Archivo Black"; font-size:40px; letter-spacing:.1em; text-transform:uppercase; color:rgba(250,250,250,.8); }
+.ringsub { margin-top:14px; font-family:"Inter",sans-serif; font-size:30px; color:rgba(250,250,250,.5); letter-spacing:.03em; }
+
+/* ---- Scene 3 : CTA shine ---- */
+#s3 { display:flex; align-items:center; justify-content:center; }
+.ctainner { display:flex; flex-direction:column; align-items:center; text-align:center; }
+.ctaline { font-size:104px; line-height:1.08; text-transform:uppercase; position:relative; overflow:hidden; }
+.shine { position:absolute; top:-20%; bottom:-20%; left:-60%; width:40%; background:linear-gradient(100deg, transparent, rgba(255,255,255,.9), transparent); mix-blend-mode:overlay; }
+.urlbar { margin-top:56px; display:flex; align-items:center; gap:18px; background:#fff; color:#111; border-radius:999px; padding:24px 42px; font-family:"Inter", sans-serif; font-weight:700; font-size:42px; box-shadow:0 24px 60px rgba(0,0,0,.5), 0 0 0 6px rgba(255,225,74,.25); }
+.hint { margin-top:46px; font-family:"Archivo Black"; font-size:36px; letter-spacing:.06em; color:rgba(250,250,250,.85); text-transform:uppercase; }
+.hint b { color:var(--acc); font-weight:400; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="brand">PAMEN <b>AGENCY</b></div>
+
+  <!-- 0 · Intro con barrido de luz -->
+  <div class="scene" id="s0">
+    <div class="wipewrap">
+      <div class="wipeline" style="font-size:118px"><span class="wmask"><span id="s0a">ASÍ CAMBIA</span><div class="sweep" id="sw1"></div></span></div>
+      <div class="wipeline" style="font-size:118px"><span class="wmask"><span id="s0b">TU NEGOCIO</span><div class="sweep" id="sw2"></div></span></div>
+      <div class="wipeline" style="font-size:150px; color:var(--acc); margin-top:10px"><span class="wmask"><span id="s0c">CON IA</span><div class="sweep" id="sw3"></div></span></div>
+    </div>
+  </div>
+
+  <!-- 1 · Split antes / después -->
+  <div class="scene" id="s1">
+    <div class="half left">
+      <div class="hlabel l" id="hl">😩 ANTES</div>
+      <div class="brow" id="bl1"><div class="bicon">⏰</div><div class="btxt">RESPONDES<br>A MANO</div></div>
+      <div class="brow" id="bl2"><div class="bicon">📉</div><div class="btxt">PIERDES<br>HORAS AL DÍA</div></div>
+      <div class="brow" id="bl3"><div class="bicon">😓</div><div class="btxt">CLIENTES<br>SE VAN</div></div>
+    </div>
+    <div class="half right">
+      <div class="hlabel r" id="hr">✨ DESPUÉS</div>
+      <div class="brow" id="br1"><div class="bicon">🤖</div><div class="btxt">LA IA<br>RESPONDE SOLA</div></div>
+      <div class="brow" id="br2"><div class="bicon">⚡</div><div class="btxt">AHORRAS<br>HORAS AL DÍA</div></div>
+      <div class="brow" id="br3"><div class="bicon">📈</div><div class="btxt">MÁS<br>CLIENTES</div></div>
+    </div>
+    <div id="divider"></div>
+  </div>
+
+  <!-- 2 · Anillo de progreso -->
+  <div class="scene" id="s2">
+    <div class="ringwrap">
+      <svg width="420" height="420" viewBox="0 0 300 300">
+        <circle cx="150" cy="150" r="130" fill="none" stroke="rgba(255,225,74,.12)" stroke-width="20"/>
+        <circle id="ring" cx="150" cy="150" r="130" fill="none" stroke="#ffe14a" stroke-width="20" stroke-linecap="round"
+          stroke-dasharray="816.8" stroke-dashoffset="816.8" transform="rotate(-90 150 150)"/>
+      </svg>
+      <div class="ringnum" id="ringnum">0%</div>
+      <div class="ringlabel" id="rl">AUTOMATIZACIÓN</div>
+      <div class="ringsub" id="rs">con IA trabajando por ti</div>
+    </div>
+  </div>
+
+  <!-- 3 · CTA con destello -->
+  <div class="scene" id="s3"><div class="ctainner">
+    <div class="ctaline" id="c1"><span>EMPIEZA</span><div class="shine" id="sh1"></div></div>
+    <div class="ctaline" id="c2" style="color:var(--acc)"><span>HOY MISMO</span><div class="shine" id="sh2"></div></div>
+    <div class="urlbar" id="s3bar">
+      <svg width="34" height="40" viewBox="0 0 24 28" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"><rect x="3" y="12" width="18" height="14" rx="3"/><path d="M7 12V8a5 5 0 0 1 10 0v4"/></svg>
+      <span>pamenagency.com</span>
+    </div>
+    <div class="hint" id="s3hint">👇 O comenta <b>"IA"</b></div>
+  </div></div>
+
+  <div id="grain"></div>
+</div>
+
+<script>
+const T = 15.3;
+const A = [];
+const EASE = "cubic-bezier(.16,1,.3,1)";
+const POP = "cubic-bezier(.34,1.56,.64,1)";
+const $ = id => document.getElementById(id);
+
+function anim(id, kf, start, dur, easing = EASE) {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill: "both", easing });
+  a.pause(); A.push(a);
+}
+function scene(id, a, b, exitKf) {
+  const s = $(id);
+  const v = s.animate([{ visibility: "visible" }, { visibility: "visible" }], { duration: (b - a) * 1000, delay: a * 1000, fill: "none" });
+  v.pause(); A.push(v);
+  if (exitKf !== false) {
+    anim(s, [{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(14px)" }], b - .14, .14, "ease-in");
+  }
+}
+function sweepReveal(maskId, sweepId, t) {
+  anim(maskId, [{ opacity: 0 }, { opacity: 1 }], t, .01);
+  anim(sweepId, [{ transform: "translateX(0%)" }, { transform: "translateX(420%)" }], t, .7, "ease-in");
+}
+const rise = (id, t, d = .45, dist = 50) => anim(id, [
+  { opacity: 0, transform: `translateY(${dist}px)` }, { opacity: 1, transform: "translateY(0)" }], t, d, EASE);
+const slideL = (id, t, d = .5) => anim(id, [
+  { opacity: 0, transform: "translateX(-70px)" }, { opacity: 1, transform: "translateX(0)" }], t, d, EASE);
+const slideR = (id, t, d = .5) => anim(id, [
+  { opacity: 0, transform: "translateX(70px)" }, { opacity: 1, transform: "translateX(0)" }], t, d, EASE);
+const pop = (id, t, d = .4) => anim(id, [
+  { opacity: 0, transform: "scale(.5)" }, { opacity: 1, transform: "scale(1)" }], t, d, POP);
+
+anim("brand", [{ opacity: 0, transform: "translateY(-20px)" }, { opacity: 1, transform: "none" }], .1, .5);
+
+// 0 · Intro · 0 – 2.0s
+scene("s0", 0, 2.0);
+sweepReveal("s0a", "sw1", .1);
+sweepReveal("s0b", "sw2", .4);
+sweepReveal("s0c", "sw3", .75);
+
+// 1 · Split antes/después · 2.0 – 7.8s
+scene("s1", 2.0, 7.8);
+anim("divider", [{ transform: "scaleY(0)" }, { transform: "scaleY(1)" }], 2.05, .45, EASE);
+pop("hl", 2.5, .4); pop("hr", 2.5, .4);
+slideL("bl1", 2.9); slideR("br1", 2.9);
+slideL("bl2", 3.35); slideR("br2", 3.35);
+slideL("bl3", 3.8); slideR("br3", 3.8);
+
+// 2 · Anillo de progreso · 7.8 – 11.8s
+scene("s2", 7.8, 11.8);
+anim("ring", [{ strokeDashoffset: "816.8" }, { strokeDashoffset: "0" }], 8.0, 1.7, "cubic-bezier(.3,.9,.4,1)");
+rise("rl", 8.1); rise("rs", 8.3);
+
+// 3 · CTA · 11.8 – 15.3s
+scene("s3", 11.8, T + 1, false);
+pop("c1", 11.9, .4); pop("c2", 12.2, .4);
+anim("sh1", [{ transform: "translateX(0%)" }, { transform: "translateX(500%)" }], 12.5, .6, "ease-in");
+anim("sh2", [{ transform: "translateX(0%)" }, { transform: "translateX(500%)" }], 12.7, .6, "ease-in");
+anim("s3bar", [{ opacity: 0, transform: "translateY(70px) scale(.9)" }, { opacity: 1, transform: "none" }], 13.0, .5, POP);
+rise("s3hint", 13.6);
+anim($("s3bar"), [{ scale: "1" }, { scale: "1.05" }, { scale: "1" }], 14.15, .4, "ease-out");
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  // ring % counter synced to stroke animation window
+  const t0 = 8.0, t1 = 9.7;
+  let p = t < t0 ? 0 : t > t1 ? 1 : (t - t0) / (t1 - t0);
+  p = 1 - Math.pow(1 - p, 3);
+  $("ringnum").textContent = Math.round(p * 100) + "%";
+  const f = Math.floor(t * 30);
+  $("grain").style.backgroundPosition = `${(f * 73) % 260}px ${(f * 151) % 260}px`;
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
