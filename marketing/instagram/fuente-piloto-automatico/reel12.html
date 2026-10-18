@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 12 PaMen</title>
+<style>
+:root { --on:#34e89e; --glass:rgba(255,255,255,.13); --stroke:rgba(255,255,255,.38); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#140c2e; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:#140c2e; color:#fff; font-family:"Inter", sans-serif; perspective:1600px; }
+.blob { position:absolute; border-radius:50%; filter:blur(90px); opacity:.9; }
+#b1 { width:900px; height:900px; background:radial-gradient(circle, #6d5dfc, rgba(109,93,252,0) 70%); }
+#b2 { width:800px; height:800px; background:radial-gradient(circle, #2bd2ff, rgba(43,210,255,0) 70%); }
+#b3 { width:760px; height:760px; background:radial-gradient(circle, #ff6fd8, rgba(255,111,216,0) 70%); }
+#glowOn { position:absolute; inset:0; background:radial-gradient(circle at 50% 52%, rgba(52,232,158,.45), transparent 60%); opacity:0; }
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-weight:800; font-size:26px; letter-spacing:.42em; color:rgba(255,255,255,.75); z-index:20; }
+
+.serif { font-family:"Caladea", "Liberation Serif", serif; font-style:italic; font-weight:400; }
+.scene { visibility:hidden; position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; transform-style:preserve-3d; }
+
+/* intro */
+.hl1 { font-weight:900; font-size:96px; letter-spacing:-.02em; text-align:center; line-height:1.05; }
+.hl2 { font-size:150px; line-height:1; text-align:center; background:linear-gradient(90deg, #fff, #b9f6ff 40%, #ffd1f3); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+/* panel de cristal */
+.glass { background:var(--glass); border:2px solid var(--stroke); border-radius:44px; backdrop-filter:blur(28px) saturate(1.4); -webkit-backdrop-filter:blur(28px) saturate(1.4); box-shadow:0 30px 80px rgba(10,0,40,.35), inset 0 1px 0 rgba(255,255,255,.4); }
+#panel { width:900px; padding:40px 40px 20px; }
+.phead { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding:0 8px; }
+.phead .t { font-weight:800; font-size:38px; }
+.phead .s { font-size:26px; color:rgba(255,255,255,.7); }
+.chip { font-weight:800; font-size:24px; padding:10px 20px; border-radius:999px; background:rgba(255,255,255,.18); border:1.5px solid var(--stroke); }
+.row { display:flex; align-items:center; gap:26px; padding:28px 22px; margin-bottom:18px; border-radius:30px; background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.18); }
+.ico { width:84px; height:84px; border-radius:24px; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; font-size:44px; flex:none; }
+.lab { flex:1; }
+.lab .a { font-weight:800; font-size:34px; }
+.lab .b { font-size:24px; color:rgba(255,255,255,.65); margin-top:4px; }
+.sw { width:128px; height:72px; border-radius:36px; background:rgba(255,255,255,.22); position:relative; flex:none; border:1.5px solid rgba(255,255,255,.3); }
+.knob { position:absolute; top:6px; left:6px; width:58px; height:58px; border-radius:50%; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,.25); }
+
+/* interruptor maestro */
+#master { display:flex; flex-direction:column; align-items:center; }
+#mlabel { font-weight:900; font-size:64px; letter-spacing:.04em; margin-bottom:60px; text-align:center; }
+#mlabel .serif { font-size:84px; font-weight:400; letter-spacing:0; display:block; }
+#msw { width:520px; height:270px; border-radius:135px; background:rgba(255,255,255,.2); border:3px solid var(--stroke); position:relative; }
+#mknob { position:absolute; top:18px; left:18px; width:230px; height:230px; border-radius:50%; background:#fff; box-shadow:0 10px 30px rgba(0,0,0,.3); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:56px; color:#140c2e; }
+.ring { position:absolute; left:50%; top:50%; width:520px; height:520px; margin:-260px 0 0 -260px; border-radius:50%; border:6px solid var(--on); opacity:0; }
+#mstate { margin-top:56px; font-weight:900; font-size:52px; letter-spacing:.2em; color:var(--on); text-shadow:0 0 30px rgba(52,232,158,.7); }
+
+/* CTA */
+#card { width:900px; padding:80px 60px 70px; text-align:center; }
+#card .serif { font-size:120px; line-height:1; }
+#card .big { font-weight:900; font-size:96px; letter-spacing:-.02em; margin-top:6px; }
+#card .url { margin:56px auto 0; display:inline-block; font-weight:800; font-size:48px; padding:22px 44px; border-radius:999px; background:#fff; color:#140c2e; }
+#card .cm { margin-top:36px; font-size:36px; color:rgba(255,255,255,.85); }
+#card .cm b { color:var(--on); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="blob" id="b1"></div><div class="blob" id="b2"></div><div class="blob" id="b3"></div>
+  <div id="glowOn"></div>
+  <div id="brand">PAMEN AGENCY</div>
+
+  <!-- 0 · Intro -->
+  <div class="scene" id="s0">
+    <div class="hl1" id="i1">¿Y si tu negocio</div>
+    <div class="hl1" id="i2">funcionara en</div>
+    <div class="hl2 serif" id="i3">piloto automático?</div>
+  </div>
+
+  <!-- 1 · Panel -->
+  <div class="scene" id="s1">
+    <div class="glass" id="panel">
+      <div class="phead" id="ph"><div><div class="t">Tu negocio</div><div class="s">Panel de automatización</div></div><div class="chip" id="chip">0 / 4 activas</div></div>
+      <div class="row" id="r1"><div class="ico">💬</div><div class="lab"><div class="a">Respuestas automáticas</div><div class="b">WhatsApp, Instagram y web</div></div><div class="sw" id="sw1"><div class="knob"></div></div></div>
+      <div class="row" id="r2"><div class="ico">📅</div><div class="lab"><div class="a">Reserva de citas</div><div class="b">Agenda sin llamadas</div></div><div class="sw" id="sw2"><div class="knob"></div></div></div>
+      <div class="row" id="r3"><div class="ico">🔔</div><div class="lab"><div class="a">Recordatorios</div><div class="b">Menos clientes que no vienen</div></div><div class="sw" id="sw3"><div class="knob"></div></div></div>
+      <div class="row" id="r4"><div class="ico">📈</div><div class="lab"><div class="a">Seguimiento de clientes</div><div class="b">Nadie se queda sin respuesta</div></div><div class="sw" id="sw4"><div class="knob"></div></div></div>
+    </div>
+  </div>
+
+  <!-- 2 · Interruptor maestro -->
+  <div class="scene" id="s2">
+    <div id="master">
+      <div id="mlabel">MODO<span class="serif">piloto automático</span></div>
+      <div id="msw"><div class="ring" id="ring1"></div><div class="ring" id="ring2"></div><div id="mknob">OFF</div></div>
+      <div id="mstate">● ACTIVADO</div>
+    </div>
+  </div>
+
+  <!-- 3 · CTA -->
+  <div class="scene" id="s3">
+    <div class="glass" id="card">
+      <div class="serif" id="c1">Actívalo</div>
+      <div class="big" id="c2">EN TU NEGOCIO</div>
+      <div class="url" id="c3">pamenagency.com</div>
+      <div class="cm" id="c4">o comenta <b>"IA"</b> y te lo explicamos 👇</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const T = 15.6;
+const A = [];
+const EASE = "cubic-bezier(.16,1,.3,1)";
+const SPRING = "cubic-bezier(.34,1.56,.64,1)";
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = EASE, fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+function scene(id, a, b) {
+  const v = $(id).animate([{ visibility: "visible" }, { visibility: "visible" }], { duration: (b - a) * 1000, delay: a * 1000, fill: "none" });
+  v.pause(); A.push(v);
+  // salida: se aleja hacia el fondo y se desenfoca
+  anim(id, [{ opacity: 1, transform: "translateZ(0)", filter: "blur(0)" }, { opacity: 0, transform: "translateZ(-500px)", filter: "blur(20px)" }], b - .35, .35, "ease-in", "forwards");
+}
+// enfoque: de borroso y espaciado a nítido
+const focusIn = (id, t, d = .9) => anim(id, [{ opacity: 0, filter: "blur(24px)", letterSpacing: ".35em" }, { opacity: 1, filter: "blur(0)", letterSpacing: "normal" }], t, d);
+// llegada desde el fondo en 3D
+const fromDepth = (id, t, d = .8) => anim(id, [{ opacity: 0, transform: "translateZ(-900px) rotateX(18deg)" }, { opacity: 1, transform: "translateZ(0) rotateX(0)" }], t, d);
+
+function toggleOn(swId, t) {
+  const sw = $(swId), k = sw.querySelector(".knob");
+  anim(k, [{ transform: "translateX(0) scaleX(1)" }, { transform: "translateX(26px) scaleX(1.25)" }, { transform: "translateX(56px) scaleX(1)" }], t, .35, "ease-out");
+  anim(sw, [{ backgroundColor: "rgba(255,255,255,.22)", boxShadow: "0 0 0 rgba(52,232,158,0)" }, { backgroundColor: "#34e89e", boxShadow: "0 0 30px rgba(52,232,158,.7)" }], t, .3, "linear");
+  anim(sw.closest(".row"), [{ backgroundColor: "rgba(255,255,255,.08)" }, { backgroundColor: "rgba(52,232,158,.16)" }], t, .3, "linear");
+}
+
+// 0 · Intro · 0 – 2.9s
+scene("s0", 0, 2.9);
+focusIn("i1", .15); focusIn("i2", .45); focusIn("i3", .8, 1.1);
+
+// 1 · Panel · 2.9 – 9.3s
+scene("s1", 2.9, 9.3);
+fromDepth("panel", 2.95, .9);
+["r1", "r2", "r3", "r4"].forEach((id, i) => anim(id, [{ opacity: 0, transform: "translateY(40px)" }, { opacity: 1, transform: "none" }], 3.5 + i * .14, .5));
+const ON = [4.7, 5.6, 6.5, 7.4];
+ON.forEach((t, i) => toggleOn("sw" + (i + 1), t));
+anim("chip", [{ backgroundColor: "rgba(255,255,255,.18)" }, { backgroundColor: "rgba(52,232,158,.45)" }], 7.45, .3, "linear");
+
+// 2 · Interruptor maestro · 9.3 – 12.3s
+scene("s2", 9.3, 12.3);
+fromDepth("mlabel", 9.3, .7);
+anim("msw", [{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1)" }], 9.5, .6, SPRING);
+anim("mknob", [{ transform: "translateX(0)" }, { transform: "translateX(254px)" }], 10.35, .45, "cubic-bezier(.5,0,.2,1.3)");
+anim("msw", [{ backgroundColor: "rgba(255,255,255,.2)", boxShadow: "0 0 0 rgba(52,232,158,0)" }, { backgroundColor: "#34e89e", boxShadow: "0 0 90px rgba(52,232,158,.8)" }], 10.45, .35, "linear");
+anim("ring1", [{ opacity: .9, transform: "scale(.5)" }, { opacity: 0, transform: "scale(2.6)" }], 10.55, .9, "ease-out");
+anim("ring2", [{ opacity: .7, transform: "scale(.5)" }, { opacity: 0, transform: "scale(3.4)" }], 10.75, 1.1, "ease-out");
+anim("glowOn", [{ opacity: 0 }, { opacity: 1 }], 10.5, .6, "ease-out");
+anim("mstate", [{ opacity: 0, transform: "translateY(30px)" }, { opacity: 1, transform: "none" }], 10.8, .45);
+
+// 3 · CTA · 12.3 – 15.6s
+const cv = $("s3").animate([{ visibility: "visible" }, { visibility: "visible" }], { duration: 9000, delay: 12300, fill: "none" }); cv.pause(); A.push(cv);
+fromDepth("card", 12.3, .9);
+focusIn("c1", 12.7, .8);
+anim("c2", [{ opacity: 0, transform: "translateY(30px)" }, { opacity: 1, transform: "none" }], 13.0, .5);
+anim("c3", [{ opacity: 0, transform: "scale(.7)" }, { opacity: 1, transform: "scale(1)" }], 13.4, .5, SPRING);
+anim("c4", [{ opacity: 0 }, { opacity: 1 }], 13.9, .5);
+anim("card", [{ rotate: "0deg" }, { rotate: "-1.2deg" }, { rotate: "1deg" }, { rotate: "0deg" }], 13.2, 2.4, "ease-in-out");
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  // fondo líquido
+  const p = (el, x, y) => { el.style.left = x + "px"; el.style.top = y + "px"; };
+  p($("b1"), -200 + Math.sin(t * .45) * 220, 100 + Math.cos(t * .35) * 260);
+  p($("b2"), 380 + Math.cos(t * .4) * 240, 700 + Math.sin(t * .5) * 300);
+  p($("b3"), -100 + Math.sin(t * .3 + 2) * 260, 1100 + Math.cos(t * .42) * 240);
+  // contador de automatizaciones activas y texto del interruptor
+  $("chip").textContent = ON.filter(x => t >= x + .1).length + " / 4 activas";
+  $("mknob").textContent = t >= 10.55 ? "ON" : "OFF";
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
