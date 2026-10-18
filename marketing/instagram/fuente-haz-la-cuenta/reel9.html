@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 9 PaMen</title>
+<style>
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+@font-face { font-family: "Archivo Black"; src: url("fonts/ArchivoBlack.font") format("truetype"); }
+:root { --paper:#f4f1ea; --ink:#121212; --acc:#ffd60a; --muted:#8a857a; --line:rgba(18,18,18,.06); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:var(--paper); }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; color:var(--ink); font-family:"Inter", sans-serif;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--line) 2px, transparent 2px), linear-gradient(90deg, var(--line) 2px, transparent 2px);
+  background-size:60px 60px; }
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-family:"Archivo Black"; font-size:28px; letter-spacing:.32em; color:rgba(18,18,18,.55); z-index:30; }
+#brand b { color:var(--ink); background:var(--acc); padding:2px 8px; font-weight:400; }
+
+.scene { visibility:hidden; position:absolute; inset:0; }
+.inner { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+
+/* revelado con máscara */
+.ml { display:block; overflow:hidden; line-height:1.02; padding:0 10px; }
+.ml > span { display:inline-block; }
+.big { font-family:"Anton"; text-transform:uppercase; text-align:center; }
+.hl { background:var(--acc); padding:0 14px; }
+.tag { font-family:"Archivo Black"; font-size:32px; letter-spacing:.14em; border:4px solid var(--ink); padding:14px 30px; border-radius:16px; margin-bottom:46px; background:#fff; box-shadow:8px 8px 0 var(--ink); }
+
+/* barras */
+.card { width:900px; background:#fff; border:4px solid var(--ink); border-radius:36px; padding:54px 52px 46px; box-shadow:14px 14px 0 var(--ink); }
+.ctitle { font-family:"Archivo Black"; font-size:34px; letter-spacing:.06em; margin-bottom:40px; }
+.row { margin-bottom:34px; }
+.rlab { display:flex; justify-content:space-between; font-weight:800; font-size:34px; margin-bottom:12px; }
+.rlab .v { font-family:"Anton"; font-size:44px; font-weight:400; }
+.track { height:46px; border-radius:23px; background:#ece8de; overflow:hidden; }
+.bar { height:100%; border-radius:23px; background:var(--ink); transform-origin:0 50%; }
+.bar.y { background:var(--acc); border:4px solid var(--ink); }
+.sum { margin-top:16px; padding-top:28px; position:relative; display:flex; justify-content:space-between; align-items:baseline; }
+.sumline { position:absolute; top:0; left:0; right:0; height:5px; background:var(--ink); transform-origin:0 50%; }
+.sum .l { font-family:"Archivo Black"; font-size:38px; }
+.sum .n { font-family:"Anton"; font-size:96px; line-height:1; }
+.sum .n small { font-size:44px; }
+.foot { margin-top:30px; font-size:24px; color:var(--muted); font-weight:600; }
+
+/* cuadrícula */
+.ghead { text-align:center; margin-bottom:36px; }
+.ghead .k { font-family:"Archivo Black"; font-size:38px; letter-spacing:.08em; }
+.ghead .num { font-family:"Anton"; font-size:200px; line-height:.95; }
+.ghead .sub { font-weight:800; font-size:38px; color:var(--muted); }
+#grid { display:grid; grid-template-columns:repeat(10, 66px); gap:12px; }
+.blk { width:66px; height:66px; border-radius:14px; background:var(--ink); }
+#reclaim { margin-top:40px; font-family:"Anton"; font-size:96px; text-transform:uppercase; text-align:center; line-height:1.02; }
+
+/* CTA con revelado circular */
+#cta { position:absolute; inset:0; background:var(--ink); color:#fff; clip-path:circle(0% at 50% 55%); z-index:20; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+#cta .big { color:#fff; }
+#cta .hl { color:var(--ink); }
+.clock { width:180px; height:180px; border-radius:50%; border:10px solid var(--acc); position:relative; margin-bottom:50px; }
+.hand { position:absolute; left:50%; top:50%; width:10px; margin-left:-5px; border-radius:5px; background:#fff; transform-origin:50% 0; }
+#hh { height:52px; } #mh { height:72px; background:var(--acc); }
+.urlc { margin-top:60px; font-family:"Inter",sans-serif; font-weight:800; font-size:56px; border:4px solid var(--acc); border-radius:22px; padding:20px 40px; color:var(--acc); }
+.cmt { margin-top:40px; font-family:"Archivo Black"; font-size:38px; letter-spacing:.04em; }
+.cmt b { color:var(--ink); background:var(--acc); padding:0 12px; font-weight:400; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="brand">PAMEN <b>AGENCY</b></div>
+
+  <!-- 0 · Pregunta -->
+  <div class="scene" id="s0"><div class="inner" id="i0">
+    <div class="tag" id="tag0">🧮 HAZ LA CUENTA</div>
+    <div class="big" style="font-size:132px">
+      <span class="ml"><span id="q1">¿CUÁNTAS HORAS</span></span>
+      <span class="ml"><span id="q2">PIERDES A LA</span></span>
+      <span class="ml"><span id="q3"><span class="hl">SEMANA?</span></span></span>
+    </div>
+  </div></div>
+
+  <!-- 1 · Barras -->
+  <div class="scene" id="s1"><div class="inner" id="i1">
+    <div class="card" id="card">
+      <div class="ctitle">HORAS A LA SEMANA EN…</div>
+      <div class="row"><div class="rlab"><span>💬 Responder mensajes</span><span class="v" id="v1">0 h</span></div><div class="track"><div class="bar" id="b1" style="width:100%"></div></div></div>
+      <div class="row"><div class="rlab"><span>📅 Agendar citas</span><span class="v" id="v2">0 h</span></div><div class="track"><div class="bar" id="b2" style="width:50%"></div></div></div>
+      <div class="row"><div class="rlab"><span>🔁 Hacer seguimiento</span><span class="v" id="v3">0 h</span></div><div class="track"><div class="bar" id="b3" style="width:40%"></div></div></div>
+      <div class="sum"><div class="sumline" id="sl"></div><span class="l">TOTAL</span><span class="n" id="vt">0<small> h/sem</small></span></div>
+    </div>
+    <div class="foot" id="foot">*Ejemplo orientativo de un negocio pequeño</div>
+  </div></div>
+
+  <!-- 2-3 · Cuadrícula -->
+  <div class="scene" id="s2"><div class="inner" id="i2">
+    <div class="ghead">
+      <div class="k" id="gk">AL MES SON</div>
+      <div class="num" id="gn">0 H</div>
+      <div class="sub" id="gs">≈ 2 semanas de trabajo</div>
+    </div>
+    <div id="grid"></div>
+    <div id="reclaim"><span class="ml"><span id="rc1">LA IA TE LAS</span></span><span class="ml"><span id="rc2"><span class="hl">DEVUELVE ✨</span></span></span></div>
+  </div></div>
+
+  <!-- 4 · CTA -->
+  <div id="cta">
+    <div class="clock" id="clk"><div class="hand" id="hh"></div><div class="hand" id="mh"></div></div>
+    <div class="big" style="font-size:128px">
+      <span class="ml"><span id="c1">RECUPERA</span></span>
+      <span class="ml"><span id="c2"><span class="hl">TU TIEMPO</span></span></span>
+    </div>
+    <div class="urlc" id="url">pamenagency.com</div>
+    <div class="cmt" id="cmt">👇 O COMENTA <b>IA</b></div>
+  </div>
+</div>
+
+<script>
+const T = 16.4;
+const A = [];
+const EASE = "cubic-bezier(.16,1,.3,1)";
+const SPRING = "cubic-bezier(.34,1.45,.64,1)";
+const $ = id => document.getElementById(id);
+
+function anim(id, kf, start, dur, easing = EASE, fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+function show(id, a, b) {
+  const v = $(id).animate([{ visibility: "visible" }, { visibility: "visible" }], { duration: (b - a) * 1000, delay: a * 1000, fill: "none" });
+  v.pause(); A.push(v);
+}
+// transición de empuje: la escena entra desde la derecha y sale hacia la izquierda
+function push(sceneId, innerId, a, b) {
+  show(sceneId, a, b + .45);
+  if (a > 0) anim(sceneId, [{ transform: "translateX(1080px)" }, { transform: "translateX(0)" }], a, .45, "cubic-bezier(.7,0,.2,1)");
+  anim(innerId, [{ transform: "translateX(0)" }, { transform: "translateX(-1080px)" }], b, .45, "cubic-bezier(.7,0,.2,1)", "forwards");
+}
+// línea que sube desde detrás de su máscara
+const lineUp = (id, t, d = .55) => anim(id, [{ transform: "translateY(140%)" }, { transform: "translateY(0)" }], t, d);
+const fadeUp = (id, t, d = .45) => anim(id, [{ opacity: 0, transform: "translateY(30px)" }, { opacity: 1, transform: "none" }], t, d);
+
+anim("brand", [{ opacity: 0 }, { opacity: 1 }], .1, .5);
+anim($("brand"), [{ color: "rgba(18,18,18,.55)" }, { color: "rgba(255,255,255,.75)" }], 13.3, .4, "linear");
+
+// 0 · Pregunta · 0 – 2.6s
+push("s0", "i0", 0, 2.6);
+anim("tag0", [{ opacity: 0, transform: "translateY(-20px) rotate(-6deg)" }, { opacity: 1, transform: "rotate(-2deg)" }], .1, .5, SPRING);
+lineUp("q1", .35); lineUp("q2", .55); lineUp("q3", .75);
+
+// 1 · Barras · 2.6 – 7.4s
+push("s1", "i1", 2.6, 7.4);
+[["b1", 3.25], ["b2", 3.65], ["b3", 4.05]].forEach(([id, t]) => anim(id, [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], t, .8, SPRING));
+anim("sl", [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], 4.9, .5);
+anim($("vt"), [{ scale: "1" }, { scale: "1.18" }, { scale: "1" }], 5.9, .35, "ease-out");
+fadeUp("foot", 5.3);
+
+// 2 · Cuadrícula · 7.4 – 13.2s
+push("s2", "i2", 7.4, 13.2);
+fadeUp("gk", 7.9); fadeUp("gs", 9.5);
+const blocks = [];
+for (let i = 0; i < 76; i++) { const b = document.createElement("div"); b.className = "blk"; $("grid").appendChild(b); blocks.push(b); }
+blocks.forEach((b, i) => {
+  const r = Math.floor(i / 10), c = i % 10;
+  anim(b, [{ opacity: 0, transform: "scale(0) rotate(-45deg)" }, { opacity: 1, transform: "scale(1) rotate(0)" }], 8.0 + (r + c) * .07, .4, SPRING);
+  // 3 · se vuelven amarillos: horas recuperadas
+  anim(b, [{ backgroundColor: "#121212" }, { backgroundColor: "#ffd60a" }], 10.6 + (r + c) * .05, .25, "linear");
+  anim(b, [{ scale: "1" }, { scale: "1.25" }, { scale: "1" }], 10.6 + (r + c) * .05, .35, "ease-out");
+});
+lineUp("rc1", 11.3); lineUp("rc2", 11.5);
+
+// 4 · CTA · 13.2 – 16.4s
+anim("cta", [{ clipPath: "circle(0% at 50% 55%)" }, { clipPath: "circle(120% at 50% 55%)" }], 13.15, .8, "cubic-bezier(.7,0,.2,1)");
+anim("clk", [{ opacity: 0, transform: "scale(.4)" }, { opacity: 1, transform: "scale(1)" }], 13.6, .5, SPRING);
+anim("mh", [{ rotate: "180deg" }, { rotate: "900deg" }], 13.6, 2.4, "cubic-bezier(.3,0,.2,1)");
+anim("hh", [{ rotate: "120deg" }, { rotate: "180deg" }], 13.6, 2.4, "cubic-bezier(.3,0,.2,1)");
+lineUp("c1", 13.85); lineUp("c2", 14.05);
+anim("url", [{ opacity: 0, transform: "translateY(40px)" }, { opacity: 1, transform: "none" }], 14.5, .45, SPRING);
+fadeUp("cmt", 14.95);
+
+// contador sincronizado con el crecimiento
+function count(el, target, t0, dur, t, suffix) {
+  const p = Math.min(1, Math.max(0, (t - t0) / dur));
+  const e = 1 - Math.pow(1 - p, 3);
+  el.innerHTML = Math.round(target * e) + suffix;
+}
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  count($("v1"), 10, 3.25, .8, t, " h");
+  count($("v2"), 5, 3.65, .8, t, " h");
+  count($("v3"), 4, 4.05, .8, t, " h");
+  count($("vt"), 19, 5.1, .8, t, "<small> h/sem</small>");
+  count($("gn"), 76, 8.0, 1.6, t, " H");
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
