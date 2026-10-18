@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 13 PaMen</title>
+<style>
+@font-face { font-family: "Marker"; src: url("fonts/PermanentMarker.font") format("truetype"); }
+@font-face { font-family: "Hand"; src: url("fonts/Caveat.font") format("truetype"); }
+:root { --ink:#1b1b2f; --blue:#2350d8; --red:#e0352b; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#fbfaf6; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:#fbfaf6; }
+#cam { position:absolute; left:0; top:0; width:1080px; height:5600px; transform-origin:0 0; color:var(--ink); font-family:"Marker", cursive;
+  background-color:#fbfaf6;
+  background-image:linear-gradient(90deg, transparent 108px, rgba(224,53,43,.45) 108px, rgba(224,53,43,.45) 112px, transparent 112px),
+                   linear-gradient(rgba(35,80,216,.16) 2px, transparent 2px);
+  background-size:100% 100%, 100% 64px; }
+#brand { position:absolute; top:60px; right:60px; font-family:"Marker"; font-size:30px; color:var(--ink); background:#fff176; padding:8px 18px; transform:rotate(3deg); box-shadow:3px 4px 0 rgba(0,0,0,.15); z-index:10; }
+
+.abs { position:absolute; }
+/* título escrito */
+.tl { position:absolute; left:0; right:0; text-align:center; line-height:1; }
+.tl span { display:inline-block; }
+/* pósits */
+.note { position:absolute; width:620px; height:340px; padding:58px 46px 30px; font-size:56px; line-height:1.12; box-shadow:10px 16px 26px rgba(0,0,0,.18); }
+.note .n { position:absolute; top:-30px; left:-26px; width:92px; height:92px; border-radius:50%; background:var(--ink); color:#fff; font-size:54px; display:flex; align-items:center; justify-content:center; }
+.note .tape { position:absolute; top:-22px; left:50%; width:180px; height:46px; margin-left:-90px; background:rgba(255,255,255,.55); border:1px solid rgba(0,0,0,.06); transform:rotate(-3deg); }
+.ann { position:absolute; font-family:"Hand"; font-weight:700; font-size:64px; white-space:nowrap; }
+svg.draw { position:absolute; left:0; top:0; width:1080px; height:5600px; overflow:visible; pointer-events:none; }
+svg.draw path { fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.stamp { position:absolute; font-size:84px; color:var(--red); border:8px solid var(--red); padding:10px 34px; border-radius:20px; transform:rotate(-8deg); background:rgba(255,255,255,.6); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="cam">
+    <!-- título -->
+    <div class="tl" style="top:520px; font-size:118px"><span id="t1">Así consigues</span></div>
+    <div class="tl" style="top:670px; font-size:150px; color:var(--blue)"><span id="t2">clientes</span></div>
+    <div class="tl" style="top:850px; font-size:104px"><span id="t3">mientras trabajas</span></div>
+
+    <!-- pósits -->
+    <div class="note" id="n1" style="left:120px; top:1350px; background:#fff176; --r:-3deg"><div class="tape"></div><div class="n">1</div>Un cliente te escribe 💬</div>
+    <div class="note" id="n2" style="left:340px; top:1900px; background:#ffb3d1; --r:2.5deg"><div class="tape"></div><div class="n">2</div>La IA le responde al momento 🤖</div>
+    <div class="note" id="n3" style="left:120px; top:2450px; background:#a7e1ff; --r:-2deg"><div class="tape"></div><div class="n">3</div>Le agenda la cita sola 📅</div>
+    <div class="note" id="n4" style="left:340px; top:3000px; background:#b9f6b0; --r:3deg"><div class="tape"></div><div class="n">4</div>Tú solo atiendes y cobras 💰</div>
+
+    <div class="ann" id="a1" style="left:700px; top:1740px; color:var(--blue); transform:rotate(-6deg)">¡en segundos!</div>
+    <div class="ann" id="a2" style="left:130px; top:2290px; color:var(--blue); transform:rotate(-4deg)">sin llamadas</div>
+    <div class="ann" id="a3" style="left:720px; top:2840px; color:var(--blue); transform:rotate(-5deg)">24/7 ⚡</div>
+    <div class="stamp" id="stamp" style="left:120px; top:3440px">= ¡MÁS VENTAS!</div>
+
+    <!-- CTA -->
+    <div class="note" id="n5" style="left:160px; top:3900px; width:760px; height:420px; background:#fff176; font-size:96px; padding:80px 60px; text-align:center; --r:-2deg"><div class="tape"></div>¿Te lo montamos?</div>
+    <div class="tl" style="top:4470px; font-size:84px; color:var(--blue)"><span id="url">pamenagency.com</span></div>
+    <div class="ann" id="cm" style="left:0; right:0; top:4700px; text-align:center; font-size:84px; color:var(--ink)">o comenta <span style="color:var(--red)">"IA"</span> 👇</div>
+
+    <!-- trazos dibujados -->
+    <svg class="draw" viewBox="0 0 1080 5600">
+      <path id="ul" d="M250 1000 C 400 985, 560 1020, 700 995 S 860 990, 900 1005" stroke="#e0352b" stroke-width="12"/>
+      <path id="p1" d="M430 1705 C 410 1800, 560 1790, 560 1888" stroke="#1b1b2f" stroke-width="8"/>
+      <path id="h1" d="M532 1858 L560 1895 L588 1856" stroke="#1b1b2f" stroke-width="8"/>
+      <path id="p2" d="M660 2255 C 670 2350, 520 2340, 520 2438" stroke="#1b1b2f" stroke-width="8"/>
+      <path id="h2" d="M492 2408 L520 2445 L548 2406" stroke="#1b1b2f" stroke-width="8"/>
+      <path id="p3" d="M430 2805 C 410 2900, 560 2890, 560 2988" stroke="#1b1b2f" stroke-width="8"/>
+      <path id="h3" d="M532 2958 L560 2995 L588 2956" stroke="#1b1b2f" stroke-width="8"/>
+      <path id="circ" d="M330 3080 C 330 2930, 1010 2920, 1035 3160 C 1060 3400, 360 3430, 312 3210 C 300 3130, 360 3060, 440 3030" stroke="#e0352b" stroke-width="10"/>
+      <path id="ul2" d="M270 4580 C 450 4565, 640 4600, 820 4572" stroke="#e0352b" stroke-width="10"/>
+      <path id="ar" d="M540 4810 C 520 4880, 560 4930, 540 5000 M505 4965 L540 5005 L575 4962" stroke="#1b1b2f" stroke-width="9"/>
+    </svg>
+  </div>
+  <div id="brand">PaMen Agency</div>
+</div>
+
+<script>
+const T = 16.0;
+const A = [];
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = "cubic-bezier(.16,1,.3,1)", fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+// escribir: barrido de izquierda a derecha
+const write = (id, t, d = .6) => anim(id, [{ clipPath: "inset(-20% 100% -20% 0)" }, { clipPath: "inset(-20% -5% -20% 0)" }], t, d, "linear");
+// trazo que se dibuja solo
+function draw(id, t, d = .5) {
+  const p = $(id), L = p.getTotalLength();
+  p.style.strokeDasharray = L;
+  anim(p, [{ strokeDashoffset: L }, { strokeDashoffset: 0 }], t, d, "ease-in-out");
+}
+// pósit que se pega de golpe
+function slap(id, t) {
+  const el = $(id), r = getComputedStyle(el).getPropertyValue("--r").trim();
+  anim(el, [
+    { opacity: 0, transform: `scale(1.45) rotate(calc(${r} + 10deg))`, boxShadow: "30px 50px 60px rgba(0,0,0,.25)" },
+    { opacity: 1, transform: `scale(.97) rotate(${r})`, boxShadow: "8px 12px 18px rgba(0,0,0,.18)", offset: .75 },
+    { opacity: 1, transform: `scale(1) rotate(${r})`, boxShadow: "10px 16px 26px rgba(0,0,0,.18)" }], t, .45, "cubic-bezier(.5,0,.3,1)");
+}
+const pop = (id, t) => anim(id, [{ opacity: 0, scale: ".4" }, { opacity: 1, scale: "1" }], t, .45, "cubic-bezier(.34,1.56,.64,1)");
+
+anim("brand", [{ opacity: 0, translate: "0 -30px" }, { opacity: 1, translate: "0 0" }], .1, .5);
+// título
+write("t1", .2, .55); write("t2", .75, .5); write("t3", 1.25, .7); draw("ul", 2.0, .5);
+// esquema
+slap("n1", 4.0); draw("p1", 4.55, .45); draw("h1", 4.95, .15); pop("a1", 4.85); slap("n2", 5.2);
+draw("p2", 6.3, .45); draw("h2", 6.7, .15); pop("a2", 6.45); slap("n3", 6.95);
+draw("p3", 7.5, .45); draw("h3", 7.9, .15); pop("a3", 7.8); slap("n4", 8.1);
+draw("circ", 9.9, .7);
+anim("stamp", [{ opacity: 0, transform: "rotate(-8deg) scale(2.2)" }, { opacity: 1, transform: "rotate(-8deg) scale(1)" }], 10.6, .35, "cubic-bezier(.5,0,.3,1.3)");
+// CTA
+slap("n5", 12.75); write("url", 13.35, .6); draw("ul2", 13.95, .4); pop("cm", 14.3); draw("ar", 14.6, .6);
+
+// cámara: [t, desplazamiento vertical, escala]
+const CAM = [[0, 0, 1], [3.0, 0, 1], [3.9, 950, 1], [5.7, 950, 1], [6.6, 2050, 1], [8.8, 2050, 1], [9.7, 800, .6], [11.8, 800, .6], [12.7, 3640, 1], [T, 3680, 1]];
+const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+function camAt(t) {
+  for (let i = 0; i < CAM.length - 1; i++) {
+    const [t0, y0, s0] = CAM[i], [t1, y1, s1] = CAM[i + 1];
+    if (t >= t0 && t <= t1) { const k = ease((t - t0) / (t1 - t0)); return [y0 + (y1 - y0) * k, s0 + (s1 - s0) * k]; }
+  }
+  return CAM[CAM.length - 1].slice(1);
+}
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  const [y, s] = camAt(t);
+  $("cam").style.transform = `translateX(${(1 - s) * 540}px) scale(${s}) translateY(${-y}px)`;
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
