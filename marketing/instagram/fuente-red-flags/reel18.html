@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 18 PaMen</title>
+<style>
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+:root { --red:#ff2d3d; --green:#16c172; --ink:#111; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#b3121f; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; font-family:"Inter", sans-serif; color:var(--ink); }
+.bg { position:absolute; inset:0; }
+#bgR { background:radial-gradient(ellipse at 50% 35%, #ff4b57 0%, #d5101f 55%, #7d0510 100%); }
+#bgG { background:radial-gradient(ellipse at 50% 35%, #3ff29a 0%, #10a95f 55%, #05532f 100%); opacity:0; }
+#tile { position:absolute; inset:-400px; opacity:.13; font-size:90px; line-height:180px; word-spacing:90px; white-space:pre; color:#fff; }
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-weight:900; font-size:26px; letter-spacing:.35em; color:rgba(255,255,255,.85); z-index:30; }
+
+.cap { position:absolute; left:0; right:0; top:190px; display:flex; justify-content:center; z-index:20; }
+.cap span { background:#fff; color:#000; font-weight:900; font-size:56px; line-height:1.16; padding:14px 30px; border-radius:22px; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.25); }
+
+#deck { position:absolute; left:110px; top:390px; width:860px; height:840px; }
+.card { position:absolute; inset:0; background:#fff; border-radius:52px; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,.35); transform-origin:50% 120%; }
+.art { height:460px; display:flex; align-items:center; justify-content:center; font-size:270px; }
+.chip { position:absolute; top:34px; right:34px; background:#111; color:#fff; font-weight:900; font-size:32px; padding:10px 22px; border-radius:999px; }
+.ctx { padding:40px 54px 0; font-weight:900; font-size:72px; line-height:1.12; letter-spacing:-.01em; }
+.stamp { position:absolute; top:70px; left:46px; font-family:"Anton"; font-size:96px; letter-spacing:.04em; padding:6px 28px; border:10px solid; border-radius:20px; transform:rotate(-14deg); opacity:0; background:rgba(255,255,255,.85); }
+.stamp.r { color:var(--red); border-color:var(--red); }
+.stamp.g { color:var(--green); border-color:var(--green); left:auto; right:46px; transform:rotate(12deg); }
+
+#btns { position:absolute; left:0; right:0; top:1340px; display:flex; justify-content:center; gap:120px; z-index:5; }
+.rb { width:150px; height:150px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:72px; font-weight:900; box-shadow:0 14px 30px rgba(0,0,0,.3); }
+#bx { color:var(--red); } #bh { color:var(--green); }
+
+#cta { position:absolute; left:0; right:0; top:1150px; display:flex; flex-direction:column; align-items:center; gap:24px; z-index:25; }
+#cta .q { font-family:"Anton"; font-size:116px; line-height:1; color:#fff; text-align:center; text-shadow:0 8px 0 rgba(0,0,0,.2); text-transform:uppercase; }
+#cta .pill { background:#fff; color:#000; font-weight:900; font-size:46px; padding:18px 36px; border-radius:999px; }
+#cta .sub { font-weight:800; font-size:38px; color:#fff; }
+#cta .sub b { background:#111; color:#fff; padding:2px 14px; border-radius:10px; }
+.heart { position:absolute; font-size:70px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="bg" id="bgR"></div><div class="bg" id="bgG"></div>
+  <div id="tile"></div>
+  <div id="brand">PAMEN AGENCY</div>
+  <div class="cap" id="cap"><span>🚩 RED FLAGS de tu negocio<br>(sé sincero)</span></div>
+  <div id="deck"></div>
+  <div id="btns"><div class="rb" id="bx">✕</div><div class="rb" id="bh">♥</div></div>
+  <div id="hearts"></div>
+  <div id="cta">
+    <div class="q">¿CUÁNTAS 🚩<br>TIENES TÚ?</div>
+    <div class="pill">Comenta el número 👇</div>
+    <div class="sub">o comenta <b>IA</b> y te las quitamos</div>
+  </div>
+</div>
+
+<script>
+const T = 12.5;
+const A = [];
+const EASE = "cubic-bezier(.16,1,.3,1)";
+const POP = "cubic-bezier(.34,1.56,.64,1)";
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = EASE, fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+
+const CARDS = [
+  ["📱", "#fff1d6", "Tardas más de 1 hora en responder un mensaje"],
+  ["📝", "#e8f0ff", "Las citas las apuntas en un papel"],
+  ["🕸️", "#f1f1f1", "Tu web no se toca desde 2019"],
+  ["🫥", "#ffe6f0", "No haces seguimiento a quien te pidió presupuesto"],
+  ["🌙", "#e9e4ff", "Contestas WhatsApps a las 23h desde la cama"],
+  ["🤖", "#dbffe9", "Tu negocio usa IA para todo lo anterior"],
+];
+const STEP = 1.3, S0 = 1.05;
+const n = CARDS.length;
+CARDS.forEach(([emo, tint, txt], i) => {
+  const c = document.createElement("div"); c.className = "card"; c.style.zIndex = n - i;
+  const last = i === n - 1;
+  c.innerHTML = `<div class="art" style="background:${tint}">${emo}</div>
+    <div class="chip">${last ? "✅ BONUS" : `🚩 ${i + 1}/5`}</div>
+    <div class="ctx">${txt}</div>
+    <div class="stamp ${last ? "g" : "r"}">${last ? "✅ GREEN FLAG" : "🚩 RED FLAG"}</div>`;
+  $("deck").appendChild(c);
+  // posición en la pila: las de abajo un poco más pequeñas
+  const depth = k => `translateY(${Math.min(k, 2) * 34}px) scale(${1 - Math.min(k, 2) * .05})`;
+  const sA = S0 + i * STEP;                       // momento del sello
+  if (i > 0) anim(c, [{ transform: depth(i) }, { transform: depth(i - 1) }], S0 + (i - 1) * STEP + .45, .35, EASE);
+  else anim(c, [{ transform: "translateY(80px) scale(.9)", opacity: 0 }, { transform: depth(0), opacity: 1 }], 0, .35, EASE);
+  if (i > 1) anim(c, [{ opacity: 0 }, { opacity: 1 }], S0 + (i - 2) * STEP + .45, .2, "linear");
+  const st = c.querySelector(".stamp");
+  const rot = last ? 12 : -14;
+  anim(st, [{ opacity: 0, transform: `rotate(${rot}deg) scale(2)` }, { opacity: 1, transform: `rotate(${rot}deg) scale(1)` }], sA, .22, "cubic-bezier(.5,0,.3,1.4)");
+  if (!last) {
+    anim(c, [{ translate: "0 0", rotate: "0deg" }, { translate: "-1400px 120px", rotate: "-28deg" }], sA + .3, .4, "cubic-bezier(.5,0,.9,.5)", "forwards");
+    anim("bx", [{ transform: "scale(1)" }, { transform: "scale(.82)" }, { transform: "scale(1.12)" }, { transform: "scale(1)" }], sA + .2, .35, "ease-out", "none");
+  } else {
+    anim("bh", [{ transform: "scale(1)" }, { transform: "scale(.82)" }, { transform: "scale(1.2)" }, { transform: "scale(1)" }], sA + .05, .4, "ease-out", "none");
+    anim(c, [{ rotate: "0deg" }, { rotate: "3deg" }, { rotate: "-2deg" }, { rotate: "0deg" }], sA + .1, .5, "ease-in-out", "none");
+  }
+});
+const GREEN = S0 + (n - 1) * STEP;               // 7.55 s
+anim("bgG", [{ opacity: 0 }, { opacity: 1 }], GREEN, .4, "linear");
+anim("cap", [{ opacity: 1 }, { opacity: 0 }], GREEN + 1.1, .25, "ease-in", "forwards");
+
+// llamada a la acción
+const C = GREEN + 1.35;
+anim("deck", [{ transform: "translateY(0) scale(1)" }, { transform: "translateY(-240px) scale(.72)" }], C, .55);
+anim("btns", [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(60px)" }], C, .3, "ease-in", "forwards");
+anim("cta", [{ opacity: 0, transform: "translateY(100px)" }, { opacity: 1, transform: "none" }], C + .25, .5, POP);
+anim($("cta").querySelector(".pill"), [{ scale: "1" }, { scale: "1.08" }, { scale: "1" }], C + 1.3, .45, "ease-in-out", "none");
+anim($("cta").querySelector(".pill"), [{ scale: "1" }, { scale: "1.08" }, { scale: "1" }], C + 2.3, .45, "ease-in-out", "none");
+
+// fondo de banderitas y corazones de celebración
+$("tile").textContent = Array.from({ length: 16 }, () => "🚩 ".repeat(10)).join("\n");
+let seed = 4; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const hearts = Array.from({ length: 26 }, () => {
+  const d = document.createElement("div"); d.className = "heart"; d.textContent = rnd() < .5 ? "💚" : "✅"; $("hearts").appendChild(d);
+  return { d, x: 60 + rnd() * 960, t0: GREEN + rnd() * 1.2, v: 900 + rnd() * 600, sw: rnd() * 6.28, s: .6 + rnd() * .7 };
+});
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  $("tile").style.transform = `translate(${(t * 40) % 180}px, ${(t * 40) % 180}px) rotate(-12deg)`;
+  $("tile").textContent.length && ($("tile").style.opacity = t < GREEN ? .13 : Math.max(0, .13 - (t - GREEN) * .3));
+  for (const h of hearts) {
+    const k = t - h.t0;
+    if (k < 0 || k > 2.4) { h.d.style.opacity = 0; continue; }
+    h.d.style.opacity = Math.min(1, k / .15) * Math.max(0, 1 - (k - 1.6) / .8);
+    h.d.style.transform = `translate(${h.x + Math.sin(k * 4 + h.sw) * 30}px, ${1900 - k * h.v}px) scale(${h.s})`;
+  }
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
