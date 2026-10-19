@@ -1,8 +1,0 @@
-{
-  "name": "pamen-reels-tools",
-  "private": true,
-  "description": "Renderizador 4K de los reels de PaMen Agency",
-  "dependencies": {
-    "playwright": "^1.56.0"
-  }
-}

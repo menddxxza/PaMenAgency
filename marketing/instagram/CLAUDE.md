@@ -1,4 +1,6 @@
-# Reels de Instagram de PaMen Agency
+# Reels de Instagram de PaMen Agency — archivo único
+
+> **Para Claude Code:** este archivo lo contiene todo: contexto, reglas, método, código del renderizador, plantilla y catálogo. Léelo entero antes de hacer nada. Tu trabajo es **producir reels virales uno detrás de otro, sin preguntar, hasta que el usuario diga "para"** (ver "Bucle de producción").
 
 Esta carpeta es la **fábrica de reels** de PaMen Agency (pamenagency.com), una agencia de automatización con IA para negocios pequeños: respuestas automáticas por WhatsApp, Instagram y web, agenda de citas, recordatorios y seguimiento de clientes.
 
@@ -17,16 +19,16 @@ Aquí solo se hacen **vídeos**. Cada reel es una página HTML animada que se re
 3. **Cada vídeo debe ser distinto a todos los anteriores**, tanto en formato como en estilo visual. Usa motion design de verdad: cámara, 3D, máscaras, partículas, trazos SVG, transiciones con golpe. Mira el catálogo de abajo antes de elegir.
 4. **4K (2160x3840) a 60 fps siempre.** Nada de 120 fps: no compensa.
 5. **No inventes datos presentados como reales.** Si usas cifras, márcalas como ejemplo o avisa al usuario para que ponga una fuente. En los memes, los números de likes y similares son ficción y se nota.
-6. Cuando termines un vídeo, **sigue con el siguiente sin preguntar** hasta que el usuario diga que pares. Para eso existe el comando `/reels-virales`.
+6. Cuando termines un vídeo, **sigue con el siguiente sin preguntar** hasta que el usuario diga que pares. Ver "Bucle de producción".
 
 ## Estructura
 
 ```
 marketing/instagram/
-  CLAUDE.md                     ← este archivo
-  tools/render4k.cjs            ← renderizador (4K 60 fps y stills de prueba)
-  tools/plantilla.html          ← esqueleto para un reel nuevo
-  tools/package.json            ← dependencia: playwright
+  CLAUDE.md                     ← este archivo (lo único que hace falta)
+  tools/render4k.cjs            ← renderizador: créalo con el código del final de este archivo
+  tools/plantilla.html          ← esqueleto de reel: créalo con el código del final de este archivo
+  tools/package.json            ← dependencia: playwright (código al final)
   reel-<slug>[-4k-60fps].mp4    ← vídeos finales
   portada-<slug>[-4k].jpg       ← portada (un frame del vídeo)
   fuente-<slug>/                ← fuente de cada reel: reelNN.html + fonts/
@@ -34,12 +36,51 @@ marketing/instagram/
 
 ## Puesta en marcha (una vez)
 
+Si no existe `marketing/instagram/tools/`, créala con los tres archivos del apartado "Código" (al final). Después:
+
 ```bash
 cd marketing/instagram/tools
 npm install
 npx playwright install chromium
 ffmpeg -version     # si no está: winget install ffmpeg | brew install ffmpeg | apt install ffmpeg
 ```
+
+## Bucle de producción (lo que haces siempre)
+
+### Antes de empezar
+
+1. Lee este archivo entero: reglas del dueño, método, trampas conocidas y **catálogo** de reels ya hechos.
+2. Comprueba que el entorno está listo: `marketing/instagram/tools/node_modules/playwright` existe y `ffmpeg -version` responde. Si falta algo, ejecuta la "Puesta en marcha". Si no puedes instalarlo tú, díselo al usuario en una línea.
+3. Si el usuario pide un tema, un formato o una app concreta, úsalo para el primer reel. Si no, elige tú.
+
+### Bucle (repite sin preguntar)
+
+Para cada reel:
+
+1. **Elige formato y estilo nuevos.** Mira el catálogo y la lista de ideas sin usar. El formato viral y el estilo visual tienen que ser distintos de todos los anteriores, y sobre todo del último. Decide el guion en una línea y díselo al usuario en una frase: "Reel NN: <formato> con estilo <estilo>".
+2. **Construye** `marketing/instagram/fuente-<slug>/reelNN.html` a partir de `tools/plantilla.html`:
+   - gancho visible en 0-0,3 s
+   - 10-13 s en total
+   - subtítulos en caja blanca
+   - marca PAMEN AGENCY visible
+   - doble CTA al final (comenta "IA" + número/etiqueta/compartir/guardar)
+3. **Verifica con stills** (6-8 momentos clave) y **mira los PNG**. Corrige todo lo que se salga, se pise o no se lea. No renderices hasta que los stills estén bien.
+4. **Renderiza en 4K 60 fps** en una carpeta temporal fuera del repo y en segundo plano. Mientras renderiza, ve pensando el siguiente reel. Comprueba con ffprobe que sale 2160x3840, 60 fps y la duración correcta.
+5. **Guarda:**
+   - mueve el MP4 a `marketing/instagram/reel-<slug>-4k-60fps.mp4`
+   - genera `portada-<slug>-4k.jpg`
+   - añade la fila al catálogo de este archivo (y tacha la idea si venía de la lista)
+6. **Commit y push** de los archivos de ese reel con el mensaje "Añade Reel NN '<título>' en 4K a 60 fps". No abras PRs ni toques nada fuera de `marketing/instagram`.
+7. **Entrega** con el "Formato de entrega" de este archivo: ruta del archivo, caption, hashtags, comentario fijado y nota de audio.
+8. **Sigue inmediatamente con el siguiente reel** (vuelve al paso 1) en el mismo turno. No preguntes "¿quieres otro?".
+
+Para parar: solo cuando el usuario diga "para", "stop", "basta" o algo equivalente, o cuando pida otra cosa. Si se te acaba el turno o el contexto a mitad de un reel, al volver retómalo donde estaba: mira qué hay en `marketing/instagram` y en el catálogo.
+
+### Calidad mínima de cada reel
+
+- Movimiento en todo momento: nada de pantallas estáticas más de ~0,6 s. Usa easing con rebote para entradas, golpes de escala o sacudida en los momentos clave, y transiciones con intención (máscaras, giros 3D, barridos, zoom de cámara).
+- Legible en móvil: texto principal ≥ 52 px en el lienzo de 1080, buen contraste y nada en los 250 px inferiores que tape la interfaz de Instagram. Lo importante entre y = 150 y y = 1600.
+- Español natural, frases cortas, humor de dueño de negocio, sin datos inventados presentados como reales.
 
 ## Cómo se construye un reel
 
@@ -154,3 +195,123 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 - "Lo que veo vs lo que ve mi cliente".
 
 Táchalas al usarlas.
+
+## Código
+
+### tools/package.json
+```json
+{
+  "name": "pamen-reels-tools",
+  "private": true,
+  "description": "Renderizador 4K de los reels de PaMen Agency",
+  "dependencies": {
+    "playwright": "^1.56.0"
+  }
+}
+```
+
+### tools/render4k.cjs
+```js
+// Renderizador de reels de PaMen Agency (4K 2160x3840, 60 fps, H.264 + pista de audio muda).
+//
+//   Vídeo:   node render4k.cjs ruta/reel.html salida.mp4
+//   Stills:  node render4k.cjs ruta/reel.html --stills carpeta "0.5,2,4.8,9"
+//
+// La página debe exponer window.TOTAL (segundos) y window.seek(t), y quedarse quieta con ?render.
+// Requisitos: npm i (en esta carpeta), npx playwright install chromium, ffmpeg en el PATH.
+const path = require("path");
+const fs = require("fs");
+const { pathToFileURL } = require("url");
+const { spawn } = require("child_process");
+const { chromium } = require("playwright");
+
+(async () => {
+  const [, , htmlArg, a, b, c] = process.argv;
+  if (!htmlArg || !a) { console.log("uso: node render4k.cjs reel.html salida.mp4 | --stills carpeta \"t1,t2\""); process.exit(1); }
+  const html = path.resolve(htmlArg);
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 2 });
+  await page.goto(pathToFileURL(html).href + "?render");
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(400);
+  const T = await page.evaluate(() => window.TOTAL);
+
+  if (a === "--stills") {
+    const dir = path.resolve(b); fs.mkdirSync(dir, { recursive: true });
+    const times = c.split(",").map(Number); let i = 0;
+    for (const t of times) { await page.evaluate(t => window.seek(t), t); await page.screenshot({ path: path.join(dir, `s${i++}.png`) }); }
+    await browser.close(); console.log(`${times.length} stills en ${dir}`); return;
+  }
+
+  const out = path.resolve(a), FPS = 60, N = Math.round(T * FPS);
+  const ff = spawn("ffmpeg", ["-loglevel", "error", "-y", "-f", "image2pipe", "-framerate", String(FPS), "-c:v", "mjpeg", "-i", "-",
+    "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-shortest", "-c:v", "libx264", "-preset", "medium", "-crf", "17",
+    "-pix_fmt", "yuv420p", "-profile:v", "high", "-movflags", "+faststart", "-c:a", "aac", "-b:a", "128k", out],
+    { stdio: ["pipe", "inherit", "inherit"] });
+  const done = new Promise(r => ff.on("close", r));
+  const write = buf => new Promise(r => (ff.stdin.write(buf) ? r() : ff.stdin.once("drain", r)));
+  const t0 = Date.now();
+  for (let i = 0; i < N; i++) {
+    await page.evaluate(t => window.seek(t), i / FPS);
+    await write(await page.screenshot({ type: "jpeg", quality: 95 }));
+    if (i % 240 === 0) console.log(`frame ${i}/${N}  ${((Date.now() - t0) / 1000).toFixed(0)}s`);
+  }
+  ff.stdin.end(); await done; await browser.close();
+  console.log("hecho", out, ((Date.now() - t0) / 1000).toFixed(0) + "s");
+})();
+```
+
+### tools/plantilla.html
+```html
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel NN PaMen</title>
+<style>
+/* Copia las fuentes que uses a ./fonts (ver CLAUDE.md, apartado Fuentes) */
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#111; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; font-family:"Inter", Arial, sans-serif; color:#fff; }
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-weight:900; font-size:26px; letter-spacing:.35em; opacity:.85; }
+/* subtítulo estilo TikTok: caja blanca, texto negro */
+.cap { position:absolute; left:0; right:0; top:190px; display:flex; justify-content:center; z-index:20; }
+.cap span { background:#fff; color:#000; font-weight:900; font-size:56px; line-height:1.16; padding:14px 30px; border-radius:22px; text-align:center; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="brand">PAMEN AGENCY</div>
+  <div class="cap" id="cap"><span>Gancho en el primer segundo 👀</span></div>
+</div>
+
+<script>
+const T = 12.0;                       // duración total en segundos (10-13 s)
+const A = [];
+const $ = id => document.getElementById(id);
+// anim(elemento|id, keyframes, inicio s, duración s, easing, fill). Salidas: fill "forwards"; pulsos: "none".
+function anim(id, kf, start, dur, easing = "cubic-bezier(.16,1,.3,1)", fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;   // aleatorio determinista
+
+anim("cap", [{ opacity: 0, transform: "scale(.7)" }, { opacity: 1, transform: "scale(1)" }], 0, .3, "cubic-bezier(.34,1.56,.64,1)");
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  // aquí lo que dependa de t frame a frame (partículas, canvas…), siempre en función de t, nunca de Date/Math.random
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
+```
