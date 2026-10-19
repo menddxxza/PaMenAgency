@@ -1,4 +1,5 @@
-// Render 4K (2160x3840): node render4k.cjs page.html salida120.mp4 salida60.mp4
+// Render 4K (2160x3840) a 60 fps: node render4k.cjs page.html salida60.mp4
+// Con máster a 120 fps:          node render4k.cjs page.html salida120.mp4 salida60.mp4
 // Stills de prueba:      node render4k.cjs page.html --stills carpeta "1.2,3.4"
 (async () => {
   const { chromium } = require("playwright");
@@ -32,18 +33,19 @@
   };
   const write = (p, buf) => new Promise(r => (p.stdin.write(buf) ? r() : p.stdin.once("drain", r)));
 
-  const e120 = enc(120, a), e60 = enc(60, b);
-  const N = Math.round(T * 120);
+  const with120 = !!b;
+  const e120 = with120 ? enc(120, a) : null, e60 = enc(60, with120 ? b : a);
+  const FPS = with120 ? 120 : 60, N = Math.round(T * FPS);
   const t0 = Date.now();
   for (let i = 0; i < N; i++) {
-    await page.evaluate(t => window.seek(t), i / 120);
+    await page.evaluate(t => window.seek(t), i / FPS);
     const buf = await page.screenshot({ type: "jpeg", quality: 95 });
-    await write(e120, buf);
-    if (i % 2 === 0) await write(e60, buf);
+    if (with120) { await write(e120, buf); if (i % 2 === 0) await write(e60, buf); }
+    else await write(e60, buf);
     if (i % 240 === 0) console.log(`frame ${i}/${N}  ${((Date.now() - t0) / 1000).toFixed(0)}s`);
   }
-  e120.stdin.end(); e60.stdin.end();
-  await Promise.all([e120.done, e60.done]);
+  e60.stdin.end(); if (e120) e120.stdin.end();
+  await Promise.all([e60.done, e120 && e120.done]);
   await browser.close();
   console.log("done", ((Date.now() - t0) / 1000).toFixed(0) + "s");
 })();
