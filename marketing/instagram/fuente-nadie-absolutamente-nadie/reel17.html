@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 17 PaMen</title>
+<style>
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+:root { --ink:#0f1419; --muted:#536471; --line:#eff3f4; --heart:#f91880; --acc:#ffe14a; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#1b1035; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; font-family:"Inter", sans-serif; color:var(--ink);
+  background:linear-gradient(160deg, #ff6a3d 0%, #ff2e88 38%, #7b2ff7 72%, #2d1b69 100%); }
+.blob { position:absolute; border-radius:50%; filter:blur(80px); opacity:.55; }
+#bA { width:700px; height:700px; background:#ffd23f; }
+#bB { width:600px; height:600px; background:#00d4ff; }
+
+/* subtítulo estilo TikTok */
+.cap { position:absolute; left:0; right:0; display:flex; justify-content:center; z-index:20; }
+.cap span { background:#fff; color:#000; font-weight:900; font-size:58px; line-height:1.18; padding:14px 30px; border-radius:22px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,.25); max-width:960px; }
+
+/* publicación */
+.post { position:absolute; left:70px; width:940px; background:#fff; border-radius:40px; padding:40px 44px 26px; box-shadow:0 40px 80px rgba(0,0,0,.35); }
+.hd { display:flex; align-items:center; gap:22px; }
+.av { width:104px; height:104px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:58px; flex:none; }
+.nm { font-weight:800; font-size:38px; display:flex; align-items:center; gap:10px; }
+.badge { width:36px; height:36px; border-radius:50%; background:var(--acc); display:inline-flex; align-items:center; justify-content:center; font-size:22px; color:#000; font-weight:900; }
+.hn { font-size:32px; color:var(--muted); }
+.tx { margin-top:28px; font-size:46px; line-height:1.32; font-weight:500; min-height:60px; white-space:pre-wrap; }
+.tx b { font-weight:800; }
+.meta { margin-top:22px; font-size:30px; color:var(--muted); }
+.acts { margin-top:22px; padding-top:22px; border-top:2px solid var(--line); display:flex; justify-content:space-between; font-size:34px; color:var(--muted); font-weight:600; }
+.act { display:flex; align-items:center; gap:12px; }
+.act svg { width:42px; height:42px; }
+.liked { color:var(--heart); }
+.tagliked { margin-top:16px; font-size:28px; color:var(--muted); font-weight:600; }
+.burst { position:absolute; width:120px; height:120px; border-radius:50%; border:6px solid var(--heart); opacity:0; pointer-events:none; }
+
+/* reacciones flotantes */
+#reacts { position:absolute; inset:0; pointer-events:none; z-index:15; }
+.rx { position:absolute; font-size:64px; }
+
+#cta { position:absolute; left:0; right:0; top:1300px; display:flex; flex-direction:column; align-items:center; gap:26px; z-index:25; }
+#cta .big { font-family:"Anton"; font-size:118px; color:#fff; text-transform:uppercase; text-shadow:0 8px 0 rgba(0,0,0,.25); line-height:1; text-align:center; }
+#cta .big b { color:var(--acc); font-weight:400; }
+#cta .share { background:#000; color:#fff; font-weight:800; font-size:42px; padding:18px 34px; border-radius:999px; }
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-weight:800; font-size:26px; letter-spacing:.35em; color:rgba(255,255,255,.85); z-index:30; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="blob" id="bA"></div><div class="blob" id="bB"></div>
+  <div id="brand">PAMEN AGENCY</div>
+
+  <div class="cap" id="cap1" style="top:200px"><span>POV: tienes un negocio 😭</span></div>
+  <div class="cap" id="cap2" style="top:200px"><span>¿Y si tu negocio respondiera solo? 🤯</span></div>
+
+  <!-- publicación principal -->
+  <div class="post" id="p1" style="top:360px">
+    <div class="hd"><div class="av" style="background:#ffe0cc">🥲</div>
+      <div><div class="nm">Dueño de un negocio</div><div class="hn">@tunegocio_sobrevive</div></div></div>
+    <div class="tx" id="tx1"></div>
+    <div class="meta">23:47 · desde la cama</div>
+    <div class="acts">
+      <div class="act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span id="c1">0</span></div>
+      <div class="act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9l4-4 4 4M8 5v11h6M20 15l-4 4-4-4M16 19V8h-6"/></svg><span id="c2">0</span></div>
+      <div class="act" id="likeAct"><svg viewBox="0 0 24 24" id="heart" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-8-5.2-8-11.2A4.6 4.6 0 0 1 12 7a4.6 4.6 0 0 1 8 2.8C20 15.8 12 21 12 21z"/></svg><span id="c3">0</span><div class="burst" id="burst"></div></div>
+      <div class="act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13M7 8l5-5 5 5M4 15v5h16v-5"/></svg></div>
+    </div>
+  </div>
+
+  <!-- respuesta de la agencia -->
+  <div class="post" id="p2" style="top:1060px; padding-top:32px">
+    <div class="hd"><div class="av" style="background:#111; color:#ffe14a; font-family:Anton; font-size:52px">P</div>
+      <div><div class="nm">PaMen Agency <span class="badge">✓</span></div><div class="hn">Respondiendo a @tunegocio_sobrevive</div></div></div>
+    <div class="tx" style="font-size:44px">O deja que la <b>IA</b> se lo mande por ti mientras duermes 😴</div>
+    <div class="acts" style="margin-top:18px">
+      <div class="act">💬 <span id="d1">0</span></div><div class="act">🔁 <span id="d2">0</span></div><div class="act liked">❤️ <span id="d3">0</span></div><div class="act"></div>
+    </div>
+    <div class="tagliked" id="tl">❤️ Le gusta al autor</div>
+  </div>
+
+  <!-- contrarrespuesta -->
+  <div class="post" id="p3" style="top:1480px; padding:26px 40px 30px">
+    <div class="hd"><div class="av" style="background:#ffe0cc; width:80px; height:80px; font-size:44px">🥲</div>
+      <div class="tx" style="margin:0; font-size:44px"><b>¿¿CÓMO?? 👀</b> necesito esto ya</div></div>
+  </div>
+
+  <div id="reacts"></div>
+
+  <div id="cta">
+    <div class="big">COMENTA <b>"IA"</b> 👇</div>
+    <div class="share">📩 Mándaselo a quien lo necesite</div>
+  </div>
+</div>
+
+<script>
+const T = 11.0;
+const A = [];
+const EASE = "cubic-bezier(.16,1,.3,1)";
+const POP = "cubic-bezier(.34,1.56,.64,1)";
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = EASE, fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+const out = (id, t, d = .25) => anim(id, [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(-30px) scale(.96)" }], t, d, "ease-in", "forwards");
+
+// gancho inmediato (frame 0 ya legible)
+anim("cap1", [{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], 0, .35, "ease-out");
+anim("p1", [{ transform: "translateY(60px) scale(.96)", opacity: .0 }, { transform: "none", opacity: 1 }], 0, .35);
+
+// la publicación se vuelve viral
+anim("heart", [{ fill: "none", color: "#536471" }, { fill: "#f91880", color: "#f91880" }], 3.0, .01, "linear");
+anim("likeAct", [{ color: "#536471" }, { color: "#f91880" }], 3.0, .01, "linear");
+anim("heart", [{ transform: "scale(1)" }, { transform: "scale(1.6)" }, { transform: "scale(1)" }], 3.0, .35, "ease-out");
+anim("burst", [{ opacity: 0, transform: "translate(-40px,-40px) scale(.2)" }, { opacity: 1, transform: "translate(-40px,-40px) scale(.4)", offset: .1 }, { opacity: 0, transform: "translate(-40px,-40px) scale(1.3)" }], 3.0, .5, "ease-out");
+
+// respuestas
+anim("p2", [{ transform: "translateY(500px)", opacity: 0 }, { transform: "none", opacity: 1 }], 4.4, .5, POP);
+anim("tl", [{ opacity: 0, transform: "translateX(-20px)" }, { opacity: 1, transform: "none" }], 5.9, .35);
+anim("p3", [{ transform: "translateY(400px) scale(.9)", opacity: 0 }, { transform: "none", opacity: 1 }], 6.6, .45, POP);
+anim("p3", [{ rotate: "0deg" }, { rotate: "-1.5deg" }, { rotate: "1.5deg" }, { rotate: "0deg" }], 7.1, .4, "ease-in-out");
+
+// giro hacia la llamada a la acción
+out("cap1", 7.6);
+anim("cap2", [{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1)" }], 7.75, .4, POP);
+anim("p1", [{ translate: "0 0", scale: "1" }, { translate: "0 -40px", scale: ".9" }], 7.6, .5);
+anim("p2", [{ translate: "0 0", scale: "1" }, { translate: "0 -290px", scale: ".9" }], 7.6, .5);
+out("p3", 7.6, .3);
+anim("cta", [{ opacity: 0, transform: "translateY(120px)" }, { opacity: 1, transform: "none" }], 8.0, .5, POP);
+anim($("cta").querySelector(".big"), [{ scale: "1" }, { scale: "1.07" }, { scale: "1" }], 9.0, .5, "ease-in-out");
+anim($("cta").querySelector(".big"), [{ scale: "1" }, { scale: "1.07" }, { scale: "1" }], 10.0, .5, "ease-in-out");
+
+// reacciones flotantes tipo directo
+let seed = 9; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const EMO = ["❤️", "😂", "🔥", "😭", "💯", "👏"];
+const rx = Array.from({ length: 38 }, (_, i) => {
+  const d = document.createElement("div"); d.className = "rx"; d.textContent = EMO[i % EMO.length]; $("reacts").appendChild(d);
+  return { d, t0: 3.0 + rnd() * 7.5, x: 820 + rnd() * 200, sw: rnd() * 6.28, s: .7 + rnd() * .6 };
+});
+
+// texto que se escribe
+const LINES = [[.35, "Nadie:"], [.75, "\nAbsolutamente nadie:"], [1.25, "\nYo a las 23:47:"], [1.7, " «Sí, sí, mañana te paso el presupuesto 🙏»"]];
+function typed(t) {
+  let s = "";
+  for (const [t0, txt] of LINES) {
+    if (t < t0) break;
+    const chars = [...txt], n = Math.min(chars.length, Math.floor((t - t0) * 48));
+    s += chars.slice(0, n).join("");
+  }
+  return s.replace("Yo a las 23:47:", "<b>Yo a las 23:47:</b>");
+}
+const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace(".0", "") + " mil" : String(Math.round(n));
+const grow = (t, t0, t1, max) => { const p = Math.min(1, Math.max(0, (t - t0) / (t1 - t0))); return max * (1 - Math.pow(1 - p, 3)); };
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  $("tx1").innerHTML = typed(t);
+  $("c1").textContent = fmt(grow(t, 3.0, 5.5, 2300));
+  $("c2").textContent = fmt(grow(t, 3.0, 5.5, 9100));
+  $("c3").textContent = fmt(grow(t, 3.0, 5.5, 48200));
+  $("d1").textContent = fmt(grow(t, 5.0, 7.0, 860));
+  $("d2").textContent = fmt(grow(t, 5.0, 7.0, 3400));
+  $("d3").textContent = fmt(grow(t, 5.0, 7.0, 12700));
+  for (const r of rx) {
+    const k = t - r.t0;
+    if (k < 0 || k > 2.2) { r.d.style.opacity = 0; continue; }
+    r.d.style.opacity = k < .2 ? k / .2 : Math.max(0, 1 - (k - 1.4) / .8);
+    r.d.style.transform = `translate(${r.x + Math.sin(k * 3 + r.sw) * 40}px, ${1800 - k * 520}px) scale(${r.s})`;
+  }
+  $("bA").style.transform = `translate(${-150 + Math.sin(t * .6) * 150}px, ${-100 + Math.cos(t * .5) * 120}px)`;
+  $("bB").style.transform = `translate(${600 + Math.cos(t * .5) * 160}px, ${1300 + Math.sin(t * .7) * 140}px)`;
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
