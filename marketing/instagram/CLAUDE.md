@@ -173,6 +173,7 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 19 | reel-starter-pack · `fuente-starter-pack` | Starter pack: dueño de negocio sin IA vs con IA | Collage meme con stickers que caen, tarjeta que gira en 3D, sellos |
 | 20 | reel-teletienda-ia · `fuente-teletienda-ia` | Falso anuncio de teletienda | Teletienda retro: piloto "EN DIRECTO", estallidos cómicos SVG, sello "¡OFERTA ESPECIAL!", precio tachado, testimonio ficticio, ticker inferior (12,5 s) |
 | 21 | reel-negocio-wrapped · `fuente-negocio-wrapped` | "Spotify Wrapped" del negocio | Tarjetas de gradiente a pantalla completa estilo Wrapped, contador animado, anillo de progreso SVG, confeti determinista, tipografía Fredoka/Space Grotesk (12,2 s) |
+| 22 | reel-test-necesitas-ia · `fuente-test-necesitas-ia` | Test "¿Necesitas IA?" con puntuación | Quiz estilo Kahoot: tarjetas con giro 3D de cámara (perspective + rotate Y), checkmark SVG que se dibuja, ráfagas de partículas deterministas, flash de cámara en los cortes clave, marcador de puntos en vivo (12,4 s) |
 
 ### Ideas de formatos virales aún sin usar
 
