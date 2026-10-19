@@ -172,6 +172,7 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 18 | reel-red-flags · `fuente-red-flags` | Red flags de tu negocio (comenta cuántas tienes) | Swipe estilo Tinder: cartas con sello RED FLAG, la última GREEN FLAG |
 | 19 | reel-starter-pack · `fuente-starter-pack` | Starter pack: dueño de negocio sin IA vs con IA | Collage meme con stickers que caen, tarjeta que gira en 3D, sellos |
 | 20 | reel-teletienda-ia · `fuente-teletienda-ia` | Falso anuncio de teletienda | Teletienda retro: piloto "EN DIRECTO", estallidos cómicos SVG, sello "¡OFERTA ESPECIAL!", precio tachado, testimonio ficticio, ticker inferior (12,5 s) |
+| 21 | reel-negocio-wrapped · `fuente-negocio-wrapped` | "Spotify Wrapped" del negocio | Tarjetas de gradiente a pantalla completa estilo Wrapped, contador animado, anillo de progreso SVG, confeti determinista, tipografía Fredoka/Space Grotesk (12,2 s) |
 
 ### Ideas de formatos virales aún sin usar
 
@@ -185,10 +186,10 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 - Ranking/podio animado.
 - "Dime tu sector y te digo qué automatizar".
 - "Mi jefe vs la IA".
-- "Test: ¿necesitas IA?" con puntuación.
 - Videojuego retro (barra de vida, nivel superado).
 - Telediario de última hora.
 - Mapa del tesoro.
+- "Test: ¿necesitas IA?" con puntuación.
 - Ticket de compra que se imprime.
 - Gráfica de bolsa.
 - "Lo que veo vs lo que ve mi cliente".

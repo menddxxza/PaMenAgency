@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 21 PaMen — Negocio Wrapped</title>
+<style>
+@font-face { font-family: "Fredoka"; src: url("fonts/Fredoka-Bold.font") format("truetype"); font-weight:700; }
+@font-face { font-family: "Fredoka"; src: url("fonts/Fredoka-SemiBold.font") format("truetype"); font-weight:600; }
+@font-face { font-family: "SpaceGrotesk"; src: url("fonts/SpaceGrotesk-Bold.font") format("truetype"); font-weight:700; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#0b0b16; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; font-family:"SpaceGrotesk", Arial, sans-serif; color:#fff; }
+
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-weight:700; font-size:24px; letter-spacing:.35em; opacity:.8; z-index:40; }
+.cap { position:absolute; left:0; right:0; top:170px; display:flex; justify-content:center; z-index:40; }
+.cap span { background:#fff; color:#000; font-weight:900; font-size:46px; line-height:1.18; padding:14px 30px; border-radius:22px; text-align:center; max-width:880px; font-family:Arial, sans-serif; }
+
+.wrap { position:absolute; inset:0; visibility:hidden; z-index:10; }
+.card { position:absolute; top:320px; left:70px; width:940px; height:1260px; border-radius:60px; box-shadow:0 40px 70px rgba(0,0,0,.45); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:60px; overflow:hidden; }
+.label { font-family:"SpaceGrotesk"; font-weight:700; font-size:32px; letter-spacing:.14em; opacity:.85; margin-bottom:18px; }
+.sub { font-family:Arial, sans-serif; font-weight:700; font-size:38px; margin-top:26px; line-height:1.3; }
+.tiny { font-family:Arial, sans-serif; font-size:22px; opacity:.75; margin-top:20px; font-style:italic; }
+
+#w0 .card { background:linear-gradient(145deg,#7b2ff7,#f72585); }
+#tLine1 { font-family:"SpaceGrotesk"; font-weight:700; font-size:50px; letter-spacing:.08em; opacity:0; }
+#tLine2 { font-family:"Fredoka"; font-weight:700; font-size:112px; line-height:1.02; margin-top:10px; opacity:0; }
+
+#w1 .card { background:linear-gradient(145deg,#00c9a7,#0081cf); }
+#count { font-family:"Fredoka"; font-weight:700; font-size:168px; opacity:0; }
+
+#w2 .card { background:linear-gradient(145deg,#ff8a00,#e52e71); }
+#clockEmoji { font-size:120px; opacity:0; }
+#peakTime { font-family:"Fredoka"; font-weight:700; font-size:148px; opacity:0; }
+
+#w3 .card { background:linear-gradient(145deg,#4834d4,#be2edd); }
+#genreQuote { font-family:"Fredoka"; font-weight:700; font-size:72px; line-height:1.15; opacity:0; }
+#ringWrap { position:relative; width:280px; height:280px; margin-top:30px; opacity:0; }
+#ringWrap svg { width:100%; height:100%; transform:rotate(-90deg); }
+#ringPct { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:"Fredoka"; font-weight:700; font-size:64px; }
+
+#w4 .card { background:linear-gradient(145deg,#f9d423,#ff4e50); }
+#ctaMain { font-family:"Fredoka"; font-weight:700; font-size:92px; line-height:1.08; opacity:0; color:#2a0030; text-shadow:0 4px 0 rgba(255,255,255,.3); }
+#ctaSecond { font-family:Arial, sans-serif; font-weight:800; font-size:42px; margin-top:28px; opacity:0; color:#2a0030; }
+
+.chip { position:absolute; font-size:44px; opacity:0; z-index:5; }
+.confetti { position:absolute; width:18px; height:28px; opacity:0; z-index:35; border-radius:4px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="brand">PAMEN AGENCY</div>
+  <div class="cap" id="capbox"><span id="capspan"></span></div>
+
+  <div class="wrap" id="w0"><div class="card">
+    <div id="tLine1">TU NEGOCIO</div>
+    <div id="tLine2">WRAPPED<br>2026</div>
+  </div></div>
+
+  <div class="wrap" id="w1"><div class="card">
+    <div class="label">MENSAJES RESPONDIDOS ESTE AÑO</div>
+    <div id="count">0</div>
+    <div class="sub">...mientras tú dormías 😴</div>
+    <div class="tiny">*cifra de ejemplo — pon la tuya</div>
+  </div></div>
+
+  <div class="wrap" id="w2"><div class="card">
+    <div class="label">TU HORA PICO</div>
+    <div id="clockEmoji">⏰</div>
+    <div id="peakTime">23:47</div>
+    <div class="sub">la IA no duerme. tú sí 😌</div>
+  </div></div>
+
+  <div class="wrap" id="w3"><div class="card">
+    <div class="label">TU GÉNERO TOP</div>
+    <div id="genreQuote">🎧 «URGENTE<br>AHORA MISMO»</div>
+    <div id="ringWrap">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="14"/>
+        <circle id="ringFg" cx="60" cy="60" r="52" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+      </svg>
+      <div id="ringPct">0%</div>
+    </div>
+    <div class="tiny">nivel de urgencia del cliente*</div>
+  </div></div>
+
+  <div class="wrap" id="w4"><div class="card">
+    <div id="ctaMain">COMENTA<br>"IA" YA</div>
+    <div id="ctaSecond">y guárdalo 📌 para cuando lo necesites</div>
+  </div></div>
+
+  <div class="chip" id="c0">💬</div><div class="chip" id="c1">📅</div><div class="chip" id="c2">⏰</div>
+  <div class="chip" id="c3">✅</div><div class="chip" id="c4">💬</div><div class="chip" id="c5">📈</div>
+
+  <div class="confetti" id="k0"></div><div class="confetti" id="k1"></div><div class="confetti" id="k2"></div>
+  <div class="confetti" id="k3"></div><div class="confetti" id="k4"></div><div class="confetti" id="k5"></div>
+  <div class="confetti" id="k6"></div><div class="confetti" id="k7"></div><div class="confetti" id="k8"></div>
+  <div class="confetti" id="k9"></div><div class="confetti" id="k10"></div><div class="confetti" id="k11"></div>
+</div>
+
+<script>
+const T = 12.2;
+const A = [];
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = "cubic-bezier(.16,1,.3,1)", fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+let seed = 23; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ---- Visibilidad de las 5 tarjetas (una animación de visibility cada una, fill:none) ----
+const scenes = [
+  ["w0", 0.0, 2.1],
+  ["w1", 2.1, 3.0],
+  ["w2", 5.1, 2.9],
+  ["w3", 8.0, 2.3],
+  ["w4", 10.3, 1.9],
+];
+scenes.forEach(([id, start, dur]) => anim(id, [{ visibility: "visible" }, { visibility: "visible" }], start, dur, "linear", "none"));
+
+// ---- Escena 0: hook ----
+anim("tLine1", [{ opacity: 0, translate: "0 24px" }, { opacity: 1, translate: "0 0" }], 0.15, 0.3);
+anim("tLine2", [{ opacity: 0, scale: .6, translate: "0 30px" }, { opacity: 1, scale: 1.06, translate: "0 0", offset: .7 }, { opacity: 1, scale: 1, translate: "0 0" }], 0.45, 0.45, "cubic-bezier(.34,1.56,.64,1)");
+["tLine1", "tLine2"].forEach(id => anim(id, [{ opacity: 1 }, { opacity: 0 }], 1.8, 0.25, "ease-in", "forwards"));
+
+// ---- Escena 1: contador ----
+anim("count", [{ opacity: 0, translate: "0 20px" }, { opacity: 1, translate: "0 0" }], 2.25, 0.3);
+anim("count", [{ opacity: 1 }, { opacity: 0 }], 4.85, 0.25, "ease-in", "forwards");
+
+// ---- Escena 2: hora pico ----
+anim("clockEmoji", [{ opacity: 0, rotate: "-20deg", scale: .5 }, { opacity: 1, rotate: "8deg", scale: 1.1, offset: .7 }, { opacity: 1, rotate: "0deg", scale: 1 }], 5.25, 0.4, "cubic-bezier(.34,1.56,.64,1)");
+anim("peakTime", [{ opacity: 0, translate: "0 20px" }, { opacity: 1, translate: "0 0" }], 5.65, 0.35);
+["clockEmoji", "peakTime"].forEach(id => anim(id, [{ opacity: 1 }, { opacity: 0 }], 7.7, 0.25, "ease-in", "forwards"));
+
+// ---- Escena 3: género ----
+anim("genreQuote", [{ opacity: 0, translate: "0 24px" }, { opacity: 1, translate: "0 0" }], 8.15, 0.35);
+anim("ringWrap", [{ opacity: 0, scale: .7 }, { opacity: 1, scale: 1 }], 8.6, 0.3);
+["genreQuote", "ringWrap"].forEach(id => anim(id, [{ opacity: 1 }, { opacity: 0 }], 10.0, 0.25, "ease-in", "forwards"));
+
+// ---- Escena 4: CTA ----
+anim("ctaMain", [{ opacity: 0, scale: .5, rotate: "-6deg" }, { opacity: 1, scale: 1.08, rotate: "2deg", offset: .7 }, { opacity: 1, scale: 1, rotate: "0deg" }], 10.45, 0.45, "cubic-bezier(.34,1.56,.64,1)");
+anim("ctaSecond", [{ opacity: 0, translate: "0 16px" }, { opacity: 1, translate: "0 0" }], 10.95, 0.3);
+
+// ---- chips flotantes (decorativos, visibles en ventanas concretas) ----
+const chipPlan = [
+  ["c0", 100, 450, 0.3, 2.0], ["c1", 900, 520, 0.6, 2.0], ["c2", 150, 1500, 2.3, 4.9],
+  ["c3", 920, 1480, 5.3, 7.9], ["c4", 120, 600, 8.2, 10.1], ["c5", 900, 1550, 8.4, 10.1],
+];
+chipPlan.forEach(([id, x, y, start, end]) => {
+  $(id).style.left = x + "px"; $(id).style.top = y + "px";
+  anim(id, [{ visibility: "visible" }, { visibility: "visible" }], start, end - start, "linear", "none");
+});
+
+// ---- confeti (posiciones y velocidades deterministas por semilla) ----
+const confetti = [0,1,2,3,4,5,6,7,8,9,10,11].map(i => ({
+  el: $("k" + i), x: 60 + rnd() * 960, y0: -60 - rnd() * 400, speed: 260 + rnd() * 220,
+  color: ["#fff","#ffd166","#06d6a0","#ef476f","#118ab2"][Math.floor(rnd() * 5)], rot: rnd() * 6.28, rotSpeed: 1 + rnd() * 2,
+}));
+confetti.forEach(c => c.el.style.background = c.color);
+
+const capSegments = [
+  [0.0, 2.1, "ASÍ FUE TU AÑO AUTOMATIZANDO 🎉"],
+  [2.1, 5.1, "RESPONDISTE MILES DE MENSAJES"],
+  [5.1, 8.0, "LA IA TRABAJÓ MIENTRAS DORMÍAS"],
+  [8.0, 10.3, "TU CLIENTE, SIEMPRE CON PRISA"],
+  [10.3, T, "COMENTA \"IA\" PARA EL TUYO 👇"],
+];
+const capspan = $("capspan");
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+
+  // caption con pop al cambiar
+  let seg = capSegments[capSegments.length - 1];
+  for (const s of capSegments) { if (t >= s[0] && t < s[1]) { seg = s; break; } }
+  capspan.textContent = seg[2];
+  const lt = Math.max(0, t - seg[0]);
+  const pop = Math.max(0, 1 - lt / 0.18);
+  capspan.style.transform = `scale(${(1 + 0.26 * pop * pop).toFixed(3)})`;
+  capspan.style.opacity = Math.min(1, lt / 0.1 + 0.05).toFixed(2);
+
+  // contador de mensajes (escena 1)
+  if (t >= 2.25 && t < 4.85) {
+    const lt1 = Math.min(1, (t - 2.25) / 1.1);
+    const eased = 1 - Math.pow(1 - lt1, 3);
+    const n = Math.round(eased * 2847);
+    $("count").textContent = n.toLocaleString("es-ES");
+  } else if (t >= 4.85) {
+    $("count").textContent = "2.847";
+  }
+
+  // anillo de urgencia (escena 3)
+  if (t >= 8.6 && t < 10.0) {
+    const lt3 = Math.min(1, (t - 8.6) / 0.7);
+    const eased = 1 - Math.pow(1 - lt3, 3);
+    const pct = Math.round(eased * 98);
+    const circumference = 326.7;
+    $("ringFg").style.strokeDashoffset = (circumference * (1 - pct / 100)).toFixed(1);
+    $("ringPct").textContent = pct + "%";
+  } else if (t >= 10.0) {
+    $("ringFg").style.strokeDashoffset = (326.7 * (1 - 98 / 100)).toFixed(1);
+    $("ringPct").textContent = "98%";
+  }
+
+  // confeti cayendo en bucle, solo durante el hook y el CTA final
+  const confettiOn = (t < 2.1) || (t >= 10.3);
+  confetti.forEach(c => {
+    if (!confettiOn) { c.el.style.opacity = "0"; return; }
+    const localT = confettiOn && t >= 10.3 ? t - 10.3 : t;
+    const y = (c.y0 + localT * c.speed) % 2100 - 100;
+    c.el.style.transform = `translate(${c.x}px, ${y}px) rotate(${(localT * c.rotSpeed * 90)}deg)`;
+    c.el.style.opacity = "0.9";
+  });
+
+  // chips flotando con balanceo suave
+  chipPlan.forEach(([id]) => {
+    const el = $(id);
+    const baseY = parseFloat(el.style.top);
+    el.style.transform = `translateY(${Math.sin(t * 2.2 + baseY) * 14}px)`;
+  });
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
