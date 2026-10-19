@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 20 PaMen — Teletienda IA</title>
+<style>
+@font-face { font-family: "BebasNeue"; src: url("fonts/BebasNeue.font") format("truetype"); }
+@font-face { font-family: "LuckiestGuy"; src: url("fonts/LuckiestGuy.font") format("truetype"); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#5a0000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; font-family:Arial, sans-serif; color:#fff; }
+
+#bgflash { position:absolute; inset:0; z-index:0; }
+
+#onair { position:absolute; top:46px; left:46px; z-index:30; display:flex; align-items:center; gap:14px; }
+#onair .dot { width:26px; height:26px; border-radius:50%; background:#ff2d2d; box-shadow:0 0 18px 4px rgba(255,40,40,.8); }
+#onair span { font-family:"BebasNeue"; font-size:30px; letter-spacing:.12em; color:#ffe9b0; text-shadow:0 2px 0 #000; }
+
+#channelbug { position:absolute; top:40px; right:40px; z-index:30; background:#ffcc00; color:#5a0000; font-family:"BebasNeue"; font-size:28px; letter-spacing:.05em; padding:8px 18px; border-radius:10px; border:3px solid #fff; transform:rotate(3deg); }
+
+#brand { position:absolute; top:122px; left:0; right:0; text-align:center; font-weight:900; font-size:24px; letter-spacing:.35em; color:#ffe9b0; z-index:30; }
+
+.cap { position:absolute; left:0; right:0; top:220px; display:flex; justify-content:center; z-index:25; }
+.cap span { background:#fff; color:#000; font-weight:900; font-size:52px; line-height:1.18; padding:16px 34px; border-radius:24px; text-align:center; max-width:920px; display:inline-block; box-shadow:0 10px 0 rgba(0,0,0,.25); }
+
+.burst-wrap { position:absolute; transform-origin:50% 50%; }
+.burst-wrap svg { display:block; width:100%; height:100%; }
+
+#burstAmbient { top:-220px; right:-220px; width:720px; height:720px; opacity:.16; z-index:1; }
+
+/* ---- Escena 1: producto ---- */
+#scene1 { position:absolute; inset:0; visibility:hidden; z-index:10; }
+#s1burst { top:260px; left:90px; width:900px; height:900px; opacity:.5; z-index:1; }
+#prodcard { position:absolute; top:430px; left:140px; width:800px; height:430px; background:linear-gradient(145deg,#ffe066,#ffb000); border-radius:34px; border:8px solid #fff; box-shadow:0 30px 0 rgba(0,0,0,.3); opacity:0; }
+#prodcard .label { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
+#prodcard .label b { font-family:"LuckiestGuy"; font-size:70px; color:#5a0000; text-shadow:2px 2px 0 #fff; text-align:center; line-height:1.05; }
+#prodcard .label i { font-family:"BebasNeue"; font-size:30px; color:#5a0000; letter-spacing:.08em; font-style:normal; }
+.sparkle { position:absolute; font-size:60px; opacity:0; color:#fff5cc; text-shadow:0 0 14px #ffdd55; }
+#sp1 { top:380px; left:120px; }
+#sp2 { top:400px; left:900px; font-size:46px; }
+#sp3 { top:880px; left:170px; font-size:50px; }
+#s1sub { position:absolute; top:940px; left:0; right:0; text-align:center; font-family:"BebasNeue"; font-size:44px; letter-spacing:.06em; color:#fff; opacity:0; text-shadow:0 3px 0 #000; }
+
+/* ---- Escena 2: lista de ventajas ---- */
+#scene2 { position:absolute; inset:0; visibility:hidden; z-index:10; }
+.feat { position:absolute; left:110px; right:110px; display:flex; align-items:center; gap:24px; background:rgba(0,0,0,.35); border-left:10px solid #ffcc00; border-radius:18px; padding:26px 34px; opacity:0; }
+.feat .ck { font-size:58px; }
+.feat b { font-size:52px; line-height:1.15; }
+#f1 { top:470px; }
+#f2 { top:690px; }
+#f3 { top:910px; }
+
+/* ---- Escena 3: precio y testimonio ---- */
+#scene3 { position:absolute; inset:0; visibility:hidden; z-index:10; }
+#s3burst { top:300px; right:-60px; width:380px; height:380px; opacity:0; z-index:5; }
+#s3burst .txt { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:"LuckiestGuy"; font-size:34px; color:#fff; text-align:center; transform:rotate(-12deg); text-shadow:2px 2px 0 #7a0000; }
+#priceOld { position:absolute; top:400px; left:0; right:0; text-align:center; font-family:"BebasNeue"; font-size:58px; letter-spacing:.04em; color:#ffd9d9; opacity:0; }
+#strikeline { position:absolute; top:440px; left:320px; width:440px; height:8px; background:#fff; transform-origin:left center; transform:scaleX(0); border-radius:4px; }
+#priceFree { position:absolute; top:540px; left:0; right:0; text-align:center; font-family:"LuckiestGuy"; font-size:98px; color:#ffcc00; text-shadow:4px 4px 0 #5a0000, 0 0 24px rgba(0,0,0,.5); opacity:0; }
+#disclaimer3 { position:absolute; top:700px; left:0; right:0; text-align:center; font-size:28px; color:#fff; opacity:0; font-style:italic; background:rgba(0,0,0,.35); padding:10px 0; }
+#testibox { position:absolute; top:800px; left:140px; width:800px; background:rgba(255,255,255,.95); border-radius:26px; padding:34px 40px; opacity:0; }
+#testibox p { color:#2a0000; font-size:38px; line-height:1.3; font-weight:700; }
+#testibox .who { margin-top:14px; font-size:26px; color:#7a2a00; font-style:italic; }
+#stars { position:absolute; top:1110px; left:0; right:0; display:flex; justify-content:center; gap:14px; }
+.star { font-size:56px; color:#ffcc00; opacity:0; transform:scale(.3); }
+
+/* ---- Escena 4: CTA ---- */
+#scene4 { position:absolute; inset:0; visibility:hidden; z-index:10; }
+#callNow { position:absolute; top:400px; left:0; right:0; text-align:center; font-family:"BebasNeue"; font-size:80px; letter-spacing:.05em; color:#fff; opacity:0; }
+#xstamp { position:absolute; top:360px; left:290px; width:500px; height:260px; opacity:0; }
+#xstamp svg { width:100%; height:100%; }
+#commentNow { position:absolute; top:640px; left:0; right:0; text-align:center; font-family:"LuckiestGuy"; font-size:92px; color:#ffcc00; text-shadow:4px 4px 0 #5a0000; opacity:0; line-height:1.05; }
+#cta2 { position:absolute; top:900px; left:0; right:0; text-align:center; font-size:46px; font-weight:900; color:#fff; opacity:0; text-shadow:0 3px 0 #000; }
+#brandstamp { position:absolute; top:1120px; left:0; right:0; text-align:center; opacity:0; }
+#brandstamp div { display:inline-block; background:#fff; color:#5a0000; font-family:"LuckiestGuy"; font-size:54px; padding:20px 50px; border-radius:20px; border:6px solid #ffcc00; }
+
+#ticker { position:absolute; top:1600px; left:0; width:100%; height:60px; background:rgba(0,0,0,.45); overflow:hidden; z-index:20; display:flex; align-items:center; }
+#ticker .row { position:absolute; left:0; white-space:nowrap; font-family:"BebasNeue"; font-size:34px; letter-spacing:.08em; color:#ffe9b0; }
+
+.tw { position:absolute; color:#fff; font-size:22px; opacity:0; z-index:2; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bgflash"></div>
+
+  <div class="burst-wrap" id="burstAmbient"></div>
+
+  <div id="onair"><div class="dot"></div><span>EN DIRECTO</span></div>
+  <div id="channelbug">CANAL IA</div>
+  <div id="brand">PAMEN AGENCY</div>
+
+  <div class="cap" id="capbox"><span id="capspan"></span></div>
+
+  <div id="scene1">
+    <div class="burst-wrap" id="s1burst"></div>
+    <div class="sparkle" id="sp1">✦</div>
+    <div class="sparkle" id="sp2">✧</div>
+    <div class="sparkle" id="sp3">✦</div>
+    <div id="prodcard"><div class="label"><b>IA PARA<br>TU NEGOCIO</b><i>RESPONDE · AGENDA · RECUERDA</i></div></div>
+    <div id="s1sub">NUNCA MÁS UN CLIENTE SIN RESPUESTA</div>
+  </div>
+
+  <div id="scene2">
+    <div class="feat" id="f1"><div class="ck">✅</div><b>Responde WhatsApp solo, 24/7</b></div>
+    <div class="feat" id="f2"><div class="ck">✅</div><b>Agenda las citas sin que tú muevas un dedo</b></div>
+    <div class="feat" id="f3"><div class="ck">✅</div><b>No pide turno libre ni se queja 😅</b></div>
+  </div>
+
+  <div id="scene3">
+    <div class="burst-wrap" id="s3burst"></div>
+    <div id="priceOld">NORMALMENTE 999€/MES*</div>
+    <div id="strikeline"></div>
+    <div id="priceFree">¡HOY GRATIS!*</div>
+    <div id="disclaimer3">*cifra de ejemplo — pon la tuya</div>
+    <div id="testibox"><p>"Antes contestaba a las 3 de la mañana. Ahora no."</p><div class="who">— Ana, panadería (testimonio ilustrativo)</div></div>
+    <div id="stars"><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span><span class="star">⭐</span></div>
+  </div>
+
+  <div id="scene4">
+    <div id="callNow">📞 LLAMA YA</div>
+    <div class="burst-wrap" id="xstamp"></div>
+    <div id="commentNow">COMENTA<br>"IA" YA</div>
+    <div id="cta2">y etiqueta al dueño que lo necesita 👇</div>
+    <div id="brandstamp"><div>PAMEN AGENCY</div></div>
+  </div>
+
+  <div id="ticker"><div class="row" id="tickerrow">PAMEN AGENCY · AUTOMATIZACIÓN PARA TU NEGOCIO · RESPONDE, AGENDA Y RECUERDA SOLA · PAMEN AGENCY · AUTOMATIZACIÓN PARA TU NEGOCIO · RESPONDE, AGENDA Y RECUERDA SOLA · </div></div>
+
+  <div class="tw" id="tw0">✦</div><div class="tw" id="tw1">✦</div><div class="tw" id="tw2">✦</div>
+  <div class="tw" id="tw3">✦</div><div class="tw" id="tw4">✦</div><div class="tw" id="tw5">✦</div>
+</div>
+
+<script>
+const T = 12.5;
+const A = [];
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = "cubic-bezier(.16,1,.3,1)", fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+function starPoints(cx, cy, spikes, outerR, innerR) {
+  const pts = [];
+  for (let i = 0; i < spikes * 2; i++) {
+    const r = i % 2 === 0 ? outerR : innerR;
+    const a = (Math.PI / spikes) * i - Math.PI / 2;
+    pts.push((cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1));
+  }
+  return pts.join(" ");
+}
+function burstSVG(spikes, outerR, innerR, fillColor) {
+  return `<svg viewBox="0 0 200 200"><polygon points="${starPoints(100,100,spikes,outerR,innerR)}" fill="${fillColor}"/></svg>`;
+}
+$("burstAmbient").innerHTML = burstSVG(16, 95, 72, "#ffcc00");
+$("s1burst").innerHTML = burstSVG(14, 96, 68, "#ffffff");
+$("s3burst").innerHTML = burstSVG(12, 96, 58, "#e4001c") + '<div class="txt">¡OFERTA<br>ESPECIAL!</div>';
+$("xstamp").innerHTML = `<svg viewBox="0 0 200 104"><polygon points="${starPoints(100,52,10,50,30)}" fill="#e4001c"/><text x="100" y="62" text-anchor="middle" font-family="LuckiestGuy" font-size="30" fill="#fff">NO</text></svg>`;
+
+// ---- Visibilidad de escenas (una animación de visibility por elemento, fill:none) ----
+anim("scene1", [{ visibility: "visible" }, { visibility: "visible" }], 0.2, 4.2, "linear", "none");
+anim("scene2", [{ visibility: "visible" }, { visibility: "visible" }], 4.4, 2.6, "linear", "none");
+anim("scene3", [{ visibility: "visible" }, { visibility: "visible" }], 7.0, 2.6, "linear", "none");
+anim("scene4", [{ visibility: "visible" }, { visibility: "visible" }], 9.6, 2.9, "linear", "none");
+
+// ---- Escena 1 ----
+anim("prodcard", [{ opacity: 0, scale: .4, rotate: "-10deg" }, { opacity: 1, scale: 1.05, rotate: "2deg", offset: .7 }, { opacity: 1, scale: 1, rotate: "0deg" }], 0.3, 0.6, "cubic-bezier(.34,1.56,.64,1)");
+anim("prodcard", [{ translate: "0 0" }, { translate: "-6px 0" }, { translate: "6px 0" }, { translate: "0 0" }], 2.0, 0.35, "ease-in-out", "none");
+anim("sp1", [{ opacity: 0, scale: .2 }, { opacity: 1, scale: 1 }], 0.6, 0.35, "cubic-bezier(.34,1.56,.64,1)");
+anim("sp2", [{ opacity: 0, scale: .2 }, { opacity: 1, scale: 1 }], 0.75, 0.35, "cubic-bezier(.34,1.56,.64,1)");
+anim("sp3", [{ opacity: 0, scale: .2 }, { opacity: 1, scale: 1 }], 0.9, 0.35, "cubic-bezier(.34,1.56,.64,1)");
+anim("s1sub", [{ opacity: 0, translate: "0 24px" }, { opacity: 1, translate: "0 0" }], 1.1, 0.4);
+anim("prodcard", [{ opacity: 1 }, { opacity: 0 }], 4.0, 0.3, "ease-in", "forwards");
+anim("s1sub", [{ opacity: 1 }, { opacity: 0 }], 4.0, 0.3, "ease-in", "forwards");
+["sp1", "sp2", "sp3"].forEach(id => anim(id, [{ opacity: 1 }, { opacity: 0 }], 4.0, 0.3, "ease-in", "forwards"));
+
+// ---- Escena 2 ----
+anim("f1", [{ opacity: 0, translate: "-70px 0" }, { opacity: 1, translate: "0 0" }], 4.5, 0.4);
+anim("f2", [{ opacity: 0, translate: "-70px 0" }, { opacity: 1, translate: "0 0" }], 5.1, 0.4);
+anim("f3", [{ opacity: 0, translate: "-70px 0" }, { opacity: 1, translate: "0 0" }], 5.7, 0.4);
+["f1", "f2", "f3"].forEach(id => anim(id, [{ opacity: 1 }, { opacity: 0 }], 6.7, 0.3, "ease-in", "forwards"));
+
+// ---- Escena 3 ----
+anim("priceOld", [{ opacity: 0, translate: "0 16px" }, { opacity: 1, translate: "0 0" }], 7.1, 0.35);
+anim("strikeline", [{ scale: "0 1" }, { scale: "1 1" }], 7.45, 0.3, "ease-out");
+anim("s3burst", [{ opacity: 0, rotate: "-35deg", scale: .4 }, { opacity: 1, rotate: "-8deg", scale: 1 }], 7.65, 0.4, "cubic-bezier(.34,1.56,.64,1)");
+anim("priceFree", [{ opacity: 0, scale: .3, rotate: "-8deg" }, { opacity: 1, scale: 1.08, rotate: "3deg", offset: .7 }, { opacity: 1, scale: 1, rotate: "0deg" }], 7.7, 0.5, "cubic-bezier(.34,1.56,.64,1)");
+anim("disclaimer3", [{ opacity: 0 }, { opacity: 1 }], 8.05, 0.3);
+anim("testibox", [{ opacity: 0, translate: "0 60px" }, { opacity: 1, translate: "0 0" }], 8.3, 0.4);
+[0, 1, 2, 3, 4].forEach(i => anim($("stars").children[i], [{ opacity: 0, scale: .3 }, { opacity: 1, scale: 1 }], 8.45 + i * 0.1, 0.25, "cubic-bezier(.34,1.56,.64,1)"));
+["priceOld", "priceFree", "disclaimer3", "testibox", "s3burst"].forEach(id => anim(id, [{ opacity: 1 }, { opacity: 0 }], 9.3, 0.3, "ease-in", "forwards"));
+anim($("stars"), [{ opacity: 1 }, { opacity: 0 }], 9.3, 0.3, "ease-in", "forwards");
+
+// ---- Escena 4 ----
+anim("callNow", [{ opacity: 0, translate: "0 20px" }, { opacity: 1, translate: "0 0" }], 9.7, 0.3);
+anim("xstamp", [{ opacity: 0, scale: 2.6, rotate: "-18deg" }, { opacity: 1, scale: 1, rotate: "-10deg" }], 10.2, 0.28, "cubic-bezier(.2,1.4,.6,1)");
+anim("callNow", [{ opacity: 1 }, { opacity: .35 }], 10.2, 0.28, "ease-out", "forwards");
+anim("commentNow", [{ opacity: 0, scale: .3, rotate: "-6deg" }, { opacity: 1, scale: 1.1, rotate: "2deg", offset: .7 }, { opacity: 1, scale: 1, rotate: "0deg" }], 10.6, 0.5, "cubic-bezier(.34,1.56,.64,1)");
+anim("cta2", [{ opacity: 0, translate: "0 16px" }, { opacity: 1, translate: "0 0" }], 11.1, 0.35);
+anim("brandstamp", [{ opacity: 0, scale: .4, rotate: "-6deg" }, { opacity: 1, scale: 1, rotate: "-3deg" }], 11.6, 0.4, "cubic-bezier(.34,1.56,.64,1)");
+
+const capSegments = [
+  [0.0, 2.0, "🚨 OFERTA DE TELETIENDA 🚨"],
+  [2.0, 4.4, "¿HARTO DE CONTESTAR SIEMPRE LO MISMO?"],
+  [4.4, 7.0, "LA IA RESPONDE POR TI 24/7"],
+  [7.0, 9.6, "HOY: GRATIS* LA 1ª SEMANA"],
+  [9.6, T, "COMENTA \"IA\" YA 👇"],
+];
+const capspan = $("capspan");
+const tickerrow = $("tickerrow");
+const tickerWidth = 1700;
+const twEls = [0, 1, 2, 3, 4, 5].map(i => $("tw" + i));
+const twPos = twEls.map(() => ({ x: 80 + rnd() * 920, y: 320 + rnd() * 1200, ph: rnd() * 6.28, sp: 1.4 + rnd() * 1.6 }));
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+
+  // fondo teletienda: oscilación cálida roja/dorada
+  const f = (Math.sin(t * 2.4) + 1) / 2;
+  const r = Math.round(90 + f * 40), g = Math.round(20 + f * 60), b = Math.round(10 + f * 10);
+  $("bgflash").style.background = `radial-gradient(ellipse at 50% 30%, rgb(${r+30},${g+30},${b}) 0%, rgb(${r},${g},${b}) 70%)`;
+
+  // piloto EN DIRECTO parpadeando
+  $("onair").style.opacity = (Math.floor(t / 0.4) % 2 === 0) ? "1" : ".35";
+
+  // starburst ambiente girando despacio siempre
+  $("burstAmbient").style.transform = `rotate(${t * 14}deg)`;
+  $("s1burst").style.transform = `rotate(${-t * 10}deg)`;
+
+  // caption actual con pequeño "pop" al cambiar
+  let seg = capSegments[capSegments.length - 1];
+  for (const s of capSegments) { if (t >= s[0] && t < s[1]) { seg = s; break; } }
+  capspan.textContent = seg[2];
+  const lt = Math.max(0, t - seg[0]);
+  const pop = Math.max(0, 1 - lt / 0.18);
+  capspan.style.transform = `scale(${(1 + 0.28 * pop * pop).toFixed(3)})`;
+  capspan.style.opacity = Math.min(1, lt / 0.1 + 0.05).toFixed(2);
+
+  // ticker inferior en bucle continuo
+  const x = -((t * 90) % tickerWidth);
+  tickerrow.style.transform = `translateX(${x}px)`;
+
+  // chispas de fondo parpadeando
+  twEls.forEach((el, i) => {
+    const p = twPos[i];
+    el.style.left = p.x + "px"; el.style.top = p.y + "px";
+    el.style.opacity = (0.15 + 0.25 * (Math.sin(t * p.sp + p.ph) + 1) / 2).toFixed(2);
+  });
+
+  // pulso suave en el segundo CTA (si está activo)
+  if (t >= 11.1) {
+    const s = 1 + 0.04 * Math.sin((t - 11.1) * 6);
+    $("cta2").style.scale = s.toFixed(3);
+  }
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
