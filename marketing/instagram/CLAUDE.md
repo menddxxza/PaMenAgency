@@ -174,6 +174,7 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 20 | reel-teletienda-ia · `fuente-teletienda-ia` | Falso anuncio de teletienda | Teletienda retro: piloto "EN DIRECTO", estallidos cómicos SVG, sello "¡OFERTA ESPECIAL!", precio tachado, testimonio ficticio, ticker inferior (12,5 s) |
 | 21 | reel-negocio-wrapped · `fuente-negocio-wrapped` | "Spotify Wrapped" del negocio | Tarjetas de gradiente a pantalla completa estilo Wrapped, contador animado, anillo de progreso SVG, confeti determinista, tipografía Fredoka/Space Grotesk (12,2 s) |
 | 22 | reel-test-necesitas-ia · `fuente-test-necesitas-ia` | Test "¿Necesitas IA?" con puntuación | Quiz estilo Kahoot: tarjetas con giro 3D de cámara (perspective + rotate Y), checkmark SVG que se dibuja, ráfagas de partículas deterministas, flash de cámara en los cortes clave, marcador de puntos en vivo (12,4 s) |
+| 23 | reel-top3-podio · `fuente-top3-podio` | Top 3 cosas que la IA te quita de encima | Ranking/podio animado: escenario oscuro con focos giratorios, columnas que se elevan en 3D (perspective + rotateX), confeti determinista en el nº1, cámara que retrocede para el plano general, cortina oscura tras el podio para el CTA (12,6 s) |
 
 ### Ideas de formatos virales aún sin usar
 
@@ -184,7 +185,6 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 - "Si tu negocio fuera una peli de terror".
 - "Elige: ¿A o B?" (encuesta).
 - Notificaciones del móvil bajo la lluvia.
-- Ranking/podio animado.
 - "Dime tu sector y te digo qué automatizar".
 - "Mi jefe vs la IA".
 - Videojuego retro (barra de vida, nivel superado).

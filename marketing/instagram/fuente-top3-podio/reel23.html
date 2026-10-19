@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 23 PaMen — Top 3 podio</title>
+<style>
+@font-face { font-family: "Teko"; src: url("fonts/Teko-Bold.font") format("truetype"); font-weight:700; }
+@font-face { font-family: "SpaceGrotesk"; src: url("fonts/SpaceGrotesk-Bold.font") format("truetype"); font-weight:700; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#050711; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; font-family:"SpaceGrotesk", Arial, sans-serif; color:#fff; }
+#bg { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 30%, #1a1f3d 0%, #050711 72%); z-index:0; }
+
+.beam { position:absolute; top:-200px; left:50%; width:900px; height:1500px; transform-origin:50% 0%; opacity:.16; z-index:1;
+  background:conic-gradient(from 0deg, transparent 0deg, #8ab4ff 6deg, transparent 14deg); }
+
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-weight:700; font-size:24px; letter-spacing:.35em; opacity:.85; z-index:40; }
+.cap { position:absolute; left:0; right:0; top:170px; display:flex; justify-content:center; z-index:40; }
+.cap span { background:#fff; color:#000; font-weight:900; font-size:46px; line-height:1.18; padding:14px 30px; border-radius:22px; text-align:center; max-width:900px; font-family:Arial, sans-serif; }
+
+#hook { position:absolute; left:0; right:0; top:760px; text-align:center; font-family:"Teko"; font-weight:700; font-size:118px; line-height:1.0; opacity:0; z-index:20; letter-spacing:.01em; }
+
+#camera { position:absolute; inset:0; z-index:15; }
+#podiumWrap { position:absolute; inset:0; perspective:1400px; z-index:16; }
+#podiumInner { position:absolute; inset:0; transform:rotateX(10deg); transform-style:preserve-3d; }
+.col { position:absolute; bottom:270px; border-radius:18px 18px 0 0; transform-origin:bottom center; scale:1 0; box-shadow:0 0 60px rgba(0,0,0,.5), inset 0 3px 0 rgba(255,255,255,.4); }
+#colSilver { left:130px; width:260px; height:380px; background:linear-gradient(180deg,#e7edf5,#9aa7bb); }
+#colGold   { left:410px; width:260px; height:520px; background:linear-gradient(180deg,#fff3c4,#d9a62b); }
+#colBronze { left:690px; width:260px; height:260px; background:linear-gradient(180deg,#f0c49a,#a9623a); }
+.colNum { position:absolute; top:28px; left:0; right:0; text-align:center; font-family:"Teko"; font-weight:700; font-size:110px; color:rgba(0,0,0,.35); line-height:1; }
+
+.tag { position:absolute; width:300px; text-align:center; opacity:0; z-index:25; }
+.tag .medal { font-size:72px; display:block; }
+.tag .label { font-family:"SpaceGrotesk"; font-weight:700; font-size:32px; line-height:1.2; margin-top:10px; text-shadow:0 2px 6px rgba(0,0,0,.6); }
+#tagSilver { left:115px; bottom:670px; }
+#tagGold   { left:395px; bottom:810px; }
+#tagBronze { left:675px; bottom:550px; }
+
+#tagline { position:absolute; left:0; right:0; top:330px; text-align:center; font-family:"Teko"; font-weight:700; font-size:70px; opacity:0; z-index:30; }
+
+#ctaScrim { position:absolute; inset:0; background:#050711; opacity:0; z-index:28; }
+#ctaMain { position:absolute; left:0; right:0; top:800px; text-align:center; font-family:"Teko"; font-weight:700; font-size:128px; line-height:1.0; opacity:0; z-index:30; }
+#ctaSecond { position:absolute; left:0; right:0; top:1020px; text-align:center; font-family:"SpaceGrotesk"; font-weight:700; font-size:40px; opacity:0; z-index:30; padding:0 120px; }
+
+#flash { position:absolute; inset:0; background:#fff; opacity:0; z-index:70; pointer-events:none; }
+.shard { position:absolute; width:14px; height:14px; border-radius:3px; opacity:0; z-index:60; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div class="beam" id="beam1"></div>
+  <div class="beam" id="beam2"></div>
+  <div class="beam" id="beam3"></div>
+
+  <div id="brand">PAMEN AGENCY</div>
+  <div class="cap" id="capbox"><span id="capspan"></span></div>
+
+  <div id="hook">TOP 3 COSAS<br>QUE LA IA TE<br>QUITA DE ENCIMA</div>
+
+  <div id="camera">
+    <div id="podiumWrap"><div id="podiumInner">
+      <div class="col" id="colSilver"><div class="colNum">2</div></div>
+      <div class="col" id="colGold"><div class="colNum">1</div></div>
+      <div class="col" id="colBronze"><div class="colNum">3</div></div>
+    </div></div>
+
+    <div class="tag" id="tagBronze"><span class="medal">🥉</span><span class="label">CONTESTAR LO MISMO 50 VECES</span></div>
+    <div class="tag" id="tagSilver"><span class="medal">🥈</span><span class="label">AGENDAR CITAS A MANO</span></div>
+    <div class="tag" id="tagGold"><span class="medal">🥇</span><span class="label">OLVIDARTE DE UN CLIENTE</span></div>
+
+    <div id="tagline">LOS TRES, RESUELTOS</div>
+  </div>
+
+  <div id="ctaScrim"></div>
+  <div id="ctaMain">COMENTA<br>"IA" YA</div>
+  <div id="ctaSecond">y etiqueta a quien necesite quitarse esto de encima 👇</div>
+
+  <div id="flash"></div>
+  <div id="burst"></div>
+</div>
+
+<script>
+const T = 12.6;
+const A = [];
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = "cubic-bezier(.16,1,.3,1)", fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+let seed = 41; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ---- Hook ----
+anim("hook", [{ opacity: 0, translate: "0 24px", scale: .85 }, { opacity: 1, translate: "0 0", scale: 1 }], 0.15, 0.4, "cubic-bezier(.34,1.56,.64,1)");
+anim("hook", [{ opacity: 1 }, { opacity: 0 }], 1.45, 0.25, "ease-in", "forwards");
+
+// ---- Elevación de cada columna del podio (golpe de cámara: flash + salto) ----
+function riseColumn(colId, tagId, start) {
+  anim(colId, [{ scale: "1 0" }, { scale: "1 1.08", offset: .75 }, { scale: "1 1" }], start, 0.55, "cubic-bezier(.22,1.2,.4,1)");
+  anim(tagId, [{ opacity: 0, translate: "0 26px", scale: .6 }, { opacity: 1, translate: "0 0", scale: 1.1, offset: .7 }, { opacity: 1, translate: "0 0", scale: 1 }], start + 0.4, 0.4, "cubic-bezier(.34,1.56,.64,1)");
+}
+riseColumn("colBronze", "tagBronze", 1.70);
+riseColumn("colSilver", "tagSilver", 3.90);
+riseColumn("colGold", "tagGold", 6.10);
+
+// ---- Golpe de flash + confeti en la revelación del nº1 ----
+anim("flash", [{ opacity: 0 }, { opacity: .85 }, { opacity: 0 }], 6.08, 0.24, "ease-out", "none");
+
+// ---- Plano general: la cámara retrocede para mostrar el podio completo ----
+anim("camera", [{ scale: 1.12, translate: "0 40px" }, { scale: 1, translate: "0 0" }], 8.80, 0.6, "cubic-bezier(.22,1,.36,1)");
+anim("tagline", [{ opacity: 0, translate: "0 -16px" }, { opacity: 1, translate: "0 0" }], 9.15, 0.4);
+
+// ---- CTA (cortina oscura para que el podio no compita con el texto) ----
+anim("ctaScrim", [{ opacity: 0 }, { opacity: .9 }], 10.3, 0.35, "ease-out", "forwards");
+["beam1", "beam2", "beam3"].forEach(id => anim(id, [{ opacity: .16 }, { opacity: .05 }], 10.3, 0.35, "ease-out", "forwards"));
+anim("ctaMain", [{ opacity: 0, scale: .6, translate: "0 20px" }, { opacity: 1, scale: 1.06, translate: "0 0", offset: .7 }, { opacity: 1, scale: 1, translate: "0 0" }], 10.45, 0.45, "cubic-bezier(.34,1.56,.64,1)");
+anim("ctaSecond", [{ opacity: 0, translate: "0 16px" }, { opacity: 1, translate: "0 0" }], 10.95, 0.3);
+
+// ---- Confeti determinista desde el centro del podio de oro ----
+const burstEl = $("burst");
+const goldPos = { x: 540, y: 1130 };
+function makeShards(container, n, colors) {
+  const list = [];
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement("div");
+    el.className = "shard";
+    el.style.background = colors[Math.floor(rnd() * colors.length)];
+    container.appendChild(el);
+    list.push({ el, angle: rnd() * 6.28, speed: 300 + rnd() * 300, spin: (rnd() - .5) * 8, size: 10 + rnd() * 12 });
+  }
+  return list;
+}
+const shards = makeShards(burstEl, 20, ["#ffd43b", "#fff", "#ff922b", "#f08c00"]);
+const goldTrigger = 6.10;
+
+const capSegments = [
+  [0.0, 1.70, "TOP 3 COSAS QUE LA IA TE QUITA DE ENCIMA"],
+  [1.70, 3.90, "NÚMERO 3..."],
+  [3.90, 6.10, "NÚMERO 2..."],
+  [6.10, 8.80, "Y EL NÚMERO 1 ES..."],
+  [8.80, 10.30, "LOS TRES, RESUELTOS POR LA IA"],
+  [10.30, T, "COMENTA \"IA\" YA 👇"],
+];
+const capspan = $("capspan");
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+
+  let seg = capSegments[capSegments.length - 1];
+  for (const s of capSegments) { if (t >= s[0] && t < s[1]) { seg = s; break; } }
+  capspan.textContent = seg[2];
+  const lt = Math.max(0, t - seg[0]);
+  const pop = Math.max(0, 1 - lt / 0.18);
+  capspan.style.transform = `scale(${(1 + 0.26 * pop * pop).toFixed(3)})`;
+  capspan.style.opacity = Math.min(1, lt / 0.1 + 0.05).toFixed(2);
+
+  // focos girando despacio, siempre en movimiento
+  $("beam1").style.transform = `rotate(${t * 14}deg)`;
+  $("beam2").style.transform = `rotate(${-t * 10 + 120}deg)`;
+  $("beam3").style.transform = `rotate(${t * 8 + 240}deg)`;
+
+  // confeti dorado en la revelación del nº1
+  const lt2 = t - goldTrigger;
+  if (lt2 >= 0 && lt2 <= 0.9) {
+    const k = lt2 / 0.9;
+    shards.forEach(s => {
+      const dist = s.speed * lt2;
+      const x = goldPos.x + Math.cos(s.angle) * dist;
+      const y = goldPos.y + Math.sin(s.angle) * dist + 320 * lt2 * lt2;
+      s.el.style.width = s.el.style.height = s.size + "px";
+      s.el.style.transform = `translate(${x}px, ${y}px) rotate(${s.spin * lt2 * 60}deg)`;
+      s.el.style.opacity = (1 - k).toFixed(2);
+    });
+  } else {
+    shards.forEach(s => s.el.style.opacity = "0");
+  }
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
