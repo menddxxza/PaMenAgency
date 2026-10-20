@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 24 PaMen — Ticket sin IA</title>
+<style>
+@font-face { font-family: "PlexMono"; src: url("fonts/PlexMono-Bold.font") format("truetype"); font-weight:700; }
+@font-face { font-family: "Bowlby"; src: url("fonts/BowlbyOne.font") format("truetype"); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#120e0c; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; color:#fff; font-family:Arial, sans-serif; }
+#bg { position:absolute; inset:0; background:radial-gradient(ellipse 70% 55% at 50% 62%, #3a2f27 0%, #1a1411 60%, #0d0a08 100%); }
+
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-weight:900; font-size:24px; letter-spacing:.35em; opacity:.85; z-index:50; }
+.cap { position:absolute; left:0; right:0; top:160px; display:flex; justify-content:center; z-index:50; }
+.cap span { background:#fff; color:#000; font-weight:900; font-size:52px; line-height:1.16; padding:14px 32px; border-radius:22px; text-align:center; max-width:940px; }
+
+#hookBig { position:absolute; left:0; right:0; top:560px; text-align:center; font-family:"Bowlby"; font-size:96px; line-height:1.06; color:#fff4d6; z-index:20; text-shadow:0 8px 0 rgba(0,0,0,.35); }
+
+#cam { position:absolute; inset:0; transform-origin:540px 1470px; perspective:1600px; z-index:10; }
+
+.roll { position:absolute; left:130px; width:820px; overflow:hidden; transform-origin:50% 100%; }
+.paper { position:relative; width:820px; padding:44px 44px 56px; background:linear-gradient(180deg,#fbf8ef,#efe9da); color:#1b1916; font-family:"PlexMono", monospace; font-weight:700; }
+.paper .ln { white-space:nowrap; font-size:44px; line-height:56px; }
+.paper .ctr { text-align:center; }
+.paper .hd { font-size:50px; line-height:62px; letter-spacing:.08em; text-align:center; }
+.paper .sub { font-size:28px; line-height:40px; text-align:center; color:#5a554c; }
+.paper .dash { border-top:4px dashed #6d675c; margin:18px 0; height:0; }
+.paper .it { margin-bottom:14px; }
+.paper .cost { text-align:right; color:#b3261e; }
+.paper .row { display:flex; justify-content:space-between; }
+.paper .ok { color:#1f8a3b; }
+.paper .totl { font-size:40px; line-height:52px; }
+.paper .totv { font-size:92px; line-height:104px; text-align:center; letter-spacing:.02em; }
+.paper .foot { font-size:24px; line-height:34px; text-align:center; color:#5a554c; margin-top:8px; }
+.paper svg.bar { display:block; margin:16px auto 0; }
+#tot1, #tot2 { position:relative; }
+
+#stamp { position:absolute; right:-14px; top:150px; z-index:2; padding:10px 22px; border:8px solid #d6262f; border-radius:14px; color:#d6262f; font-family:"Bowlby"; font-size:40px; line-height:1.05; text-align:center; rotate:-11deg; opacity:0; background:#f7f1e3; box-shadow:0 0 0 6px #f7f1e3; }
+
+#hl { position:absolute; left:-10px; top:6px; width:752px; height:100px; z-index:0; overflow:visible; }
+#hl path { fill:none; stroke:#c6f24e; stroke-width:76; stroke-linecap:round; opacity:.85; mix-blend-mode:multiply; }
+#tot2 .totv { position:relative; z-index:1; font-size:72px; line-height:96px; }
+
+#printer { position:absolute; left:170px; top:1450px; width:740px; height:130px; z-index:12; }
+#printer .body { position:absolute; inset:0; border-radius:20px 20px 34px 34px; background:linear-gradient(180deg,#3b3d42,#1d1e22); box-shadow:0 30px 60px rgba(0,0,0,.6), inset 0 2px 0 rgba(255,255,255,.18); }
+#printer .slot { position:absolute; left:40px; right:40px; top:14px; height:12px; border-radius:6px; background:#050505; box-shadow:inset 0 3px 4px rgba(0,0,0,.9); }
+#printer .lbl { position:absolute; left:52px; bottom:28px; font-family:"PlexMono"; font-size:24px; letter-spacing:.2em; color:#8d9099; }
+#led { position:absolute; right:56px; bottom:34px; width:22px; height:22px; border-radius:50%; background:#3a3a3a; }
+
+#flash { position:absolute; inset:0; background:#fff; opacity:0; z-index:60; pointer-events:none; }
+#scrim { position:absolute; inset:0; background:#0d0a08; opacity:0; z-index:30; }
+
+#coupon { position:absolute; left:90px; top:720px; width:900px; height:560px; z-index:40; opacity:0; }
+#coupon .cbg { position:absolute; inset:0; border-radius:26px; background:linear-gradient(180deg,#fbf8ef,#efe6cf); box-shadow:0 40px 80px rgba(0,0,0,.6); }
+#coupon svg.ants { position:absolute; inset:0; width:900px; height:560px; }
+#coupon svg.ants rect { fill:none; stroke:#3a342c; stroke-width:5; stroke-dasharray:22 14; }
+#coupon .sc { position:absolute; left:40px; top:-34px; font-size:56px; }
+#coupon .ctag { position:absolute; top:58px; left:0; right:0; text-align:center; font-family:"PlexMono"; font-size:32px; letter-spacing:.3em; color:#7a7366; }
+#coupon .cmain { position:absolute; top:120px; left:0; right:0; text-align:center; font-family:"Bowlby"; font-size:104px; line-height:1.05; color:#1b1916; }
+#coupon .csec { position:absolute; top:380px; left:60px; right:60px; text-align:center; font-weight:900; font-size:42px; line-height:1.25; color:#b3261e; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="brand">PAMEN AGENCY</div>
+  <div class="cap"><span id="capspan"></span></div>
+  <div id="hookBig">¿CUÁNTO TE<br>CUESTA NO<br>AUTOMATIZAR?</div>
+
+  <div id="cam">
+    <div class="roll" id="roll1"><div class="paper" id="paper1">
+      <div class="hd">PAMEN AGENCY</div>
+      <div class="sub">TICKET Nº 0024 · LUN 23:47</div>
+      <div class="dash" id="d1a"></div>
+      <div class="it" id="it1"><div class="ln">WHATSAPP SIN CONTESTAR x37</div><div class="ln cost">−3 CLIENTES</div></div>
+      <div class="it" id="it2"><div class="ln">CITAS OLVIDADAS x5</div><div class="ln cost">−2 RESEÑAS</div></div>
+      <div class="it" id="it3"><div class="ln">HORAS PEGADO AL MÓVIL x14</div><div class="ln cost">−TU CENA</div></div>
+      <div class="it" id="it4"><div class="ln">EL MISMO MENSAJE x50</div><div class="ln cost">−TU PACIENCIA</div></div>
+      <div class="dash"></div>
+      <div id="tot1"><div class="ln totl">TOTAL:</div><div class="ln totv">TU FINDE</div><div id="stamp">PAGADO CON<br>TU TIEMPO</div></div>
+      <svg class="bar" id="bar1" width="560" height="78"></svg>
+      <div class="foot">GRACIAS POR NO AUTOMATIZAR</div>
+    </div></div>
+
+    <div class="roll" id="roll2"><div class="paper" id="paper2">
+      <div class="hd">PAMEN AGENCY</div>
+      <div class="sub">TICKET Nº 0025 · CON IA</div>
+      <div class="dash" id="d2a"></div>
+      <div class="ln row" id="c1"><span>WHATSAPP RESPONDIDO</span><span class="ok">✓</span></div>
+      <div class="ln row" id="c2"><span>CITAS AGENDADAS</span><span class="ok">✓</span></div>
+      <div class="ln row" id="c3"><span>RECORDATORIOS ENVIADOS</span><span class="ok">✓</span></div>
+      <div class="dash"></div>
+      <div id="tot2"><div class="ln totl">TOTAL:</div>
+        <div style="position:relative"><svg id="hl" viewBox="0 0 752 100"><path pathLength="100" d="M40,58 C220,44 520,66 712,50"/></svg><div class="ln totv">TU FINDE, LIBRE</div></div>
+      </div>
+      <div class="foot">LA IA CURRA. TÚ DESCANSAS.</div>
+    </div></div>
+
+    <div id="printer"><div class="body"></div><div class="slot"></div><div class="lbl">PAMEN·PRINT</div><div id="led"></div></div>
+  </div>
+
+  <div id="scrim"></div>
+  <div id="coupon">
+    <div class="cbg"></div>
+    <svg class="ants" viewBox="0 0 900 560"><rect id="antsRect" x="18" y="18" width="864" height="524" rx="18"/></svg>
+    <div class="sc">✂️</div>
+    <div class="ctag">CUPÓN · VÁLIDO HOY</div>
+    <div class="cmain">COMENTA<br>«IA»</div>
+    <div class="csec">y etiqueta a quien vive en este ticket 🧾👇</div>
+  </div>
+  <div id="flash"></div>
+</div>
+
+<script>
+const T = 12.4;
+const A = [];
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = "cubic-bezier(.16,1,.3,1)", fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+let seed = 24; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ---- código de barras determinista ----
+(function () {
+  const svg = $("bar1"); let x = 0, out = "";
+  while (x < 556) { const w = 2 + Math.floor(rnd() * 5); if (rnd() > .35) out += `<rect x="${x}" y="0" width="${w}" height="78" fill="#1b1916"/>`; x += w + 2; }
+  svg.innerHTML = out;
+})();
+
+// ---- bordes de papel rasgado (dientes arriba y abajo) ----
+function zigzag(el) {
+  const h = el.offsetHeight, w = 820, tooth = 20, pts = [];
+  for (let x = 0; x <= w; x += tooth) pts.push(`${x}px ${(x / tooth) % 2 ? 10 : 0}px`);
+  for (let x = w; x >= 0; x -= tooth) pts.push(`${x}px ${h - ((x / tooth) % 2 ? 10 : 0)}px`);
+  el.style.clipPath = `polygon(${pts.join(",")})`;
+}
+
+// ---- gancho ----
+anim("hookBig", [{ opacity: .55, scale: .82 }, { opacity: 1, scale: 1.04, offset: .7 }, { opacity: 1, scale: 1 }], 0, 0.3, "cubic-bezier(.34,1.56,.64,1)");
+anim("hookBig", [{ opacity: 1, translate: "0 0" }, { opacity: 0, translate: "0 -80px" }], 1.0, 0.3, "ease-in", "forwards");
+
+// ---- sello que golpea el total ----
+anim("stamp", [{ opacity: 0, scale: 2.6 }, { opacity: 1, scale: .94, offset: .75 }, { opacity: 1, scale: 1 }], 5.0, 0.28, "cubic-bezier(.3,0,.2,1)");
+
+// ---- el ticket se arranca y sale volando en 3D ----
+anim("roll1", [
+  { transform: "translate(0,0) rotateZ(0deg) rotateX(0deg)", opacity: 1 },
+  { transform: "translate(0,-26px) rotateZ(2deg) rotateX(0deg)", opacity: 1, offset: .15 },
+  { transform: "translate(-260px,-1250px) rotateZ(-34deg) rotateX(58deg)", opacity: 0 },
+], 6.85, 0.6, "cubic-bezier(.5,0,.8,.4)", "forwards");
+anim("flash", [{ opacity: 0 }, { opacity: .85 }, { opacity: 0 }], 7.12, 0.26, "ease-out", "none");
+
+// ---- rotulador sobre el total con IA ----
+anim(document.querySelector("#hl path"), [{ strokeDasharray: 100, strokeDashoffset: 100 }, { strokeDasharray: 100, strokeDashoffset: 0 }], 9.18, 0.4, "cubic-bezier(.6,0,.3,1)");
+
+// ---- CTA: cupón recortable ----
+anim("scrim", [{ opacity: 0 }, { opacity: .9 }], 10.0, 0.35, "ease-out", "forwards");
+anim("coupon", [{ opacity: 0, translate: "0 160px", rotate: "9deg", scale: .7 }, { opacity: 1, translate: "0 -10px", rotate: "-2deg", scale: 1.04, offset: .7 }, { opacity: 1, translate: "0 0", rotate: "-1.5deg", scale: 1 }], 10.15, 0.55, "cubic-bezier(.34,1.4,.64,1)");
+anim("coupon", [{ scale: 1 }, { scale: 1.045 }, { scale: 1 }], 11.4, 0.35, "ease-in-out", "none");
+
+// ---- impresión paso a paso: [inicio, fin, id hasta donde imprime] ----
+const plan1 = [[0.15, 0.95, "d1a"], [1.0, 1.6, "it1"], [1.65, 2.25, "it2"], [2.3, 2.9, "it3"], [2.95, 3.55, "it4"], [3.7, 4.45, "tot1"], [4.5, 4.9, "END"]];
+const plan2 = [[7.3, 7.7, "d2a"], [7.75, 8.05, "c1"], [8.1, 8.4, "c2"], [8.45, 8.75, "c3"], [8.85, 9.15, "tot2"], [9.2, 9.35, "END"]];
+function segs(paper, plan) {
+  const H = paper.offsetHeight; let prev = 0; const out = [];
+  for (const [t0, t1, id] of plan) {
+    const r = id === "END" ? H : Math.min(H, (() => { const e = $(id); return e.offsetTop + e.offsetHeight + 14; })());
+    out.push([t0, t1, prev, r]); prev = r;
+  }
+  return { H, s: out };
+}
+function reveal(t, P) {
+  const s = P.s;
+  if (t < s[0][0]) return { r: 0, moving: false };
+  for (const [t0, t1, r0, r1] of s) {
+    if (t < t0) return { r: r0, moving: false };
+    if (t <= t1) {
+      const n = Math.max(1, Math.round((r1 - r0) / 48));
+      const q = (t - t0) / (t1 - t0) * n, k = Math.min(n - 1, Math.floor(q)), f = q - k;
+      const m = Math.min(1, f / 0.5), e = 1 - Math.pow(1 - m, 3);
+      return { r: r0 + (r1 - r0) * (k + e) / n, moving: f < 0.5 };
+    }
+  }
+  return { r: s[s.length - 1][3], moving: false };
+}
+const easeIO = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+let layoutDone = false;
+function layout(roll, paper) {
+  zigzag(paper);
+  roll.style.height = paper.offsetHeight + "px";
+  roll.style.top = (1470 - paper.offsetHeight) + "px";
+}
+
+const capSegments = [
+  [0.0, 1.2, "MIRA EL TICKET 🧾"],
+  [1.2, 3.7, "LO QUE TE COBRA CADA SEMANA..."],
+  [3.7, 5.0, "Y EL TOTAL ES..."],
+  [5.0, 7.15, "PAGADO CON TU TIEMPO 💀"],
+  [7.15, 10.0, "MISMO NEGOCIO, CON IA 👇"],
+  [10.0, T, "COMENTA «IA» 👇"],
+];
+const capspan = $("capspan");
+
+function seek(t) {
+  if (!layoutDone || document.fonts.status !== "loaded") { layout($("roll1"), $("paper1")); layout($("roll2"), $("paper2")); layoutDone = document.fonts.status === "loaded"; }
+  for (const a of A) a.currentTime = t * 1000;
+
+  // subtítulo con pequeño golpe al cambiar
+  let seg = capSegments[capSegments.length - 1];
+  for (const s of capSegments) if (t >= s[0] && t < s[1]) { seg = s; break; }
+  capspan.textContent = seg[2];
+  const lt = Math.max(0, t - seg[0]), pop = Math.max(0, 1 - lt / 0.18);
+  capspan.style.transform = `scale(${(1 + 0.24 * pop * pop).toFixed(3)})`;
+
+  // impresión
+  const P1 = segs($("paper1"), plan1), P2 = segs($("paper2"), plan2);
+  const R1 = reveal(t, P1), R2 = reveal(t, P2);
+  $("paper1").style.transform = `translateY(${(P1.H - R1.r).toFixed(1)}px)`;
+  $("paper2").style.transform = `translateY(${(P2.H - R2.r).toFixed(1)}px)`;
+  const printing = (R1.moving && t < 5) || (R2.moving && t > 7.2);
+  $("printer").style.translate = printing ? `${(Math.sin(t * 97) * 2.2).toFixed(2)}px ${(Math.cos(t * 131) * 1.6).toFixed(2)}px` : "0 0";
+  $("led").style.background = printing ? (Math.floor(t * 14) % 2 ? "#39ff7a" : "#1f9c4a") : "#3a3a3a";
+  $("led").style.boxShadow = printing ? "0 0 16px #39ff7a" : "none";
+
+  // cámara: pegada a la ranura y se aleja a medida que sale el papel
+  let s = 1, tx = 0, ty = 0;
+  if (t < 7.2) {
+    s = 1.4 - 0.4 * easeIO(Math.min(1, R1.r / P1.H));
+    if (t >= 5.3) s += 0.06 * easeIO(Math.min(1, (t - 5.3) / 1.4));
+    const d = t - 5.0;
+    if (d >= 0 && d < 0.35) { const a = 1 - d / 0.35; s += 0.05 * a; tx = Math.sin(d * 90) * 16 * a; ty = Math.cos(d * 110) * 12 * a; }
+    const d2 = t - 6.85;
+    if (d2 >= 0 && d2 < 0.32) { const a = 1 - d2 / 0.32; tx += Math.sin(d2 * 80) * 12 * a; }
+  } else {
+    s = 1.28 - 0.18 * easeIO(Math.min(1, R2.r / P2.H));
+    if (t >= 9.35) s += 0.04 * easeIO(Math.min(1, (t - 9.35) / 0.45));
+  }
+  $("cam").style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${s.toFixed(4)})`;
+
+  // hormigas del cupón
+  $("antsRect").style.strokeDashoffset = (-t * 70).toFixed(1);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

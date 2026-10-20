@@ -175,6 +175,7 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 21 | reel-negocio-wrapped · `fuente-negocio-wrapped` | "Spotify Wrapped" del negocio | Tarjetas de gradiente a pantalla completa estilo Wrapped, contador animado, anillo de progreso SVG, confeti determinista, tipografía Fredoka/Space Grotesk (12,2 s) |
 | 22 | reel-test-necesitas-ia · `fuente-test-necesitas-ia` | Test "¿Necesitas IA?" con puntuación | Quiz estilo Kahoot: tarjetas con giro 3D de cámara (perspective + rotate Y), checkmark SVG que se dibuja, ráfagas de partículas deterministas, flash de cámara en los cortes clave, marcador de puntos en vivo (12,4 s) |
 | 23 | reel-top3-podio · `fuente-top3-podio` | Top 3 cosas que la IA te quita de encima | Ranking/podio animado: escenario oscuro con focos giratorios, columnas que se elevan en 3D (perspective + rotateX), confeti determinista en el nº1, cámara que retrocede para el plano general, cortina oscura tras el podio para el CTA (12,6 s) |
+| 24 | reel-ticket-sin-ia · `fuente-ticket-sin-ia` | Ticket de compra que se imprime ("lo que te cuesta no automatizar") | Impresora térmica: el ticket sale por la ranura con máscara y paso a paso, cámara que se aleja siguiendo el papel, sello que golpea con sacudida, ticket arrancado que sale volando en 3D, flash, segundo ticket "con IA" con rotulador SVG, cupón recortable con borde de hormigas para el CTA. IBM Plex Mono + Bowlby One (12,4 s) |
 
 ### Ideas de formatos virales aún sin usar
 
@@ -190,8 +191,6 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 - Videojuego retro (barra de vida, nivel superado).
 - Telediario de última hora.
 - Mapa del tesoro.
-- "Test: ¿necesitas IA?" con puntuación.
-- Ticket de compra que se imprime.
 - Gráfica de bolsa.
 - "Lo que veo vs lo que ve mi cliente".
 
