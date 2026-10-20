@@ -194,13 +194,13 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 24 | reel-ticket-sin-ia · `fuente-ticket-sin-ia` | Ticket de compra que se imprime ("lo que te cuesta no automatizar") | Impresora térmica: el ticket sale por la ranura con máscara y paso a paso, cámara que se aleja siguiendo el papel, sello que golpea con sacudida, ticket arrancado que sale volando en 3D, flash, segundo ticket "con IA" con rotulador SVG, cupón recortable con borde de hormigas para el CTA. IBM Plex Mono + Bowlby One (12,4 s) |
 | 25 | reel-bolsa · `fuente-bolsa` | Si tu negocio cotizara en bolsa (gráfica de bolsa) | **Primer reel con el estilo de la casa.** Línea que se abre en tarjeta de cotización, trazo rojo con estela que cae con cada mensaje sin responder (sacudida + viñeta), nodo "IA activada" con anillos, rayos y punch-in de cámara, rebote con contador, cierre con marca, "COMENTA “IA”." y botón rojo. **Acento rojo #ff3d1f · Anton + JetBrains Mono** (12,6 s) |
 | 26 | reel-nivel-100 · `fuente-nivel-100` | Nivel 1 / nivel 100 (comenta tu nivel) | Estilo de la casa con barra de experiencia vertical que se llena con estela, nodos que se encienden con anillos, contador de nivel con frenada, iconos de trazo que se dibujan, golpe de cámara en cada subida, chispas en el nivel 100 y checklist. **Acento lima #c6ff2e sobre negro frío · Unbounded + DM Mono** (12,6 s) |
+| 27 | reel-peli-terror · `fuente-peli-terror` | Si tu negocio fuera una peli de terror | Estilo de la casa en clave terror: bombilla que parpadea, apagones entre capítulos, avalancha de notificaciones con susto (el "37" golpea al frente con sacudida y desdoble), linterna con máscara radial que barre una pared de notas con motas de polvo, luces que se encienden y chat de la IA a las 3 a. m. **Acento ámbar #ffaa1d · DM Serif Display + Space Mono** (12,6 s) |
 
 ### Ideas de formatos virales aún sin usar
 
 - "Cosas que dice un dueño de negocio" en bocadillos.
 - "Expectativa vs realidad".
 - "Tier list" de tareas para automatizar.
-- "Si tu negocio fuera una peli de terror".
 - "Elige: ¿A o B?" (encuesta).
 - Notificaciones del móvil bajo la lluvia.
 - "Dime tu sector y te digo qué automatizar".

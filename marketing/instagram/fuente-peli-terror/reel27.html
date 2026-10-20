@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 27 PaMen — Si tu negocio fuera una peli de terror</title>
+<style>
+@font-face { font-family:"DMSerif"; src:url("fonts/DMSerifDisplay.font") format("truetype"); }
+@font-face { font-family:"SpaceMono"; src:url("fonts/SpaceMono.font") format("truetype"); }
+@font-face { font-family:"InterTight"; src:url("fonts/InterTight-Medium.font") format("truetype"); font-weight:500; }
+:root { --bg:#080706; --ink:#efe9df; --acc:#ffaa1d; --dim:rgba(239,233,223,.5); --ov:rgba(239,233,223,.8); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--ink); font-family:"InterTight", sans-serif; }
+.abs { position:absolute; }
+.hd { font-family:"DMSerif", serif; text-transform:uppercase; line-height:1.0; letter-spacing:.005em; }
+.mono { font-family:"SpaceMono", monospace; letter-spacing:.16em; text-transform:uppercase; }
+.acc { color:var(--acc); }
+#glow { position:absolute; inset:0; background:radial-gradient(ellipse 60% 42% at 50% 46%, rgba(255,170,29,.10), rgba(255,170,29,0) 70%); }
+#room { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 30%, rgba(255,170,29,.16), rgba(255,170,29,0) 75%); opacity:0; }
+#grain { position:absolute; left:0; top:0; width:1080px; height:1920px; opacity:.07; pointer-events:none; z-index:45; }
+#dark { position:absolute; inset:0; background:#000; opacity:0; z-index:44; pointer-events:none; }
+#flash { position:absolute; inset:0; background:var(--acc); opacity:0; z-index:60; pointer-events:none; mix-blend-mode:screen; }
+
+#ov { position:absolute; inset:0; z-index:50; color:var(--ov); pointer-events:none; }
+.corner { position:absolute; width:56px; height:56px; border:0 solid currentColor; opacity:.7; }
+.corner.tl { left:40px; top:40px; border-left-width:2px; border-top-width:2px; }
+.corner.tr { right:40px; top:40px; border-right-width:2px; border-top-width:2px; }
+.corner.bl { left:40px; bottom:40px; border-left-width:2px; border-bottom-width:2px; }
+.corner.br { right:40px; bottom:40px; border-right-width:2px; border-bottom-width:2px; }
+#ov .t1 { font-size:16px; }
+#ov .t2 { font-size:11px; color:var(--dim); margin-top:6px; letter-spacing:.12em; }
+#sq { display:flex; gap:7px; margin-top:12px; }
+#sq i { width:11px; height:11px; border:1.5px solid currentColor; display:block; }
+#sq i.on { background:var(--acc); border-color:var(--acc); }
+
+.cap { position:absolute; left:0; right:0; top:178px; display:flex; justify-content:center; z-index:55; }
+.cap span { background:var(--ink); color:#080706; font-family:"DMSerif"; text-transform:uppercase; font-size:42px; line-height:1.12; padding:10px 26px 12px; border-radius:14px; text-align:center; max-width:940px; }
+
+.mask { position:absolute; left:0; right:0; overflow:hidden; }
+.hl { position:absolute; left:50%; bottom:0; white-space:nowrap; }
+.hl .glow { position:absolute; left:0; bottom:0; color:var(--acc); filter:blur(18px); opacity:.6; }
+.hl .sharp { position:relative; }
+
+#world { position:absolute; inset:0; z-index:20; }
+
+/* 02 notificaciones */
+#bigN { position:absolute; left:0; right:0; top:420px; text-align:center; font-family:"DMSerif"; font-size:660px; line-height:1; color:rgba(239,233,223,.06); }
+.ghost { position:absolute; left:0; right:0; top:420px; text-align:center; font-family:"DMSerif"; font-size:660px; line-height:1; opacity:0; }
+.nt { position:absolute; left:140px; width:800px; height:96px; background:rgba(22,18,14,.94); border:1px solid rgba(239,233,223,.1); border-radius:18px; display:flex; align-items:center; gap:20px; padding:0 24px; opacity:0; }
+.nt .ic { width:48px; height:48px; border-radius:12px; border:2px solid var(--acc); display:flex; align-items:center; justify-content:center; font-family:"SpaceMono"; font-size:14px; color:var(--acc); flex:none; }
+.nt .tt { font-family:"SpaceMono"; font-size:13px; letter-spacing:.14em; color:var(--dim); text-transform:uppercase; }
+.nt .mg { font-size:30px; white-space:nowrap; margin-top:2px; }
+
+/* 03 linterna */
+#wall { position:absolute; inset:0; }
+.note { position:absolute; padding:22px 26px; background:#15110d; border:1px solid rgba(239,233,223,.1); border-left:3px solid var(--acc); font-family:"SpaceMono"; font-size:23px; letter-spacing:.04em; white-space:nowrap; text-transform:uppercase; box-shadow:0 20px 40px rgba(0,0,0,.6); }
+#beamGlow { position:absolute; inset:0; opacity:0; }
+.mote { position:absolute; border-radius:50%; background:#fff3dc; opacity:0; }
+
+/* 04 chat */
+#chat { position:absolute; left:130px; top:560px; width:820px; height:480px; background:#120f0c; border:1.5px solid rgba(239,233,223,.1); border-radius:18px; overflow:hidden; }
+#chat .head { position:absolute; left:30px; right:30px; top:26px; display:flex; justify-content:space-between; font-size:14px; color:var(--dim); }
+#chat .dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--acc); margin-right:10px; box-shadow:0 0 12px var(--acc); }
+.bub { position:absolute; font-size:36px; line-height:1.25; padding:18px 24px; border-radius:22px; max-width:600px; }
+#bIn { left:30px; top:100px; background:#221c16; border-bottom-left-radius:6px; }
+#bOut { right:30px; top:240px; background:var(--acc); color:#080706; border-bottom-right-radius:6px; white-space:nowrap; }
+#typing { position:absolute; right:30px; top:230px; background:#221c16; padding:22px 26px; border-radius:22px; display:flex; gap:9px; }
+#typing i { width:12px; height:12px; border-radius:50%; background:var(--ink); display:block; }
+#unread { position:absolute; right:30px; bottom:28px; font-family:"SpaceMono"; font-size:16px; letter-spacing:.14em; color:var(--dim); }
+
+#wm { position:absolute; left:0; right:0; top:612px; text-align:center; font-family:"InterTight"; font-weight:500; font-size:92px; letter-spacing:-.02em; white-space:nowrap; }
+#pill { position:absolute; left:50%; top:1080px; font-family:"InterTight"; font-weight:500; font-size:32px; color:#080706; background:var(--acc); padding:16px 32px; border-radius:999px; white-space:nowrap; box-shadow:0 0 50px rgba(255,170,29,.35); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+  <div id="room"></div>
+
+  <div id="world">
+    <!-- 01 -->
+    <div class="mask" style="top:690px; height:104px;"><div class="hl hd" id="h1a" style="font-size:92px;"></div></div>
+    <div class="mask" style="top:788px; height:104px;"><div class="hl hd" id="h1b" style="font-size:92px;"></div></div>
+    <div class="mask" style="top:886px; height:104px;"><div class="hl hd" id="h1c" style="font-size:92px;"></div></div>
+    <div id="s1mono" class="abs mono" style="left:0; right:0; top:1030px; text-align:center; font-size:15px; color:var(--dim);">UNA PRODUCCIÓN DE TU NEGOCIO · PRÓXIMAMENTE EN TU MÓVIL</div>
+
+    <!-- 02 -->
+    <div id="bigN">1</div>
+    <div class="ghost" id="g1" style="color:var(--acc);">37</div>
+    <div class="ghost" id="g2" style="color:var(--ink);">37</div>
+    <div id="stack" style="position:absolute; inset:0;"></div>
+    <div class="mask" style="top:1290px; height:84px;"><div class="hl hd" id="h2a" style="font-size:72px;"></div></div>
+    <div class="mask" style="top:1372px; height:84px;"><div class="hl hd" id="h2b" style="font-size:72px;"></div></div>
+
+    <!-- 03 -->
+    <div id="beamGlow"></div>
+    <div id="wall"></div>
+    <div id="motes"></div>
+    <div class="mask" style="top:290px; height:84px;"><div class="hl hd" id="h3a" style="font-size:72px;"></div></div>
+    <div class="mask" style="top:372px; height:84px;"><div class="hl hd" id="h3b" style="font-size:72px;"></div></div>
+
+    <!-- 04 -->
+    <div id="chat">
+      <div class="head mono"><span><i class="dot"></i>03:02 · ASISTENTE IA</span><span>EN LÍNEA</span></div>
+      <div class="bub" id="bIn">¿Tenéis hueco mañana?</div>
+      <div id="typing"><i></i><i></i><i></i></div>
+      <div class="bub" id="bOut"></div>
+      <div id="unread">SIN LEER: 37</div>
+    </div>
+    <div class="mask" style="top:1120px; height:84px;"><div class="hl hd" id="h4a" style="font-size:72px;"></div></div>
+    <div class="mask" style="top:1202px; height:84px;"><div class="hl hd" id="h4b" style="font-size:72px;"></div></div>
+  </div>
+
+  <!-- 05 -->
+  <div id="wm">PaMenAgency</div>
+  <div class="mask" style="top:728px; height:136px;"><div class="hl hd" id="e1" style="font-size:124px;"></div></div>
+  <div class="mask" style="top:850px; height:136px;"><div class="hl hd" id="e2" style="font-size:124px;"></div></div>
+  <div id="pill">Etiqueta a quien vive esta peli →</div>
+  <div id="eUrl" class="abs mono" style="left:0; right:0; top:1184px; text-align:center; font-size:14px; color:var(--dim);">AUTOMATIZACIÓN CON IA · PAMENAGENCY.COM</div>
+
+  <div id="ov">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="abs mono" style="left:58px; top:56px;"><div class="t1">PAMEN AGENCY&nbsp;&nbsp;2026</div><div class="t2">AUTOMATIZACIÓN CON IA · PYMES</div><div id="sq"><i></i><i></i><i></i><i></i></div></div>
+    <div class="abs mono" style="right:58px; top:56px; text-align:right;"><div class="t1" id="tc">TC 00:00:00:00</div><div class="t2">9:16 / 60 FPS</div></div>
+    <div class="abs mono" id="chap" style="left:58px; bottom:54px; font-size:13px;"></div>
+    <div class="abs mono" style="right:58px; bottom:54px; font-size:13px; letter-spacing:.08em; text-transform:none;">PaMenAgency × Reels</div>
+  </div>
+  <div class="cap"><span id="capspan"></span></div>
+  <canvas id="grain" width="360" height="640"></canvas>
+  <div id="dark"></div>
+  <div id="flash"></div>
+</div>
+
+<script>
+const T = 12.6, FPS = 60;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const P = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = k => 1 - Math.pow(1 - k, 3);
+const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const eBack = k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+let seed = 27; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const rise = (el, k) => { el.style.transform = `translateX(-50%) translateY(${((1 - k) * 108).toFixed(2)}%)`; el.style.visibility = k <= .001 ? "hidden" : ""; };
+const hl = html => `<span class="glow">${html}</span><span class="sharp">${html}</span>`;
+const updown = (t, a, b, c, d, dur = .38) => eOut(P(t, a, a + dur)) * (1 - eIO(P(t, c, d)));
+
+const CH = [["01 — LA CASA", 0, 2.4], ["02 — 23:47", 2.4, 5.0], ["03 — EL SÓTANO", 5.0, 7.6], ["04 — EL GIRO", 7.6, 10.1], ["05 — TU TURNO", 10.1, T]];
+const CAPS = [[0, 2.4, "BASADA EN HECHOS REALES 👻"], [2.4, 5.0, "23:47. EL MÓVIL NO PARA…"], [5.0, 7.6, "Y EN EL SÓTANO… LA AGENDA"], [7.6, 10.1, "PERO ESTA VEZ, ALGUIEN RESPONDE"], [10.1, T, "COMENTA “IA” 👇"]];
+
+/* ---------- construcción ---------- */
+$("h1a").innerHTML = hl("Si tu negocio");
+$("h1b").innerHTML = hl("fuera una peli");
+$("h1c").innerHTML = hl('<span class="acc">de terror.</span>');
+$("h2a").innerHTML = hl("Tienes 37");
+$("h2b").innerHTML = hl('<span class="acc">mensajes sin leer.</span>');
+$("h3a").innerHTML = hl("La agenda.");
+$("h3b").innerHTML = hl('<span class="acc">Nadie la ha visto.</span>');
+$("h4a").innerHTML = hl("Alguien responde.");
+$("h4b").innerHTML = hl('<span class="acc">A las 3 a. m.</span>');
+$("e1").innerHTML = hl("Comenta");
+$("e2").innerHTML = hl('<span class="acc">“IA”.</span>');
+
+const MSG = ["¿Estáis abiertos?", "Hola??", "¿Precio?", "Te escribo por la cita", "Holaaa", "¿Hay alguien?", "???", "Sigo esperando…", "¿Me cogéis el teléfono?", "¿Mañana podéis?", "Hola, ¿precio?", "Vale, me voy a otro sitio"];
+const N = MSG.length, TA = MSG.map((_, k) => 2.55 + 1.6 * Math.pow(k / (N - 1), .6));
+$("stack").innerHTML = MSG.map((m, k) => `<div class="nt" id="nt${k}"><div class="ic">WA</div><div><div class="tt">WhatsApp · ahora</div><div class="mg">${m}</div></div></div>`).join("");
+
+const NOTES = [
+  ["CITA 10:00 · ¿CON QUIÉN?", 110, 520, -4],
+  ["LLAMAR A MARTA · HACE 3 SEMANAS", 500, 640, 3],
+  ["PRESUPUESTO PENDIENTE (Y VAN 5)", 130, 900, 2],
+  ["“¿HABÉIS VISTO MI MENSAJE?”", 540, 1060, -3],
+  ["AGENDA · ÚLTIMA VEZ VISTA: MARZO", 210, 1230, -2],
+  ["RECORDATORIO: ¿DE QUÉ?", 600, 1380, 4],
+];
+$("wall").innerHTML = NOTES.map((n, i) => `<div class="note" id="no${i}" style="left:${n[1]}px; top:${n[2]}px; rotate:${n[3]}deg;">${n[0]}</div>`).join("");
+// recorrido de la linterna: se para en cada nota y acaba en la agenda
+const BEAM = [[5.05, 310, 552], [5.45, 715, 672], [5.85, 340, 932], [6.25, 740, 1092], [6.65, 790, 1412], [7.05, 450, 1262]];
+function beam(t) {
+  if (t <= BEAM[0][0]) return [BEAM[0][1], BEAM[0][2]];
+  for (let i = 1; i < BEAM.length; i++) if (t <= BEAM[i][0]) {
+    const k = eIO(P(t, BEAM[i - 1][0], BEAM[i][0]));
+    return [lerp(BEAM[i - 1][1], BEAM[i][1], k), lerp(BEAM[i - 1][2], BEAM[i][2], k)];
+  }
+  const L = BEAM[BEAM.length - 1]; return [L[1], L[2]];
+}
+const MOTES = [];
+for (let i = 0; i < 40; i++) { const el = document.createElement("div"); el.className = "mote"; $("motes").appendChild(el); MOTES.push({ el, x: rnd() * 1080, y: 440 + rnd() * 1120, vx: (rnd() - .5) * 26, vy: -8 - rnd() * 18, s: 2 + rnd() * 3 }); }
+
+const gctx = $("grain").getContext("2d"), GR = [];
+for (let f = 0; f < 4; f++) {
+  const img = gctx.createImageData(360, 640);
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  GR.push(img);
+}
+const REPLY = "¡Sí! Te reservo a las 10:00 ✓";
+
+/* ---------- seek ---------- */
+function seek(t) {
+  t = clamp(t, 0, T - 1e-6);
+  const fr = Math.floor(t * FPS + 1e-6), ss = Math.floor(fr / FPS);
+  const ci = CH.findIndex(c => t >= c[1] && t < c[2]);
+  $("tc").textContent = `TC 00:00:${String(ss).padStart(2, "0")}:${String(fr % FPS).padStart(2, "0")}`;
+  $("chap").textContent = CH[ci][0];
+  document.querySelectorAll("#sq i").forEach((el, i) => el.classList.toggle("on", i < Math.ceil((ci + 1) / 5 * 4)));
+  gctx.putImageData(GR[fr % 4], 0, 0);
+
+  const cp = CAPS.find(c => t >= c[0] && t < c[1]) || CAPS[CAPS.length - 1];
+  $("capspan").textContent = cp[2];
+  const pop = Math.max(0, 1 - (t - cp[0]) / .18);
+  $("capspan").style.transform = `scale(${(1 + .18 * pop * pop).toFixed(3)})`;
+
+  // parpadeo de bombilla (determinista)
+  const h = hash(Math.floor(t * 30));
+  const flick = t < 7.6 ? (h < .05 ? .3 : h < .13 ? .62 : 1) : 1;
+  $("glow").style.opacity = (flick * (t > 7.85 ? 1.6 : 1)).toFixed(3);
+
+  // apagones entre capítulos y encendido de luces
+  let dk = 0;
+  if (t > 2.36 && t < 2.47) dk = 1;
+  if (t > 4.9 && t < 5.04) dk = 1;
+  if (t > 7.55 && t < 7.86) { const hh = hash(Math.floor(t * 40) + 99); dk = hh < .5 ? .85 : 0; }
+  $("dark").style.opacity = dk;
+  $("room").style.opacity = t >= 7.86 ? eOut(P(t, 7.86, 8.2)) * (1 - P(t, 9.9, 10.2)) : 0;
+
+  // 01 título
+  rise($("h1a"), updown(t, 0, 0, 2.05, 2.32, .3));
+  rise($("h1b"), updown(t, .06, 0, 2.08, 2.34, .3));
+  rise($("h1c"), updown(t, .12, 0, 2.1, 2.36, .3));
+  ["h1a", "h1b", "h1c"].forEach(id => $(id).style.opacity = (.55 + .45 * flick).toFixed(3));
+  const m1 = eOut(P(t, .6, 1)) * (1 - P(t, 2.05, 2.3));
+  css($("s1mono"), { opacity: m1 * flick, transform: `translateY(${((1 - m1) * 12).toFixed(1)}px)` });
+
+  // 02 avalancha de notificaciones
+  const s2 = t >= 2.4 && t < 5.0;
+  const n = t < 2.55 ? 1 : Math.round(lerp(1, 37, Math.pow(P(t, 2.55, 4.2), 1.6)));
+  $("bigN").textContent = n;
+  const scare = t - 4.2;
+  const slam = scare >= 0 ? eBack(P(t, 4.2, 4.5)) : 0;
+  const s2out = 1 - P(t, 4.72, 4.92);
+  css($("bigN"), {
+    opacity: s2 ? s2out : 0, zIndex: scare >= 0 ? 3 : 0,
+    color: scare >= 0 ? `rgba(255,170,29,${(.85 - .55 * P(t, 4.35, 4.8)).toFixed(3)})` : "rgba(239,233,223,.07)",
+    transform: `scale(${scare >= 0 ? lerp(1.45, 1, slam).toFixed(3) : (1 + .03 * Math.sin(t * 40) * P(t, 3.6, 4.2)).toFixed(3)})`,
+  });
+  const gk = scare >= 0 && scare < .3 ? 1 - scare / .3 : 0;
+  $("stack").style.zIndex = 1; $("stack").style.opacity = (1 - .78 * eOut(P(t, 4.2, 4.4))).toFixed(3);
+  css($("g1"), { zIndex: 4, opacity: (gk * .45).toFixed(3), transform: `translate(${(-14 * gk).toFixed(1)}px, ${(4 * gk).toFixed(1)}px)` });
+  css($("g2"), { zIndex: 4, opacity: (gk * .3).toFixed(3), transform: `translate(${(14 * gk).toFixed(1)}px, ${(-4 * gk).toFixed(1)}px)` });
+  for (let k = 0; k < N; k++) {
+    const el = $("nt" + k);
+    if (!s2 || t < TA[k]) { el.style.opacity = 0; continue; }
+    let pos = 0;
+    for (let j = k + 1; j < N; j++) pos += eOut(P(t, TA[j], TA[j] + .16));
+    const e = eOut(P(t, TA[k], TA[k] + .18));
+    css(el, { top: `${(520 + pos * 112 - (1 - e) * 40).toFixed(1)}px`, opacity: (e * clamp(6.2 - pos) * s2out).toFixed(3), transform: `scale(${lerp(.96, 1, e).toFixed(3)})` });
+  }
+  rise($("h2a"), updown(t, 4.2, 0, 4.7, 4.92, .32));
+  rise($("h2b"), updown(t, 4.27, 0, 4.72, 4.94, .32));
+
+  // 03 linterna
+  const s3 = t >= 5.0 && t < 7.86;
+  const [bx, by] = beam(t);
+  const br = lerp(265, 470, eIO(P(t, 7.05, 7.4))) * (t < 5.15 ? (hash(Math.floor(t * 60)) < .5 ? .3 : 1) : 1);
+  const mask = `radial-gradient(circle ${br.toFixed(0)}px at ${bx.toFixed(1)}px ${by.toFixed(1)}px, #000 55%, rgba(0,0,0,.35) 80%, rgba(0,0,0,.07) 100%)`;
+  const wallOut = 1 - eIO(P(t, 7.6, 7.9));
+  css($("wall"), { webkitMaskImage: mask, maskImage: mask, opacity: s3 ? wallOut : 0 });
+  css($("beamGlow"), { background: `radial-gradient(circle ${(br * 1.4).toFixed(0)}px at ${bx.toFixed(1)}px ${by.toFixed(1)}px, rgba(255,214,150,.13), rgba(255,170,29,0) 70%)`, opacity: s3 ? wallOut : 0 });
+  MOTES.forEach(m => {
+    if (!s3) { m.el.style.opacity = 0; return; }
+    const lt = t - 5;
+    const x = ((m.x + m.vx * lt) % 1080 + 1080) % 1080, y = m.y + m.vy * lt + Math.sin(lt * 1.3 + m.x) * 6;
+    const d = Math.hypot(x - bx, y - by) / br;
+    css(m.el, { left: `${x.toFixed(1)}px`, top: `${y.toFixed(1)}px`, width: `${m.s}px`, height: `${m.s}px`, opacity: (clamp(1 - d) * .7 * wallOut).toFixed(3) });
+  });
+  rise($("h3a"), updown(t, 7.0, 0, 7.55, 7.8, .34));
+  rise($("h3b"), updown(t, 7.07, 0, 7.57, 7.82, .34));
+
+  // 04 se encienden las luces y alguien responde
+  const op = eIO(P(t, 7.9, 8.3)) * (1 - eIO(P(t, 9.9, 10.2)));
+  css($("chat"), { clipPath: `inset(0 0 ${((1 - op) * 100).toFixed(2)}% 0 round 18px)`, opacity: op > 0 ? 1 : 0, transform: `scale(${lerp(1, .96, eIO(P(t, 9.9, 10.2))).toFixed(4)})` });
+  const ki = eOut(P(t, 8.2, 8.5));
+  css($("bIn"), { opacity: ki, transform: `translateY(${((1 - ki) * 20).toFixed(1)}px)` });
+  const typing = t >= 8.55 && t < 8.95;
+  $("typing").style.opacity = typing ? 1 : 0;
+  $("typing").querySelectorAll("i").forEach((d, i) => d.style.transform = `translateY(${(Math.sin(t * 14 - i * .9) * 5).toFixed(1)}px)`);
+  const nch = Math.floor(REPLY.length * P(t, 8.95, 9.5));
+  $("bOut").textContent = REPLY.slice(0, nch);
+  $("bOut").style.opacity = t >= 8.95 ? 1 : 0;
+  const unread = Math.round(37 * (1 - eOut(P(t, 8.95, 9.6))));
+  $("unread").textContent = unread === 0 ? "SIN LEER: 0 ✓" : `SIN LEER: ${unread}`;
+  $("unread").style.color = unread === 0 ? "#ffaa1d" : "rgba(239,233,223,.5)";
+  rise($("h4a"), updown(t, 9.2, 0, 9.85, 10.1, .34));
+  rise($("h4b"), updown(t, 9.27, 0, 9.88, 10.12, .34));
+
+  // golpe del susto
+  let sx = 0, sy = 0;
+  if (scare >= 0 && scare < .5) { const a = Math.exp(-scare * 8); sx = Math.sin(scare * 95) * 22 * a; sy = Math.cos(scare * 120) * 16 * a; }
+  $("world").style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px)`;
+  let fl = 0;
+  if (scare >= 0) fl = Math.max(fl, .32 * Math.exp(-scare * 11));
+  if (t >= 10.2) fl = Math.max(fl, .3 * Math.exp(-(t - 10.2) * 12));
+  $("flash").style.opacity = fl.toFixed(3);
+
+  // 05 cierre
+  const wk = eIO(P(t, 10.3, 10.85));
+  css($("wm"), { clipPath: `inset(0 ${((1 - wk) * 100).toFixed(2)}% 0 0)`, opacity: t >= 10.3 ? 1 : 0, transform: `translateX(${((1 - wk) * -30).toFixed(1)}px)` });
+  rise($("e1"), eOut(P(t, 10.55, 10.95)));
+  rise($("e2"), eOut(P(t, 10.65, 11.05)));
+  const pk = eBack(P(t, 11.2, 11.65)), pls = t > 11.9 ? 1 + Math.sin((t - 11.9) * 10) * .025 : 1;
+  css($("pill"), { opacity: P(t, 11.2, 11.35), transform: `translateX(-50%) scale(${(lerp(.8, 1, pk) * pls).toFixed(3)})` });
+  $("eUrl").style.opacity = P(t, 11.5, 11.9);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
