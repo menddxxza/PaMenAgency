@@ -14,7 +14,7 @@ Aquí solo se hacen **vídeos**. Cada reel es una página HTML animada que se re
    - **Duración:** 10-13 s.
    - **Formatos:** meme o nativos de TikTok/Reels.
    - **Humor:** identificable para el dueño de un negocio.
-   - **Subtítulos:** estilo TikTok (caja clara, texto negro, negrita). En el estilo de la casa: caja crema `#f2ece2`, Anton negro en mayúsculas.
+   - **Sin caja de subtítulos.** El dueño pidió quitarla (desde el Reel 28): nada de cajas de texto tipo TikTok. Todo el texto va en los titulares de cada escena (los que suben desde la máscara) y en las etiquetas mono; el gancho del primer segundo lo hace el titular.
    - **Doble CTA al final:** comentar "IA" y además otra cosa: comentar un número, etiquetar a alguien, mandárselo a alguien o guardar.
 3. **Cada vídeo debe ser distinto a todos los anteriores en formato y concepto, pero todos comparten el "Estilo de la casa"** (desde el Reel 25, ver abajo). Motion design de verdad: cámara, 3D, máscaras, partículas, trazos SVG, transiciones con golpe. Mira el catálogo antes de elegir.
 4. **4K (2160x3840) a 60 fps siempre.** Nada de 120 fps: no compensa.
@@ -32,7 +32,7 @@ Referencia: la película vertical de MecaPro (`Proyectos claude/MecaPro-pelicula
 - **Tipografía (la del Reel 25 como ejemplo):** titulares **Anton** en mayúsculas, `line-height:.95`, que **suben desde una máscara** (`overflow:hidden` + `translateY(105% → 0)`) con una copia roja desenfocada detrás (halo), frases cortas **con punto final** y la segunda línea en rojo. Etiquetas y datos en **JetBrains Mono** mayúsculas con `letter-spacing:.2em`. Marca y botones en **Inter Tight 500**.
 - **Recursos de movimiento:** líneas que se dibujan desde el centro, tarjetas UI oscuras (`#131110`, borde `rgba(242,236,226,.1)`, radio 18) que se abren desde una línea, trazos SVG con estela desenfocada y punto de cabeza, nodos que se encienden con check dibujado, contadores con frenada y nota "cifra ilustrativa, no son datos reales", anillos y rayos que estallan, flashes con caída exponencial, golpes de cámara (sacudida, punch-in con `transform-origin` en el punto de interés). Una idea por plano, mucho espacio negativo.
 - **Cierre:** marca "PaMenAgency" revelada de izquierda a derecha, titular "COMENTA “IA”." y botón píldora rojo con el segundo CTA.
-- **Base de código:** parte de `fuente-bolsa/reel25.html` (HUD, grano, helpers `P/eOut/eIO/eBack/rise`, titulares con máscara, flash). Todo se calcula en `seek(t)` en función de `t`.
+- **Base de código:** parte de `fuente-bolsa/reel25.html` (HUD, grano, helpers `P/eOut/eIO/eBack/rise`, titulares con máscara, flash). Todo se calcula en `seek(t)` en función de `t`. **Quita la caja `.cap` / `#capspan` y su lógica**: esa base todavía la tiene y ya no se usa.
 - **No copiar literalmente** escenas de la referencia (nube de iconos que forma un globo, filas diagonales rojas a pantalla completa, buscador que se convierte en dashboard): inspírate, no las repitas.
 - **Trampas:** el halo desenfocado de un titular escondido asoma por el borde de su máscara: pon `visibility:hidden` cuando su progreso sea 0 (ya lo hace `rise()` en la base). En Anton las comillas angulares se ven como dos signos de menor/mayor: usa “ ”. El grano infla mucho el MP4: si pasa de ~95 MB (GitHub rechaza archivos de más de 100 MB), recomprime con `ffmpeg -i in.mp4 -c:v libx264 -preset slow -crf 21 -pix_fmt yuv420p -profile:v high -movflags +faststart -c:a copy out.mp4` (el Reel 25 bajó de 103 a 58 MB sin pérdida visible).
 
@@ -76,7 +76,6 @@ Para cada reel:
 2. **Construye** `marketing/instagram/fuente-<slug>/reelNN.html` a partir de `fuente-bolsa/reel25.html` (base del estilo de la casa; copia también sus `fonts/`):
    - gancho visible en 0-0,3 s
    - 10-13 s en total
-   - subtítulos en caja blanca
    - marca PAMEN AGENCY visible
    - doble CTA al final (comenta "IA" + número/etiqueta/compartir/guardar)
 3. **Verifica con stills** (6-8 momentos clave) y **mira los PNG**. Corrige todo lo que se salga, se pise o no se lea. No renderices hasta que los stills estén bien.
