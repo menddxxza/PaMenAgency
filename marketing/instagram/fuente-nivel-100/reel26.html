@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 26 PaMen — Nivel 1 / Nivel 100</title>
+<style>
+@font-face { font-family:"Unbounded"; src:url("fonts/Unbounded-ExtraBold.font") format("truetype"); font-weight:800; }
+@font-face { font-family:"DMMono"; src:url("fonts/DMMono-Medium.font") format("truetype"); font-weight:500; }
+@font-face { font-family:"InterTight"; src:url("fonts/InterTight-Medium.font") format("truetype"); font-weight:500; }
+:root { --bg:#090b0a; --ink:#eef2e8; --acc:#c6ff2e; --dim:rgba(238,242,232,.5); --line:rgba(238,242,232,.13); --ov:rgba(238,242,232,.8); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--ink); font-family:"InterTight", sans-serif; }
+.abs { position:absolute; }
+.hd { font-family:"Unbounded", sans-serif; font-weight:800; text-transform:uppercase; line-height:1.02; letter-spacing:-.01em; }
+.mono { font-family:"DMMono", monospace; letter-spacing:.18em; text-transform:uppercase; }
+.acc { color:var(--acc); }
+#glow { position:absolute; inset:0; background:radial-gradient(ellipse 65% 45% at 40% 45%, rgba(198,255,46,.09), rgba(198,255,46,0) 70%); }
+#grain { position:absolute; left:0; top:0; width:1080px; height:1920px; opacity:.055; pointer-events:none; z-index:45; }
+#flash { position:absolute; inset:0; background:var(--acc); opacity:0; z-index:60; pointer-events:none; mix-blend-mode:screen; }
+
+/* HUD */
+#ov { position:absolute; inset:0; z-index:50; color:var(--ov); pointer-events:none; }
+.corner { position:absolute; width:56px; height:56px; border:0 solid currentColor; opacity:.7; }
+.corner.tl { left:40px; top:40px; border-left-width:2px; border-top-width:2px; }
+.corner.tr { right:40px; top:40px; border-right-width:2px; border-top-width:2px; }
+.corner.bl { left:40px; bottom:40px; border-left-width:2px; border-bottom-width:2px; }
+.corner.br { right:40px; bottom:40px; border-right-width:2px; border-bottom-width:2px; }
+#ov .t1 { font-size:17px; }
+#ov .t2 { font-size:12px; color:var(--dim); margin-top:6px; letter-spacing:.14em; }
+#sq { display:flex; gap:7px; margin-top:12px; }
+#sq i { width:11px; height:11px; border:1.5px solid currentColor; display:block; }
+#sq i.on { background:var(--acc); border-color:var(--acc); }
+
+.cap { position:absolute; left:0; right:0; top:178px; display:flex; justify-content:center; z-index:55; }
+.cap span { background:var(--ink); color:#090b0a; font-family:"Unbounded"; font-weight:800; text-transform:uppercase; font-size:34px; line-height:1.18; letter-spacing:-.005em; padding:12px 26px 13px; border-radius:14px; text-align:center; max-width:940px; }
+
+.mask { position:absolute; overflow:hidden; }
+.hl { position:absolute; left:0; bottom:0; white-space:nowrap; }
+.hl .glow { position:absolute; left:0; bottom:0; color:var(--acc); filter:blur(16px); opacity:.55; }
+.hl .sharp { position:relative; }
+
+#main { position:absolute; inset:0; transform-origin:150px 1000px; z-index:20; }
+#trackSvg { position:absolute; left:0; top:0; overflow:visible; }
+.lv { position:absolute; right:944px; font-size:13px; color:var(--dim); text-align:right; white-space:nowrap; }
+#roLab { left:232px; top:300px; font-size:16px; color:var(--dim); }
+#ro { left:226px; top:326px; font-size:200px; line-height:1; letter-spacing:-.03em; }
+.icon { position:absolute; left:232px; top:820px; width:96px; height:96px; overflow:visible; }
+.icon * { fill:none; stroke:var(--acc); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.sub { position:absolute; left:234px; top:1124px; font-size:17px; color:var(--dim); white-space:nowrap; }
+.uline { position:absolute; left:234px; top:1164px; height:2px; background:var(--acc); box-shadow:0 0 12px var(--acc); }
+.chk { position:absolute; left:234px; font-size:20px; white-space:nowrap; display:flex; align-items:center; gap:16px; }
+.chk svg { width:26px; height:26px; }
+.chk path { fill:none; stroke:var(--acc); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+
+#wm { position:absolute; left:0; right:0; top:610px; text-align:center; font-family:"InterTight"; font-weight:500; font-size:92px; letter-spacing:-.02em; white-space:nowrap; }
+#pill { position:absolute; left:50%; top:1112px; font-family:"InterTight"; font-weight:500; font-size:32px; color:#090b0a; background:var(--acc); padding:16px 32px; border-radius:999px; white-space:nowrap; box-shadow:0 0 50px rgba(198,255,46,.35); }
+.spark { position:absolute; border-radius:50%; background:var(--acc); opacity:0; z-index:30; box-shadow:0 0 10px var(--acc); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <div id="main">
+    <svg id="trackSvg" width="1080" height="1920">
+      <defs><filter id="bl" x="-200%" y="-20%" width="500%" height="140%"><feGaussianBlur stdDeviation="7"/></filter>
+            <filter id="bl2" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+      <line x1="150" y1="1500" x2="150" y2="560" stroke="rgba(238,242,232,.13)" stroke-width="2"/>
+      <line id="fillGlow" x1="150" y1="1500" x2="150" y2="1500" stroke="#c6ff2e" stroke-width="12" filter="url(#bl)" opacity=".6"/>
+      <line id="fill" x1="150" y1="1500" x2="150" y2="1500" stroke="#c6ff2e" stroke-width="3.5" stroke-linecap="round"/>
+      <g id="nodes"></g>
+      <g id="rings"></g>
+      <circle id="hHalo" cx="150" r="20" fill="#c6ff2e" opacity=".45" filter="url(#bl2)"/>
+      <circle id="hDot" cx="150" r="7" fill="#f4ffd6"/>
+    </svg>
+    <div id="lvlabels"></div>
+    <div id="roLab" class="abs mono">NIVEL ACTUAL</div>
+    <div id="ro" class="abs hd">1</div>
+    <div id="chapters"></div>
+  </div>
+
+  <div id="end">
+    <div id="wm">PaMenAgency</div>
+    <div class="mask" style="left:0; right:0; top:730px; height:130px;"><div class="hl hd" id="e1" style="font-size:108px; left:50%;"></div></div>
+    <div class="mask" style="left:0; right:0; top:850px; height:130px;"><div class="hl hd" id="e2" style="font-size:108px; left:50%;"></div></div>
+    <div id="eMono" class="abs mono" style="left:0; right:0; top:1040px; text-align:center; font-size:17px; color:var(--dim);">Y DINOS EN QUÉ NIVEL ESTÁS</div>
+    <div id="pill">Comenta tu nivel: 1 · 10 · 50 · 100</div>
+    <div id="eUrl" class="abs mono" style="left:0; right:0; top:1214px; text-align:center; font-size:14px; color:var(--dim);">AUTOMATIZACIÓN CON IA · PAMENAGENCY.COM</div>
+  </div>
+  <div id="sparks"></div>
+
+  <div id="ov">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="abs mono" style="left:58px; top:56px;"><div class="t1">PAMEN AGENCY&nbsp;&nbsp;2026</div><div class="t2">AUTOMATIZACIÓN CON IA · PYMES</div><div id="sq"><i></i><i></i><i></i><i></i></div></div>
+    <div class="abs mono" style="right:58px; top:56px; text-align:right;"><div class="t1" id="tc">TC 00:00:00:00</div><div class="t2">9:16 / 60 FPS</div></div>
+    <div class="abs mono" id="chap" style="left:58px; bottom:54px; font-size:14px;"></div>
+    <div class="abs mono" style="right:58px; bottom:54px; font-size:14px; letter-spacing:.1em; text-transform:none;">PaMenAgency × Reels</div>
+  </div>
+  <div class="cap"><span id="capspan"></span></div>
+  <canvas id="grain" width="360" height="640"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+const T = 12.6, FPS = 60;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const P = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = k => 1 - Math.pow(1 - k, 3);
+const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const eExpo = k => (k >= 1 ? 1 : 1 - Math.pow(2, -10 * k));
+const eBack = k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+let seed = 26; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const rise = (el, k) => { el.style.transform = `${el.dataset.base || ""} translateY(${((1 - k) * 108).toFixed(2)}%)`; el.style.visibility = k <= .001 ? "hidden" : ""; };
+const hl = html => `<span class="glow">${html}</span><span class="sharp">${html}</span>`;
+
+const CH = [["01 — NIVEL 1", 0, 2.6], ["02 — NIVEL 10", 2.6, 4.9], ["03 — NIVEL 50", 4.9, 7.2], ["04 — NIVEL 100", 7.2, 10.1], ["05 — TU TURNO", 10.1, T]];
+const CAPS = [[0, 2.6, "¿EN QUÉ NIVEL ESTÁS? 👇"], [2.6, 4.9, "SUBIENDO DE NIVEL…"], [4.9, 7.2, "YA DELEGAS (MÁS O MENOS)"], [7.2, 10.1, "NIVEL 100: LO HACE LA IA"], [10.1, T, "COMENTA “IA” Y TU NIVEL 👇"]];
+const LV = [{ n: 1, y: 1500 }, { n: 10, y: 1220 }, { n: 50, y: 880 }, { n: 100, y: 560 }];
+const UP = [null, [2.6, 3.3], [4.9, 5.6], [7.2, 8.0]];
+
+// iconos dibujables (pathLength=1 en cada trazo)
+const ICONS = [
+  '<rect x="7" y="2.5" width="10" height="19" rx="2.2"/><path d="M10.8 18.3h2.4"/><path d="M19.5 5.5c1.2 1.1 1.2 3.4 0 4.5"/>',
+  '<rect x="8" y="7" width="12" height="14" rx="1.8"/><path d="M5 16.5V4.8C5 3.8 5.8 3 6.8 3H15"/><path d="M11 11.5h6M11 14.5h6M11 17.5h3.5"/>',
+  '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c.8-3.9 3.7-6.2 7.5-6.2s6.7 2.3 7.5 6.2"/><path d="M17.5 4.5l1.6-1.6M19.6 7.6h2.2"/>',
+  '<rect x="4" y="8" width="16" height="11.5" rx="3"/><path d="M12 8V4.6"/><circle cx="12" cy="3.6" r="1.1"/><path d="M9 13.2v1.4M15 13.2v1.4"/><path d="M1.8 12.5v2.5M22.2 12.5v2.5"/>',
+];
+const CONTENT = [
+  { a: "Contestas", b: "desde la cama.", sub: "23:47 · 37 MENSAJES SIN LEER" },
+  { a: "Copias y pegas", b: "lo mismo.", sub: "PLANTILLA_FINAL_v7.TXT" },
+  { a: "Contratas", b: "a tu primo.", sub: "DE LUNES A VIERNES · DE 9 A 14 H" },
+  { a: "Lo hace", b: "la IA.", sub: "MIENTRAS TÚ CIERRAS EL PORTÁTIL" },
+];
+const CHECKS = ["RESPONDE 24/7", "AGENDA LAS CITAS", "RECUERDA A CADA CLIENTE"];
+
+/* ---------- construcción ---------- */
+let chHTML = "";
+CONTENT.forEach((c, i) => {
+  chHTML += `<svg class="icon" id="ic${i}" viewBox="0 0 24 24">${ICONS[i].replace(/<(rect|path|circle)/g, '<$1 pathLength="1"')}</svg>
+  <div class="mask" style="left:226px; width:820px; top:950px; height:72px;"><div class="hl hd" id="ha${i}" style="font-size:56px;">${hl(c.a)}</div></div>
+  <div class="mask" style="left:226px; width:820px; top:1018px; height:72px;"><div class="hl hd" id="hb${i}" style="font-size:56px;">${hl(`<span class="acc">${c.b}</span>`)}</div></div>
+  <div class="sub mono" id="sb${i}">${c.sub}</div>
+  <div class="uline" id="ul${i}"></div>`;
+});
+CHECKS.forEach((c, i) => {
+  chHTML += `<div class="chk mono" id="ck${i}" style="top:${1212 + i * 58}px;"><svg viewBox="0 0 24 24"><path pathLength="1" d="M4 12.5l5 5L20 6.5"/></svg>${c}</div>`;
+});
+$("chapters").innerHTML = chHTML;
+document.querySelectorAll(".icon *").forEach(el => { el.style.strokeDasharray = 1; el.style.strokeDashoffset = 1; });
+document.querySelectorAll(".chk path").forEach(el => { el.style.strokeDasharray = 1; el.style.strokeDashoffset = 1; });
+
+let nodes = "", rings = "", labs = "";
+LV.forEach((l, i) => {
+  nodes += `<circle id="nd${i}" cx="150" cy="${l.y}" r="${i === 3 ? 13 : 10}" stroke-width="3" fill="#090b0a" stroke="rgba(238,242,232,.25)"/>`;
+  for (let r = 0; r < 3; r++) rings += `<circle id="rg${i}_${r}" cx="150" cy="${l.y}" fill="none" stroke="#c6ff2e" stroke-width="2.5" opacity="0"/>`;
+  labs += `<div class="lv mono" id="lb${i}" style="top:${l.y - 9}px;">LV ${l.n}</div>`;
+});
+$("nodes").innerHTML = nodes; $("rings").innerHTML = rings; $("lvlabels").innerHTML = labs;
+$("e1").innerHTML = hl("Comenta"); $("e2").innerHTML = hl('<span class="acc">“IA”.</span>');
+$("e1").dataset.base = $("e2").dataset.base = "translateX(-50%)";
+
+// chispas del nivel 100 (deterministas)
+const SP = [];
+for (let i = 0; i < 34; i++) {
+  const el = document.createElement("div"); el.className = "spark"; $("sparks").appendChild(el);
+  SP.push({ el, a: -Math.PI / 2 + (rnd() - .5) * 2.6, v: 380 + rnd() * 620, s: 4 + rnd() * 7, d: rnd() * .12 });
+}
+
+// grano
+const gctx = $("grain").getContext("2d"), GR = [];
+for (let f = 0; f < 4; f++) {
+  const img = gctx.createImageData(360, 640);
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  GR.push(img);
+}
+
+/* ---------- seek ---------- */
+function fillY(t) {
+  let y = LV[0].y;
+  for (let k = 1; k < 4; k++) if (t >= UP[k][0]) y = lerp(LV[k - 1].y, LV[k].y, eIO(P(t, UP[k][0], UP[k][1] - .05)));
+  return y;
+}
+function level(t) {
+  let n = 1;
+  for (let k = 1; k < 4; k++) if (t >= UP[k][0]) n = Math.round(lerp(LV[k - 1].n, LV[k].n, eExpo(P(t, UP[k][0], UP[k][1] + .1))));
+  return n;
+}
+
+function seek(t) {
+  t = clamp(t, 0, T - 1e-6);
+  const fr = Math.floor(t * FPS + 1e-6), ss = Math.floor(fr / FPS);
+  const ci = CH.findIndex(c => t >= c[1] && t < c[2]);
+  $("tc").textContent = `TC 00:00:${String(ss).padStart(2, "0")}:${String(fr % FPS).padStart(2, "0")}`;
+  $("chap").textContent = CH[ci][0];
+  document.querySelectorAll("#sq i").forEach((el, i) => el.classList.toggle("on", i < Math.ceil((ci + 1) / 5 * 4)));
+  gctx.putImageData(GR[fr % 4], 0, 0);
+
+  const cp = CAPS.find(c => t >= c[0] && t < c[1]) || CAPS[CAPS.length - 1];
+  $("capspan").textContent = cp[2];
+  const pop = Math.max(0, 1 - (t - cp[0]) / .18);
+  $("capspan").style.transform = `scale(${(1 + .18 * pop * pop).toFixed(3)})`;
+
+  // barra de experiencia
+  const y = fillY(t), pul = 1 + Math.sin(t * 9) * .18;
+  ["fill", "fillGlow"].forEach(id => $(id).setAttribute("y2", y.toFixed(1)));
+  $("hDot").setAttribute("cy", y.toFixed(1)); $("hDot").setAttribute("r", (6.5 * pul).toFixed(2));
+  $("hHalo").setAttribute("cy", y.toFixed(1)); $("hHalo").setAttribute("r", (20 * pul).toFixed(2));
+  const trackIn = eOut(P(t, 0, .5));
+  $("trackSvg").style.opacity = trackIn;
+  LV.forEach((l, i) => {
+    const lit = y <= l.y + .5;
+    $("nd" + i).setAttribute("fill", lit ? "#c6ff2e" : "#090b0a");
+    $("nd" + i).setAttribute("stroke", lit ? "#c6ff2e" : "rgba(238,242,232,.25)");
+    $("lb" + i).style.color = lit ? "#c6ff2e" : "rgba(238,242,232,.4)";
+    const tl = i === 0 ? 0 : UP[i][1] - .05;
+    for (let r = 0; r < 3; r++) {
+      const k = P(t, tl + r * .08, tl + r * .08 + (i === 3 ? 1.2 : .8)), rg = $(`rg${i}_${r}`);
+      rg.setAttribute("r", lerp(12, i === 3 ? 520 : 170, eOut(k)).toFixed(1));
+      rg.setAttribute("opacity", k > 0 && k < 1 ? ((1 - k) * .75).toFixed(3) : 0);
+    }
+  });
+
+  // contador de nivel
+  const n = level(t);
+  $("ro").textContent = n;
+  $("ro").style.color = n === 100 ? "#c6ff2e" : "#eef2e8";
+  const roIn = eOut(P(t, 0, .25));
+  css($("ro"), { opacity: roIn, transform: `scale(${lerp(.85, 1, roIn).toFixed(3)})`, transformOrigin: "0 100%" });
+  $("roLab").style.opacity = eOut(P(t, .1, .4));
+
+  // contenido de cada capítulo
+  CONTENT.forEach((c, i) => {
+    const tin = i === 0 ? 0 : UP[i][1] - .1;
+    const tout = i < 3 ? CH[i + 1][1] - .3 : 9.75;
+    const kA = eOut(P(t, tin, tin + .38)) * (1 - eIO(P(t, tout, tout + .3)));
+    const kB = eOut(P(t, tin + .07, tin + .45)) * (1 - eIO(P(t, tout + .04, tout + .34)));
+    rise($("ha" + i), kA); rise($("hb" + i), kB);
+    const ic = $("ic" + i), ki = eOut(P(t, tin - .05, tin + .6));
+    ic.style.opacity = i === 0 ? 1 - P(t, tout, tout + .25) : (t >= tin - .05 ? 1 : 0) * (1 - P(t, tout, tout + .25));
+    ic.querySelectorAll("*").forEach(el => el.style.strokeDashoffset = (1 - ki).toFixed(3));
+    const ks = eOut(P(t, tin + .3, tin + .65)) * (1 - P(t, tout, tout + .25));
+    css($("sb" + i), { opacity: ks, transform: `translateY(${((1 - ks) * 12).toFixed(1)}px)` });
+    const ku = eIO(P(t, tin + .35, tin + .9)) * (1 - P(t, tout, tout + .25));
+    $("ul" + i).style.width = (520 * ku).toFixed(1) + "px";
+    $("ul" + i).style.opacity = ku > 0 ? 1 : 0;
+  });
+  CHECKS.forEach((c, i) => {
+    const kc = eOut(P(t, 8.55 + i * .22, 8.9 + i * .22)) * (1 - P(t, 9.75, 10.05));
+    css($("ck" + i), { opacity: kc, transform: `translateX(${((1 - kc) * -20).toFixed(1)}px)` });
+    $("ck" + i).querySelector("path").style.strokeDashoffset = (1 - eOut(P(t, 8.65 + i * .22, 8.95 + i * .22))).toFixed(3);
+  });
+
+  // golpes de cámara al subir de nivel
+  let s = 1, sx = 0, sy = 0;
+  for (let k = 1; k < 4; k++) {
+    const d = t - (UP[k][1] - .05);
+    if (d >= 0 && d < .5) { const a = Math.exp(-d * 8); s += (k === 3 ? .07 : .035) * a; if (k === 3) { sx = Math.sin(d * 90) * 10 * a; sy = Math.cos(d * 110) * 8 * a; } }
+  }
+  const out = eIO(P(t, 9.95, 10.4));
+  $("main").style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) scale(${(s * lerp(1, .94, out)).toFixed(4)})`;
+  $("main").style.opacity = (1 - out).toFixed(3);
+
+  // chispas del nivel 100
+  const ds = t - 7.95;
+  SP.forEach(p => {
+    const lt = ds - p.d;
+    if (lt < 0 || lt > 1.3) { p.el.style.opacity = 0; return; }
+    const x = 150 + Math.cos(p.a) * p.v * lt + 120 * lt, y2 = 560 + Math.sin(p.a) * p.v * lt + 520 * lt * lt;
+    css(p.el, { left: `${x.toFixed(1)}px`, top: `${y2.toFixed(1)}px`, width: `${p.s}px`, height: `${p.s}px`, opacity: (1 - lt / 1.3).toFixed(3) });
+  });
+
+  // flash en el nivel 100 y en el cierre
+  let fl = 0;
+  if (t >= 7.95) fl = Math.max(fl, .4 * Math.exp(-(t - 7.95) * 9));
+  if (t >= 10.35) fl = Math.max(fl, .3 * Math.exp(-(t - 10.35) * 12));
+  $("flash").style.opacity = fl.toFixed(3);
+
+  // cierre
+  const wk = eIO(P(t, 10.4, 10.95));
+  css($("wm"), { clipPath: `inset(0 ${((1 - wk) * 100).toFixed(2)}% 0 0)`, opacity: t >= 10.4 ? 1 : 0, transform: `translateX(${((1 - wk) * -30).toFixed(1)}px)` });
+  rise($("e1"), eOut(P(t, 10.65, 11.05)));
+  rise($("e2"), eOut(P(t, 10.75, 11.15)));
+  const em = eOut(P(t, 11.1, 11.45));
+  css($("eMono"), { opacity: em, transform: `translateY(${((1 - em) * 12).toFixed(1)}px)` });
+  const pk = eBack(P(t, 11.3, 11.75)), pls = t > 12 ? 1 + Math.sin((t - 12) * 10) * .025 : 1;
+  css($("pill"), { opacity: P(t, 11.3, 11.45), transform: `translateX(-50%) scale(${(lerp(.8, 1, pk) * pls).toFixed(3)})` });
+  $("eUrl").style.opacity = P(t, 11.6, 12.0);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
