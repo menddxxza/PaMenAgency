@@ -194,12 +194,12 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 25 | reel-bolsa · `fuente-bolsa` | Si tu negocio cotizara en bolsa (gráfica de bolsa) | **Primer reel con el estilo de la casa.** Línea que se abre en tarjeta de cotización, trazo rojo con estela que cae con cada mensaje sin responder (sacudida + viñeta), nodo "IA activada" con anillos, rayos y punch-in de cámara, rebote con contador, cierre con marca, "COMENTA “IA”." y botón rojo. **Acento rojo #ff3d1f · Anton + JetBrains Mono** (12,6 s) |
 | 26 | reel-nivel-100 · `fuente-nivel-100` | Nivel 1 / nivel 100 (comenta tu nivel) | Estilo de la casa con barra de experiencia vertical que se llena con estela, nodos que se encienden con anillos, contador de nivel con frenada, iconos de trazo que se dibujan, golpe de cámara en cada subida, chispas en el nivel 100 y checklist. **Acento lima #c6ff2e sobre negro frío · Unbounded + DM Mono** (12,6 s) |
 | 27 | reel-peli-terror · `fuente-peli-terror` | Si tu negocio fuera una peli de terror | Estilo de la casa en clave terror: bombilla que parpadea, apagones entre capítulos, avalancha de notificaciones con susto (el "37" golpea al frente con sacudida y desdoble), linterna con máscara radial que barre una pared de notas con motas de polvo, luces que se encienden y chat de la IA a las 3 a. m. **Acento ámbar #ffaa1d · DM Serif Display + Space Mono** (12,6 s) |
+| 28 | reel-tier-list · `fuente-tier-list` | Tier list: qué automatizar primero | Estilo de la casa, **ya sin caja de subtítulos**: filas S/A/B/C que se dibujan, fichas de tareas que vuelan y encajan con anillo, brillo de fila y sacudida, acercamiento de cámara a la C para el chiste del café. Segundo CTA: guardar. **Acento azul eléctrico #3d7bff · Big Shoulders Display + Fira Code** (12,6 s) |
 
 ### Ideas de formatos virales aún sin usar
 
 - "Cosas que dice un dueño de negocio" en bocadillos.
 - "Expectativa vs realidad".
-- "Tier list" de tareas para automatizar.
 - "Elige: ¿A o B?" (encuesta).
 - Notificaciones del móvil bajo la lluvia.
 - "Dime tu sector y te digo qué automatizar".

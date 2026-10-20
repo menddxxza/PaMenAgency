@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 28 PaMen — Tier list: qué automatizar</title>
+<style>
+@font-face { font-family:"BigShoulders"; src:url("fonts/BigShoulders-Black.font") format("truetype"); font-weight:900; }
+@font-face { font-family:"FiraCode"; src:url("fonts/FiraCode-Medium.font") format("truetype"); font-weight:500; }
+@font-face { font-family:"InterTight"; src:url("fonts/InterTight-Medium.font") format("truetype"); font-weight:500; }
+:root { --bg:#07090f; --ink:#eaf0ff; --acc:#3d7bff; --dim:rgba(234,240,255,.5); --ov:rgba(234,240,255,.8); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--ink); font-family:"InterTight", sans-serif; }
+.abs { position:absolute; }
+.hd { font-family:"BigShoulders", sans-serif; font-weight:900; text-transform:uppercase; line-height:.95; letter-spacing:.01em; }
+.mono { font-family:"FiraCode", monospace; letter-spacing:.14em; text-transform:uppercase; }
+.acc { color:var(--acc); }
+#glow { position:absolute; inset:0; background:radial-gradient(ellipse 65% 45% at 50% 52%, rgba(61,123,255,.12), rgba(61,123,255,0) 70%); }
+#grain { position:absolute; left:0; top:0; width:1080px; height:1920px; opacity:.055; pointer-events:none; z-index:45; }
+#flash { position:absolute; inset:0; background:var(--acc); opacity:0; z-index:60; pointer-events:none; mix-blend-mode:screen; }
+
+#ov { position:absolute; inset:0; z-index:50; color:var(--ov); pointer-events:none; }
+.corner { position:absolute; width:56px; height:56px; border:0 solid currentColor; opacity:.7; }
+.corner.tl { left:40px; top:40px; border-left-width:2px; border-top-width:2px; }
+.corner.tr { right:40px; top:40px; border-right-width:2px; border-top-width:2px; }
+.corner.bl { left:40px; bottom:40px; border-left-width:2px; border-bottom-width:2px; }
+.corner.br { right:40px; bottom:40px; border-right-width:2px; border-bottom-width:2px; }
+#ov .t1 { font-size:16px; }
+#ov .t2 { font-size:11px; color:var(--dim); margin-top:6px; letter-spacing:.12em; }
+#sq { display:flex; gap:7px; margin-top:12px; }
+#sq i { width:11px; height:11px; border:1.5px solid currentColor; display:block; }
+#sq i.on { background:var(--acc); border-color:var(--acc); }
+
+.mask { position:absolute; left:0; right:0; overflow:hidden; }
+.hl { position:absolute; left:50%; bottom:0; white-space:nowrap; }
+.hl .glow { position:absolute; left:0; bottom:0; color:var(--acc); filter:blur(18px); opacity:.6; }
+.hl .sharp { position:relative; }
+
+#board { position:absolute; inset:0; transform-origin:540px 1260px; z-index:20; }
+.row { position:absolute; left:90px; width:900px; height:160px; }
+.cell { position:absolute; left:0; top:0; width:150px; height:160px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:118px; padding-top:6px; }
+.body { position:absolute; left:162px; top:0; width:738px; height:160px; background:#0e1220; border:1.5px solid rgba(234,240,255,.1); border-radius:14px; transform-origin:0 50%; }
+.rlab { position:absolute; right:18px; top:14px; font-size:13px; color:var(--dim); white-space:nowrap; }
+.chip { position:absolute; left:0; top:0; padding:16px 20px; background:#18203a; border:2px solid var(--acc); border-radius:12px; font-family:"FiraCode"; font-size:27px; letter-spacing:.02em; text-transform:uppercase; white-space:nowrap; opacity:0; transform-origin:50% 50%; }
+#fx { position:absolute; left:0; top:0; overflow:visible; }
+#cNote { left:0; right:0; top:1388px; text-align:center; font-size:19px; color:var(--dim); }
+
+#wm { position:absolute; left:0; right:0; top:612px; text-align:center; font-family:"InterTight"; font-weight:500; font-size:92px; letter-spacing:-.02em; white-space:nowrap; }
+#pill { position:absolute; left:50%; top:1104px; font-family:"InterTight"; font-weight:500; font-size:32px; color:#07090f; background:var(--acc); padding:16px 32px; border-radius:999px; white-space:nowrap; box-shadow:0 0 50px rgba(61,123,255,.45); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <div class="mask" style="top:300px; height:112px;"><div class="hl hd" id="h0a" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:400px; height:112px;"><div class="hl hd" id="h0b" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:300px; height:112px;"><div class="hl hd" id="h1a" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:400px; height:112px;"><div class="hl hd" id="h1b" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:300px; height:112px;"><div class="hl hd" id="h2a" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:400px; height:112px;"><div class="hl hd" id="h2b" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:300px; height:112px;"><div class="hl hd" id="h3a" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:400px; height:112px;"><div class="hl hd" id="h3b" style="font-size:104px;"></div></div>
+
+  <div id="board">
+    <div id="rows"></div>
+    <svg id="fx" width="1080" height="1920"></svg>
+    <div id="chips"></div>
+    <div id="cNote" class="abs mono">EL CAFÉ, MEJOR EN PERSONA ☕</div>
+  </div>
+
+  <div id="wm">PaMenAgency</div>
+  <div class="mask" style="top:724px; height:150px;"><div class="hl hd" id="e1" style="font-size:150px;"></div></div>
+  <div class="mask" style="top:860px; height:150px;"><div class="hl hd" id="e2" style="font-size:150px;"></div></div>
+  <div id="pill">Guárdala para tu lista →</div>
+  <div id="eUrl" class="abs mono" style="left:0; right:0; top:1208px; text-align:center; font-size:14px; color:var(--dim);">AUTOMATIZACIÓN CON IA · PAMENAGENCY.COM</div>
+
+  <div id="ov">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="abs mono" style="left:58px; top:56px;"><div class="t1">PAMEN AGENCY&nbsp;&nbsp;2026</div><div class="t2">AUTOMATIZACIÓN CON IA · PYMES</div><div id="sq"><i></i><i></i><i></i><i></i></div></div>
+    <div class="abs mono" style="right:58px; top:56px; text-align:right;"><div class="t1" id="tc">TC 00:00:00:00</div><div class="t2">9:16 / 60 FPS</div></div>
+    <div class="abs mono" id="chap" style="left:58px; bottom:54px; font-size:13px;"></div>
+    <div class="abs mono" style="right:58px; bottom:54px; font-size:13px; letter-spacing:.06em; text-transform:none;">PaMenAgency × Reels</div>
+  </div>
+  <canvas id="grain" width="360" height="640"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+const T = 12.6, FPS = 60;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const P = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = k => 1 - Math.pow(1 - k, 3);
+const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const eBack = k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+let seed = 28; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const rise = (el, k) => { el.style.transform = `translateX(-50%) translateY(${((1 - k) * 108).toFixed(2)}%)`; el.style.visibility = k <= .001 ? "hidden" : ""; };
+const hl = html => `<span class="glow">${html}</span><span class="sharp">${html}</span>`;
+const updown = (t, a, c, dur = .36) => eOut(P(t, a, a + dur)) * (1 - eIO(P(t, c, c + .26)));
+
+const CH = [["01 — LA LISTA", 0, 2.0], ["02 — TIER S", 2.0, 4.6], ["03 — TIER A Y B", 4.6, 7.2], ["04 — TIER C", 7.2, 9.85], ["05 — TU TURNO", 9.85, T]];
+const ROWS = [["S", 640, "AUTOMATIZA YA", 1, "#07090f"], ["A", 820, "ESTA SEMANA", .62, "#eaf0ff"], ["B", 1000, "ESTE MES", .36, "#eaf0ff"], ["C", 1180, "NUNCA", .16, "#eaf0ff"]];
+// [texto, fila, hueco (0/1), momento de llegada]
+const CHIPS = [["Responder WhatsApp", 0, 0, 2.25], ["Recordar citas", 0, 1, 2.95], ["Agendar citas", 1, 0, 4.85], ["Pedir reseñas", 1, 1, 5.3], ["Presupuestos", 2, 0, 5.85], ["Seguimiento", 2, 1, 6.3], ["El café con tu cliente favorito", 3, 0, 8.35]];
+const FLY = .45;
+
+/* ---------- construcción ---------- */
+[["h0a", "Tier list:"], ["h0b", '<span class="acc">qué automatizar.</span>'], ["h1a", "Tier S."], ["h1b", '<span class="acc">Automatiza ya.</span>'],
+ ["h2a", "A y B."], ["h2b", '<span class="acc">La siguiente tanda.</span>'], ["h3a", "Tier C."], ["h3b", '<span class="acc">Eso, nunca.</span>'],
+ ["e1", "Comenta"], ["e2", '<span class="acc">“IA”.</span>']].forEach(([id, h]) => $(id).innerHTML = hl(h));
+$("rows").innerHTML = ROWS.map((r, i) => `<div class="row" style="top:${r[1]}px;"><div class="body" id="bd${i}"><div class="rlab mono">${r[2]}</div></div>
+  <div class="cell hd" id="cl${i}" style="background:rgba(61,123,255,${r[3]}); color:${r[4]};">${r[0]}</div></div>`).join("");
+$("chips").innerHTML = CHIPS.map((c, i) => `<div class="chip" id="ch${i}">${c[0]}</div>`).join("");
+$("fx").innerHTML = CHIPS.map((c, i) => `<circle id="rg${i}" fill="none" stroke="#3d7bff" stroke-width="3" opacity="0"/>`).join("");
+
+const gctx = $("grain").getContext("2d"), GR = [];
+for (let f = 0; f < 4; f++) {
+  const img = gctx.createImageData(360, 640);
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  GR.push(img);
+}
+
+function target(i) {
+  const c = CHIPS[i], el = $("ch" + i), h = el.offsetHeight;
+  let x = 90 + 162 + 24;
+  if (c[2] === 1) x += $("ch" + (i - 1)).offsetWidth + 18;
+  return [x, ROWS[c[1]][1] + 80 - h / 2, el.offsetWidth, h];
+}
+
+/* ---------- seek ---------- */
+function seek(t) {
+  t = clamp(t, 0, T - 1e-6);
+  const fr = Math.floor(t * FPS + 1e-6), ss = Math.floor(fr / FPS);
+  const ci = CH.findIndex(c => t >= c[1] && t < c[2]);
+  $("tc").textContent = `TC 00:00:${String(ss).padStart(2, "0")}:${String(fr % FPS).padStart(2, "0")}`;
+  $("chap").textContent = CH[ci][0];
+  document.querySelectorAll("#sq i").forEach((el, i) => el.classList.toggle("on", i < Math.ceil((ci + 1) / 5 * 4)));
+  gctx.putImageData(GR[fr % 4], 0, 0);
+
+  // titulares
+  rise($("h0a"), updown(t, 0, 1.75, .3)); rise($("h0b"), updown(t, .06, 1.79, .3));
+  rise($("h1a"), updown(t, 2.1, 4.3)); rise($("h1b"), updown(t, 2.17, 4.34));
+  rise($("h2a"), updown(t, 4.65, 6.9)); rise($("h2b"), updown(t, 4.72, 6.94));
+  rise($("h3a"), updown(t, 7.35, 9.45)); rise($("h3b"), updown(t, 7.42, 9.49));
+
+  // tablero: las filas se dibujan desde la izquierda y las letras saltan
+  let shake = 0, flashA = 0;
+  ROWS.forEach((r, i) => {
+    const kb = eIO(P(t, .45 + i * .09, 1.05 + i * .09));
+    const kc = eBack(P(t, .6 + i * .09, .95 + i * .09));
+    const glowRow = CHIPS.reduce((m, c, j) => c[1] === i && t >= c[3] + FLY ? Math.max(m, Math.exp(-(t - c[3] - FLY) * 5)) : m, 0);
+    css($("bd" + i), { transform: `scaleX(${kb.toFixed(4)})`, opacity: kb > 0 ? 1 : 0, borderColor: `rgba(61,123,255,${(.1 + .9 * glowRow).toFixed(3)})`, boxShadow: glowRow > .02 ? `0 0 ${(50 * glowRow).toFixed(0)}px rgba(61,123,255,${(.6 * glowRow).toFixed(3)})` : "none" });
+    css($("cl" + i), { opacity: P(t, .6 + i * .09, .7 + i * .09), transform: `scale(${(t < .6 + i * .09 ? 0 : lerp(.4, 1, kc)).toFixed(3)})` });
+    $("bd" + i).querySelector(".rlab").style.opacity = P(t, 1.1 + i * .08, 1.4 + i * .08);
+  });
+
+  // fichas que vuelan y encajan
+  CHIPS.forEach((c, i) => {
+    const el = $("ch" + i), ta = c[3];
+    const [tx, ty, w, h] = target(i);
+    const isC = i === CHIPS.length - 1;
+    if (t < (isC ? 7.5 : ta)) { el.style.opacity = 0; $("rg" + i).setAttribute("opacity", 0); return; }
+    let x, y, rot, sc;
+    if (!isC) {
+      const k = eOut(P(t, ta, ta + FLY));
+      x = lerp(1150, tx, k); y = lerp(1760, ty, k); rot = lerp(24, 0, k); sc = lerp(1.3, 1, k);
+    } else {
+      // el café: entra, flota dudando y cae en la C con un golpe más fuerte
+      const hx = 540 - w / 2, hy = 1450;
+      const kin = eOut(P(t, 7.5, 7.95)), bob = Math.sin((t - 7.5) * 5) * 10;
+      const kd = eIO(P(t, ta, ta + FLY));
+      x = lerp(lerp(1150, hx, kin), tx, kd);
+      y = lerp(lerp(1760, hy, kin) + bob * (1 - kd), ty, kd);
+      rot = lerp(lerp(24, -3 + Math.sin((t - 7.5) * 3.2) * 3, kin), 0, kd);
+      sc = lerp(lerp(1.3, 1.25, kin), 1, kd);
+    }
+    css(el, { opacity: 1, left: `${x.toFixed(1)}px`, top: `${y.toFixed(1)}px`, transform: `rotate(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`, boxShadow: t < ta + FLY ? "0 20px 50px rgba(61,123,255,.35)" : "none" });
+    const d = t - ta - FLY;
+    const rg = $("rg" + i);
+    if (d >= 0 && d < .7) {
+      const k = d / .7;
+      rg.setAttribute("cx", (tx + w / 2).toFixed(1)); rg.setAttribute("cy", (ty + h / 2).toFixed(1));
+      rg.setAttribute("r", lerp(20, isC ? 360 : 190, eOut(k)).toFixed(1)); rg.setAttribute("opacity", ((1 - k) * .7).toFixed(3));
+      shake = Math.max(shake, (isC ? 16 : 6) * Math.exp(-d * 10));
+      if (isC) flashA = Math.max(flashA, .28 * Math.exp(-d * 10));
+    } else rg.setAttribute("opacity", 0);
+  });
+  const cn = eOut(P(t, 8.95, 9.3)) * (1 - P(t, 9.45, 9.7));
+  css($("cNote"), { opacity: cn, transform: `translateY(${((1 - cn) * 12).toFixed(1)}px)` });
+
+  // cámara: acercamiento a la fila C y salida hacia el cierre
+  const push = eIO(P(t, 7.3, 7.85)) - eIO(P(t, 9.3, 9.7));
+  const out = eIO(P(t, 9.55, 9.95));
+  const sx = shake ? Math.sin(t * 95) * shake : 0, sy = shake ? Math.cos(t * 120) * shake * .7 : 0;
+  css($("board"), { transform: `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) scale(${((1 + .12 * push) * lerp(1, .94, out)).toFixed(4)})`, opacity: (1 - out).toFixed(3) });
+
+  let fl = flashA;
+  if (t >= 9.95) fl = Math.max(fl, .3 * Math.exp(-(t - 9.95) * 12));
+  $("flash").style.opacity = fl.toFixed(3);
+
+  // cierre
+  const wk = eIO(P(t, 10.05, 10.6));
+  css($("wm"), { clipPath: `inset(0 ${((1 - wk) * 100).toFixed(2)}% 0 0)`, opacity: t >= 10.05 ? 1 : 0, transform: `translateX(${((1 - wk) * -30).toFixed(1)}px)` });
+  rise($("e1"), eOut(P(t, 10.3, 10.7)));
+  rise($("e2"), eOut(P(t, 10.4, 10.8)));
+  const pk = eBack(P(t, 11.0, 11.45)), pls = t > 11.7 ? 1 + Math.sin((t - 11.7) * 10) * .025 : 1;
+  css($("pill"), { opacity: P(t, 11.0, 11.15), transform: `translateX(-50%) scale(${(lerp(.8, 1, pk) * pls).toFixed(3)})` });
+  $("eUrl").style.opacity = P(t, 11.3, 11.7);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
