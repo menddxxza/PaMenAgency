@@ -1,6 +1,6 @@
 # Reels de Instagram de PaMen Agency — archivo único
 
-> **Para Claude Code:** este archivo lo contiene todo: contexto, reglas, método, código del renderizador, plantilla y catálogo. Léelo entero antes de hacer nada. Tu trabajo es **producir reels virales uno detrás de otro, sin preguntar, hasta que el usuario diga "para"** (ver "Bucle de producción").
+> **Para Claude Code:** este archivo lo contiene todo: contexto, reglas, método, código del renderizador, plantilla y catálogo. Léelo entero antes de hacer nada. Tu trabajo es **producir reels virales uno detrás de otro, todos con el "Estilo de la casa"; al terminar cada uno, ábreselo al usuario y pregúntale si sigue con el siguiente** (ver "Bucle de producción").
 
 Esta carpeta es la **fábrica de reels** de PaMen Agency (pamenagency.com), una agencia de automatización con IA para negocios pequeños: respuestas automáticas por WhatsApp, Instagram y web, agenda de citas, recordatorios y seguimiento de clientes.
 
@@ -14,12 +14,26 @@ Aquí solo se hacen **vídeos**. Cada reel es una página HTML animada que se re
    - **Duración:** 10-13 s.
    - **Formatos:** meme o nativos de TikTok/Reels.
    - **Humor:** identificable para el dueño de un negocio.
-   - **Subtítulos:** estilo TikTok (caja blanca, texto negro, negrita).
+   - **Subtítulos:** estilo TikTok (caja clara, texto negro, negrita). En el estilo de la casa: caja crema `#f2ece2`, Anton negro en mayúsculas.
    - **Doble CTA al final:** comentar "IA" y además otra cosa: comentar un número, etiquetar a alguien, mandárselo a alguien o guardar.
-3. **Cada vídeo debe ser distinto a todos los anteriores**, tanto en formato como en estilo visual. Usa motion design de verdad: cámara, 3D, máscaras, partículas, trazos SVG, transiciones con golpe. Mira el catálogo de abajo antes de elegir.
+3. **Cada vídeo debe ser distinto a todos los anteriores en formato y concepto, pero todos comparten el "Estilo de la casa"** (desde el Reel 25, ver abajo). Motion design de verdad: cámara, 3D, máscaras, partículas, trazos SVG, transiciones con golpe. Mira el catálogo antes de elegir.
 4. **4K (2160x3840) a 60 fps siempre.** Nada de 120 fps: no compensa.
 5. **No inventes datos presentados como reales.** Si usas cifras, márcalas como ejemplo o avisa al usuario para que ponga una fuente. En los memes, los números de likes y similares son ficción y se nota.
-6. Cuando termines un vídeo, **sigue con el siguiente sin preguntar** hasta que el usuario diga que pares. Ver "Bucle de producción".
+6. Cuando termines un vídeo, **ábreselo al usuario** (`Start-Process "<ruta completa del MP4>"` en Windows) y **pregúntale si sigue con el siguiente**. No encadenes reels sin su confirmación.
+
+## Estilo de la casa (obligatorio desde el Reel 25)
+
+Referencia: la película vertical de MecaPro (`Proyectos claude/MecaPro-pelicula-vertical-4K-60fps.mp4`, fuente en `Proyectos claude/mecapro-launch-film/index.html`). El dueño quiere que **todos los reels se parezcan a ese lenguaje de motion graphics, pero sin copiarlo**: cada reel tiene su propio formato, concepto y elementos.
+
+- **Paleta:** fondo negro cálido `#0b0a09`, texto crema `#f2ece2`, texto secundario `rgba(242,236,226,.52)`, **un único acento rojo `#ff3d1f`**. Nada de gradientes de colores ni paletas nuevas por reel.
+- **Atmósfera:** resplandor radial rojo suave en el centro + **grano de película** (canvas con 4 fotogramas de ruido deterministas que se alternan, opacidad ~0,06) + viñeta roja en los golpes.
+- **HUD fijo de cine:** esquinas de encuadre; arriba a la izquierda "PAMEN AGENCY 2026" + descripción en mono + cuadraditos de progreso; arriba a la derecha **timecode que corre** (`TC 00:00:SS:FF`) y "9:16 / 60 FPS"; abajo "0N — CAPÍTULO" y "PaMenAgency × Reels". El reel se divide en capítulos con nombre.
+- **Tipografía:** titulares **Anton** en mayúsculas, `line-height:.95`, que **suben desde una máscara** (`overflow:hidden` + `translateY(105% → 0)`) con una copia roja desenfocada detrás (halo), frases cortas **con punto final** y la segunda línea en rojo. Etiquetas y datos en **JetBrains Mono** mayúsculas con `letter-spacing:.2em`. Marca y botones en **Inter Tight 500**.
+- **Recursos de movimiento:** líneas que se dibujan desde el centro, tarjetas UI oscuras (`#131110`, borde `rgba(242,236,226,.1)`, radio 18) que se abren desde una línea, trazos SVG con estela desenfocada y punto de cabeza, nodos que se encienden con check dibujado, contadores con frenada y nota "cifra ilustrativa, no son datos reales", anillos y rayos que estallan, flashes con caída exponencial, golpes de cámara (sacudida, punch-in con `transform-origin` en el punto de interés). Una idea por plano, mucho espacio negativo.
+- **Cierre:** marca "PaMenAgency" revelada de izquierda a derecha, titular "COMENTA “IA”." y botón píldora rojo con el segundo CTA.
+- **Base de código:** parte de `fuente-bolsa/reel25.html` (HUD, grano, helpers `P/eOut/eIO/eBack/rise`, titulares con máscara, flash). Todo se calcula en `seek(t)` en función de `t`.
+- **No copiar literalmente** escenas de la referencia (nube de iconos que forma un globo, filas diagonales rojas a pantalla completa, buscador que se convierte en dashboard): inspírate, no las repitas.
+- **Trampas:** el halo desenfocado de un titular escondido asoma por el borde de su máscara: pon `visibility:hidden` cuando su progreso sea 0 (ya lo hace `rise()` en la base). En Anton las comillas angulares se ven como dos signos de menor/mayor: usa “ ”. El grano infla mucho el MP4: si pasa de ~95 MB (GitHub rechaza archivos de más de 100 MB), recomprime con `ffmpeg -i in.mp4 -c:v libx264 -preset slow -crf 21 -pix_fmt yuv420p -profile:v high -movflags +faststart -c:a copy out.mp4` (el Reel 25 bajó de 103 a 58 MB sin pérdida visible).
 
 ## Estructura
 
@@ -53,12 +67,12 @@ ffmpeg -version     # si no está: winget install ffmpeg | brew install ffmpeg |
 2. Comprueba que el entorno está listo: `marketing/instagram/tools/node_modules/playwright` existe y `ffmpeg -version` responde. Si falta algo, ejecuta la "Puesta en marcha". Si no puedes instalarlo tú, díselo al usuario en una línea.
 3. Si el usuario pide un tema, un formato o una app concreta, úsalo para el primer reel. Si no, elige tú.
 
-### Bucle (repite sin preguntar)
+### Bucle
 
 Para cada reel:
 
-1. **Elige formato y estilo nuevos.** Mira el catálogo y la lista de ideas sin usar. El formato viral y el estilo visual tienen que ser distintos de todos los anteriores, y sobre todo del último. Decide el guion en una línea y díselo al usuario en una frase: "Reel NN: <formato> con estilo <estilo>".
-2. **Construye** `marketing/instagram/fuente-<slug>/reelNN.html` a partir de `tools/plantilla.html`:
+1. **Elige formato y concepto nuevos.** Mira el catálogo y la lista de ideas sin usar. El formato viral tiene que ser distinto de todos los anteriores; el estilo visual es siempre el de la casa. Decide el guion en una línea y díselo al usuario en una frase: "Reel NN: <formato> — <concepto>".
+2. **Construye** `marketing/instagram/fuente-<slug>/reelNN.html` a partir de `fuente-bolsa/reel25.html` (base del estilo de la casa; copia también sus `fonts/`):
    - gancho visible en 0-0,3 s
    - 10-13 s en total
    - subtítulos en caja blanca
@@ -71,10 +85,10 @@ Para cada reel:
    - genera `portada-<slug>-4k.jpg`
    - añade la fila al catálogo de este archivo (y tacha la idea si venía de la lista)
 6. **Commit y push** de los archivos de ese reel con el mensaje "Añade Reel NN '<título>' en 4K a 60 fps". No abras PRs ni toques nada fuera de `marketing/instagram`.
-7. **Entrega** con el "Formato de entrega" de este archivo: ruta del archivo, caption, hashtags, comentario fijado y nota de audio.
-8. **Sigue inmediatamente con el siguiente reel** (vuelve al paso 1) en el mismo turno. No preguntes "¿quieres otro?".
+7. **Entrega**: abre el MP4 al usuario (`Start-Process "<ruta completa>"`) y pásale el "Formato de entrega" de este archivo: ruta del archivo, caption, hashtags, comentario fijado y nota de audio.
+8. **Pregunta si sigue con el siguiente reel.** Solo cuando diga que sí, vuelve al paso 1.
 
-Para parar: solo cuando el usuario diga "para", "stop", "basta" o algo equivalente, o cuando pida otra cosa. Si se te acaba el turno o el contexto a mitad de un reel, al volver retómalo donde estaba: mira qué hay en `marketing/instagram` y en el catálogo.
+Si se te acaba el turno o el contexto a mitad de un reel, al volver retómalo donde estaba: mira qué hay en `marketing/instagram` y en el catálogo.
 
 ### Calidad mínima de cada reel
 
@@ -88,7 +102,8 @@ Para parar: solo cuando el usuario diga "para", "stop", "basta" o algo equivalen
 - Toda la animación se hace con la **Web Animations API**, en pausa. `seek(t)` pone el `currentTime` de todas las animaciones. La página expone `window.TOTAL` y `window.seek`. Con `?render` en la URL se queda quieta; sin él, se reproduce en bucle en el navegador para previsualizar. Parte siempre de `tools/plantilla.html`.
 - Lo que se calcula por frame (partículas, canvas, contadores) se hace dentro de `seek(t)` y **solo en función de `t`**. Para lo aleatorio, usa el PRNG con semilla `seed = seed*16807 % 2147483647`. Nunca uses `Math.random` ni `Date`.
 - Fuentes: descárgalas de Google Fonts a `fonts/Nombre.font`. Para sacar la URL del .ttf: `curl -s "https://fonts.googleapis.com/css2?family=Anton" | grep -o 'https://[^)]*'`.
-  - Fuentes ya usadas: Anton, Archivo Black, Caveat, Permanent Marker, Press Start 2P, VT323, Cinzel.
+  - Estilo de la casa: Anton, JetBrains Mono, Inter Tight (en `fuente-bolsa/fonts/`).
+  - Fuentes de reels anteriores al estilo de la casa: Archivo Black, Caveat, Permanent Marker, Press Start 2P, VT323, Cinzel, Bebas Neue, Luckiest Guy, Fredoka, Space Grotesk, Lilita One, Teko, IBM Plex Mono, Bowlby One.
   - Puedes copiar las fuentes de otra carpeta `fuente-*/fonts`.
 
 ### Trampas conocidas (ya nos han pasado)
@@ -108,7 +123,7 @@ Para parar: solo cuando el usuario diga "para", "stop", "basta" o algo equivalen
 
 ## Flujo de producción de un reel
 
-1. **Idea:** elige un formato viral y un estilo visual que **no** estén en el catálogo. Escribe guion, tiempos y CTA.
+1. **Idea:** elige un formato viral que **no** esté en el catálogo (el estilo visual es siempre el de la casa). Escribe guion, capítulos, tiempos y CTA.
 2. **HTML:** `fuente-<slug>/reelNN.html` (NN = siguiente número) + `fuente-<slug>/fonts/`.
 3. **Stills de control** en los momentos clave (gancho, cada escena, CTA):
    ```bash
@@ -176,6 +191,7 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 22 | reel-test-necesitas-ia · `fuente-test-necesitas-ia` | Test "¿Necesitas IA?" con puntuación | Quiz estilo Kahoot: tarjetas con giro 3D de cámara (perspective + rotate Y), checkmark SVG que se dibuja, ráfagas de partículas deterministas, flash de cámara en los cortes clave, marcador de puntos en vivo (12,4 s) |
 | 23 | reel-top3-podio · `fuente-top3-podio` | Top 3 cosas que la IA te quita de encima | Ranking/podio animado: escenario oscuro con focos giratorios, columnas que se elevan en 3D (perspective + rotateX), confeti determinista en el nº1, cámara que retrocede para el plano general, cortina oscura tras el podio para el CTA (12,6 s) |
 | 24 | reel-ticket-sin-ia · `fuente-ticket-sin-ia` | Ticket de compra que se imprime ("lo que te cuesta no automatizar") | Impresora térmica: el ticket sale por la ranura con máscara y paso a paso, cámara que se aleja siguiendo el papel, sello que golpea con sacudida, ticket arrancado que sale volando en 3D, flash, segundo ticket "con IA" con rotulador SVG, cupón recortable con borde de hormigas para el CTA. IBM Plex Mono + Bowlby One (12,4 s) |
+| 25 | reel-bolsa · `fuente-bolsa` | Si tu negocio cotizara en bolsa (gráfica de bolsa) | **Primer reel con el estilo de la casa.** Línea que se abre en tarjeta de cotización, trazo rojo con estela que cae con cada mensaje sin responder (sacudida + viñeta), nodo "IA activada" con anillos, rayos y punch-in de cámara, rebote con contador, cierre con marca, "COMENTA “IA”." y botón rojo (12,6 s) |
 
 ### Ideas de formatos virales aún sin usar
 
@@ -191,7 +207,6 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 - Videojuego retro (barra de vida, nivel superado).
 - Telediario de última hora.
 - Mapa del tesoro.
-- Gráfica de bolsa.
 - "Lo que veo vs lo que ve mi cliente".
 
 Táchalas al usarlas.
