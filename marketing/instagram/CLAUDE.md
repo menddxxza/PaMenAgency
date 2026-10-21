@@ -195,10 +195,10 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 26 | reel-nivel-100 · `fuente-nivel-100` | Nivel 1 / nivel 100 (comenta tu nivel) | Estilo de la casa con barra de experiencia vertical que se llena con estela, nodos que se encienden con anillos, contador de nivel con frenada, iconos de trazo que se dibujan, golpe de cámara en cada subida, chispas en el nivel 100 y checklist. **Acento lima #c6ff2e sobre negro frío · Unbounded + DM Mono** (12,6 s) |
 | 27 | reel-peli-terror · `fuente-peli-terror` | Si tu negocio fuera una peli de terror | Estilo de la casa en clave terror: bombilla que parpadea, apagones entre capítulos, avalancha de notificaciones con susto (el "37" golpea al frente con sacudida y desdoble), linterna con máscara radial que barre una pared de notas con motas de polvo, luces que se encienden y chat de la IA a las 3 a. m. **Acento ámbar #ffaa1d · DM Serif Display + Space Mono** (12,6 s) |
 | 28 | reel-tier-list · `fuente-tier-list` | Tier list: qué automatizar primero | Estilo de la casa, **ya sin caja de subtítulos**: filas S/A/B/C que se dibujan, fichas de tareas que vuelan y encajan con anillo, brillo de fila y sacudida, acercamiento de cámara a la C para el chiste del café. Segundo CTA: guardar. **Acento azul eléctrico #3d7bff · Big Shoulders Display + Fira Code** (12,6 s) |
+| 29 | reel-mecapro-ya-esta · `fuente-mecapro-ya-esta` | **App MecaPro.** Bocadillos: "¿Ya está mi coche?" (lo que te preguntan 40 veces al día en el taller) | Estilo de la casa: chat de clientes que se apila y empuja hacia arriba con sacudida creciente, contador con frenada y golpe en el 37 (cifra ilustrativa), viñeta de acento, los bocadillos estallan en partículas deterministas con flash, móvil que entra girando en 3D con la **captura real del portal del cliente**, recuadro SVG que se dibuja sobre la barra de estado, aviso automático que cae, cierre con logo de MecaPro, "Próximamente" y botón "Mándaselo a tu mecánico". **Acento cian #2ee6d6 · Bricolage Grotesque + IBM Plex Mono** (12,6 s) |
 
 ### Ideas de formatos virales aún sin usar
 
-- "Cosas que dice un dueño de negocio" en bocadillos.
 - "Expectativa vs realidad".
 - "Elige: ¿A o B?" (encuesta).
 - Notificaciones del móvil bajo la lluvia.
