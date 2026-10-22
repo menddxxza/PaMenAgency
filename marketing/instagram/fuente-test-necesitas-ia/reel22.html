@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 22 PaMen — Test ¿Necesitas IA?</title>
+<style>
+@font-face { font-family: "LilitaOne"; src: url("fonts/LilitaOne.font") format("truetype"); }
+@font-face { font-family: "SpaceGrotesk"; src: url("fonts/SpaceGrotesk-Bold.font") format("truetype"); font-weight:700; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#120a2e; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; font-family:"SpaceGrotesk", Arial, sans-serif; color:#fff; }
+#deck { position:absolute; inset:0; perspective:1800px; z-index:10; }
+
+#brand { position:absolute; top:66px; left:0; right:0; text-align:center; font-weight:700; font-size:24px; letter-spacing:.35em; opacity:.85; z-index:50; }
+.cap { position:absolute; left:0; right:0; top:160px; display:flex; justify-content:center; z-index:50; }
+.cap span { background:#fff; color:#000; font-weight:900; font-size:44px; line-height:1.18; padding:14px 30px; border-radius:22px; text-align:center; max-width:880px; font-family:Arial, sans-serif; }
+
+#scoreChip { position:absolute; top:40px; right:40px; background:#fff; color:#120a2e; font-family:"LilitaOne"; font-size:30px; padding:12px 26px; border-radius:40px; visibility:hidden; z-index:55; box-shadow:0 8px 0 rgba(0,0,0,.25); }
+
+.wrap { position:absolute; inset:0; visibility:hidden; }
+#w0{z-index:10;} #w1{z-index:11;} #w2{z-index:12;} #w3{z-index:13;} #w4{z-index:14;} #w5{z-index:15;}
+.card { position:absolute; top:300px; left:70px; width:940px; height:1280px; border-radius:60px; box-shadow:0 40px 70px rgba(0,0,0,.5); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:70px 60px; transform-style:preserve-3d; backface-visibility:hidden; }
+.qlabel { font-family:"SpaceGrotesk"; font-weight:700; font-size:30px; letter-spacing:.12em; opacity:.85; margin-bottom:22px; }
+.qtext { font-family:"LilitaOne"; font-size:66px; line-height:1.18; }
+.dots { display:flex; gap:16px; margin-top:34px; }
+.dots i { width:20px; height:20px; border-radius:50%; background:rgba(255,255,255,.35); display:block; }
+.dots i.on { background:#fff; }
+.btnrow { display:flex; gap:28px; margin-top:54px; }
+.btn { position:relative; font-family:"LilitaOne"; font-size:48px; padding:26px 70px; border-radius:30px; background:rgba(255,255,255,.18); border:5px solid rgba(255,255,255,.5); }
+.badge { position:absolute; top:-30px; right:-30px; width:78px; height:78px; border-radius:50%; background:#2f9e44; display:flex; align-items:center; justify-content:center; opacity:0; border:5px solid #fff; }
+.badge svg { width:42px; height:42px; }
+.badge path { fill:none; stroke:#fff; stroke-width:9; stroke-linecap:round; stroke-linejoin:round; }
+.plusone { position:absolute; left:50%; top:-10px; transform:translateX(-50%); font-family:"LilitaOne"; font-size:40px; color:#ffe066; opacity:0; text-shadow:0 3px 0 rgba(0,0,0,.4); }
+
+#w0 .card { background:linear-gradient(150deg,#5b2eff,#9b5de5); }
+#hookTop { font-family:"SpaceGrotesk"; font-weight:700; font-size:40px; letter-spacing:.1em; opacity:0; }
+#hookMain { font-family:"LilitaOne"; font-size:104px; line-height:1.08; margin-top:14px; opacity:0; }
+
+#w1 .card { background:linear-gradient(150deg,#e03131,#ff6b6b); }
+#w2 .card { background:linear-gradient(150deg,#1971c2,#4dabf7); }
+#w3 .card { background:linear-gradient(150deg,#f08c00,#ffca28); }
+
+#w4 .card { background:linear-gradient(150deg,#2f9e44,#69db7c); }
+#scoreBig { font-family:"LilitaOne"; font-size:200px; opacity:0; }
+#verdict { font-family:"LilitaOne"; font-size:66px; line-height:1.15; margin-top:10px; opacity:0; }
+
+#w5 .card { background:linear-gradient(150deg,#5b2eff,#9b5de5); }
+#ctaMain { font-family:"LilitaOne"; font-size:94px; line-height:1.08; opacity:0; }
+#ctaSecond { font-family:"SpaceGrotesk"; font-weight:700; font-size:40px; margin-top:28px; opacity:0; }
+
+.shard { position:absolute; width:14px; height:14px; border-radius:3px; opacity:0; z-index:60; }
+#flash { position:absolute; inset:0; background:#fff; opacity:0; z-index:70; pointer-events:none; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="deck">
+    <div class="wrap" id="w0"><div class="card">
+      <div id="hookTop">TEST RÁPIDO</div>
+      <div id="hookMain">¿NECESITAS<br>IA EN TU<br>NEGOCIO?</div>
+    </div></div>
+
+    <div class="wrap" id="w1"><div class="card">
+      <div class="qlabel">PREGUNTA 1 DE 3</div>
+      <div class="qtext">¿Respondes WhatsApp los findes?</div>
+      <div class="btnrow">
+        <div class="btn yes" id="yes1">SÍ<div class="badge" id="badge1"><svg viewBox="0 0 44 44"><path pathLength="100" d="M10,23 L19,32 L34,12"/></svg></div><div class="plusone" id="plus1">+1</div></div>
+        <div class="btn" id="no1">NO</div>
+      </div>
+      <div class="dots"><i class="on"></i><i></i><i></i></div>
+    </div></div>
+
+    <div class="wrap" id="w2"><div class="card">
+      <div class="qlabel">PREGUNTA 2 DE 3</div>
+      <div class="qtext">¿Se te olvida alguna cita?</div>
+      <div class="btnrow">
+        <div class="btn yes" id="yes2">SÍ<div class="badge" id="badge2"><svg viewBox="0 0 44 44"><path pathLength="100" d="M10,23 L19,32 L34,12"/></svg></div><div class="plusone" id="plus2">+1</div></div>
+        <div class="btn" id="no2">NO</div>
+      </div>
+      <div class="dots"><i class="on"></i><i class="on"></i><i></i></div>
+    </div></div>
+
+    <div class="wrap" id="w3"><div class="card">
+      <div class="qlabel">PREGUNTA 3 DE 3</div>
+      <div class="qtext">¿Contestas lo mismo 20 veces al día?</div>
+      <div class="btnrow">
+        <div class="btn yes" id="yes3">SÍ<div class="badge" id="badge3"><svg viewBox="0 0 44 44"><path pathLength="100" d="M10,23 L19,32 L34,12"/></svg></div><div class="plusone" id="plus3">+1</div></div>
+        <div class="btn" id="no3">NO</div>
+      </div>
+      <div class="dots"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+    </div></div>
+
+    <div class="wrap" id="w4"><div class="card">
+      <div class="qlabel">TU RESULTADO</div>
+      <div id="scoreBig">3/3</div>
+      <div id="verdict">SÍ, NECESITAS<br>IA YA 🚨</div>
+    </div></div>
+
+    <div class="wrap" id="w5"><div class="card">
+      <div id="ctaMain">COMENTA<br>"IA" YA</div>
+      <div id="ctaSecond">y etiqueta a quien necesite hacer este test 👇</div>
+    </div></div>
+  </div>
+
+  <div id="brand">PAMEN AGENCY</div>
+  <div class="cap" id="capbox"><span id="capspan"></span></div>
+  <div id="scoreChip">PUNTOS: 0</div>
+  <div id="flash"></div>
+
+  <div id="burstQ"></div>
+  <div id="burstScore"></div>
+</div>
+
+<script>
+const T = 12.4;
+const A = [];
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = "cubic-bezier(.16,1,.3,1)", fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+let seed = 31; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ---- Ventanas de visibilidad: corte directo (sin solape) para que nunca haya
+//      dos tarjetas semitransparentes mezclándose en el mismo hueco ----
+const scenes = [
+  ["w0", 0.00, 1.80], ["w1", 1.80, 2.20], ["w2", 4.00, 2.20],
+  ["w3", 6.20, 2.20], ["w4", 8.40, 1.90], ["w5", 10.30, 2.10],
+];
+scenes.forEach(([id, start, dur]) => anim(id, [{ visibility: "visible" }, { visibility: "visible" }], start, dur, "linear", "none"));
+anim("scoreChip", [{ visibility: "visible" }, { visibility: "visible" }], 2.6, 7.70, "linear", "none");
+
+// ---- Giro 3D de cámara al entrar cada tarjeta (corte ya resuelto por la visibilidad) ----
+function cardTilt(sceneId, start, dur) {
+  const card = document.querySelector("#" + sceneId + " .card");
+  anim(card, [
+    { opacity: 0, translate: "160px 0", scale: .82, rotate: "y -26deg" },
+    { opacity: 1, translate: "0 0", scale: 1, rotate: "y 0deg" },
+  ], start, dur, "cubic-bezier(.22,1,.36,1)", "both");
+}
+cardTilt("w0", 0.00, 0.5);
+cardTilt("w1", 1.80, 0.45);
+cardTilt("w2", 4.00, 0.45);
+cardTilt("w3", 6.20, 0.45);
+cardTilt("w4", 8.40, 0.45);
+cardTilt("w5", 10.30, 0.45);
+
+// ---- Golpe de flash blanco en los dos cortes más importantes ----
+anim("flash", [{ opacity: 0 }, { opacity: .7 }, { opacity: 0 }], 1.76, 0.2, "ease-out", "none");
+anim("flash", [{ opacity: 0 }, { opacity: .85 }, { opacity: 0 }], 8.36, 0.22, "ease-out", "none");
+
+// ---- Escena 0 ----
+anim("hookTop", [{ opacity: 0, translate: "0 20px" }, { opacity: 1, translate: "0 0" }], 0.2, 0.3);
+anim("hookMain", [{ opacity: 0, scale: .6 }, { opacity: 1, scale: 1.05, offset: .7 }, { opacity: 1, scale: 1 }], 0.5, 0.45, "cubic-bezier(.34,1.56,.64,1)");
+
+// ---- Preguntas 1-3 ----
+function wireQuestion(n, sceneStart) {
+  const qlabel = `#w${n} .qlabel`, qtext = `#w${n} .qtext`, btnrow = `#w${n} .btnrow`, dots = `#w${n} .dots`;
+  anim(document.querySelector(qlabel), [{ opacity: 0, translate: "0 16px" }, { opacity: 1, translate: "0 0" }], sceneStart + 0.3, 0.3);
+  anim(document.querySelector(qtext), [{ opacity: 0, translate: "0 20px" }, { opacity: 1, translate: "0 0" }], sceneStart + 0.4, 0.35);
+  anim(document.querySelector(btnrow), [{ opacity: 0, translate: "0 24px" }, { opacity: 1, translate: "0 0" }], sceneStart + 0.75, 0.35);
+  anim(document.querySelector(dots), [{ opacity: 0 }, { opacity: 1 }], sceneStart + 0.75, 0.3);
+  const selectT = sceneStart + 1.2;
+  anim(`yes${n}`, [{ scale: 1, translate: "0 0" }, { scale: 1.12, translate: "0 -6px" }, { scale: 1.06, translate: "0 0" }], selectT, 0.3, "cubic-bezier(.34,1.56,.64,1)", "forwards");
+  anim(`no${n}`, [{ opacity: 1 }, { opacity: .45 }], selectT, 0.25, "ease-out", "forwards");
+  anim(`badge${n}`, [{ opacity: 0, scale: .3, rotate: "-20deg" }, { opacity: 1, scale: 1, rotate: "0deg" }], selectT, 0.3, "cubic-bezier(.34,1.56,.64,1)");
+  const path = document.querySelector(`#badge${n} path`);
+  anim(path, [{ strokeDashoffset: 100 }, { strokeDashoffset: 0 }], selectT + 0.08, 0.22, "ease-out");
+  anim(`plus${n}`, [{ opacity: 0, translate: "0 0" }, { opacity: 1, translate: "0 -18px", offset: .4 }, { opacity: 0, translate: "0 -50px" }], selectT, 0.7, "ease-out");
+  return selectT;
+}
+const sel1 = wireQuestion(1, 1.80);
+const sel2 = wireQuestion(2, 4.00);
+const sel3 = wireQuestion(3, 6.20);
+
+// ---- Escena 4: resultado (golpe de cámara: punch-in) ----
+anim("scoreBig", [{ opacity: 0, scale: .3, rotate: "-10deg" }, { opacity: 1, scale: 1.15, rotate: "4deg", offset: .65 }, { opacity: 1, scale: 1, rotate: "0deg" }], 8.55, 0.5, "cubic-bezier(.34,1.56,.64,1)");
+anim("verdict", [{ opacity: 0, translate: "0 20px" }, { opacity: 1, translate: "0 0" }], 9.15, 0.35);
+
+// ---- Escena 5: CTA ----
+anim("ctaMain", [{ opacity: 0, scale: .5, rotate: "-6deg" }, { opacity: 1, scale: 1.08, rotate: "2deg", offset: .7 }, { opacity: 1, scale: 1, rotate: "0deg" }], 10.4, 0.45, "cubic-bezier(.34,1.56,.64,1)");
+anim("ctaSecond", [{ opacity: 0, translate: "0 16px" }, { opacity: 1, translate: "0 0" }], 10.9, 0.3);
+
+// ---- Partículas: ráfaga en cada acierto (misma posición de insignia en las 3 tarjetas) + ráfaga grande en el resultado ----
+const burstQEl = $("burstQ"), burstScoreEl = $("burstScore");
+const qBurstPos = { x: 730, y: 486 };     // posición en pantalla de la insignia ✓ dentro de .card
+const scoreBurstPos = { x: 540, y: 760 }; // posición del número grande en la escena 4
+function makeShards(container, n, colors) {
+  const list = [];
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement("div");
+    el.className = "shard";
+    el.style.background = colors[Math.floor(rnd() * colors.length)];
+    container.appendChild(el);
+    list.push({ el, angle: rnd() * 6.28, speed: 260 + rnd() * 260, spin: (rnd() - .5) * 8, size: 10 + rnd() * 10 });
+  }
+  return list;
+}
+const qShards = makeShards(burstQEl, 10, ["#fff", "#ffe066", "#2f9e44"]);
+const scoreShards = makeShards(burstScoreEl, 18, ["#fff", "#ffe066", "#69db7c", "#4dabf7"]);
+const qTriggers = [sel1, sel2, sel3];
+const scoreTrigger = 8.55;
+
+function renderBurst(shards, pos, t, triggerT, life) {
+  const lt = t - triggerT;
+  if (lt < 0 || lt > life) { shards.forEach(s => s.el.style.opacity = "0"); return false; }
+  const k = lt / life;
+  shards.forEach(s => {
+    const dist = s.speed * lt;
+    const x = pos.x + Math.cos(s.angle) * dist;
+    const y = pos.y + Math.sin(s.angle) * dist + 300 * lt * lt;
+    s.el.style.width = s.el.style.height = s.size + "px";
+    s.el.style.transform = `translate(${x}px, ${y}px) rotate(${s.spin * lt * 60}deg)`;
+    s.el.style.opacity = (1 - k).toFixed(2);
+  });
+  return true;
+}
+
+const capSegments = [
+  [0.0, 1.80, "HAZ EL TEST EN 10 SEGUNDOS ⏱️"],
+  [1.80, 4.00, "RESPONDE CON SINCERIDAD"],
+  [4.00, 6.20, "VAMOS SUMANDO PUNTOS"],
+  [6.20, 8.40, "ÚLTIMA PREGUNTA"],
+  [8.40, 10.30, "ESTE ES TU RESULTADO"],
+  [10.30, T, "COMENTA \"IA\" PARA EMPEZAR 👇"],
+];
+const capspan = $("capspan");
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+
+  let seg = capSegments[capSegments.length - 1];
+  for (const s of capSegments) { if (t >= s[0] && t < s[1]) { seg = s; break; } }
+  capspan.textContent = seg[2];
+  const lt = Math.max(0, t - seg[0]);
+  const pop = Math.max(0, 1 - lt / 0.18);
+  capspan.style.transform = `scale(${(1 + 0.26 * pop * pop).toFixed(3)})`;
+  capspan.style.opacity = Math.min(1, lt / 0.1 + 0.05).toFixed(2);
+
+  let score = 0;
+  for (const th of qTriggers) if (t >= th) score++;
+  $("scoreChip").textContent = "PUNTOS: " + score;
+
+  let active = false;
+  for (const tr of qTriggers) if (renderBurst(qShards, qBurstPos, t, tr, 0.55)) active = true;
+  if (!active) qShards.forEach(s => s.el.style.opacity = "0");
+  renderBurst(scoreShards, scoreBurstPos, t, scoreTrigger, 0.8);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

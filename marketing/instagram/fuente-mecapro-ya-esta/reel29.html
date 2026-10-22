@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 29 PaMen × MecaPro — ¿Ya está mi coche?</title>
+<style>
+@font-face { font-family:"Bricolage"; src:url("fonts/Bricolage-ExtraBold.font") format("truetype"); font-weight:800; }
+@font-face { font-family:"PlexMono"; src:url("fonts/IBMPlexMono-Medium.font") format("truetype"); font-weight:500; }
+@font-face { font-family:"InterTight"; src:url("fonts/InterTight-Medium.font") format("truetype"); font-weight:500; }
+:root { --bg:#060b0c; --ink:#e9f4f2; --acc:#2ee6d6; --dim:rgba(233,244,242,.52); --ov:rgba(233,244,242,.8); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--ink); font-family:"InterTight", sans-serif; }
+.abs { position:absolute; }
+.hd { font-family:"Bricolage", sans-serif; font-weight:800; text-transform:uppercase; line-height:.95; letter-spacing:-.015em; }
+.mono { font-family:"PlexMono", monospace; letter-spacing:.16em; text-transform:uppercase; }
+.acc { color:var(--acc); }
+#glow { position:absolute; inset:0; background:radial-gradient(ellipse 65% 45% at 50% 55%, rgba(46,230,214,.11), rgba(46,230,214,0) 70%); }
+#vig { position:absolute; inset:0; z-index:40; pointer-events:none; opacity:0; background:radial-gradient(ellipse 75% 60% at 50% 50%, rgba(46,230,214,0) 45%, rgba(46,230,214,.35) 100%); }
+#grain { position:absolute; left:0; top:0; width:1080px; height:1920px; opacity:.055; pointer-events:none; z-index:45; }
+#flash { position:absolute; inset:0; background:var(--acc); opacity:0; z-index:60; pointer-events:none; mix-blend-mode:screen; }
+
+#ov { position:absolute; inset:0; z-index:50; color:var(--ov); pointer-events:none; }
+.corner { position:absolute; width:56px; height:56px; border:0 solid currentColor; opacity:.7; }
+.corner.tl { left:40px; top:40px; border-left-width:2px; border-top-width:2px; }
+.corner.tr { right:40px; top:40px; border-right-width:2px; border-top-width:2px; }
+.corner.bl { left:40px; bottom:40px; border-left-width:2px; border-bottom-width:2px; }
+.corner.br { right:40px; bottom:40px; border-right-width:2px; border-bottom-width:2px; }
+#ov .t1 { font-size:16px; }
+#ov .t2 { font-size:11px; color:var(--dim); margin-top:6px; letter-spacing:.12em; }
+#sq { display:flex; gap:7px; margin-top:12px; }
+#sq i { width:11px; height:11px; border:1.5px solid currentColor; display:block; }
+#sq i.on { background:var(--acc); border-color:var(--acc); }
+
+.mask { position:absolute; left:0; right:0; overflow:hidden; }
+.hl { position:absolute; left:50%; bottom:0; white-space:nowrap; }
+.hl .glow { position:absolute; left:0; bottom:0; color:var(--acc); filter:blur(18px); opacity:.6; }
+.hl .sharp { position:relative; }
+
+/* contador */
+#cnt { left:0; right:0; top:540px; text-align:center; }
+#cntN { font-family:"Bricolage"; font-weight:800; font-size:96px; color:var(--acc); line-height:1; }
+#cntL { font-size:15px; color:var(--dim); margin-top:6px; }
+
+/* chat */
+#chat { position:absolute; left:0; right:0; top:700px; height:880px; overflow:hidden; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 140px); mask-image:linear-gradient(to bottom, transparent 0, #000 140px); }
+.bub { position:absolute; max-width:780px; padding:22px 28px 24px; background:#0e1718; border:1.5px solid rgba(233,244,242,.1); border-radius:26px; border-bottom-left-radius:8px; transform-origin:0 100%; }
+.bub .who { font-size:14px; color:var(--dim); }
+.bub .msg { font-family:"InterTight"; font-weight:500; font-size:44px; line-height:1.12; margin-top:8px; white-space:nowrap; }
+.bub.hot { border-color:var(--acc); }
+#pfx { position:absolute; left:0; top:0; width:1080px; height:1920px; z-index:30; pointer-events:none; }
+
+/* móvil con el portal real */
+#persp { position:absolute; inset:0; perspective:1600px; }
+#phone { position:absolute; left:270px; top:640px; width:540px; height:950px; border-radius:46px; padding:12px; background:linear-gradient(150deg, #20302f, #090e0f); transform-origin:50% 60%; }
+#screen { width:100%; height:100%; border-radius:36px; overflow:hidden; position:relative; background:#0b0f10; }
+#screen img { width:100%; display:block; }
+#hiSvg { position:absolute; left:0; top:0; overflow:visible; }
+#pLab { left:0; right:0; top:1612px; text-align:center; font-size:15px; color:var(--dim); }
+#notif { position:absolute; left:100px; width:880px; top:600px; display:flex; align-items:center; gap:24px; padding:26px 30px; background:rgba(14,23,24,.96); border:1.5px solid var(--acc); border-radius:28px; z-index:35; }
+#notif img { width:76px; height:auto; border-radius:16px; flex:none; }
+#notif .nk { font-size:15px; color:var(--acc); }
+#notif .nm { font-family:"InterTight"; font-weight:500; font-size:40px; line-height:1.15; margin-top:6px; }
+
+/* cierre */
+#lock { position:absolute; left:0; right:0; top:500px; display:flex; justify-content:center; align-items:center; gap:30px; }
+#lock img { height:150px; }
+#lockW { font-family:"InterTight"; font-weight:500; font-size:118px; letter-spacing:-.02em; white-space:nowrap; }
+#soon { left:0; right:0; top:700px; text-align:center; font-size:26px; color:var(--acc); letter-spacing:.45em; }
+#pill { position:absolute; left:50%; top:1150px; font-family:"InterTight"; font-weight:500; font-size:34px; color:#060b0c; background:var(--acc); padding:18px 36px; border-radius:999px; white-space:nowrap; box-shadow:0 0 50px rgba(46,230,214,.4); }
+#eUrl { left:0; right:0; top:1268px; text-align:center; font-size:15px; color:var(--dim); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h0a" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h0b" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h1a" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h1b" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h2a" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h2b" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h3a" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h3b" style="font-size:112px;"></div></div>
+
+  <div id="cnt" class="abs"><div id="cntN">1</div><div id="cntL" class="mono">preguntas hoy · cifra ilustrativa</div></div>
+  <div id="chat"></div>
+  <canvas id="pfx" width="1080" height="1920"></canvas>
+
+  <div id="persp">
+    <div id="phone"><div id="screen"><img src="img/portal.png" alt=""><svg id="hiSvg" width="516" height="926"><rect id="hiRect" x="14" y="262" width="488" height="84" rx="16" fill="none" stroke="#2ee6d6" stroke-width="4" pathLength="100" stroke-dasharray="100"/></svg></div></div>
+  </div>
+  <div id="pLab" class="abs mono">portal del cliente · interfaz real de mecapro</div>
+  <div id="notif"><img src="img/mecapro-icon.png" alt=""><div><div class="nk mono">MecaPro · ahora</div><div class="nm">Tu Golf ya está listo para recoger.</div></div></div>
+
+  <div id="lock"><img src="img/mecapro-icon.png" alt="MecaPro"><div id="lockW">MecaPro</div></div>
+  <div id="soon" class="abs mono">próximamente</div>
+  <div class="mask" style="top:770px; height:160px;"><div class="hl hd" id="e1" style="font-size:150px;"></div></div>
+  <div class="mask" style="top:910px; height:160px;"><div class="hl hd" id="e2" style="font-size:150px;"></div></div>
+  <div id="pill">Mándaselo a tu mecánico →</div>
+  <div id="eUrl" class="abs mono">un producto de pamenagency</div>
+
+  <div id="vig"></div>
+  <div id="ov">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="abs mono" style="left:58px; top:56px;"><div class="t1">PAMEN AGENCY&nbsp;&nbsp;2026</div><div class="t2">MECAPRO · GESTIÓN DE TALLERES</div><div id="sq"><i></i><i></i><i></i><i></i></div></div>
+    <div class="abs mono" style="right:58px; top:56px; text-align:right;"><div class="t1" id="tc">TC 00:00:00:00</div><div class="t2">9:16 / 60 FPS</div></div>
+    <div class="abs mono" id="chap" style="left:58px; bottom:54px; font-size:13px;"></div>
+    <div class="abs mono" style="right:58px; bottom:54px; font-size:13px; letter-spacing:.06em; text-transform:none;">PaMenAgency × MecaPro</div>
+  </div>
+  <canvas id="grain" width="360" height="640"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+const T = 12.6, FPS = 60;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const P = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = k => 1 - Math.pow(1 - k, 3);
+const eExpo = k => (k >= 1 ? 1 : 1 - Math.pow(2, -10 * k));
+const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const eBack = k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+let seed = 29; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const rise = (el, k) => { el.style.transform = `translateX(-50%) translateY(${((1 - k) * 108).toFixed(2)}%)`; el.style.visibility = k <= .001 ? "hidden" : ""; };
+const hl = html => `<span class="glow">${html}</span><span class="sharp">${html}</span>`;
+const updown = (t, a, c, dur = .36) => eOut(P(t, a, a + dur)) * (1 - eIO(P(t, c, c + .26)));
+
+const CH = [["01 — LA PREGUNTA", 0, 2.3], ["02 — LA AVALANCHA", 2.3, 5.9], ["03 — MECAPRO", 5.9, 9.6], ["04 — TU TURNO", 9.6, T]];
+// [quién, mensaje, llegada, desplazamiento x]
+const MSG = [
+  ["Antonio · Seat Ibiza", "¿Ya está mi coche?", .75, 0],
+  ["María · Golf", "Hola, ¿cómo va lo mío?", 2.5, 60],
+  ["Javi · Clio", "¿Ya está?", 3.0, 10],
+  ["Rosa · Corolla", "¿Cuánto me va a salir?", 3.42, 90],
+  ["Luis · Focus", "¿Me llamas cuando esté?", 3.8, 30],
+  ["Antonio · Seat Ibiza", "¿¿Y bien??", 4.12, 120],
+  ["Carmen · 308", "¿Ya está mi coche?", 4.4, 40],
+  ["María · Golf", "¿Hola?", 4.64, 150],
+  ["Javi · Clio", "¿Ya está mi coche?", 4.85, 70],
+  ["Pepe · León", "¿YA ESTÁ MI COCHE?", 5.02, 20],
+];
+const GAP = 22, CHAT_H = 880, CHAT_TOP = 700, BURST = 5.95;
+
+/* ---------- construcción ---------- */
+[["h0a", "¿Ya está"], ["h0b", '<span class="acc">mi coche?</span>'], ["h1a", "Todo el día."], ["h1b", '<span class="acc">Al teléfono.</span>'],
+ ["h2a", "Que lo vea"], ["h2b", '<span class="acc">en su móvil.</span>'], ["h3a", "Y tú,"], ["h3b", '<span class="acc">a lo tuyo.</span>'],
+ ["e1", "Comenta"], ["e2", '<span class="acc">“IA”.</span>']].forEach(([id, h]) => $(id).innerHTML = hl(h));
+$("chat").innerHTML = MSG.map((m, i) => `<div class="bub${i === MSG.length - 1 ? " hot" : ""}" id="b${i}"><div class="who mono">${m[0]}</div><div class="msg">${m[1]}</div></div>`).join("");
+
+const gctx = $("grain").getContext("2d"), GR = [];
+for (let f = 0; f < 4; f++) {
+  const img = gctx.createImageData(360, 640);
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  GR.push(img);
+}
+// partículas deterministas para la explosión de los bocadillos
+const PARTS = [];
+for (let i = 0; i < MSG.length; i++) for (let j = 0; j < 16; j++) PARTS.push({ b: i, a: rnd() * Math.PI * 2, v: 260 + rnd() * 520, s: 4 + rnd() * 9, d: rnd() * .12, red: rnd() < .45 });
+let H = null;
+function heights() { if (!H) H = MSG.map((_, i) => $("b" + i).offsetHeight); return H; }
+
+/* ---------- seek ---------- */
+function seek(t) {
+  t = clamp(t, 0, T - 1e-6);
+  const fr = Math.floor(t * FPS + 1e-6), ss = Math.floor(fr / FPS);
+  const ci = CH.findIndex(c => t >= c[1] && t < c[2]);
+  $("tc").textContent = `TC 00:00:${String(ss).padStart(2, "0")}:${String(fr % FPS).padStart(2, "0")}`;
+  $("chap").textContent = CH[ci][0];
+  document.querySelectorAll("#sq i").forEach((el, i) => el.classList.toggle("on", i <= ci));
+  gctx.putImageData(GR[fr % 4], 0, 0);
+
+  // titulares
+  rise($("h0a"), updown(t, 0, 2.05, .28)); rise($("h0b"), updown(t, .05, 2.09, .28));
+  rise($("h1a"), updown(t, 2.35, 5.6)); rise($("h1b"), updown(t, 2.42, 5.64));
+  rise($("h2a"), updown(t, 6.05, 7.95)); rise($("h2b"), updown(t, 6.12, 7.99));
+  rise($("h3a"), updown(t, 8.2, 9.4)); rise($("h3b"), updown(t, 8.27, 9.44));
+
+  // contador de preguntas (cifra ilustrativa) que frena al llegar
+  const cIn = eOut(P(t, .9, 1.2)) * (1 - P(t, 5.8, 6.0));
+  const n = t < 2.4 ? 1 : (P(t, 2.4, 5.1) >= 1 ? 37 : Math.max(1, Math.round(37 * eExpo(P(t, 2.4, 5.1)))));
+  const punch = t >= 5.1 ? Math.exp(-(t - 5.1) * 7) : 0;
+  $("cntN").textContent = String(n);
+  css($("cnt"), { opacity: cIn.toFixed(3), transform: `scale(${(1 + .35 * punch).toFixed(3)})` });
+
+  // chat: cada mensaje nuevo empuja hacia arriba a los anteriores
+  const h = heights();
+  let shake = 0, vig = 0;
+  for (let i = 0; i < MSG.length; i++) {
+    const el = $("b" + i), [, , ta, dx] = MSG[i];
+    const k = eBack(P(t, ta, ta + .32));
+    let lift = 0;
+    for (let j = i + 1; j < MSG.length; j++) lift += eOut(P(t, MSG[j][2], MSG[j][2] + .3)) * (h[j] + GAP);
+    const y = CHAT_H - h[i] - 20 - lift;
+    const boom = t >= BURST;
+    css(el, {
+      left: `${90 + dx}px`, top: `${y.toFixed(1)}px`,
+      opacity: t < ta || boom ? 0 : P(t, ta, ta + .1).toFixed(3),
+      transform: `translateY(${((1 - k) * 50).toFixed(1)}px) scale(${lerp(.55, 1, k).toFixed(3)})`,
+    });
+    const d = t - ta;
+    if (d >= 0 && d < .4 && i >= 1) shake = Math.max(shake, (i === MSG.length - 1 ? 14 : 3 + i * .5) * Math.exp(-d * 12));
+  }
+  if (t >= 5.02) vig = Math.max(vig, Math.exp(-(t - 5.02) * 2.2) * .9);
+  const sx = shake ? Math.sin(t * 95) * shake : 0, sy = shake ? Math.cos(t * 120) * shake * .7 : 0;
+  const push = eIO(P(t, 4.3, 5.4));
+  css($("chat"), { transform: `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) scale(${(1 + .06 * push).toFixed(4)})`, transformOrigin: "540px 700px" });
+  $("vig").style.opacity = (vig * (t < BURST ? 1 : 0)).toFixed(3);
+
+  // explosión de los bocadillos en partículas
+  const pc = $("pfx").getContext("2d");
+  pc.clearRect(0, 0, 1080, 1920);
+  const pt = t - BURST;
+  if (pt >= 0 && pt < 1.1) {
+    for (const p of PARTS) {
+      const q = pt - p.d; if (q < 0) continue;
+      const life = clamp(1 - q / .95); if (life <= 0) continue;
+      const i = p.b, [, , , dx] = MSG[i];
+      let lift = 0;
+      for (let j = i + 1; j < MSG.length; j++) lift += h[j] + GAP;
+      const cy0 = CHAT_TOP + CHAT_H - h[i] / 2 - 20 - lift, cx0 = 90 + dx + 260;
+      if (cy0 < CHAT_TOP + 60) continue;
+      const dist = p.v * eOut(clamp(q / .9));
+      pc.globalAlpha = life;
+      pc.fillStyle = p.red ? "#2ee6d6" : "#e9f4f2";
+      pc.fillRect(cx0 + Math.cos(p.a) * dist - p.s / 2, cy0 + Math.sin(p.a) * dist * .8 + q * q * 260 - p.s / 2, p.s, p.s);
+    }
+    pc.globalAlpha = 1;
+  }
+
+  // móvil con el portal real: entra girando en 3D
+  const pin = eOut(P(t, 6.25, 7.05)), pout = eIO(P(t, 9.35, 9.7));
+  const ry = lerp(-38, -7, pin) + Math.sin((t - 6.25) * 1.4) * 2.5 * pin, rx = lerp(14, 3, pin);
+  css($("phone"), {
+    opacity: t < 6.25 ? 0 : (pin * (1 - pout)).toFixed(3),
+    transform: `translateY(${((1 - pin) * 420 + pout * 60).toFixed(1)}px) rotateY(${ry.toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) scale(${lerp(1, .92, pout).toFixed(4)})`,
+    boxShadow: `0 60px 120px rgba(0,0,0,.65), 0 0 ${(70 * pin).toFixed(0)}px rgba(46,230,214,.22)`,
+  });
+  $("hiRect").setAttribute("stroke-dashoffset", (100 * (1 - eIO(P(t, 7.15, 7.75)))).toFixed(2));
+  $("hiRect").setAttribute("opacity", (P(t, 7.15, 7.2) * (1 - P(t, 8.0, 8.3))).toFixed(3));
+  $("pLab").style.opacity = (P(t, 7.0, 7.4) * (1 - pout)).toFixed(3);
+
+  // aviso automático que cae sobre el móvil
+  const nk = eBack(P(t, 8.1, 8.55)), nOut = eIO(P(t, 9.3, 9.6));
+  css($("notif"), { opacity: t < 8.1 ? 0 : (P(t, 8.1, 8.2) * (1 - nOut)).toFixed(3), transform: `translateY(${((1 - nk) * -160 - nOut * 40).toFixed(1)}px) scale(${lerp(.9, 1, nk).toFixed(3)})` });
+
+  // flashes en los cortes
+  let fl = 0;
+  if (t >= BURST) fl = Math.max(fl, .42 * Math.exp(-(t - BURST) * 9));
+  if (t >= 8.1) fl = Math.max(fl, .12 * Math.exp(-(t - 8.1) * 12));
+  if (t >= 9.7) fl = Math.max(fl, .3 * Math.exp(-(t - 9.7) * 12));
+  $("flash").style.opacity = fl.toFixed(3);
+
+  // cierre
+  const lk = eIO(P(t, 9.8, 10.4));
+  css($("lock"), { clipPath: `inset(0 ${((1 - lk) * 100).toFixed(2)}% 0 0)`, opacity: t >= 9.8 ? 1 : 0, transform: `translateX(${((1 - lk) * -30).toFixed(1)}px)` });
+  $("soon").style.opacity = eOut(P(t, 10.25, 10.6)).toFixed(3);
+  rise($("e1"), eOut(P(t, 10.4, 10.8)));
+  rise($("e2"), eOut(P(t, 10.5, 10.9)));
+  const pk = eBack(P(t, 11.05, 11.5)), pls = t > 11.75 ? 1 + Math.sin((t - 11.75) * 10) * .025 : 1;
+  css($("pill"), { opacity: P(t, 11.05, 11.2).toFixed(3), transform: `translateX(-50%) scale(${(lerp(.8, 1, pk) * pls).toFixed(3)})` });
+  $("eUrl").style.opacity = P(t, 11.35, 11.75).toFixed(3);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 2 PaMen</title>
+<style>
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+@font-face { font-family: "Archivo Black"; src: url("fonts/ArchivoBlack.font") format("truetype"); }
+:root { --bg:#0b0b0c; --fg:#fafafa; --acc:#ffe14a; --ink:#0b0b0c; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; background:var(--bg); overflow:hidden; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); font-family:"Anton", sans-serif; color:var(--fg); }
+#glow { position:absolute; inset:-300px; background:radial-gradient(circle at 50% 42%, rgba(255,225,74,.15), transparent 45%); }
+#grain { position:absolute; inset:0; opacity:.09; pointer-events:none; mix-blend-mode:screen;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+#vignette { position:absolute; inset:0; background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.65)); pointer-events:none; }
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-family:"Archivo Black"; font-size:28px; letter-spacing:.32em; color:rgba(250,250,250,.7); }
+#brand b { color:var(--acc); font-weight:400; }
+#track { position:absolute; left:0; right:0; top:150px; display:flex; justify-content:center; gap:22px; }
+.dot { width:16px; height:16px; border-radius:50%; border:3px solid rgba(255,225,74,.4); }
+.dot.on { background:var(--acc); border-color:var(--acc); }
+
+.scene { visibility:hidden; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.inner { display:flex; flex-direction:column; align-items:center; padding:0 70px; text-align:center; margin-top:-30px; }
+.line { line-height:1.06; text-transform:uppercase; }
+.y { color:var(--acc); }
+
+.num { font-family:"Anton"; font-size:560px; line-height:.8; color:var(--acc); -webkit-text-stroke:0; text-shadow:0 0 90px rgba(255,225,74,.35); }
+.numwrap { position:relative; margin-bottom:28px; }
+.numring { position:absolute; inset:-40px; border:5px solid rgba(255,225,74,.25); border-radius:50%; }
+.tag { font-family:"Archivo Black"; font-size:30px; letter-spacing:.14em; color:rgba(250,250,250,.65); margin-bottom:18px; }
+.sign { font-size:108px; margin-top:6px; }
+
+.box { position:relative; display:inline-block; padding:.04em .16em .02em; color:var(--ink); margin-top:.1em; }
+.box > i { position:absolute; inset:0; background:var(--acc); transform-origin:0 50%; z-index:0; transform:rotate(-1.3deg); }
+.box > span { position:relative; z-index:1; display:inline-block; }
+
+.urlbar { margin-top:60px; display:flex; align-items:center; gap:18px; background:#fff; color:#111; border-radius:999px; padding:24px 42px; font-family:"Inter", sans-serif; font-weight:700; font-size:42px; box-shadow:0 24px 60px rgba(0,0,0,.5), 0 0 0 6px rgba(255,225,74,.25); }
+.hint { margin-top:50px; font-family:"Archivo Black"; font-size:36px; letter-spacing:.06em; color:rgba(250,250,250,.85); text-transform:uppercase; }
+.hint b { color:var(--acc); font-weight:400; }
+.check { position:absolute; width:64px; height:64px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+  <div id="brand">PAMEN <b>AGENCY</b></div>
+  <div id="track">
+    <div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div>
+  </div>
+
+  <!-- 0 · Intro -->
+  <div class="scene" id="s0"><div class="inner">
+    <div class="tag" id="s0tag">⚠️ LEE HASTA EL FINAL</div>
+    <div class="line" style="font-size:150px" id="s0a">3 SEÑALES</div>
+    <div class="line" style="font-size:96px; margin-top:16px" id="s0b">DE QUE TU NEGOCIO</div>
+    <div class="line" style="font-size:96px" id="s0c"><span class="box" id="s0box"><i></i><span>NECESITA IA</span></span></div>
+  </div></div>
+
+  <!-- 1 -->
+  <div class="scene" id="s1"><div class="inner">
+    <div class="numwrap"><div class="numring" id="r1"></div><div class="num" id="n1">1</div></div>
+    <div class="line" style="font-size:92px" id="t1a">RESPONDES MENSAJES</div>
+    <div class="line" style="font-size:92px" id="t1b">A LAS <span class="y">11 DE LA NOCHE</span></div>
+  </div></div>
+
+  <!-- 2 -->
+  <div class="scene" id="s2"><div class="inner">
+    <div class="numwrap"><div class="numring" id="r2"></div><div class="num" id="n2">2</div></div>
+    <div class="line" style="font-size:92px" id="t2a">PIERDES CLIENTES</div>
+    <div class="line" style="font-size:92px" id="t2b">POR <span class="y">TARDAR EN CONTESTAR</span></div>
+  </div></div>
+
+  <!-- 3 -->
+  <div class="scene" id="s3"><div class="inner">
+    <div class="numwrap"><div class="numring" id="r3"></div><div class="num" id="n3">3</div></div>
+    <div class="line" style="font-size:92px" id="t3a">HACES A MANO</div>
+    <div class="line" style="font-size:92px" id="t3b">LO QUE <span class="y">SE AUTOMATIZA SOLO</span></div>
+  </div></div>
+
+  <!-- 4 · CTA -->
+  <div class="scene" id="s4"><div class="inner">
+    <div class="line" style="font-size:100px" id="s4a">¿TE SONÓ</div>
+    <div class="line" style="font-size:100px" id="s4b"><span class="box" id="s4box"><i></i><span>FAMILIAR?</span></span></div>
+    <div class="urlbar" id="s4bar">
+      <svg width="34" height="40" viewBox="0 0 24 28" fill="none" stroke="#111" stroke-width="2.6" stroke-linecap="round"><rect x="3" y="12" width="18" height="14" rx="3"/><path d="M7 12V8a5 5 0 0 1 10 0v4"/></svg>
+      <span>pamenagency.com</span>
+    </div>
+    <div class="hint" id="s4hint">👇 O comenta <b>"IA"</b></div>
+  </div></div>
+
+  <div id="vignette"></div>
+  <div id="grain"></div>
+</div>
+
+<script>
+const T = 15;
+const A = [];
+const EASE = "cubic-bezier(.16,1,.3,1)";
+const POP = "cubic-bezier(.34,1.56,.64,1)";
+const $ = id => document.getElementById(id);
+
+function anim(id, kf, start, dur, easing = EASE) {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill: "both", easing });
+  a.pause(); A.push(a);
+}
+const slam = (id, t, d = .34) => anim(id, [
+  { opacity: 0, transform: "scale(1.9) translateY(-10px)", filter: "blur(14px)" },
+  { opacity: 1, transform: "scale(1)", filter: "blur(0)" }], t, d);
+const rise = (id, t, d = .45) => anim(id, [
+  { opacity: 0, transform: "translateY(90px)", filter: "blur(8px)" },
+  { opacity: 1, transform: "translateY(0)", filter: "blur(0)" }], t, d);
+function boxIn(id, t) {
+  const el = $(id);
+  anim(el, [{ opacity: 0 }, { opacity: 1 }], t, .01);
+  anim(el.querySelector("i"), [{ transform: "rotate(-1.3deg) scaleX(0)" }, { transform: "rotate(-1.3deg) scaleX(1)" }], t, .3);
+  anim(el.querySelector("span"), [
+    { opacity: 0, transform: "translateX(-40px)" }, { opacity: 1, transform: "translateX(0)" }], t + .1, .32);
+}
+function scene(id, a, b) {
+  const s = $(id);
+  const v = s.animate([{ visibility: "visible" }, { visibility: "visible" }], { duration: (b - a) * 1000, delay: a * 1000, fill: "none" });
+  v.pause(); A.push(v);
+  anim(s.querySelector(".inner"), [
+    { opacity: 1, transform: "scale(1)", filter: "blur(0)" },
+    { opacity: 0, transform: "scale(1.22)", filter: "blur(16px)" }], b - .16, .16, "ease-in");
+}
+function numPunch(numId, ringId, t) {
+  anim(numId, [
+    { opacity: 0, transform: "scale(.2) rotate(-18deg)" },
+    { opacity: 1, transform: "scale(1.12) rotate(3deg)" },
+    { opacity: 1, transform: "scale(1) rotate(0)" }], t, .5, POP);
+  anim(ringId, [{ opacity: 0, transform: "scale(.5)" }, { opacity: 1, transform: "scale(1)" }], t + .1, .4, POP);
+}
+function dotOn(id, t) { anim(id, [{ background: "transparent" }, { background: "#ffe14a" }], t, .01, "step-end"); }
+
+anim("brand", [{ opacity: 0, transform: "translateY(-20px)" }, { opacity: 1, transform: "none" }], .1, .5);
+
+// 0 · 0 – 2.4s
+scene("s0", 0, 2.4);
+anim("s0tag", [{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1)" }], .05, .35, POP);
+slam("s0a", .25, .36); rise("s0b", .62); boxIn("s0box", .95);
+
+// 1 · 2.4 – 5.5s
+scene("s1", 2.4, 5.5);
+dotOn("d1", 2.42);
+numPunch("n1", "r1", 2.5);
+rise("t1a", 3.1); rise("t1b", 3.35);
+
+// 2 · 5.5 – 8.6s
+scene("s2", 5.5, 8.6);
+dotOn("d2", 5.52);
+numPunch("n2", "r2", 5.6);
+rise("t2a", 6.2); rise("t2b", 6.45);
+
+// 3 · 8.6 – 11.7s
+scene("s3", 8.6, 11.7);
+dotOn("d3", 8.62);
+numPunch("n3", "r3", 8.7);
+rise("t3a", 9.3); rise("t3b", 9.55);
+
+// 4 · 11.7 – 15s
+scene("s4", 11.7, T + 1);
+dotOn("d4", 11.72);
+slam("s4a", 11.78, .3); boxIn("s4box", 12.08);
+anim("s4bar", [{ opacity: 0, transform: "translateY(70px) scale(.9)" }, { opacity: 1, transform: "none" }], 12.55, .5, POP);
+rise("s4hint", 13.15);
+anim($("s4bar"), [{ scale: "1" }, { scale: "1.05" }, { scale: "1" }], 13.7, .4, "ease-out");
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  const f = Math.floor(t * 30);
+  $("grain").style.backgroundPosition = `${(f * 73) % 260}px ${(f * 151) % 260}px`;
+  $("glow").style.transform = `translate(${Math.sin(t * .7) * 70}px, ${Math.cos(t * .5) * 100}px)`;
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

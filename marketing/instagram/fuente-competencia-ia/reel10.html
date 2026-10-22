@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 10 PaMen</title>
+<style>
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+:root { --bg:#050807; --g:#39ff88; --gdim:rgba(57,255,136,.55); --red:#ff3b5c; --cy:#2de2ff; --acc:#ffe14a; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:var(--bg); }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:radial-gradient(ellipse at 50% 45%, #0b1a12 0%, var(--bg) 70%); color:var(--g); font-family:"DejaVu Sans Mono", monospace; }
+#world { position:absolute; inset:0; }
+#scan { position:absolute; inset:0; pointer-events:none; z-index:40; background:repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0px, rgba(0,0,0,.28) 2px, transparent 2px, transparent 5px); }
+#vig { position:absolute; inset:0; pointer-events:none; z-index:41; background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.8)); }
+#noise { position:absolute; left:0; right:0; height:90px; z-index:42; background:linear-gradient(transparent, rgba(57,255,136,.18), transparent); opacity:0; }
+#brand { position:absolute; top:70px; left:0; right:0; text-align:center; font-size:28px; letter-spacing:.3em; color:var(--gdim); font-weight:700; }
+
+.scene { visibility:hidden; position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+
+/* texto glitch: tres capas */
+.gl { position:relative; font-family:"Anton"; text-transform:uppercase; text-align:center; line-height:1.02; }
+.gl span { display:block; }
+.gl .r, .gl .c { position:absolute; inset:0; mix-blend-mode:screen; }
+.gl .r { color:var(--red); }
+.gl .c { color:var(--cy); }
+.gl .w { color:#f2fff7; position:relative; }
+.gl.green .w { color:var(--g); text-shadow:0 0 40px rgba(57,255,136,.55); }
+
+.alert { font-weight:700; font-size:40px; letter-spacing:.2em; color:var(--red); border:4px solid var(--red); padding:14px 32px; margin-bottom:40px; text-shadow:0 0 20px rgba(255,59,92,.6); box-shadow:0 0 30px rgba(255,59,92,.35), inset 0 0 20px rgba(255,59,92,.2); }
+
+/* terminal */
+.term { width:960px; border:3px solid var(--gdim); border-radius:22px; background:rgba(3,14,9,.85); box-shadow:0 0 60px rgba(57,255,136,.15); overflow:hidden; }
+.tbar { height:62px; display:flex; align-items:center; gap:14px; padding:0 26px; border-bottom:3px solid rgba(57,255,136,.3); }
+.tbar i { width:20px; height:20px; border-radius:50%; display:block; }
+.tbar .tt { margin-left:18px; font-size:24px; color:var(--gdim); }
+.tbody { padding:34px 34px 40px; font-size:33px; line-height:1.75; min-height:620px; white-space:pre; }
+.ln { display:block; min-height:1.75em; }
+.p { color:var(--acc); }
+.warn { color:#ffb020; }
+.bad { color:var(--red); }
+.ok { color:var(--g); font-weight:700; }
+.cur { display:inline-block; width:.6em; height:1.05em; background:var(--g); vertical-align:-0.15em; margin-left:2px; }
+.big { font-family:"Anton"; font-size:110px; line-height:1; color:var(--g); text-shadow:0 0 50px rgba(57,255,136,.6); text-align:center; margin-top:34px; }
+#bar { font-size:46px; letter-spacing:.02em; }
+
+/* CTA */
+.prompt { margin-top:70px; font-size:52px; color:var(--g); }
+.prompt .p { color:var(--acc); }
+.cmt { margin-top:40px; font-size:36px; color:#d9ffe9; letter-spacing:.06em; }
+.cmt b { color:#050807; background:var(--g); padding:2px 14px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="world">
+    <div id="brand">[ PAMEN_AGENCY ]</div>
+
+    <!-- 0 · Alerta -->
+    <div class="scene" id="s0">
+      <div class="alert" id="al">⚠ ALERTA</div>
+      <div class="gl" id="g1" style="font-size:150px">
+        <span class="r">TU COMPETENCIA<br>YA USA IA</span><span class="c">TU COMPETENCIA<br>YA USA IA</span><span class="w">TU COMPETENCIA<br>YA USA IA</span>
+      </div>
+    </div>
+
+    <!-- 1-2 · Terminal -->
+    <div class="scene" id="s1">
+      <div class="term" id="term">
+        <div class="tbar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span class="tt">pamen@ia: ~</span></div>
+        <div class="tbody" id="tbody"></div>
+      </div>
+      <div class="big" id="done">✔ IA ACTIVADA</div>
+    </div>
+
+    <!-- 3 · CTA -->
+    <div class="scene" id="s3">
+      <div class="gl green" id="g2" style="font-size:140px">
+        <span class="r">NO TE QUEDES<br>ATRÁS</span><span class="c">NO TE QUEDES<br>ATRÁS</span><span class="w">NO TE QUEDES<br>ATRÁS</span>
+      </div>
+      <div class="prompt"><span class="p">$</span> <span id="url"></span><span class="cur" id="cur2"></span></div>
+      <div class="cmt" id="cmt">o comenta <b>IA</b> 👇</div>
+    </div>
+  </div>
+  <div id="noise"></div>
+  <div id="scan"></div>
+  <div id="vig"></div>
+</div>
+
+<script>
+const T = 15.6;
+const A = [];
+const EASE = "cubic-bezier(.16,1,.3,1)";
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = EASE, fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+function show(id, a, b) {
+  const v = $(id).animate([{ visibility: "visible" }, { visibility: "visible" }], { duration: (b - a) * 1000, delay: a * 1000, fill: "none" });
+  v.pause(); A.push(v);
+}
+// pseudoaleatorio determinista por fotograma
+const hr = n => { const x = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); };
+
+// guion de la terminal: [inicio, texto, sufijo coloreado, clase]
+const L = [
+  [3.35, '<span class="p">$</span> escanear --tu-negocio', "", ""],
+  [4.35, "> respuestas lentas ......", " ⚠ DETECTADO", "warn"],
+  [5.05, "> citas a mano ...........", " ⚠ DETECTADO", "warn"],
+  [5.75, "> seguimiento olvidado ...", " ⚠ DETECTADO", "warn"],
+  [6.45, "> competencia con IA .....", " ✖ TE ADELANTA", "bad"],
+  [7.6,  '<span class="p">$</span> instalar ia --ya', "", ""],
+];
+const CPS = 34; // caracteres por segundo
+const plain = s => s.replace(/<[^>]+>/g, "");
+
+show("s0", 0, 2.95);
+show("s1", 2.95, 11.75);
+show("s3", 11.75, T + 1);
+
+anim("al", [{ opacity: 0, transform: "scale(1.6)" }, { opacity: 1, transform: "scale(1)" }], .1, .3);
+anim("g1", [{ opacity: 0, transform: "scale(.85)" }, { opacity: 1, transform: "scale(1)" }], .35, .35);
+anim("term", [{ opacity: 0, transform: "translateY(60px) scale(.96)" }, { opacity: 1, transform: "none" }], 3.0, .4);
+anim("done", [{ opacity: 0, transform: "scale(.6)" }, { opacity: 1, transform: "scale(1)" }], 10.75, .35, "cubic-bezier(.34,1.56,.64,1)");
+anim("cmt", [{ opacity: 0, transform: "translateY(30px)" }, { opacity: 1, transform: "none" }], 14.0, .4);
+
+// ventanas de glitch: [inicio, fin]
+const GLITCH = [[.35, .62], [1.45, 1.6], [2.55, 2.95], [8.45, 8.6], [11.6, 12.1], [13.1, 13.25], [14.9, 15.05]];
+const CUTS = [[2.85, 3.1], [11.65, 11.95]];
+const inWin = (t, ws) => ws.some(([a, b]) => t >= a && t < b);
+
+function glitchText(id, t, f) {
+  const el = $(id), r = el.querySelector(".r"), c = el.querySelector(".c");
+  if (inWin(t, GLITCH)) {
+    const k = 14 + hr(f) * 26;
+    const y1 = hr(f + 1) * 80, y2 = y1 + 8 + hr(f + 2) * 30;
+    r.style.transform = `translate(${-k}px, ${hr(f + 3) * 6 - 3}px)`;
+    c.style.transform = `translate(${k}px, ${hr(f + 4) * 6 - 3}px)`;
+    r.style.clipPath = `inset(${y1}% 0 ${100 - y2}% 0)`;
+    c.style.clipPath = `inset(${hr(f + 5) * 70}% 0 ${hr(f + 6) * 20}% 0)`;
+    el.style.transform = `translateX(${(hr(f + 7) - .5) * 24}px) skewX(${(hr(f + 8) - .5) * 10}deg)`;
+  } else {
+    r.style.transform = "translate(-3px,0)"; c.style.transform = "translate(3px,0)";
+    r.style.clipPath = c.style.clipPath = "none"; el.style.transform = "none";
+  }
+}
+
+function terminal(t) {
+  let html = "";
+  for (let i = 0; i < L.length; i++) {
+    const [t0, txt, suf, cls] = L[i];
+    if (t < t0) break;
+    const full = plain(txt), n = Math.floor((t - t0) * CPS);
+    const typed = n >= full.length ? txt : (txt.startsWith("<span") ? '<span class="p">$</span>' + full.slice(1, Math.max(1, n)) : full.slice(0, n));
+    const sufOn = suf && t >= t0 + full.length / CPS + .15;
+    const next = L[i + 1];
+    const cursor = (!next || t < next[0]) && !(i === L.length - 1 && t > 8.9) ? '<span class="cur"></span>' : "";
+    html += `<span class="ln">${typed}${sufOn ? `<span class="${cls}">${suf}</span>` : ""}${cursor}</span>`;
+  }
+  // barra de instalación
+  if (t >= 8.4) {
+    const p = Math.min(1, Math.max(0, (t - 8.6) / 1.9));
+    const e = 1 - Math.pow(1 - p, 2), N = 20, fillN = Math.round(e * N);
+    html += `<span class="ln" id="bar">[${"█".repeat(fillN)}${"░".repeat(N - fillN)}] ${String(Math.round(e * 100)).padStart(3, " ")}%</span>`;
+    if (p >= 1) html += `<span class="ln ok">✔ instalación completada</span>`;
+  }
+  $("tbody").innerHTML = html;
+}
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  const f = Math.floor(t * 30);
+  glitchText("g1", t, f);
+  glitchText("g2", t, f + 99);
+  terminal(t);
+  // alerta parpadeante
+  $("al").style.opacity = (t < 2.95 && Math.floor(t * 4) % 2 === 1) ? "0.15" : "";
+  // URL tecleada
+  const url = "pamenagency.com", n = Math.max(0, Math.min(url.length, Math.floor((t - 12.6) * 20)));
+  $("url").textContent = url.slice(0, n);
+  $("cur2").style.opacity = (n < url.length || Math.floor(t * 2.5) % 2) ? 1 : 0;
+  // cortes de escena con sacudida
+  const cut = inWin(t, CUTS) || inWin(t, GLITCH);
+  $("world").style.transform = cut ? `translate(${(hr(f + 11) - .5) * 40}px, ${(hr(f + 12) - .5) * 14}px)` : "none";
+  $("world").style.filter = inWin(t, CUTS) ? `hue-rotate(${hr(f) * 180}deg) brightness(1.4)` : "none";
+  $("noise").style.opacity = cut ? .9 : .25;
+  $("noise").style.top = ((f * 37) % 1920) + "px";
+  // parpadeo CRT
+  $("stage").style.opacity = .94 + hr(f + 20) * .06;
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

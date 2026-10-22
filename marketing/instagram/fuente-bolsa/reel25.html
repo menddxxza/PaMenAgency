@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 25 PaMen — Si tu negocio cotizara en bolsa</title>
+<style>
+@font-face { font-family:"Anton"; src:url("fonts/Anton.font") format("truetype"); }
+@font-face { font-family:"JBMono"; src:url("fonts/JetBrainsMono-Regular.font") format("truetype"); font-weight:400; }
+@font-face { font-family:"JBMono"; src:url("fonts/JetBrainsMono-Bold.font") format("truetype"); font-weight:700; }
+@font-face { font-family:"InterTight"; src:url("fonts/InterTight-Medium.font") format("truetype"); font-weight:500; }
+:root { --bg:#0b0a09; --ink:#f2ece2; --red:#ff3d1f; --dim:rgba(242,236,226,.52); --line:rgba(242,236,226,.14); --ov:rgba(242,236,226,.82); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--ink); font-family:"InterTight", sans-serif; }
+.abs { position:absolute; }
+.hd { font-family:"Anton", sans-serif; text-transform:uppercase; line-height:.95; letter-spacing:.012em; }
+.mono { font-family:"JBMono", monospace; letter-spacing:.2em; text-transform:uppercase; }
+.red { color:var(--red); }
+#glow { position:absolute; inset:0; background:radial-gradient(ellipse 60% 42% at 50% 46%, rgba(255,61,31,.13), rgba(255,61,31,0) 70%); }
+#grain { position:absolute; left:0; top:0; width:1080px; height:1920px; opacity:.06; pointer-events:none; z-index:45; }
+#vig { position:absolute; inset:0; background:radial-gradient(ellipse 75% 60% at 50% 50%, rgba(255,61,31,0) 45%, rgba(255,61,31,.6) 100%); opacity:0; z-index:40; pointer-events:none; }
+#flash { position:absolute; inset:0; background:#fff3e6; opacity:0; z-index:60; pointer-events:none; }
+
+/* HUD */
+#ov { position:absolute; inset:0; z-index:50; color:var(--ov); pointer-events:none; }
+.corner { position:absolute; width:56px; height:56px; border:0 solid currentColor; opacity:.7; }
+.corner.tl { left:40px; top:40px; border-left-width:2px; border-top-width:2px; }
+.corner.tr { right:40px; top:40px; border-right-width:2px; border-top-width:2px; }
+.corner.bl { left:40px; bottom:40px; border-left-width:2px; border-bottom-width:2px; }
+.corner.br { right:40px; bottom:40px; border-right-width:2px; border-bottom-width:2px; }
+#ov .t1 { font-size:17px; font-weight:700; }
+#ov .t2 { font-size:12px; color:var(--dim); margin-top:6px; letter-spacing:.16em; }
+#sq { display:flex; gap:7px; margin-top:12px; }
+#sq i { width:11px; height:11px; border:1.5px solid currentColor; display:block; }
+#sq i.on { background:currentColor; }
+
+/* subtítulo de la casa: caja crema, texto negro */
+.cap { position:absolute; left:0; right:0; top:178px; display:flex; justify-content:center; z-index:55; }
+.cap span { background:var(--ink); color:#0b0a09; font-family:"Anton", sans-serif; text-transform:uppercase; font-size:46px; line-height:1.12; letter-spacing:.01em; padding:10px 26px 12px; border-radius:14px; text-align:center; max-width:920px; }
+
+/* titulares que suben desde máscara con halo rojo */
+.mask { position:absolute; left:0; right:0; overflow:hidden; }
+.hl { position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:center; white-space:nowrap; }
+.hl .glow { position:absolute; bottom:0; color:var(--red); filter:blur(16px); opacity:.65; }
+.hl .sharp { position:relative; }
+
+/* tarjeta de cotización */
+#cam { position:absolute; inset:0; transform-origin:380px 1160px; z-index:20; }
+#card { position:absolute; left:90px; top:520px; width:900px; height:730px; background:#131110; border:1.5px solid rgba(242,236,226,.1); border-radius:18px; overflow:hidden; }
+.ctitle { position:absolute; left:32px; right:32px; top:26px; display:flex; justify-content:space-between; font-size:15px; color:var(--dim); }
+#live { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--red); margin-right:10px; box-shadow:0 0 12px var(--red); }
+#ro { position:absolute; left:30px; top:64px; font-size:128px; line-height:1; }
+#roNote { position:absolute; left:34px; top:204px; font-size:12px; color:var(--dim); letter-spacing:.16em; }
+#chart { position:absolute; left:20px; top:250px; overflow:visible; }
+.glabel { position:absolute; font-family:"JBMono", monospace; font-size:15px; letter-spacing:.08em; white-space:nowrap; color:var(--ink); background:rgba(11,10,9,.92); padding:8px 12px; border-left:3px solid var(--red); opacity:0; }
+#iaPill { position:absolute; left:652px; top:1172px; font-family:"JBMono", monospace; font-weight:700; font-size:17px; letter-spacing:.12em; color:#0b0a09; background:var(--red); padding:9px 16px; border-radius:999px; opacity:0; box-shadow:0 0 30px rgba(255,61,31,.6); }
+#fx { position:absolute; left:0; top:0; overflow:visible; }
+
+/* cierre */
+#wm { position:absolute; left:0; right:0; top:654px; text-align:center; font-family:"InterTight"; font-weight:500; font-size:96px; letter-spacing:-.02em; white-space:nowrap; }
+#pill { position:absolute; left:50%; top:1318px; transform-origin:50% 50%; font-family:"InterTight"; font-weight:500; font-size:34px; color:#0b0a09; background:var(--red); padding:16px 34px; border-radius:999px; white-space:nowrap; box-shadow:0 0 50px rgba(255,61,31,.45); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <!-- 01 línea + titular -->
+  <div id="s1line" class="abs" style="top:884px; height:2px; background:var(--ink);"></div>
+  <div class="mask" id="m1a" style="top:640px; height:118px;"><div class="hl hd" id="h1a" style="font-size:106px;"></div></div>
+  <div class="mask" id="m1b" style="top:752px; height:118px;"><div class="hl hd" id="h1b" style="font-size:106px;"></div></div>
+  <div id="s1notes" class="abs mono" style="top:906px; left:0; right:0; text-align:center; font-size:15px; color:var(--dim);">NGC · TU NEGOCIO S.L. · MERCADO CONTINUO</div>
+  <div id="s1tick" class="abs mono" style="top:946px; left:0; font-size:14px; color:rgba(242,236,226,.32); white-space:nowrap;"></div>
+
+  <!-- titulares sobre la tarjeta -->
+  <div class="mask" style="top:282px; height:96px;"><div class="hl hd" id="h2a" style="font-size:84px;"></div></div>
+  <div class="mask" style="top:372px; height:96px;"><div class="hl hd" id="h2b" style="font-size:84px;"></div></div>
+  <div class="mask" style="top:282px; height:96px;"><div class="hl hd" id="h4a" style="font-size:84px;"></div></div>
+  <div class="mask" style="top:372px; height:96px;"><div class="hl hd" id="h4b" style="font-size:84px;"></div></div>
+
+  <div id="cam">
+    <div id="card">
+      <div class="ctitle mono"><span>NGC · TU NEGOCIO S.L.</span><span><i id="live"></i>EN DIRECTO</span></div>
+      <div id="ro" class="hd">0%</div>
+      <div id="roNote" class="mono">VARIACIÓN · CIFRA ILUSTRATIVA, NO SON DATOS REALES</div>
+      <svg id="chart" width="860" height="440" viewBox="0 0 860 440">
+        <defs><filter id="bl" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+              <filter id="bl2" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+        <g id="grid"></g>
+        <line x1="0" y1="200" x2="860" y2="200" stroke="#ff3d1f" stroke-opacity=".32" stroke-width="1.5" stroke-dasharray="6 8"/>
+        <text x="860" y="190" text-anchor="end" font-family="JBMono" font-size="12" letter-spacing="2" fill="rgba(242,236,226,.45)">APERTURA</text>
+        <path id="pBase" fill="none" stroke="rgba(242,236,226,.1)" stroke-width="2"/>
+        <path id="pGlow" fill="none" stroke="#ff3d1f" stroke-width="12" filter="url(#bl)" opacity=".6" stroke-linejoin="round"/>
+        <path id="pRed" fill="none" stroke="#ff3d1f" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <g id="nodes"></g>
+        <circle id="hHalo" r="20" fill="#ff3d1f" opacity=".45" filter="url(#bl2)"/>
+        <circle id="hDot" r="7" fill="#ffd9cf"/>
+      </svg>
+    </div>
+    <div class="glabel" id="lab1">23:47 · WHATSAPP SIN RESPONDER</div>
+    <div class="glabel" id="lab2">LUN · CITA OLVIDADA</div>
+    <div class="glabel" id="lab3">MÁXIMOS · CLIENTES RESPONDIDOS</div>
+    <div id="iaPill">IA ACTIVADA · 24/7</div>
+    <svg id="fx" width="1080" height="1920"></svg>
+  </div>
+
+  <!-- 05 cierre -->
+  <div id="wm">PaMenAgency</div>
+  <div class="mask" style="top:790px; height:160px;"><div class="hl hd" id="h5a" style="font-size:150px;"></div></div>
+  <div class="mask" style="top:932px; height:160px;"><div class="hl hd" id="h5b" style="font-size:150px;"></div></div>
+  <svg id="spark" class="abs" style="left:330px; top:1150px;" width="420" height="120" viewBox="0 0 860 440" preserveAspectRatio="none">
+    <path id="sGlow" fill="none" stroke="#ff3d1f" stroke-width="22" filter="url(#bl)" opacity=".55" vector-effect="non-scaling-stroke"/>
+    <path id="sRed" fill="none" stroke="#ff3d1f" stroke-width="3" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+  </svg>
+  <div id="pill">Etiqueta a tu socio →</div>
+  <div id="s5mono" class="abs mono" style="top:1420px; left:0; right:0; text-align:center; font-size:14px; color:var(--dim);">AUTOMATIZACIÓN CON IA · PAMENAGENCY.COM</div>
+
+  <div id="vig"></div>
+
+  <div id="ov">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="abs mono" style="left:58px; top:56px;"><div class="t1">PAMEN AGENCY&nbsp;&nbsp;2026</div><div class="t2">AUTOMATIZACIÓN CON IA · PYMES</div><div id="sq"><i></i><i></i><i></i><i></i></div></div>
+    <div class="abs mono" style="right:58px; top:56px; text-align:right;"><div class="t1" id="tc">TC 00:00:00:00</div><div class="t2">9:16 / 60 FPS</div></div>
+    <div class="abs mono" id="chap" style="left:58px; bottom:54px; font-size:14px;"></div>
+    <div class="abs mono" style="right:58px; bottom:54px; font-size:14px; letter-spacing:.12em; text-transform:none;">PaMenAgency × Reels</div>
+  </div>
+  <div class="cap"><span id="capspan"></span></div>
+  <canvas id="grain" width="360" height="640"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+const T = 12.6, FPS = 60;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const P = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = k => 1 - Math.pow(1 - k, 3);
+const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const eBack = k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+let seed = 25; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const rise = (el, k) => { el.style.transform = `translateY(${((1 - k) * 105).toFixed(2)}%)`; el.style.visibility = k <= 0.001 ? "hidden" : ""; };
+const hl = html => `<span class="glow">${html}</span><span class="sharp">${html}</span>`;
+
+const CH = [["01 — EL MERCADO", 0, 2.5], ["02 — LA CAÍDA", 2.5, 5.6], ["03 — EL GIRO", 5.6, 7.5], ["04 — EL REBOTE", 7.5, 10.05], ["05 — TU TURNO", 10.05, T]];
+const CAPS = [[0, 2.5, "📉 MIRA ESTA GRÁFICA"], [2.5, 5.6, "CADA MENSAJE SIN CONTESTAR, ABAJO"], [5.6, 7.5, "HASTA QUE ENCIENDES LA IA 24/7"], [7.5, 10.05, "Y EL NEGOCIO REMONTA 📈"], [10.05, T, "COMENTA “IA” 👇"]];
+
+/* ---------- construcción ---------- */
+$("h1a").innerHTML = hl("Si tu negocio");
+$("h1b").innerHTML = hl('<span class="red">cotizara en bolsa.</span>');
+$("h2a").innerHTML = hl("Sin responder,");
+$("h2b").innerHTML = hl('<span class="red">en caída libre.</span>');
+$("h4a").innerHTML = hl("Con IA,");
+$("h4b").innerHTML = hl('<span class="red">al alza.</span>');
+$("h5a").innerHTML = hl("Comenta");
+$("h5b").innerHTML = hl('<span class="red">“IA”.</span>');
+$("s1tick").textContent = "NGC −0,4%   ·   WHATSAPP ▼   ·   CITAS ▼   ·   RESEÑAS ▼   ·   TU FINDE ▼   ·   ".repeat(6);
+
+let grid = "";
+for (const y of [0, 110, 330, 440]) grid += `<line x1="0" y1="${y}" x2="860" y2="${y}" stroke="rgba(242,236,226,.07)" stroke-width="1" stroke-dasharray="3 7"/>`;
+$("grid").innerHTML = grid;
+
+// gráfica: puntos clave + ruido determinista entre ellos
+const KEY = [[0,200],[70,190],[130,180],[190,192],[250,176],[300,190],[340,250],[380,236],[420,268],[470,345],[520,390],[560,362],[610,302],[660,252],[710,178],[760,118],[810,70],[860,30]];
+const CRASH = [6, 9], BOTTOM = 10;
+const PTS = [], KI = [];
+KEY.forEach((p, i) => {
+  KI.push(PTS.length); PTS.push(p);
+  if (i < KEY.length - 1) {
+    const q = KEY[i + 1];
+    for (const f of [1 / 3, 2 / 3]) PTS.push([lerp(p[0], q[0], f), lerp(p[1], q[1], f) + (rnd() - .5) * 18]);
+  }
+});
+const CUM = [0];
+for (let i = 1; i < PTS.length; i++) CUM.push(CUM[i - 1] + Math.hypot(PTS[i][0] - PTS[i - 1][0], PTS[i][1] - PTS[i - 1][1]));
+const LT = CUM[CUM.length - 1];
+const D = "M " + PTS.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" L ");
+["pBase", "pGlow", "pRed", "sGlow", "sRed"].forEach(id => $(id).setAttribute("d", D));
+["pGlow", "pRed"].forEach(id => $(id).setAttribute("stroke-dasharray", LT.toFixed(1)));
+function at(L) {
+  L = clamp(L, 0, LT);
+  let i = 1; while (i < CUM.length - 1 && CUM[i] < L) i++;
+  const k = (L - CUM[i - 1]) / ((CUM[i] - CUM[i - 1]) || 1);
+  return [lerp(PTS[i - 1][0], PTS[i][0], k), lerp(PTS[i - 1][1], PTS[i][1], k)];
+}
+const LB = CUM[KI[BOTTOM]];
+const drawn = t => t < 7.45 ? LB * eIO(P(t, 2.75, 5.05)) : LB + (LT - LB) * eIO(P(t, 7.5, 9.45));
+const value = y => y >= 200 ? -Math.round((y - 200) / 190 * 38) : Math.round((200 - y) / 170 * 120);
+
+// nodos: dos caídas + nodo IA + final
+let nodes = "";
+[...CRASH, BOTTOM, KEY.length - 1].forEach((ki, j) => {
+  const [x, y] = KEY[ki];
+  nodes += `<g transform="translate(${x} ${y})"><circle id="nd${j}" r="${ki === BOTTOM ? 13 : 8}" stroke-width="3" fill="#0b0a09" stroke="rgba(242,236,226,.25)"/>` +
+    (ki === BOTTOM ? `<path id="tk" d="M -6 0 L -1.5 5 L 7 -5" fill="none" stroke="#0b0a09" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="22" stroke-dashoffset="22"/>` : "") + `</g>`;
+});
+$("nodes").innerHTML = nodes;
+const NODE_L = [...CRASH, BOTTOM, KEY.length - 1].map(ki => CUM[KI[ki]]);
+const toScreen = ([x, y]) => [110 + x, 770 + y];
+const IA = toScreen(KEY[BOTTOM]);
+
+// momentos en que la línea cruza cada caída (para la sacudida)
+const CROSS = CRASH.map(ki => { const L = CUM[KI[ki]]; for (let t = 2.75; t < 5.1; t += 1 / 240) if (drawn(t) >= L) return t; return 99; });
+
+// anillos y rayos del nodo IA
+let fx = "";
+for (let i = 0; i < 5; i++) fx += `<circle id="ring${i}" cx="${IA[0]}" cy="${IA[1]}" fill="none" stroke="#ff3d1f" stroke-width="2.5"/>`;
+for (let i = 0; i < 28; i++) fx += `<line id="ray${i}" stroke="#ff3d1f" stroke-width="2" stroke-linecap="round"/>`;
+$("fx").innerHTML = fx;
+
+// grano: 4 fotogramas deterministas
+const gctx = $("grain").getContext("2d"), GR = [];
+for (let f = 0; f < 4; f++) {
+  const img = gctx.createImageData(360, 640);
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  GR.push(img);
+}
+
+// posiciones de etiquetas (coordenadas de pantalla)
+const N1 = toScreen(KEY[CRASH[0]]), N2 = toScreen(KEY[CRASH[1]]);
+css($("lab1"), { left: `${N1[0] - 16}px`, top: `${N1[1] + 18}px` });
+css($("lab2"), { left: `${N2[0] - 16}px`, top: `${N2[1] + 18}px` });
+css($("lab3"), { left: "956px", top: "736px" });
+
+/* ---------- seek ---------- */
+function seek(t) {
+  t = clamp(t, 0, T - 1e-6);
+  const fr = Math.floor(t * FPS + 1e-6), ss = Math.floor(fr / FPS);
+  const ci = CH.findIndex(c => t >= c[1] && t < c[2]);
+
+  // HUD
+  $("tc").textContent = `TC 00:00:${String(ss).padStart(2, "0")}:${String(fr % FPS).padStart(2, "0")}`;
+  $("chap").textContent = CH[ci][0];
+  document.querySelectorAll("#sq i").forEach((el, i) => el.classList.toggle("on", i < Math.ceil((ci + 1) / 5 * 4)));
+  gctx.putImageData(GR[fr % 4], 0, 0);
+  $("glow").style.opacity = ci === 4 ? 1.5 : 1;
+
+  // subtítulo
+  const cp = CAPS.find(c => t >= c[0] && t < c[1]) || CAPS[CAPS.length - 1];
+  $("capspan").textContent = cp[2];
+  const lt = t - cp[0], pop = Math.max(0, 1 - lt / .18);
+  $("capspan").style.transform = `scale(${(1 + .2 * pop * pop).toFixed(3)})`;
+
+  // 01 línea que se abre, titular, ticker
+  const lineIn = eOut(P(t, 0, .45)), lineOut = eIO(P(t, 2.45, 2.85));
+  const half = 450 * lineIn;
+  css($("s1line"), { left: `${540 - half}px`, width: `${2 * half}px`, opacity: String(1 - lineOut), background: t > 2.2 ? "#ff3d1f" : "#f2ece2", boxShadow: t > 2.2 ? "0 0 18px #ff3d1f" : "none" });
+  rise($("h1a"), eOut(P(t, 0, .32)) * (1 - eIO(P(t, 2.1, 2.45))));
+  rise($("h1b"), eOut(P(t, .06, .4)) * (1 - eIO(P(t, 2.15, 2.5))));
+  const nk = eOut(P(t, .5, 1)) * (1 - P(t, 2.1, 2.35));
+  css($("s1notes"), { opacity: nk, transform: `translateY(${(1 - nk) * 14}px)` });
+  css($("s1tick"), { opacity: .9 * nk, transform: `translateX(${(-t * 90 - 40).toFixed(1)}px)` });
+
+  // tarjeta: se abre desde la línea y se cierra en el cierre
+  const open = eIO(P(t, 2.45, 2.95)) * (1 - eIO(P(t, 9.95, 10.35)));
+  const inset = ((1 - open) * 50).toFixed(2);
+  $("card").style.clipPath = `inset(${inset}% 0 ${inset}% 0 round 18px)`;
+  $("card").style.opacity = open > 0 ? 1 : 0;
+
+  // gráfica
+  const L = drawn(t), [hx, hy] = at(L);
+  ["pGlow", "pRed"].forEach(id => $(id).setAttribute("stroke-dashoffset", (LT - L).toFixed(1)));
+  const pulse = 1 + Math.sin(t * 9) * .18;
+  $("hDot").setAttribute("cx", hx); $("hDot").setAttribute("cy", hy); $("hDot").setAttribute("r", (6.5 * pulse).toFixed(2));
+  $("hHalo").setAttribute("cx", hx); $("hHalo").setAttribute("cy", hy); $("hHalo").setAttribute("r", (20 * pulse).toFixed(2));
+  const v = t < 2.75 ? 0 : value(hy);
+  $("ro").textContent = (v < 0 ? "−" : v > 0 ? "+" : "") + Math.abs(v) + "%";
+  $("ro").style.color = v > 0 && t > 7.45 ? "#ff3d1f" : "#f2ece2";
+  $("live").style.opacity = Math.floor(t * 2.5) % 2 ? .25 : 1;
+  NODE_L.forEach((nl, j) => {
+    const lit = L >= nl - .5, c = $("nd" + j);
+    const isIA = j === 2, isEnd = j === 3;
+    c.setAttribute("stroke", lit ? "#ff3d1f" : "rgba(242,236,226,.25)");
+    c.setAttribute("fill", (isIA && t >= 5.65) || (isEnd && lit) ? "#ff3d1f" : "#0b0a09");
+  });
+  $("tk").setAttribute("stroke-dashoffset", (22 * (1 - eOut(P(t, 5.7, 5.95)))).toFixed(2));
+
+  // etiquetas de las caídas
+  [["lab1", CROSS[0]], ["lab2", CROSS[1]]].forEach(([id, tc]) => {
+    const k = eOut(P(t, tc + .05, tc + .4)) * (1 - P(t, 9.9, 10.1));
+    css($(id), { opacity: k, transform: `translateX(calc(-100% + ${((1 - k) * 24).toFixed(1)}px))` });
+  });
+  const k3 = eOut(P(t, 9.35, 9.7)) * (1 - P(t, 9.9, 10.1));
+  css($("lab3"), { opacity: k3, transform: `translateX(calc(-100% + ${((1 - k3) * 24).toFixed(1)}px))` });
+  const kp = eBack(P(t, 5.85, 6.25)) * (1 - P(t, 9.9, 10.1));
+  css($("iaPill"), { opacity: clamp(kp * 1.4), transform: `scale(${lerp(.6, 1, kp).toFixed(3)})` });
+
+  // golpes de cámara: sacudida en cada caída + punch-in en el nodo IA
+  let sx = 0, sy = 0, vig = 0;
+  CROSS.forEach(tc => {
+    const d = t - tc;
+    if (d >= 0 && d < .45) { const a = Math.exp(-d * 9); sx += Math.sin(d * 95) * 12 * a; sy += Math.cos(d * 120) * 9 * a; vig = Math.max(vig, .9 * Math.exp(-d * 6)); }
+  });
+  const push = eOut(P(t, 5.6, 6.05)) - eIO(P(t, 7.05, 7.5));
+  const s = 1 + .38 * push;
+  $("cam").style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) scale(${s.toFixed(4)})`;
+  $("vig").style.opacity = vig.toFixed(3);
+
+  // estallido IA: anillos y rayos
+  for (let i = 0; i < 5; i++) {
+    const k = P(t, 5.65 + i * .07, 5.65 + i * .07 + 1.1), r = $("ring" + i);
+    r.setAttribute("r", lerp(14, 760, eOut(k)).toFixed(1));
+    r.setAttribute("opacity", k > 0 && k < 1 ? ((1 - k) * .8).toFixed(3) : 0);
+  }
+  const rk = P(t, 5.65, 6.9);
+  for (let i = 0; i < 28; i++) {
+    const ang = i / 28 * Math.PI * 2 + .05, r1 = lerp(30, 300, eOut(rk)), r2 = lerp(40, 640 + (i % 3) * 90, eOut(rk)), l = $("ray" + i);
+    l.setAttribute("x1", IA[0] + Math.cos(ang) * r1); l.setAttribute("y1", IA[1] + Math.sin(ang) * r1);
+    l.setAttribute("x2", IA[0] + Math.cos(ang) * r2); l.setAttribute("y2", IA[1] + Math.sin(ang) * r2);
+    l.setAttribute("opacity", rk > 0 && rk < 1 ? ((1 - rk) * .55).toFixed(3) : 0);
+  }
+
+  // titulares sobre la tarjeta
+  rise($("h2a"), eOut(P(t, 3.1, 3.5)) * (1 - eIO(P(t, 5.25, 5.55))));
+  rise($("h2b"), eOut(P(t, 3.18, 3.58)) * (1 - eIO(P(t, 5.3, 5.6))));
+  rise($("h4a"), eOut(P(t, 8.0, 8.4)) * (1 - eIO(P(t, 9.75, 10.05))));
+  rise($("h4b"), eOut(P(t, 8.08, 8.48)) * (1 - eIO(P(t, 9.8, 10.1))));
+
+  // flashes con caída exponencial
+  let fl = 0;
+  if (t >= 5.65) fl = Math.max(fl, .45 * Math.exp(-(t - 5.65) * 9));
+  if (t >= 10.4) fl = Math.max(fl, .6 * Math.exp(-(t - 10.4) * 13));
+  $("flash").style.opacity = fl.toFixed(3);
+
+  // 05 cierre
+  const wk = eIO(P(t, 10.45, 11.0));
+  css($("wm"), { clipPath: `inset(0 ${((1 - wk) * 100).toFixed(2)}% 0 0)`, opacity: t >= 10.45 ? 1 : 0, transform: `translateX(${((1 - wk) * -30).toFixed(1)}px)` });
+  rise($("h5a"), eOut(P(t, 10.7, 11.1)));
+  rise($("h5b"), eOut(P(t, 10.8, 11.2)));
+  const sp = eIO(P(t, 11.0, 11.6));
+  ["sGlow", "sRed"].forEach(id => { $(id).style.strokeDasharray = LT; $(id).style.strokeDashoffset = (LT * (1 - sp)).toFixed(1); });
+  $("spark").style.opacity = t >= 11 ? 1 : 0;
+  const pk = eBack(P(t, 11.3, 11.75)), pls = t > 12 ? 1 + Math.sin((t - 12) * 10) * .025 : 1;
+  css($("pill"), { opacity: P(t, 11.3, 11.45), transform: `translateX(-50%) scale(${(lerp(.8, 1, pk) * pls).toFixed(3)})` });
+  $("s5mono").style.opacity = P(t, 11.6, 12.0);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

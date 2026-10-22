@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 32 PaMen × MecaPro — Veri*Factu 2027 ya en marcha</title>
+<style>
+@font-face { font-family:"Fraunces"; src:url("fonts/Fraunces-Black.font") format("truetype"); font-weight:900; }
+@font-face { font-family:"Azeret"; src:url("fonts/AzeretMono-Medium.font") format("truetype"); font-weight:500; }
+@font-face { font-family:"InterTight"; src:url("fonts/InterTight-Medium.font") format("truetype"); font-weight:500; }
+:root { --bg:#060a08; --ink:#eaf6f0; --acc:#3dffb0; --dim:rgba(234,246,240,.52); --ov:rgba(234,246,240,.8); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--ink); font-family:"InterTight", sans-serif; }
+.abs { position:absolute; }
+.hd { font-family:"Fraunces", serif; font-weight:900; text-transform:uppercase; line-height:.98; letter-spacing:-.01em; }
+.mono { font-family:"Azeret", monospace; letter-spacing:.16em; text-transform:uppercase; }
+.acc { color:var(--acc); }
+#glow { position:absolute; inset:0; background:radial-gradient(ellipse 65% 45% at 50% 52%, rgba(61,255,176,.10), rgba(61,255,176,0) 70%); }
+#vig { position:absolute; inset:0; z-index:40; pointer-events:none; opacity:0; background:radial-gradient(ellipse 75% 60% at 50% 50%, rgba(61,255,176,0) 45%, rgba(61,255,176,.3) 100%); }
+#grain { position:absolute; left:0; top:0; width:1080px; height:1920px; opacity:.055; pointer-events:none; z-index:45; }
+#flash { position:absolute; inset:0; background:var(--acc); opacity:0; z-index:60; pointer-events:none; mix-blend-mode:screen; }
+
+#ov { position:absolute; inset:0; z-index:50; color:var(--ov); pointer-events:none; }
+.corner { position:absolute; width:56px; height:56px; border:0 solid currentColor; opacity:.7; }
+.corner.tl { left:40px; top:40px; border-left-width:2px; border-top-width:2px; }
+.corner.tr { right:40px; top:40px; border-right-width:2px; border-top-width:2px; }
+.corner.bl { left:40px; bottom:40px; border-left-width:2px; border-bottom-width:2px; }
+.corner.br { right:40px; bottom:40px; border-right-width:2px; border-bottom-width:2px; }
+#ov .t1 { font-size:15px; }
+#ov .t2 { font-size:10.5px; color:var(--dim); margin-top:6px; letter-spacing:.1em; }
+#sq { display:flex; gap:7px; margin-top:12px; }
+#sq i { width:11px; height:11px; border:1.5px solid currentColor; display:block; }
+#sq i.on { background:var(--acc); border-color:var(--acc); }
+
+.mask { position:absolute; left:0; right:0; overflow:hidden; }
+.hl { position:absolute; left:50%; bottom:0; white-space:nowrap; }
+.hl .glow { position:absolute; left:0; bottom:0; color:var(--acc); filter:blur(18px); opacity:.55; }
+.hl .sharp { position:relative; }
+
+/* capítulo 1: el año que rueda */
+#year { position:absolute; left:0; right:0; top:620px; display:flex; justify-content:center; font-family:"Fraunces"; font-weight:900; font-size:270px; line-height:1; color:var(--acc); }
+.dg { display:inline-block; height:270px; overflow:hidden; }
+.dg span { display:block; height:270px; line-height:270px; }
+#dgRoll { height:auto !important; }
+#stamp { position:absolute; left:50%; top:930px; font-size:30px; padding:14px 26px 12px; border:4px solid var(--acc); color:var(--acc); border-radius:8px; white-space:nowrap; }
+.dl { position:absolute; left:0; right:0; text-align:center; font-size:22px; }
+
+/* capítulo 2: registros encadenados */
+.rec { position:absolute; left:170px; width:740px; padding:20px 26px; background:#0e1512; border:1.5px solid rgba(234,246,240,.12); border-radius:18px; }
+.rec .rk { font-size:15px; color:var(--dim); display:flex; justify-content:space-between; }
+.rec .rh { font-family:"Azeret"; font-size:22px; margin-top:10px; letter-spacing:.04em; color:var(--ink); white-space:nowrap; overflow:hidden; }
+#chainSvg { position:absolute; left:0; top:0; overflow:visible; }
+#aeat { position:absolute; left:50%; top:1300px; width:420px; margin-left:-210px; text-align:center; display:flex; flex-direction:column; align-items:center; }
+#aeatBox { width:220px; height:96px; border:3px solid var(--acc); border-radius:16px; display:flex; align-items:center; justify-content:center; font-family:"Fraunces"; font-weight:900; font-size:52px; color:var(--acc); background:#08120d; }
+#aeatOk { margin-top:14px; font-size:16px; color:var(--acc); white-space:nowrap; }
+#c2tags { left:0; right:0; top:1520px; text-align:center; font-size:17px; color:var(--dim); }
+
+/* capítulo 3: factura real */
+#persp { position:absolute; inset:0; perspective:1700px; }
+#paper { position:absolute; left:140px; top:610px; width:800px; border-radius:10px; overflow:hidden; background:#fff; transform-origin:50% 40%; }
+#paper img { width:100%; display:block; }
+#beam { position:absolute; left:0; right:0; height:6px; background:var(--acc); box-shadow:0 0 30px 10px rgba(61,255,176,.55); }
+#qrRing { position:absolute; border:4px solid var(--acc); border-radius:12px; }
+#pLab { left:0; right:0; top:1290px; text-align:center; font-size:16px; color:var(--dim); }
+.chip { position:absolute; left:50%; padding:14px 24px; background:#0e1512; border:1.5px solid var(--acc); border-radius:999px; font-family:"InterTight"; font-weight:500; font-size:30px; white-space:nowrap; display:flex; align-items:center; gap:14px; }
+
+/* cierre */
+#lock { position:absolute; left:0; right:0; top:500px; display:flex; justify-content:center; align-items:center; gap:30px; }
+#lock img { height:150px; }
+#lockW { font-family:"InterTight"; font-weight:500; font-size:118px; letter-spacing:-.02em; white-space:nowrap; }
+#soon { left:0; right:0; top:700px; text-align:center; font-size:24px; color:var(--acc); letter-spacing:.42em; }
+#pill { position:absolute; left:50%; top:1150px; font-family:"InterTight"; font-weight:500; font-size:34px; color:#060a08; background:var(--acc); padding:18px 36px; border-radius:999px; white-space:nowrap; box-shadow:0 0 50px rgba(61,255,176,.4); }
+#eUrl { left:0; right:0; top:1268px; text-align:center; font-size:14px; color:var(--dim); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h0a" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h0b" style="font-size:104px;"></div></div>
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h1a" style="font-size:96px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h1b" style="font-size:96px;"></div></div>
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h2a" style="font-size:96px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h2b" style="font-size:80px;"></div></div>
+
+  <!-- 01 -->
+  <div id="year"><span class="dg"><span>2</span></span><span class="dg"><span>0</span></span><span class="dg"><span>2</span></span><span class="dg" id="dgLast"><span id="dgRoll"></span></span></div>
+  <div id="stamp" class="mono">Obligatorio</div>
+  <div id="dl1" class="dl mono" style="top:1060px;">1 ene 2027 · sociedades</div>
+  <div id="dl2" class="dl mono" style="top:1104px;">1 jul 2027 · autónomos y resto</div>
+
+  <!-- 02 -->
+  <svg id="chainSvg" width="1080" height="1920"><path id="chainPath" d="M540 760 L540 820 M540 960 L540 1020 M540 1160 L540 1300" fill="none" stroke="#3dffb0" stroke-width="4" stroke-dasharray="6 10"/></svg>
+  <div class="rec" id="rc0" style="top:640px;"><div class="rk mono"><span>Registro 0001 · F-2026-00001</span><span>alta</span></div><div class="rh" id="rh0"></div></div>
+  <div class="rec" id="rc1" style="top:840px;"><div class="rk mono"><span>Registro 0002 · F-2026-00002</span><span>alta</span></div><div class="rh" id="rh1"></div></div>
+  <div class="rec" id="rc2" style="top:1040px;"><div class="rk mono"><span>Registro 0003 · F-2026-00003</span><span>alta</span></div><div class="rh" id="rh2"></div></div>
+  <div id="aeat"><div id="aeatBox">AEAT</div><div id="aeatOk" class="mono">✓ recibido · ejemplo</div></div>
+  <div id="c2tags" class="abs mono">huella sha-256 · encadenada · inalterable</div>
+
+  <!-- 03 -->
+  <div id="persp"><div id="paper"><img src="img/factura-real.png" alt=""><div id="qrRing"></div><div id="beam"></div></div></div>
+  <div id="pLab" class="abs mono">factura real generada por mecapro</div>
+  <div class="chip" id="ch0" style="top:1360px;"><span class="acc">✓</span>QR tributario en cada factura</div>
+  <div class="chip" id="ch1" style="top:1450px;"><span class="acc">✓</span>Registro encadenado</div>
+  <div class="chip" id="ch2" style="top:1540px;"><span class="acc">✓</span>Envío a Hacienda</div>
+
+  <!-- 04 -->
+  <div id="lock"><img src="img/mecapro-icon.png" alt="MecaPro"><div id="lockW">MecaPro</div></div>
+  <div id="soon" class="abs mono">próximamente</div>
+  <div class="mask" style="top:770px; height:160px;"><div class="hl hd" id="e1" style="font-size:140px;"></div></div>
+  <div class="mask" style="top:910px; height:160px;"><div class="hl hd" id="e2" style="font-size:140px;"></div></div>
+  <div id="pill">Guárdalo para 2027 →</div>
+  <div id="eUrl" class="abs mono">un producto de pamenagency</div>
+
+  <div id="vig"></div>
+  <div id="ov">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="abs mono" style="left:58px; top:56px;"><div class="t1">PAMEN AGENCY&nbsp;&nbsp;2026</div><div class="t2">MECAPRO · VERI*FACTU</div><div id="sq"><i></i><i></i><i></i><i></i></div></div>
+    <div class="abs mono" style="right:58px; top:56px; text-align:right;"><div class="t1" id="tc">TC 00:00:00:00</div><div class="t2">9:16 / 60 FPS</div></div>
+    <div class="abs mono" id="chap" style="left:58px; bottom:54px; font-size:12px;"></div>
+    <div class="abs mono" style="right:58px; bottom:54px; font-size:12px; letter-spacing:.04em; text-transform:none;">PaMenAgency × MecaPro</div>
+  </div>
+  <canvas id="grain" width="360" height="640"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+const T = 12.6, FPS = 60;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const P = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = k => 1 - Math.pow(1 - k, 3);
+const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const eBack = k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+let seed = 32; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const rise = (el, k) => { el.style.transform = `translateX(-50%) translateY(${((1 - k) * 108).toFixed(2)}%)`; el.style.visibility = k <= .001 ? "hidden" : ""; };
+const hl = html => `<span class="glow">${html}</span><span class="sharp">${html}</span>`;
+const updown = (t, a, c, dur = .36) => eOut(P(t, a, a + dur)) * (1 - eIO(P(t, c, c + .26)));
+
+const CH = [["01 — LA LEY", 0, 2.8], ["02 — QUÉ PIDE", 2.8, 6.7], ["03 — EN MECAPRO", 6.7, 9.7], ["04 — TU TURNO", 9.7, T]];
+const HASHES = ["3C464DAF61ACB827C65FDA19F352A4E3", "F7B94CFD8924EDFF273501B01EE5153E", "ACC51FF1F82A0CAFE0D509A0D8BDCEDF"];
+
+/* ---------- construcción ---------- */
+[["h0a", "Nueva ley:"], ["h0b", '<span class="acc">Veri*Factu.</span>'], ["h1a", "Cada factura,"], ["h1b", '<span class="acc">a Hacienda.</span>'],
+ ["h2a", "En MecaPro,"], ["h2b", '<span class="acc">ya está en marcha.</span>'], ["e1", "Comenta"], ["e2", '<span class="acc">“IA”.</span>']].forEach(([id, h]) => $(id).innerHTML = hl(h));
+$("dgRoll").innerHTML = ["4", "5", "6", "7"].map(d => `<span>${d}</span>`).join("");
+const gctx = $("grain").getContext("2d"), GR = [];
+for (let f = 0; f < 4; f++) {
+  const img = gctx.createImageData(360, 640);
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  GR.push(img);
+}
+const PATH_LEN = 60 + 60 + 140;
+
+/* ---------- seek ---------- */
+function seek(t) {
+  t = clamp(t, 0, T - 1e-6);
+  const fr = Math.floor(t * FPS + 1e-6), ss = Math.floor(fr / FPS);
+  const ci = CH.findIndex(c => t >= c[1] && t < c[2]);
+  $("tc").textContent = `TC 00:00:${String(ss).padStart(2, "0")}:${String(fr % FPS).padStart(2, "0")}`;
+  $("chap").textContent = CH[ci][0];
+  document.querySelectorAll("#sq i").forEach((el, i) => el.classList.toggle("on", i <= ci));
+  gctx.putImageData(GR[fr % 4], 0, 0);
+
+  rise($("h0a"), updown(t, 0, 2.55, .28)); rise($("h0b"), updown(t, .05, 2.59, .28));
+  rise($("h1a"), updown(t, 2.9, 6.45)); rise($("h1b"), updown(t, 2.97, 6.49));
+  rise($("h2a"), updown(t, 6.8, 9.45)); rise($("h2b"), updown(t, 6.87, 9.49));
+
+  let shake = 0, fl = 0;
+
+  // 01: el año rueda hasta 2027 y cae el sello
+  const c1 = 1 - eIO(P(t, 2.55, 2.85));
+  const yk = eOut(P(t, .25, 1.35));
+  css($("year"), { opacity: (P(t, .15, .35) * c1).toFixed(3), transform: `scale(${lerp(.86, 1, eOut(P(t, .15, .6))).toFixed(3)})` });
+  $("dgRoll").style.transform = `translateY(${(-yk * 3 * 270).toFixed(1)}px)`;
+  const sk = eBack(P(t, 1.45, 1.75));
+  css($("stamp"), { opacity: (t < 1.45 ? 0 : c1).toFixed(3), transform: `translateX(-50%) rotate(-6deg) scale(${(t < 1.45 ? 2 : lerp(2, 1, sk)).toFixed(3)})` });
+  if (t >= 1.62 && t < 2) shake = Math.max(shake, 14 * Math.exp(-(t - 1.62) * 11));
+  if (t >= 1.62) fl = Math.max(fl, .22 * Math.exp(-(t - 1.62) * 10));
+  css($("dl1"), { opacity: (eOut(P(t, 1.8, 2.05)) * c1).toFixed(3), transform: `translateY(${((1 - eOut(P(t, 1.8, 2.05))) * 14).toFixed(1)}px)` });
+  css($("dl2"), { opacity: (eOut(P(t, 1.95, 2.2)) * c1).toFixed(3), transform: `translateY(${((1 - eOut(P(t, 1.95, 2.2))) * 14).toFixed(1)}px)` });
+
+  // 02: registros que se encadenan y viajan a la AEAT
+  const c2 = 1 - eIO(P(t, 6.4, 6.7));
+  for (let i = 0; i < 3; i++) {
+    const a = 3.05 + i * .45, k = eOut(P(t, a, a + .4));
+    css($("rc" + i), { opacity: (k * c2).toFixed(3), transform: `translateX(${((1 - k) * -120).toFixed(1)}px) rotateY(${((1 - k) * 25).toFixed(1)}deg)` });
+    const typed = Math.floor(HASHES[i].length * P(t, a + .15, a + .75));
+    $("rh" + i).innerHTML = `<span class="acc">huella</span> ${HASHES[i].slice(0, typed)}${typed < HASHES[i].length && t > a ? "▍" : "…"}`;
+  }
+  const pk = eIO(P(t, 3.5, 5.2));
+  css($("chainPath"), { strokeDashoffset: `${((1 - pk) * PATH_LEN).toFixed(1)}`, opacity: c2.toFixed(3) });
+  $("chainPath").setAttribute("stroke-dasharray", pk < 1 ? `${(pk * PATH_LEN).toFixed(1)} 2000` : "6 10");
+  const ak = eBack(P(t, 5.15, 5.5));
+  css($("aeat"), { opacity: (t < 5.15 ? 0 : c2).toFixed(3), transform: `scale(${(t < 5.15 ? .5 : lerp(.5, 1, ak)).toFixed(3)})` });
+  $("aeatOk").style.opacity = P(t, 5.55, 5.75).toFixed(3);
+  if (t >= 5.3 && t < 5.7) shake = Math.max(shake, 8 * Math.exp(-(t - 5.3) * 12));
+  if (t >= 5.3) fl = Math.max(fl, .2 * Math.exp(-(t - 5.3) * 10));
+  css($("c2tags"), { opacity: (P(t, 4.2, 4.5) * c2).toFixed(3) });
+
+  // 03: la factura real entra girando y un haz escanea su QR
+  const pin = eOut(P(t, 6.85, 7.6)), pout = eIO(P(t, 9.35, 9.65));
+  css($("paper"), {
+    opacity: (t < 6.85 ? 0 : P(t, 6.85, 7.0) * (1 - pout)).toFixed(3),
+    transform: `translateY(${((1 - pin) * 380).toFixed(1)}px) rotateX(${lerp(38, 4, pin).toFixed(2)}deg) rotateY(${(Math.sin((t - 6.85) * 1.3) * 3 * pin).toFixed(2)}deg) scale(${lerp(1, .93, pout).toFixed(4)})`,
+    boxShadow: `0 60px 120px rgba(0,0,0,.7), 0 0 ${(80 * pin).toFixed(0)}px rgba(61,255,176,.25)`,
+  });
+  // zona del QR dentro de la imagen recortada (proporciones de la página)
+  const ph = $("paper").offsetHeight || 630;
+  const qx = 800 * .418, qw = 800 * .164, qy = ph * .095, qh = 800 * .164;
+  css($("qrRing"), { left: `${(qx - 10).toFixed(1)}px`, top: `${(qy - 10).toFixed(1)}px`, width: `${(qw + 20).toFixed(1)}px`, height: `${(qh + 20).toFixed(1)}px`, opacity: (P(t, 7.75, 7.9) * (1 - P(t, 9.0, 9.3))).toFixed(3), transform: `scale(${lerp(1.4, 1, eBack(P(t, 7.75, 8.1))).toFixed(3)})` });
+  const bk = P(t, 7.55, 8.35);
+  css($("beam"), { top: `${(qy + bk * qh).toFixed(1)}px`, opacity: (bk > 0 && bk < 1 ? 1 : 0).toFixed(3) });
+  $("pLab").style.opacity = (P(t, 7.5, 7.8) * (1 - pout)).toFixed(3);
+  [8.1, 8.45, 8.8].forEach((a, i) => {
+    const k = eBack(P(t, a, a + .35));
+    css($("ch" + i), { opacity: (t < a ? 0 : P(t, a, a + .1) * (1 - pout)).toFixed(3), transform: `translateX(-50%) scale(${(t < a ? .6 : lerp(.6, 1, k)).toFixed(3)})` });
+  });
+  if (t >= 6.7) fl = Math.max(fl, .35 * Math.exp(-(t - 6.7) * 10));
+
+  const sx = shake ? Math.sin(t * 95) * shake : 0, sy = shake ? Math.cos(t * 120) * shake * .7 : 0;
+  ["year", "stamp", "dl1", "dl2", "aeat"].forEach(id => { $(id).style.translate = `${sx.toFixed(1)}px ${sy.toFixed(1)}px`; });
+  $("vig").style.opacity = (t >= 1.62 && t < 2.7 ? .8 * Math.exp(-(t - 1.62) * 2.5) : 0).toFixed(3);
+
+  // 04: cierre
+  if (t >= 9.7) fl = Math.max(fl, .3 * Math.exp(-(t - 9.7) * 12));
+  $("flash").style.opacity = fl.toFixed(3);
+  const lk = eIO(P(t, 9.8, 10.4));
+  css($("lock"), { clipPath: `inset(0 ${((1 - lk) * 100).toFixed(2)}% 0 0)`, opacity: t >= 9.8 ? 1 : 0, transform: `translateX(${((1 - lk) * -30).toFixed(1)}px)` });
+  $("soon").style.opacity = eOut(P(t, 10.25, 10.6)).toFixed(3);
+  rise($("e1"), eOut(P(t, 10.4, 10.8)));
+  rise($("e2"), eOut(P(t, 10.5, 10.9)));
+  const plk = eBack(P(t, 11.05, 11.5)), pls = t > 11.75 ? 1 + Math.sin((t - 11.75) * 10) * .025 : 1;
+  css($("pill"), { opacity: P(t, 11.05, 11.2).toFixed(3), transform: `translateX(-50%) scale(${(lerp(.8, 1, plk) * pls).toFixed(3)})` });
+  $("eUrl").style.opacity = P(t, 11.35, 11.75).toFixed(3);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

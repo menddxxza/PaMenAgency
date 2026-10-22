@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 11 PaMen</title>
+<style>
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+@font-face { font-family: "Archivo Black"; src: url("fonts/ArchivoBlack.font") format("truetype"); }
+:root { --ink:#111; --paper:#f2efe6; --acc:#ffe14a; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:var(--ink); }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--ink); font-family:"Anton", sans-serif; color:var(--ink); }
+
+/* intro */
+#intro { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; padding-left:70px; color:#fff; }
+#bigfive { position:absolute; right:-60px; top:380px; font-size:1200px; line-height:.8; color:transparent; -webkit-text-stroke:6px rgba(255,225,74,.35); }
+.iw { font-size:190px; line-height:.95; text-transform:uppercase; white-space:nowrap; position:relative; }
+.iw.y { color:var(--acc); }
+.ilabel { font-family:"Archivo Black"; font-size:34px; letter-spacing:.2em; color:rgba(255,255,255,.6); margin-bottom:30px; }
+
+/* paneles de color */
+.panel { position:absolute; inset:0; clip-path:polygon(0% 0%, -25% 0%, -50% 100%, 0% 100%); padding:0 70px; display:flex; flex-direction:column; justify-content:center; }
+.num { position:absolute; top:220px; left:70px; font-family:"Archivo Black"; font-size:44px; letter-spacing:.08em; }
+.num b { font-family:"Anton"; font-weight:400; font-size:120px; display:block; line-height:1; letter-spacing:0; }
+.itm { font-size:148px; line-height:.95; text-transform:uppercase; margin-top:120px; }
+.itm span { display:block; white-space:nowrap; }
+.sticker { position:absolute; right:80px; top:250px; width:230px; height:230px; border-radius:50%; background:#fff; border:8px solid var(--ink); display:flex; align-items:center; justify-content:center; font-size:120px; box-shadow:12px 12px 0 var(--ink); }
+.desc { font-family:"Archivo Black"; font-size:38px; line-height:1.3; margin-top:40px; max-width:820px; }
+
+/* cintas */
+.tape { position:absolute; left:-200px; width:1480px; height:96px; background:var(--ink); color:#fff; overflow:hidden; z-index:30; display:flex; align-items:center; border-top:5px solid var(--acc); border-bottom:5px solid var(--acc); }
+.tape .run { white-space:nowrap; font-family:"Archivo Black"; font-size:44px; letter-spacing:.06em; }
+.tape .run i { color:var(--acc); font-style:normal; margin:0 26px; }
+#tape1 { top:1330px; transform:rotate(-7deg); }
+#tape2 { top:1400px; transform:rotate(5deg); background:var(--acc); color:var(--ink); border-color:var(--ink); }
+#tape2 .run i { color:var(--ink); }
+
+/* CTA */
+#cta { background:var(--acc); }
+#cta .q { font-size:150px; line-height:.95; text-transform:uppercase; margin-top:-80px; }
+#cta .q span { display:block; white-space:nowrap; }
+#cta .sub { font-family:"Archivo Black"; font-size:40px; margin-top:34px; }
+#badge { position:absolute; right:50px; top:170px; width:320px; height:320px; }
+#badge .core { position:absolute; inset:85px; border-radius:50%; background:var(--ink); color:var(--acc); display:flex; align-items:center; justify-content:center; font-size:110px; }
+#url { position:absolute; left:70px; top:1235px; font-family:"Archivo Black"; font-size:46px; border-bottom:8px solid var(--ink); padding-bottom:6px; }
+#brand { position:absolute; top:70px; left:70px; font-family:"Archivo Black"; font-size:26px; letter-spacing:.3em; z-index:40; color:#fff; background:#111; padding:10px 18px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="intro">
+    <div id="bigfive">5</div>
+    <div class="ilabel" id="il">IA PARA TU NEGOCIO ✦</div>
+    <div class="iw" id="w1">5 COSAS</div>
+    <div class="iw" id="w2">QUE LA IA</div>
+    <div class="iw y" id="w3">HACE POR TI</div>
+  </div>
+  <div id="panels"></div>
+
+  <div class="panel" id="cta">
+    <div class="q"><span id="q1">¿CUÁL TE</span><span id="q2">AHORRARÍA</span><span id="q3">MÁS TIEMPO?</span></div>
+    <div class="sub" id="qs">Dímelo en comentarios 👇</div>
+    <div id="url">pamenagency.com</div>
+    <svg id="badge" viewBox="0 0 360 360">
+      <defs><path id="circ" d="M180,180 m-140,0 a140,140 0 1,1 280,0 a140,140 0 1,1 -280,0"/></defs>
+      <circle cx="180" cy="180" r="172" fill="#fff" stroke="#111" stroke-width="8"/>
+      <circle cx="180" cy="180" r="92" fill="#111"/>
+      <text x="180" y="212" text-anchor="middle" font-family="Anton" font-size="96" fill="#ffe14a">IA</text>
+      <text font-family="Archivo Black" font-size="34" letter-spacing="6" fill="#111"><textPath href="#circ">COMENTA IA ✦ COMENTA IA ✦ COMENTA IA ✦</textPath></text>
+    </svg>
+  </div>
+
+  <div class="tape" id="tape1"><div class="run" id="run1"></div></div>
+  <div class="tape" id="tape2"><div class="run" id="run2"></div></div>
+  <div id="brand">PAMEN AGENCY</div>
+</div>
+
+<script>
+const T = 16.2;
+const A = [];
+const EASE = "cubic-bezier(.16,1,.3,1)";
+const POP = "cubic-bezier(.34,1.56,.64,1)";
+const WIPE = "cubic-bezier(.75,0,.2,1)";
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = EASE, fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+const WIPE_FROM = "polygon(0% 0%, -25% 0%, -50% 100%, 0% 100%)";
+const WIPE_TO = "polygon(0% 0%, 150% 0%, 125% 100%, 0% 100%)";
+const wipe = (el, t) => anim(el, [{ clipPath: WIPE_FROM }, { clipPath: WIPE_TO }], t, .5, WIPE);
+const slideX = (el, t, dir, d = .55) => anim(el, [{ opacity: 0, transform: `translateX(${dir * 700}px)` }, { opacity: 1, transform: "translateX(0)" }], t, d);
+
+// cintas
+const tapeTxt = "IA PARA TU NEGOCIO <i>✦</i> AHORRA TIEMPO <i>✦</i> VENDE MÁS <i>✦</i> PAMEN AGENCY <i>✦</i> ";
+$("run1").innerHTML = tapeTxt.repeat(6);
+$("run2").innerHTML = "AUTOMATIZA <i>✦</i> 24/7 <i>✦</i> SIN ESFUERZO <i>✦</i> ".repeat(10);
+
+// 0 · intro · 0 – 2.6s
+anim("il", [{ opacity: 0 }, { opacity: 1 }], .1, .4);
+slideX("w1", .2, -1); slideX("w2", .45, 1); slideX("w3", .7, -1);
+anim("bigfive", [{ opacity: 0, transform: "scale(1.3) rotate(8deg)" }, { opacity: 1, transform: "scale(1) rotate(0)" }], .1, .9);
+anim("tape1", [{ translate: "-1400px 0" }, { translate: "0 0" }], .9, .6, EASE);
+anim("tape2", [{ translate: "1400px 0" }, { translate: "0 0" }], 1.05, .6, EASE);
+
+// 1-5 · paneles
+const ITEMS = [
+  ["#ff5b2e", "#111", "RESPONDE", "MENSAJES 24/7", "💬", "Ningún cliente esperando, ni de madrugada."],
+  ["#2d5bff", "#fff", "AGENDA", "CITAS SOLA", "📅", "Reserva, confirma y recuerda la cita."],
+  ["#ff7ad9", "#111", "ENVÍA", "PRESUPUESTOS", "🧾", "En minutos, no en días."],
+  ["#00b86b", "#fff", "HACE EL", "SEGUIMIENTO", "🔁", "Ningún cliente potencial se te olvida."],
+  ["#111111", "#ffe14a", "CREA", "CONTENIDO", "📲", "Ideas y textos para tus redes."],
+];
+const STEP = 1.75, START = 2.6;
+ITEMS.forEach(([bg, fg, l1, l2, emo, desc], i) => {
+  const p = document.createElement("div"); p.className = "panel";
+  p.style.background = bg; p.style.color = fg; p.style.zIndex = 2 + i;
+  p.innerHTML = `<div class="num">PUNTO<b>0${i + 1}<span style="font-size:60px;opacity:.5">/05</span></b></div>
+    <div class="sticker">${emo}</div>
+    <div class="itm"><span>${l1}</span><span>${l2}</span></div>
+    <div class="desc">${desc}</div>`;
+  $("panels").appendChild(p);
+  const t = START + i * STEP;
+  wipe(p, t);
+  const [s1, s2] = p.querySelectorAll(".itm span");
+  slideX(s1, t + .25, 1, .5); slideX(s2, t + .35, 1, .5);
+  anim(p.querySelector(".num"), [{ opacity: 0, transform: "translateY(-40px)" }, { opacity: 1, transform: "none" }], t + .2, .4);
+  anim(p.querySelector(".desc"), [{ opacity: 0, transform: "translateY(30px)" }, { opacity: 1, transform: "none" }], t + .55, .4);
+  anim(p.querySelector(".sticker"), [{ opacity: 0, transform: "scale(0) rotate(-120deg)" }, { opacity: 1, transform: "scale(1) rotate(-8deg)" }], t + .3, .55, POP);
+});
+
+// 6 · CTA · 11.35 – 16.2s
+const C = START + ITEMS.length * STEP;
+$("cta").style.zIndex = 10;
+wipe("cta", C);
+slideX("q1", C + .25, -1); slideX("q2", C + .38, 1); slideX("q3", C + .51, -1);
+anim("qs", [{ opacity: 0, transform: "translateY(30px)" }, { opacity: 1, transform: "none" }], C + .9, .4);
+anim("url", [{ opacity: 0, transform: "translateX(-60px)" }, { opacity: 1, transform: "none" }], C + 1.2, .45);
+anim("badge", [{ opacity: 0, scale: "0" }, { opacity: 1, scale: "1" }], C + 1.35, .55, POP);
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  $("run1").style.transform = `translateX(${-(t * 180) % 1600}px)`;
+  $("run2").style.transform = `translateX(${-1200 + (t * 150) % 1000}px)`;
+  $("badge").style.rotate = (t * 50) + "deg";
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

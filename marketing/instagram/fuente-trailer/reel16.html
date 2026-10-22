@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 16 PaMen</title>
+<style>
+@font-face { font-family: "Cinzel"; src: url("fonts/Cinzel.font") format("truetype"); font-weight:700; }
+@font-face { font-family: "Cinzel"; src: url("fonts/CinzelBlack.font") format("truetype"); font-weight:900; }
+@font-face { font-family: "Anton"; src: url("fonts/Anton.font") format("truetype"); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:#000; color:#fff; font-family:"Cinzel", serif; }
+#bg { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 55%, #0f2a30 0%, #05090c 60%, #000 100%); }
+.leak { position:absolute; border-radius:50%; filter:blur(110px); mix-blend-mode:screen; }
+#lk1 { width:900px; height:700px; background:radial-gradient(circle, rgba(255,140,40,.55), transparent 65%); }
+#lk2 { width:700px; height:700px; background:radial-gradient(circle, rgba(255,90,30,.35), transparent 65%); }
+#dust { position:absolute; inset:0; }
+.dp { position:absolute; border-radius:50%; background:rgba(255,220,170,.9); }
+#grain { position:absolute; inset:-100px; opacity:.13; mix-blend-mode:overlay; pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+#vig { position:absolute; inset:0; background:radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.85)); }
+.bar { position:absolute; left:0; right:0; height:250px; background:#000; z-index:20; }
+#barT { top:0; } #barB { bottom:0; }
+
+.line { position:absolute; left:60px; right:60px; top:50%; transform:translateY(-50%); text-align:center; font-weight:700; text-transform:uppercase; line-height:1.25; opacity:0; }
+.line.s { font-size:66px; letter-spacing:.14em; text-shadow:0 0 30px rgba(255,200,140,.35); }
+#flash { position:absolute; inset:0; background:#f4efe6; opacity:0; z-index:5; }
+.hit { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:118px; letter-spacing:.03em; color:#0b0b0b; z-index:6; visibility:hidden; }
+
+#title { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; }
+.tt { font-weight:900; font-size:200px; letter-spacing:.08em; line-height:1; background:linear-gradient(180deg, #fff6d8 0%, #f2c46b 45%, #a8742a 100%); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 0 30px rgba(255,190,90,.45)); }
+.ts { margin-top:34px; font-weight:700; font-size:31px; letter-spacing:.2em; color:#e8dcc4; text-align:center; white-space:nowrap; }
+#flare { position:absolute; left:-600px; top:50%; width:600px; height:8px; margin-top:-120px; background:linear-gradient(90deg, transparent, rgba(160,210,255,.9), #fff, rgba(160,210,255,.9), transparent); filter:blur(2px); box-shadow:0 0 40px 10px rgba(140,200,255,.6); opacity:0; }
+
+#credits { position:absolute; left:70px; right:70px; top:50%; transform:translateY(-50%); text-align:center; opacity:0; }
+.ya { font-weight:900; font-size:96px; letter-spacing:.1em; color:#f2c46b; text-shadow:0 0 30px rgba(242,196,107,.4); }
+.url { margin-top:30px; font-weight:700; font-size:52px; letter-spacing:.06em; color:#fff; }
+.cm { margin-top:26px; font-family:"Anton"; font-size:44px; letter-spacing:.12em; color:#e8dcc4; }
+.cm b { color:#000; background:#f2c46b; padding:0 14px; font-weight:400; }
+.billing { margin-top:60px; font-family:"Anton"; font-size:27px; line-height:1.25; letter-spacing:.04em; color:rgba(232,220,196,.55); text-transform:uppercase; transform:scaleY(1.35); }
+.rating { display:inline-block; margin-top:46px; border:3px solid rgba(232,220,196,.6); padding:10px 24px; font-family:"Anton"; font-size:28px; letter-spacing:.1em; color:rgba(232,220,196,.75); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div class="leak" id="lk1"></div><div class="leak" id="lk2"></div>
+  <div id="dust"></div>
+
+  <div class="line s" id="L1">En un mundo donde<br>los clientes<br>no esperan…</div>
+  <div class="line s" id="L2">Un negocio<br>tenía que elegir…</div>
+  <div id="flash"></div>
+  <div class="hit" id="H1">RESPONDER.</div>
+  <div class="hit" id="H2">AGENDAR.</div>
+  <div class="hit" id="H3">VENDER.</div>
+  <div class="line s" id="L3">…o dejar que<br>la IA lo hiciera<br>por él.</div>
+
+  <div id="title"><div class="tt">PAMEN</div><div class="tt" style="font-size:170px">IA</div><div class="ts">EL ASISTENTE QUE NUNCA DUERME</div></div>
+  <div id="flare"></div>
+
+  <div id="credits">
+    <div class="ya">YA DISPONIBLE</div>
+    <div class="url">pamenagency.com</div>
+    <div class="cm">COMENTA <b>IA</b> PARA VERLO EN TU NEGOCIO</div>
+    <div class="billing">PAMEN AGENCY PRESENTA · UNA PRODUCCIÓN DE INTELIGENCIA ARTIFICIAL<br>CON RESPUESTAS AUTOMÁTICAS · AGENDA 24/7 · SEGUIMIENTO DE CLIENTES<br>DIRIGIDA POR TU NEGOCIO · MÚSICA ORIGINAL DE TUS VENTAS</div>
+    <div class="rating">APTO PARA TODOS LOS NEGOCIOS</div>
+  </div>
+
+  <div id="vig"></div>
+  <div id="grain"></div>
+  <div class="bar" id="barT"></div><div class="bar" id="barB"></div>
+</div>
+
+<script>
+const T = 17.0;
+const A = [];
+const $ = id => document.getElementById(id);
+function anim(id, kf, start, dur, easing = "ease-in-out", fill = "both") {
+  const el = typeof id === "string" ? $(id) : id;
+  const a = el.animate(kf, { duration: dur * 1000, delay: start * 1000, fill, easing });
+  a.pause(); A.push(a);
+}
+// línea de tráiler: aparece, se acerca despacio y se funde a negro
+function trailerLine(id, a, b) {
+  anim(id, [
+    { opacity: 0, transform: "translateY(-50%) scale(1)", letterSpacing: ".1em", filter: "blur(6px)" },
+    { opacity: 1, transform: "translateY(-50%) scale(1.02)", letterSpacing: ".14em", filter: "blur(0)", offset: .2 },
+    { opacity: 1, transform: "translateY(-50%) scale(1.06)", letterSpacing: ".17em", filter: "blur(0)", offset: .85 },
+    { opacity: 0, transform: "translateY(-50%) scale(1.07)", letterSpacing: ".18em", filter: "blur(4px)" }], a, b - a, "linear");
+}
+function hit(id, t) {
+  const v = $(id).animate([{ visibility: "visible" }, { visibility: "visible" }], { duration: 420, delay: t * 1000, fill: "none" }); v.pause(); A.push(v);
+  anim(id, [{ transform: "scale(1.25)" }, { transform: "scale(1)" }], t, .42, "cubic-bezier(.2,.8,.2,1)");
+  anim("flash", [{ opacity: 1 }, { opacity: 1 }], t, .42, "linear", "none");
+}
+
+// franjas de cine
+anim("barT", [{ transform: "translateY(-250px)" }, { transform: "translateY(0)" }], 0, .8, "cubic-bezier(.6,0,.2,1)");
+anim("barB", [{ transform: "translateY(250px)" }, { transform: "translateY(0)" }], 0, .8, "cubic-bezier(.6,0,.2,1)");
+
+trailerLine("L1", .5, 3.3);
+trailerLine("L2", 3.5, 5.7);
+hit("H1", 5.9); hit("H2", 6.45); hit("H3", 7.0);
+trailerLine("L3", 7.7, 10.5);
+
+// título
+anim("title", [
+  { opacity: 0, transform: "scale(.94)", filter: "blur(10px)" },
+  { opacity: 1, transform: "scale(1)", filter: "blur(0)", offset: .25 },
+  { opacity: 1, transform: "scale(1.05)", filter: "blur(0)", offset: .88 },
+  { opacity: 0, transform: "scale(1.06)", filter: "blur(6px)" }], 10.8, 3.0, "linear");
+anim("flare", [{ opacity: 0, transform: "translateX(0) scaleX(.6)" }, { opacity: 1, transform: "translateX(900px) scaleX(1.4)", offset: .5 }, { opacity: 0, transform: "translateX(1800px) scaleX(.6)" }], 11.3, 1.1, "cubic-bezier(.4,0,.2,1)");
+
+// créditos
+anim("credits", [{ opacity: 0, transform: "translateY(-48%) scale(.98)" }, { opacity: 1, transform: "translateY(-50%) scale(1)" }], 14.0, 1.0, "ease-out");
+
+// polvo a contraluz
+let seed = 3; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const dust = Array.from({ length: 70 }, () => {
+  const d = document.createElement("div"); d.className = "dp"; const s = 2 + rnd() * 7;
+  d.style.width = d.style.height = s + "px"; d.style.filter = `blur(${s > 6 ? 2 : 0}px)`;
+  $("dust").appendChild(d);
+  return { d, x: rnd() * 1080, y: rnd() * 1920, vx: (rnd() - .5) * 18, vy: -8 - rnd() * 22, ph: rnd() * 6.28, a: .25 + rnd() * .6 };
+});
+
+function seek(t) {
+  for (const a of A) a.currentTime = t * 1000;
+  for (const p of dust) {
+    const x = (p.x + p.vx * t + Math.sin(t * .8 + p.ph) * 30 + 1080) % 1080;
+    const y = ((p.y + p.vy * t) % 1920 + 1920) % 1920;
+    p.d.style.transform = `translate(${x}px, ${y}px)`;
+    p.d.style.opacity = p.a * (.6 + .4 * Math.sin(t * 2 + p.ph));
+  }
+  $("lk1").style.transform = `translate(${-200 + Math.sin(t * .35) * 220}px, ${300 + Math.cos(t * .25) * 160}px)`;
+  $("lk2").style.transform = `translate(${500 + Math.cos(t * .3) * 200}px, ${1200 + Math.sin(t * .4) * 180}px)`;
+  const f = Math.floor(t * 24);   // grano a 24 fps, como el cine
+  $("grain").style.transform = `translate(${(f * 37) % 100 - 50}px, ${(f * 53) % 100 - 50}px)`;
+  // parpadeo leve de proyector
+  $("bg").style.opacity = .92 + .08 * Math.sin(f * 2.3);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>
