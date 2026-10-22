@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reel 31 PaMen × MecaPro — Última hora: un taller cierra a su hora</title>
+<style>
+@font-face { font-family:"Oswald"; src:url("fonts/Oswald-Bold.font") format("truetype"); font-weight:700; }
+@font-face { font-family:"RedHatMono"; src:url("fonts/RedHatMono-Medium.font") format("truetype"); font-weight:500; }
+@font-face { font-family:"InterTight"; src:url("fonts/InterTight-Medium.font") format("truetype"); font-weight:500; }
+:root { --bg:#0b070a; --ink:#f7ecf1; --acc:#ff3d8b; --dim:rgba(247,236,241,.52); --ov:rgba(247,236,241,.8); }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1080px; height:1920px; overflow:hidden; background:#000; }
+#stage { position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--bg); color:var(--ink); font-family:"InterTight", sans-serif; }
+.abs { position:absolute; }
+.hd { font-family:"Oswald", sans-serif; font-weight:700; text-transform:uppercase; line-height:.98; letter-spacing:.005em; }
+.mono { font-family:"RedHatMono", monospace; letter-spacing:.16em; text-transform:uppercase; }
+.acc { color:var(--acc); }
+#glow { position:absolute; inset:0; background:radial-gradient(ellipse 65% 45% at 50% 55%, rgba(255,61,139,.11), rgba(255,61,139,0) 70%); }
+#grain { position:absolute; left:0; top:0; width:1080px; height:1920px; opacity:.055; pointer-events:none; z-index:45; }
+#flash { position:absolute; inset:0; background:var(--acc); opacity:0; z-index:60; pointer-events:none; mix-blend-mode:screen; }
+
+#ov { position:absolute; inset:0; z-index:50; color:var(--ov); pointer-events:none; }
+.corner { position:absolute; width:56px; height:56px; border:0 solid currentColor; opacity:.7; }
+.corner.tl { left:40px; top:40px; border-left-width:2px; border-top-width:2px; }
+.corner.tr { right:40px; top:40px; border-right-width:2px; border-top-width:2px; }
+.corner.bl { left:40px; bottom:40px; border-left-width:2px; border-bottom-width:2px; }
+.corner.br { right:40px; bottom:40px; border-right-width:2px; border-bottom-width:2px; }
+#ov .t1 { font-size:16px; }
+#ov .t2 { font-size:11px; color:var(--dim); margin-top:6px; letter-spacing:.12em; }
+#sq { display:flex; gap:7px; margin-top:12px; }
+#sq i { width:11px; height:11px; border:1.5px solid currentColor; display:block; }
+#sq i.on { background:var(--acc); border-color:var(--acc); }
+
+.mask { position:absolute; left:0; right:0; overflow:hidden; }
+.hl { position:absolute; left:50%; bottom:0; white-space:nowrap; }
+.hl .glow { position:absolute; left:0; bottom:0; color:var(--acc); filter:blur(18px); opacity:.6; }
+.hl .sharp { position:relative; }
+
+/* rótulo de última hora */
+#bn { position:absolute; left:90px; top:196px; height:64px; display:flex; align-items:center; gap:22px; }
+#bnBar { height:64px; padding:0 26px; display:flex; align-items:center; background:var(--acc); color:#0b070a; font-family:"Oswald"; font-weight:700; font-size:44px; text-transform:uppercase; letter-spacing:.02em; }
+#bnLive { font-size:16px; display:flex; align-items:center; gap:12px; }
+#bnDot { width:14px; height:14px; border-radius:50%; background:var(--acc); }
+
+/* persiana */
+#door { position:absolute; left:190px; top:640px; width:700px; height:640px; overflow:hidden; }
+#doorSvg { position:absolute; left:150px; top:600px; overflow:visible; }
+#shutter { position:absolute; left:0; top:0; width:700px; height:640px; background:repeating-linear-gradient(to bottom, #241a20 0 38px, #34262e 38px 40px, #170f14 40px 46px); }
+#shutTxt { position:absolute; left:0; right:0; top:200px; text-align:center; font-family:"Oswald"; font-weight:700; font-size:190px; color:var(--acc); line-height:1; }
+#shutSub { position:absolute; left:0; right:0; top:420px; text-align:center; font-size:20px; color:var(--ink); }
+
+/* plató: monitor y claves como caras de un cubo */
+#cube { position:absolute; left:140px; top:640px; width:800px; height:660px; perspective:1700px; }
+.face { position:absolute; inset:0; border-radius:22px; overflow:hidden; background:#140d11; border:1.5px solid rgba(247,236,241,.12); backface-visibility:hidden; }
+#mon img { width:100%; display:block; transform-origin:50% 0; }
+#lower { position:absolute; left:0; right:0; bottom:0; height:78px; display:flex; align-items:stretch; background:rgba(11,7,10,.94); }
+#lowerTag { background:var(--acc); color:#0b070a; font-family:"Oswald"; font-weight:700; font-size:28px; text-transform:uppercase; display:flex; align-items:center; padding:0 20px; }
+#lowerTxt { display:flex; align-items:center; padding:0 22px; font-size:17px; white-space:nowrap; }
+#cnt { position:absolute; left:560px; top:600px; width:420px; padding:20px 24px 22px; background:rgba(20,13,17,.96); border:1.5px solid var(--acc); border-radius:18px; z-index:12; }
+#cntL { font-size:14px; color:var(--dim); }
+#cntN { font-family:"Oswald"; font-weight:700; font-size:110px; color:var(--acc); line-height:1; margin-top:8px; }
+#cntS { font-size:12px; color:var(--dim); margin-top:6px; }
+#claves { padding:50px 50px; }
+#clTitle { font-size:18px; color:var(--acc); }
+.crow { display:flex; align-items:center; gap:30px; margin-top:62px; }
+.crow svg { flex:none; }
+.crow .ct { font-family:"InterTight"; font-weight:500; font-size:52px; line-height:1.1; }
+
+/* ticker */
+#tick { position:absolute; left:0; right:0; top:1452px; height:66px; display:flex; background:rgba(11,7,10,.92); border-top:1.5px solid rgba(255,61,139,.5); border-bottom:1.5px solid rgba(255,61,139,.5); overflow:hidden; z-index:20; }
+#tickTag { flex:none; background:var(--acc); color:#0b070a; font-family:"Oswald"; font-weight:700; font-size:30px; text-transform:uppercase; display:flex; align-items:center; padding:0 22px; z-index:2; }
+#tickRun { position:relative; flex:1; overflow:hidden; }
+#tickTxt { position:absolute; left:0; top:50%; transform:translateY(-50%); white-space:nowrap; font-family:"Oswald"; font-weight:700; font-size:30px; text-transform:uppercase; letter-spacing:.02em; }
+
+/* cierre */
+#lock { position:absolute; left:0; right:0; top:500px; display:flex; justify-content:center; align-items:center; gap:30px; }
+#lock img { height:150px; }
+#lockW { font-family:"InterTight"; font-weight:500; font-size:118px; letter-spacing:-.02em; white-space:nowrap; }
+#soon { left:0; right:0; top:700px; text-align:center; font-size:26px; color:var(--acc); letter-spacing:.45em; }
+#pill { position:absolute; left:50%; top:1150px; font-family:"InterTight"; font-weight:500; font-size:34px; color:#0b070a; background:var(--acc); padding:18px 36px; border-radius:999px; white-space:nowrap; box-shadow:0 0 50px rgba(255,61,139,.42); }
+#eUrl { left:0; right:0; top:1268px; text-align:center; font-size:15px; color:var(--dim); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <div id="bn"><div id="bnBar">Última hora</div><div id="bnLive" class="mono"><span id="bnDot"></span>En directo</div></div>
+
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h0a" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h0b" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h1a" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h1b" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h2a" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h2b" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:290px; height:118px;"><div class="hl hd" id="h3a" style="font-size:112px;"></div></div>
+  <div class="mask" style="top:398px; height:118px;"><div class="hl hd" id="h3b" style="font-size:112px;"></div></div>
+
+  <!-- capítulo 1: la persiana del taller -->
+  <svg id="doorSvg" width="780" height="720"><rect id="frame" x="36" y="36" width="708" height="648" rx="6" fill="none" stroke="rgba(247,236,241,.55)" stroke-width="5" pathLength="100" stroke-dasharray="100"/><path id="ground" d="M0 690 H780" stroke="#ff3d8b" stroke-width="5" pathLength="100" stroke-dasharray="100"/></svg>
+  <div id="door"><div id="shutter"><div id="shutTxt">19:00</div><div id="shutSub" class="mono">cerrado · hasta mañana</div></div></div>
+
+  <!-- capítulos 2 y 3: monitor y claves -->
+  <div id="cube">
+    <div class="face" id="mon"><img src="img/portal.png" alt=""><div id="lower"><div id="lowerTag">Directo</div><div id="lowerTxt" class="mono">portal del cliente · interfaz real de mecapro</div></div></div>
+    <div class="face" id="claves">
+      <div id="clTitle" class="mono">las claves del caso</div>
+      <div class="crow" id="cr0"><svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="31" fill="none" stroke="#ff3d8b" stroke-width="4"/><path id="ck0" d="M20 36 L31 47 L51 24" fill="none" stroke="#f7ecf1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100"/></svg><div class="ct">El cliente ve su coche en el móvil</div></div>
+      <div class="crow" id="cr1"><svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="31" fill="none" stroke="#ff3d8b" stroke-width="4"/><path id="ck1" d="M20 36 L31 47 L51 24" fill="none" stroke="#f7ecf1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100"/></svg><div class="ct">Aprueba el presupuesto sin llamar</div></div>
+      <div class="crow" id="cr2"><svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="31" fill="none" stroke="#ff3d8b" stroke-width="4"/><path id="ck2" d="M20 36 L31 47 L51 24" fill="none" stroke="#f7ecf1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" pathLength="100" stroke-dasharray="100"/></svg><div class="ct">Los avisos salen solos</div></div>
+    </div>
+  </div>
+  <div id="cnt"><div id="cntL" class="mono">llamadas de “¿ya está?”</div><div id="cntN">37</div><div id="cntS" class="mono">cifra ilustrativa</div></div>
+
+  <div id="tick"><div id="tickTag">Última hora</div><div id="tickRun"><div id="tickTxt"></div></div></div>
+
+  <div id="lock"><img src="img/mecapro-icon.png" alt="MecaPro"><div id="lockW">MecaPro</div></div>
+  <div id="soon" class="abs mono">próximamente</div>
+  <div class="mask" style="top:770px; height:160px;"><div class="hl hd" id="e1" style="font-size:150px;"></div></div>
+  <div class="mask" style="top:910px; height:160px;"><div class="hl hd" id="e2" style="font-size:150px;"></div></div>
+  <div id="pill">Guárdalo para tu taller →</div>
+  <div id="eUrl" class="abs mono">un producto de pamenagency</div>
+
+  <div id="ov">
+    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+    <div class="abs mono" style="left:58px; top:56px;"><div class="t1">PAMEN AGENCY&nbsp;&nbsp;2026</div><div class="t2">MECAPRO · GESTIÓN DE TALLERES</div><div id="sq"><i></i><i></i><i></i><i></i></div></div>
+    <div class="abs mono" style="right:58px; top:56px; text-align:right;"><div class="t1" id="tc">TC 00:00:00:00</div><div class="t2">9:16 / 60 FPS</div></div>
+    <div class="abs mono" id="chap" style="left:58px; bottom:54px; font-size:13px;"></div>
+    <div class="abs mono" style="right:58px; bottom:54px; font-size:13px; letter-spacing:.06em; text-transform:none;">PaMenAgency × MecaPro</div>
+  </div>
+  <canvas id="grain" width="360" height="640"></canvas>
+  <div id="flash"></div>
+</div>
+
+<script>
+const T = 12.6, FPS = 60;
+const $ = id => document.getElementById(id);
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const P = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = k => 1 - Math.pow(1 - k, 3);
+const eExpo = k => (k >= 1 ? 1 : 1 - Math.pow(2, -10 * k));
+const eIO = k => (k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const eBack = k => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+const eBounce = k => { const n = 7.5625, d = 2.75; if (k < 1 / d) return n * k * k; if (k < 2 / d) return n * (k -= 1.5 / d) * k + .75; if (k < 2.5 / d) return n * (k -= 2.25 / d) * k + .9375; return n * (k -= 2.625 / d) * k + .984375; };
+let seed = 31; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const css = (el, o) => { for (const k in o) el.style[k] = o[k]; };
+const rise = (el, k) => { el.style.transform = `translateX(-50%) translateY(${((1 - k) * 108).toFixed(2)}%)`; el.style.visibility = k <= .001 ? "hidden" : ""; };
+const hl = html => `<span class="glow">${html}</span><span class="sharp">${html}</span>`;
+const updown = (t, a, c, dur = .36) => eOut(P(t, a, a + dur)) * (1 - eIO(P(t, c, c + .26)));
+const dash = (id, k) => $(id).setAttribute("stroke-dashoffset", (100 * (1 - k)).toFixed(2));
+
+const CH = [["01 — ÚLTIMA HORA", 0, 2.8], ["02 — EN DIRECTO", 2.8, 6.4], ["03 — LAS CLAVES", 6.4, 9.7], ["04 — TU TURNO", 9.7, T]];
+const TICK = "Un taller cierra a su hora · Los clientes miran el estado de su coche en el móvil · Cero llamadas de “¿ya está?” · MecaPro, próximamente · ";
+
+/* ---------- construcción ---------- */
+[["h0a", "Un taller cierra"], ["h0b", '<span class="acc">a su hora.</span>'], ["h1a", "Ni una llamada"], ["h1b", '<span class="acc">de “¿ya está?”.</span>'],
+ ["h2a", "El secreto:"], ["h2b", '<span class="acc">MecaPro.</span>'], ["h3a", "Y a las 19:00,"], ["h3b", '<span class="acc">a casa.</span>'],
+ ["e1", "Comenta"], ["e2", '<span class="acc">“IA”.</span>']].forEach(([id, h]) => $(id).innerHTML = hl(h));
+$("tickTxt").textContent = TICK.repeat(4);
+let TW = 0;
+
+const gctx = $("grain").getContext("2d"), GR = [];
+for (let f = 0; f < 4; f++) {
+  const img = gctx.createImageData(360, 640);
+  for (let i = 0; i < img.data.length; i += 4) { const v = rnd() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+  GR.push(img);
+}
+
+/* ---------- seek ---------- */
+function seek(t) {
+  t = clamp(t, 0, T - 1e-6);
+  if (!TW) TW = $("tickTxt").scrollWidth / 4;
+  const fr = Math.floor(t * FPS + 1e-6), ss = Math.floor(fr / FPS);
+  const ci = CH.findIndex(c => t >= c[1] && t < c[2]);
+  $("tc").textContent = `TC 00:00:${String(ss).padStart(2, "0")}:${String(fr % FPS).padStart(2, "0")}`;
+  $("chap").textContent = CH[ci][0];
+  document.querySelectorAll("#sq i").forEach((el, i) => el.classList.toggle("on", i <= ci));
+  gctx.putImageData(GR[fr % 4], 0, 0);
+
+  // rótulo de última hora: entra de golpe y se queda durante el informativo
+  const bnIn = eOut(P(t, 0, .22)), newsOut = eIO(P(t, 9.45, 9.7));
+  css($("bnBar"), { clipPath: `inset(0 ${((1 - bnIn) * 100).toFixed(2)}% 0 0)` });
+  css($("bn"), { opacity: (1 - newsOut).toFixed(3) });
+  $("bnLive").style.opacity = P(t, .25, .45).toFixed(3);
+  $("bnDot").style.opacity = Math.floor(t * 2) % 2 === 0 ? 1 : .2;
+
+  // titulares
+  rise($("h0a"), updown(t, 0, 2.55, .28)); rise($("h0b"), updown(t, .05, 2.59, .28));
+  rise($("h1a"), updown(t, 2.9, 6.15)); rise($("h1b"), updown(t, 2.97, 6.19));
+  rise($("h2a"), updown(t, 6.5, 8.45)); rise($("h2b"), updown(t, 6.57, 8.49));
+  rise($("h3a"), updown(t, 8.65, 9.45)); rise($("h3b"), updown(t, 8.72, 9.49));
+
+  // capítulo 1: marco, persiana que baja con rebote y sello de las 19:00
+  const c1Out = eIO(P(t, 2.6, 2.85));
+  dash("frame", eIO(P(t, .25, .9))); dash("ground", eIO(P(t, .35, .85)));
+  $("doorSvg").style.opacity = (1 - c1Out).toFixed(3);
+  const sh = eBounce(P(t, .85, 1.75));
+  css($("shutter"), { transform: `translateY(${(-(1 - sh) * 640).toFixed(1)}px)` });
+  css($("door"), { opacity: (t < .85 ? 0 : 1 - c1Out).toFixed(3) });
+  const st = eBack(P(t, 1.85, 2.15));
+  css($("shutTxt"), { opacity: P(t, 1.85, 1.9).toFixed(3), transform: `scale(${(t < 1.85 ? 1.6 : lerp(1.6, 1, st)).toFixed(3)}) rotate(${lerp(-8, -3, st).toFixed(2)}deg)` });
+  $("shutSub").style.opacity = P(t, 2.1, 2.3).toFixed(3);
+  let shake = 0;
+  if (t >= 1.75 && t < 2.1) shake = 10 * Math.exp(-(t - 1.75) * 12);
+  if (t >= 1.85 && t < 2.3) shake = Math.max(shake, 7 * Math.exp(-(t - 1.85) * 12));
+
+  // capítulos 2 y 3: el monitor entra inclinado y luego gira como un cubo hasta las claves
+  const mIn = eOut(P(t, 2.85, 3.45)), turn = eIO(P(t, 6.3, 6.95)), cOut = eIO(P(t, 9.4, 9.7));
+  css($("cube"), { opacity: (t < 2.85 ? 0 : P(t, 2.85, 3.0) * (1 - cOut)).toFixed(3), transform: `translateY(${((1 - mIn) * 260 + cOut * 50).toFixed(1)}px) scale(${lerp(1, .93, cOut).toFixed(4)})` });
+  css($("mon"), { transform: `rotateX(${lerp(50, 0, mIn).toFixed(2)}deg) translateZ(${(-turn * 400).toFixed(1)}px) rotateY(${(-90 * turn).toFixed(2)}deg) translateZ(${(turn * 400).toFixed(1)}px)`, visibility: turn > .5 ? "hidden" : "" });
+  css($("claves"), { transform: `translateZ(${(-(1 - turn) * 400).toFixed(1)}px) rotateY(${(90 * (1 - turn)).toFixed(2)}deg) translateZ(${((1 - turn) * 400).toFixed(1)}px)`, visibility: turn < .5 ? "hidden" : "" });
+  // lento movimiento de cámara sobre la imagen del portal
+  $("mon").querySelector("img").style.transform = `translateY(${(-lerp(0, 150, P(t, 3.0, 6.3))).toFixed(1)}px) scale(${lerp(1.04, 1, P(t, 3.0, 6.3)).toFixed(4)})`;
+  const lw = eOut(P(t, 3.4, 3.8));
+  css($("lower"), { clipPath: `inset(0 ${((1 - lw) * 100).toFixed(2)}% 0 0)` });
+
+  // contador que baja hasta cero con golpe
+  const ck = eBack(P(t, 3.6, 4.0)), cHide = eIO(P(t, 6.1, 6.35));
+  const n = t < 3.9 ? 37 : Math.round(37 * (1 - eExpo(P(t, 3.9, 5.6))));
+  const zero = t >= 5.6 ? Math.exp(-(t - 5.6) * 7) : 0;
+  $("cntN").textContent = String(n);
+  css($("cnt"), { opacity: (t < 3.6 ? 0 : P(t, 3.6, 3.7) * (1 - cHide)).toFixed(3), transform: `scale(${(lerp(.7, 1, ck) * (1 + .18 * zero)).toFixed(3)}) rotate(${(-2 * (1 - cHide)).toFixed(2)}deg)` });
+  if (t >= 5.6 && t < 6.0) shake = Math.max(shake, 9 * Math.exp(-(t - 5.6) * 12));
+
+  // claves con check dibujado
+  [7.15, 7.65, 8.15].forEach((ta, i) => {
+    const k = eOut(P(t, ta, ta + .35));
+    css($("cr" + i), { opacity: k.toFixed(3), transform: `translateX(${((1 - k) * -50).toFixed(1)}px)` });
+    dash("ck" + i, eIO(P(t, ta + .15, ta + .5)));
+  });
+
+  // ticker continuo
+  const tk = eOut(P(t, .35, .7)) * (1 - newsOut);
+  css($("tick"), { opacity: tk.toFixed(3), transform: `translateY(${((1 - tk) * 30).toFixed(1)}px)` });
+  $("tickTxt").style.left = `${(-((t * 170) % TW)).toFixed(1)}px`;
+
+  const sx = shake ? Math.sin(t * 95) * shake : 0, sy = shake ? Math.cos(t * 120) * shake * .7 : 0;
+  ["door", "doorSvg", "cube", "cnt"].forEach(id => { $(id).style.translate = `${sx.toFixed(1)}px ${sy.toFixed(1)}px`; });
+
+  // flashes en los cortes
+  let fl = 0;
+  if (t >= 2.8) fl = Math.max(fl, .35 * Math.exp(-(t - 2.8) * 10));
+  if (t >= 6.62) fl = Math.max(fl, .16 * Math.exp(-(t - 6.62) * 12));
+  if (t >= 9.7) fl = Math.max(fl, .3 * Math.exp(-(t - 9.7) * 12));
+  $("flash").style.opacity = fl.toFixed(3);
+
+  // cierre
+  const lk = eIO(P(t, 9.8, 10.4));
+  css($("lock"), { clipPath: `inset(0 ${((1 - lk) * 100).toFixed(2)}% 0 0)`, opacity: t >= 9.8 ? 1 : 0, transform: `translateX(${((1 - lk) * -30).toFixed(1)}px)` });
+  $("soon").style.opacity = eOut(P(t, 10.25, 10.6)).toFixed(3);
+  rise($("e1"), eOut(P(t, 10.4, 10.8)));
+  rise($("e2"), eOut(P(t, 10.5, 10.9)));
+  const pk = eBack(P(t, 11.05, 11.5)), pls = t > 11.75 ? 1 + Math.sin((t - 11.75) * 10) * .025 : 1;
+  css($("pill"), { opacity: P(t, 11.05, 11.2).toFixed(3), transform: `translateX(-50%) scale(${(lerp(.8, 1, pk) * pls).toFixed(3)})` });
+  $("eUrl").style.opacity = P(t, 11.35, 11.75).toFixed(3);
+}
+window.seek = seek;
+window.TOTAL = T;
+
+if (!location.search.includes("render")) {
+  const t0 = performance.now();
+  (function loop() { seek(((performance.now() - t0) / 1000) % T); requestAnimationFrame(loop); })();
+} else seek(0);
+</script>
+</body>
+</html>

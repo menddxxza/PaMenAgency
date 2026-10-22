@@ -197,6 +197,7 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 | 28 | reel-tier-list · `fuente-tier-list` | Tier list: qué automatizar primero | Estilo de la casa, **ya sin caja de subtítulos**: filas S/A/B/C que se dibujan, fichas de tareas que vuelan y encajan con anillo, brillo de fila y sacudida, acercamiento de cámara a la C para el chiste del café. Segundo CTA: guardar. **Acento azul eléctrico #3d7bff · Big Shoulders Display + Fira Code** (12,6 s) |
 | 29 | reel-mecapro-ya-esta · `fuente-mecapro-ya-esta` | **App MecaPro.** Bocadillos: "¿Ya está mi coche?" (lo que te preguntan 40 veces al día en el taller) | Estilo de la casa: chat de clientes que se apila y empuja hacia arriba con sacudida creciente, contador con frenada y golpe en el 37 (cifra ilustrativa), viñeta de acento, los bocadillos estallan en partículas deterministas con flash, móvil que entra girando en 3D con la **captura real del portal del cliente**, recuadro SVG que se dibuja sobre la barra de estado, aviso automático que cae, cierre con logo de MecaPro, "Próximamente" y botón "Mándaselo a tu mecánico". **Acento cian #2ee6d6 · Bricolage Grotesque + IBM Plex Mono** (12,6 s) |
 | 30 | reel-mecapro-expectativa · `fuente-mecapro-expectativa` | **App MecaPro.** Expectativa vs realidad de llevar un taller | Estilo de la casa: etiqueta "Expectativa" que se tacha y salta a "Realidad", coche en línea con elevador y llave que se dibujan con estela (SVG), golpe de corte con flash y sacudida, papeleo que cae en 3D y entierra el coche (presupuesto, llamadas perdidas, "¿Ya está mi coche?"…), reloj que corre hasta las 23:47, MecaPro absorbe los papeles en espiral con estelas que convergen y el móvil aparece girando 180° con el **panel real de la app**. Segundo CTA: etiquetar a un mecánico. **Acento violeta #9b6bff · Syne + Martian Mono** (12,6 s) |
+| 31 | reel-mecapro-telediario · `fuente-mecapro-telediario` | **App MecaPro.** Telediario: "Última hora: un taller cierra a su hora" | Estilo de la casa en clave informativo: rótulo ÚLTIMA HORA que entra de golpe con "en directo" parpadeando, marco que se dibuja y persiana de taller que baja con rebote y sello "19:00", monitor que entra inclinado con la **captura real del portal del cliente** y rótulo inferior DIRECTO, contador de llamadas "¿ya está?" que baja de 37 a 0 con golpe (cifra ilustrativa), giro de cubo de plató hasta "Las claves del caso" con checks SVG, ticker continuo abajo. Segundo CTA: guardar. **Acento rosa #ff3d8b · Oswald + Red Hat Mono** (12,6 s) |
 
 ### Ideas de formatos virales aún sin usar
 
@@ -205,7 +206,6 @@ Audio: usa un audio en tendencia de Instagram (el MP4 lleva una pista muda)
 - "Dime tu sector y te digo qué automatizar".
 - "Mi jefe vs la IA".
 - Videojuego retro (barra de vida, nivel superado).
-- Telediario de última hora.
 - Mapa del tesoro.
 - "Lo que veo vs lo que ve mi cliente".
 
