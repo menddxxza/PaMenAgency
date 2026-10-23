@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PaMenAgency Stories</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=block" rel="stylesheet">
+<style>
+  /*
+   * Stories de Instagram de PaMenAgency — 1080×1920.
+   * Abre este archivo en el navegador para ver la galería, o usa render.mjs
+   * para exportar cada story a PNG y MP4 (ver README.md).
+   *
+   * Zona segura: Instagram tapa ~250px arriba (barra de progreso + perfil)
+   * y ~340px abajo (caja de respuesta). Todo el contenido clave va entre
+   * y=250 e y=1580.
+   */
+  :root {
+    --ink: #0E0F13;
+    --ink-2: #181A21;
+    --cream: #F5EEE2;
+    --albero: #E4AE4A;      /* el color del albero de Jerez */
+    --albero-deep: #B9822A;
+    --muted-dark: #9A9AA4;
+    --muted-light: #6A6258;
+    --sans: "Inter Display", "Inter", system-ui, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #26272c; }
+  body { font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+
+  /* ---------- Galería (vista previa en el navegador) ---------- */
+  .gallery { display: flex; flex-wrap: wrap; gap: 28px; padding: 28px 16px; justify-content: center; }
+  .gallery .frame { width: 270px; height: 480px; overflow: hidden; border-radius: 18px; position: relative; flex: none; }
+  .gallery .frame > .story { transform: scale(.25); transform-origin: 0 0; }
+  .gallery .label { color: #c9c9cf; font: 500 13px/1.3 var(--sans); margin-top: 8px; text-align: center; }
+  body.single { background: transparent; }
+  body.single .gallery { padding: 0; gap: 0; display: block; }
+  body.single .frame { width: 1080px; height: 1920px; border-radius: 0; }
+  body.single .frame > .story { transform: none; }
+  body.single .label { display: none; }
+
+  /* ---------- Base de cada story ---------- */
+  .story {
+    width: 1080px; height: 1920px; position: relative; overflow: hidden;
+    padding: 280px 96px 360px; display: flex; flex-direction: column; justify-content: center;
+    background: var(--ink); color: var(--cream);
+  }
+  .story.light { background: var(--cream); color: var(--ink); }
+  .story.gold  { background: var(--albero); color: var(--ink); }
+
+  /* Textura: un halo suave que se desplaza muy despacio en el vídeo */
+  .story::before {
+    content: ""; position: absolute; inset: -20%; pointer-events: none;
+    background: radial-gradient(circle at 75% 20%, rgba(228,174,74,.20), transparent 45%),
+                radial-gradient(circle at 10% 90%, rgba(228,174,74,.10), transparent 40%);
+    animation: drift 6s linear both;
+  }
+  .story.light::before { background: radial-gradient(circle at 80% 15%, rgba(228,174,74,.35), transparent 45%); }
+  .story.gold::before  { background: radial-gradient(circle at 80% 15%, rgba(255,255,255,.35), transparent 45%); }
+  @keyframes drift { from { transform: translate3d(0,0,0); } to { transform: translate3d(-4%,3%,0); } }
+  .story > * { position: relative; }
+
+  .brand {
+    position: absolute; top: 210px; left: 96px; right: 96px;
+    display: flex; justify-content: space-between; align-items: center;
+    font: 600 26px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase;
+  }
+  .brand .tag { opacity: .6; letter-spacing: .14em; }
+  .brand .logo { display: flex; align-items: center; gap: 14px; }
+  .brand .dot { width: 16px; height: 16px; border-radius: 50%; background: var(--albero); }
+  .gold .brand .dot { background: var(--ink); }
+
+  .kicker { font: 600 30px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--albero); margin-bottom: 40px; }
+  .light .kicker { color: var(--albero-deep); }
+  .gold .kicker { color: var(--ink); opacity: .7; }
+
+  h1 { font: 800 132px/.95 var(--sans); letter-spacing: -.035em; }
+  h2 { font: 800 96px/1 var(--sans); letter-spacing: -.03em; }
+  .serif { font-family: var(--serif); font-weight: 400; font-style: italic; letter-spacing: -.01em; color: var(--albero); }
+  .light .serif { color: var(--albero-deep); }
+  .gold .serif { color: var(--cream); }
+  .lead { font: 400 46px/1.32 var(--sans); margin-top: 48px; opacity: .88; }
+  .lead b { font-weight: 700; opacity: 1; }
+  .small { font: 400 34px/1.4 var(--sans); opacity: .7; }
+
+  .spacer { flex: 1; }
+  .mt-l { margin-top: 72px; }
+  .mt-m { margin-top: 40px; }
+
+  /* Listas y tarjetas */
+  .list { display: flex; flex-direction: column; gap: 30px; margin-top: 64px; }
+  .item { display: flex; gap: 32px; align-items: flex-start; padding: 36px 40px; border-radius: 32px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); }
+  .light .item { background: rgba(14,15,19,.05); border-color: rgba(14,15,19,.10); }
+  .gold .item { background: rgba(14,15,19,.08); border-color: rgba(14,15,19,.14); }
+  .item .n { font: 800 40px/1 var(--sans); color: var(--albero); min-width: 56px; }
+  .light .item .n { color: var(--albero-deep); }
+  .item h3 { font: 700 48px/1.1 var(--sans); letter-spacing: -.01em; }
+  .item p { font: 400 38px/1.35 var(--sans); opacity: .75; margin-top: 10px; }
+
+  .stats { display: flex; flex-direction: column; gap: 56px; margin-top: 72px; }
+  .stat .big { font: 800 200px/.85 var(--sans); letter-spacing: -.05em; }
+  .stat .big .serif { font-size: 210px; }
+  .stat .cap { font: 500 44px/1.2 var(--sans); margin-top: 14px; opacity: .85; }
+  .rule { height: 2px; background: currentColor; opacity: .15; }
+
+  .pill { display: inline-flex; align-items: center; gap: 16px; padding: 22px 36px; border-radius: 999px; font: 600 38px/1 var(--sans); background: var(--albero); color: var(--ink); align-self: flex-start; }
+  .gold .pill, .light .pill { background: var(--ink); color: var(--cream); }
+
+  .product-name { font: 800 150px/.9 var(--sans); letter-spacing: -.045em; }
+  .chip { display: inline-block; padding: 14px 26px; border-radius: 999px; border: 2px solid currentColor; font: 600 28px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; opacity: .75; align-self: flex-start; margin-bottom: 44px; }
+
+  /* Huecos para stickers que se añaden dentro de Instagram */
+  .sticker-slot {
+    border: 4px dashed currentColor; border-radius: 40px; opacity: .45;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font: 600 32px/1.3 var(--sans); padding: 40px; min-height: 300px;
+  }
+
+  /* Foto del fundador: sustituye assets/foto-fundador.jpg por tu foto */
+  .photo {
+    width: 640px; height: 800px; border-radius: 44px; overflow: hidden; align-self: center;
+    background: linear-gradient(160deg, #2a2b31, #15161a); position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,.35);
+  }
+  .photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
+  .photo .ph { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; color: var(--muted-dark); font: 600 34px/1.3 var(--sans); text-align: center; }
+  .photo .ph svg { width: 140px; height: 140px; opacity: .5; }
+  .photo.has-img .ph { display: none; }
+  .photo .badge { position: absolute; left: 32px; bottom: 32px; padding: 16px 26px; border-radius: 999px; background: var(--albero); color: var(--ink); font: 700 30px/1 var(--sans); }
+
+  .q { font: 800 104px/1 var(--sans); letter-spacing: -.035em; }
+  .answer { font: 400 50px/1.32 var(--sans); margin-top: 64px; padding-left: 40px; border-left: 8px solid var(--albero); }
+  .gold .answer { border-left-color: var(--ink); }
+  .light .answer { border-left-color: var(--albero-deep); }
+
+  .swipe { font: 600 32px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; opacity: .6; display: flex; align-items: center; gap: 16px; }
+
+  /* Portadas de destacadas */
+  .cover { justify-content: center; align-items: center; padding: 0; }
+  .cover .ring { width: 720px; height: 720px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; }
+  .cover svg { width: 260px; height: 260px; }
+  .cover .word { font: 700 64px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; }
+
+  /* ---------- Animaciones (el vídeo las recorre fotograma a fotograma) ---------- */
+  .r { animation: rise .9s cubic-bezier(.2,.8,.2,1) both; }
+  .r.d1 { animation-delay: .25s; } .r.d2 { animation-delay: .5s; } .r.d3 { animation-delay: .75s; }
+  .r.d4 { animation-delay: 1s; }   .r.d5 { animation-delay: 1.25s; } .r.d6 { animation-delay: 1.5s; }
+  .r.d7 { animation-delay: 1.75s; } .r.d8 { animation-delay: 2s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
+  .pop { animation: pop .8s cubic-bezier(.2,1.4,.4,1) both; }
+  @keyframes pop { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+  .grow { transform-origin: left; animation: grow 1s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes grow { from { transform: scaleX(0); } to { transform: none; } }
+</style>
+</head>
+<body>
+<div class="gallery" id="gallery">
+
+<!-- ===================== A · QUIÉNES SOMOS ===================== -->
+<template data-id="a1-quienes-somos" data-label="A1 · Quiénes somos">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Nosotros</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">Hola 👋</div>
+  <h1 class="r d1">Somos<br><span class="serif">PaMen</span>Agency</h1>
+  <p class="lead r d2">Una agencia de <b>inteligencia artificial</b> nacida en <b>Jerez de la Frontera</b>.</p>
+  <div class="spacer"></div>
+  <div class="swipe r d4">Toca para seguir →</div>
+</section>
+</template>
+
+<template data-id="a2-mision" data-label="A2 · Misión">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Nosotros</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">Nuestra misión</div>
+  <h2 class="r d1">Que la IA trabaje <span class="serif">para tu negocio</span>, no al revés.</h2>
+  <p class="lead r d3">Ayudamos a pymes, autónomos y empresas a <b>ahorrar tiempo</b>, <b>atender mejor</b> y <b>vender más</b> con inteligencia artificial. Sin tecnicismos.</p>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="a3-como-somos" data-label="A3 · Cómo somos">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Nosotros</span></div>
+  <div class="kicker r">Cómo somos</div>
+  <h2 class="r d1">Tres cosas que <span class="serif">no negociamos</span></h2>
+  <div class="list">
+    <div class="item r d2"><span class="n">01</span><div><h3>Cercanos</h3><p>Te hablamos claro. Si algo no te hace falta, te lo decimos.</p></div></div>
+    <div class="item r d3"><span class="n">02</span><div><h3>Prácticos</h3><p>Soluciones que se notan en tu día a día, no demos bonitas.</p></div></div>
+    <div class="item r d4"><span class="n">03</span><div><h3>A medida</h3><p>Cada negocio es distinto. Lo diseñamos para el tuyo.</p></div></div>
+  </div>
+</section>
+</template>
+
+<template data-id="a4-hablamos" data-label="A4 · CTA">
+<section class="story gold">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Nosotros</span></div>
+  <div class="spacer"></div>
+  <h1 class="r">¿Ha<span class="serif">bla</span>mos?</h1>
+  <p class="lead r d1">Escríbenos <b>«IA»</b> por mensaje directo y te contamos qué podemos hacer por tu negocio.</p>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<!-- ===================== B · SOBRE MÍ ===================== -->
+<template data-id="b1-quien-esta-detras" data-label="B1 · ¿Quién está detrás?">
+<section class="story light">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Sobre mí</span></div>
+  <div class="kicker r">Encantado 🤝</div>
+  <h2 class="r d1">¿Quién está <span class="serif">detrás</span>?</h2>
+  <div class="spacer"></div>
+  <div class="photo pop d2" data-photo>
+    <img alt="" src="assets/foto-fundador.jpg" onerror="this.remove()" onload="this.parentNode.classList.add('has-img')">
+    <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Tu foto aquí<br><span style="font-size:26px;font-weight:400">assets/foto-fundador.jpg</span></div>
+    <span class="badge">Fundador</span>
+  </div>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="b2-de-jerez" data-label="B2 · De Jerez">
+<section class="story light">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Sobre mí</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">📍 Jerez de la Frontera</div>
+  <h1 class="r d1">De <span class="serif">Jerez</span>,<br>para el mundo.</h1>
+  <p class="lead r d3">Soy el <b>dueño y fundador</b> de PaMenAgency. Monté la agencia para acercar la inteligencia artificial a los negocios de aquí… y de donde haga falta.</p>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="b3-en-numeros" data-label="B3 · En números">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Sobre mí</span></div>
+  <div class="kicker r">Mi trayectoria</div>
+  <h2 class="r d1">En <span class="serif">números</span></h2>
+  <div class="stats">
+    <div class="stat r d2"><div class="big">2 <span class="serif">años</span></div><div class="cap">en el sector de la IA aplicada a negocios</div></div>
+    <div class="rule grow d3"></div>
+    <div class="stat r d4"><div class="big">+4</div><div class="cap">formaciones especializadas en inteligencia artificial</div></div>
+    <div class="rule grow d5"></div>
+    <div class="stat r d6"><div class="big">1</div><div class="cap">objetivo: que la IA te ahorre horas cada semana</div></div>
+  </div>
+</section>
+</template>
+
+<template data-id="b4-lo-que-me-mueve" data-label="B4 · Lo que me mueve">
+<section class="story light">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Sobre mí</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">Lo que me mueve</div>
+  <h2 class="r d1">«La IA no es el futuro. <span class="serif">Es tu ventaja hoy</span>.»</h2>
+  <p class="lead r d3">Me formo constantemente para que tú no tengas que hacerlo: <b>yo me pego con la tecnología</b> y tú te centras en tu negocio.</p>
+  <div class="spacer"></div>
+  <div class="swipe r d5">Mándame un DM, contesto yo →</div>
+</section>
+</template>
+
+<!-- ===================== C · QUÉ HACEMOS ===================== -->
+<template data-id="c1-que-hacemos" data-label="C1 · Qué hacemos">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Servicios</span></div>
+  <div class="kicker r">¿Qué hacemos?</div>
+  <h2 class="r d1">Ponemos la IA <span class="serif">a trabajar</span></h2>
+  <div class="list">
+    <div class="item r d2"><span class="n">🤖</span><div><h3>Asistentes y chatbots</h3><p>WhatsApp, web o Instagram que atienden 24/7.</p></div></div>
+    <div class="item r d3"><span class="n">⚙️</span><div><h3>Automatizaciones</h3><p>Fuera tareas repetitivas: citas, emails, facturas, datos.</p></div></div>
+    <div class="item r d4"><span class="n">🧩</span><div><h3>Software a medida con IA</h3><p>Herramientas propias para tu forma de trabajar.</p></div></div>
+    <div class="item r d5"><span class="n">🎓</span><div><h3>Formación</h3><p>Para que tu equipo saque partido a la IA.</p></div></div>
+  </div>
+</section>
+</template>
+
+<template data-id="c2-atiende" data-label="C2 · Atiende">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Servicios</span></div>
+  <div class="spacer"></div>
+  <span class="chip r">Producto propio</span>
+  <div class="product-name r d1">Atiende</div>
+  <p class="lead r d2">Conecta tu <b>WhatsApp Business</b> con un bot de IA que <b>agenda citas solo</b>, y un panel para ver clientes, citas y conversaciones.</p>
+  <p class="small mt-m r d3">Ideal para peluquerías, clínicas, talleres, centros de estética…</p>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="c3-nexorai" data-label="C3 · Nexorai">
+<section class="story gold">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Servicios</span></div>
+  <div class="spacer"></div>
+  <span class="chip r">Producto propio</span>
+  <div class="product-name r d1">Nexorai</div>
+  <p class="lead r d2">Le dices cuánto quieres crecer. La IA <b>audita tu empresa</b>, detecta <b>dónde está el dinero</b> y pone agentes a trabajar para conseguirlo.</p>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="c4-leadscope-notiq" data-label="C4 · LeadScope y Notiq">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Servicios</span></div>
+  <div class="kicker r">Y además…</div>
+  <div class="list" style="margin-top:20px">
+    <div class="item r d1" style="flex-direction:column;gap:18px;padding:52px">
+      <h3 style="font-size:84px;letter-spacing:-.03em">LeadScope</h3>
+      <p style="font-size:38px">Encuentra negocios locales <b>sin página web</b> en cualquier ciudad. Para agencias y comerciales que buscan clientes.</p>
+    </div>
+    <div class="item r d3" style="flex-direction:column;gap:18px;padding:52px">
+      <h3 style="font-size:84px;letter-spacing:-.03em">Notiq</h3>
+      <p style="font-size:38px">Notas, tareas y un <b>asistente de IA</b> que conoce ambas cosas. Tu productividad en un solo sitio.</p>
+    </div>
+  </div>
+</section>
+</template>
+
+<template data-id="c5-proceso" data-label="C5 · Cómo trabajamos">
+<section class="story light">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Servicios</span></div>
+  <div class="kicker r">Cómo trabajamos</div>
+  <h2 class="r d1">De la idea a <span class="serif">funcionando</span></h2>
+  <div class="list">
+    <div class="item r d2"><span class="n">1</span><div><h3>Hablamos</h3><p>Nos cuentas tu negocio y qué te quita tiempo.</p></div></div>
+    <div class="item r d3"><span class="n">2</span><div><h3>Analizamos</h3><p>Vemos dónde la IA te da más retorno.</p></div></div>
+    <div class="item r d4"><span class="n">3</span><div><h3>Lo implementamos</h3><p>Lo dejamos montado y probado.</p></div></div>
+    <div class="item r d5"><span class="n">4</span><div><h3>Te acompañamos</h3><p>Ajustes y soporte para que siga rindiendo.</p></div></div>
+  </div>
+</section>
+</template>
+
+<!-- ===================== D · DUDAS ===================== -->
+<template data-id="d1-dudas" data-label="D1 · Dudas (portada)">
+<section class="story gold">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Dudas</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">FAQ</div>
+  <h1 class="r d1">Lo que más<br>nos <span class="serif">preguntáis</span></h1>
+  <p class="lead r d3">Respuestas cortas y sin rodeos 👇</p>
+  <div class="spacer"></div>
+  <div class="swipe r d5">Toca para seguir →</div>
+</section>
+</template>
+
+<template data-id="d2-tecnologia" data-label="D2 · ¿Necesito saber de tecnología?">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Dudas</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">Pregunta 1</div>
+  <div class="q r d1">¿Necesito saber de <span class="serif">tecnología</span>?</div>
+  <div class="answer r d3"><b>Nada.</b> Nosotros nos encargamos de todo y te lo dejamos funcionando. Tú solo nos cuentas cómo trabajas.</div>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="d3-pequeno" data-label="D3 · ¿Es para negocios pequeños?">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Dudas</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">Pregunta 2</div>
+  <div class="q r d1">¿La IA es solo para <span class="serif">empresas grandes</span>?</div>
+  <div class="answer r d3"><b>Al revés.</b> Donde más se nota es en pymes y autónomos: cada hora que ahorras es una hora que dedicas a tus clientes.</div>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="d4-precio" data-label="D4 · ¿Cuánto cuesta?">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Dudas</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">Pregunta 3</div>
+  <div class="q r d1">¿Cuánto <span class="serif">cuesta</span>?</div>
+  <div class="answer r d3"><b>Depende de lo que necesites.</b> Te preparamos una propuesta a medida, sin compromiso, para que veas el coste y el ahorro antes de decidir.</div>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="d5-sustituir" data-label="D5 · ¿Me va a sustituir?">
+<section class="story">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Dudas</span></div>
+  <div class="spacer"></div>
+  <div class="kicker r">Pregunta 4</div>
+  <div class="q r d1">¿Me va a <span class="serif">sustituir</span> a mí o a mi equipo?</div>
+  <div class="answer r d3"><b>No.</b> La IA se queda con lo repetitivo (contestar lo mismo, agendar, copiar datos) para que vosotros hagáis lo que de verdad aporta.</div>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<template data-id="d6-pregunta" data-label="D6 · Pregúntame">
+<section class="story gold">
+  <div class="brand"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="tag">Dudas</span></div>
+  <div class="spacer"></div>
+  <h2 class="r">¿Te queda alguna <span class="serif">duda</span>?</h2>
+  <p class="lead r d1">Pregúntame lo que quieras sobre IA y tu negocio. Respondo en stories 👇</p>
+  <div class="sticker-slot mt-l r d3">Pega aquí el sticker<br>de «Preguntas»</div>
+  <div class="spacer"></div>
+</section>
+</template>
+
+<!-- ===================== PORTADAS DE DESTACADAS ===================== -->
+<template data-id="portada-nosotros" data-label="Portada · Nosotros">
+<section class="story cover">
+  <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="#E4AE4A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9.5" r="2.4"/><path d="M3 19c.8-3.2 3.2-5 6-5s5.2 1.8 6 5"/><path d="M15.5 14.3c2.6-.4 4.6 1.2 5.3 4.2"/></svg><div class="word">Nosotros</div></div>
+</section>
+</template>
+<template data-id="portada-sobre-mi" data-label="Portada · Sobre mí">
+<section class="story cover">
+  <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="#E4AE4A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><div class="word">Sobre mí</div></div>
+</section>
+</template>
+<template data-id="portada-servicios" data-label="Portada · Servicios">
+<section class="story cover">
+  <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="#E4AE4A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><div class="word">Servicios</div></div>
+</section>
+</template>
+<template data-id="portada-dudas" data-label="Portada · Dudas">
+<section class="story cover">
+  <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="#E4AE4A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.8 2.8 0 1 1 3.9 2.6c-.8.4-1.2 1-1.2 1.9v.3"/><circle cx="12" cy="17" r=".6" fill="#E4AE4A"/></svg><div class="word">Dudas</div></div>
+</section>
+</template>
+
+</div>
+<script>
+  // ?only=<id> muestra una sola story a tamaño real (lo usa render.mjs)
+  const only = new URLSearchParams(location.search).get('only');
+  const gallery = document.getElementById('gallery');
+  if (only) document.body.classList.add('single');
+  for (const tpl of [...gallery.querySelectorAll('template')]) {
+    if (only && tpl.dataset.id !== only) { tpl.remove(); continue; }
+    const wrap = document.createElement('div');
+    const frame = document.createElement('div');
+    frame.className = 'frame';
+    frame.id = tpl.dataset.id;
+    frame.appendChild(tpl.content.cloneNode(true));
+    const label = document.createElement('div');
+    label.className = 'label';
+    label.textContent = tpl.dataset.label;
+    wrap.append(frame, label);
+    tpl.replaceWith(wrap);
+  }
+</script>
+</body>
+</html>
