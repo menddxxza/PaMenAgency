@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reel 3 tareas IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=block" rel="stylesheet">
+<style>
+  /*
+   * Reel «3 tareas que la IA hace por tu negocio hoy» — 1080×1920, ~20 s.
+   * Abre el archivo en el navegador para verlo en bucle, o expórtalo a MP4
+   * con: node render-reel.mjs reel-3-tareas-ia.html
+   *
+   * Zona segura de Reels: arriba ~220px, abajo ~420px (texto y botones),
+   * derecha ~140px (iconos de me gusta / comentar / compartir).
+   */
+  :root {
+    --ink: #0E0F13;
+    --cream: #F5EEE2;
+    --albero: #E4AE4A;
+    --albero-deep: #B9822A;
+    --sans: "Inter Display", "Inter", system-ui, sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #26272c; }
+  body { font-family: var(--sans); -webkit-font-smoothing: antialiased; display: flex; justify-content: center; }
+  body.preview .reel { transform: scale(.42); transform-origin: top center; margin-top: 16px; }
+
+  .reel { width: 1080px; height: 1920px; position: relative; overflow: hidden; background: var(--ink); color: var(--cream); flex: none; }
+  .reel::before {
+    content: ""; position: absolute; inset: -20%;
+    background: radial-gradient(circle at 75% 20%, rgba(228,174,74,.22), transparent 45%),
+                radial-gradient(circle at 10% 90%, rgba(228,174,74,.12), transparent 40%);
+  }
+
+  .brand {
+    position: absolute; top: 200px; left: 96px; right: 140px; z-index: 5;
+    display: flex; justify-content: space-between; align-items: center;
+    font: 600 26px/1 var(--sans); letter-spacing: .22em; text-transform: uppercase;
+  }
+  .brand .logo { display: flex; align-items: center; gap: 14px; }
+  .brand .dot { width: 16px; height: 16px; border-radius: 50%; background: var(--albero); }
+  .brand .count { color: var(--albero); letter-spacing: .14em; }
+
+  .scene { position: absolute; inset: 0; padding: 300px 140px 440px 96px; display: flex; flex-direction: column; justify-content: center; opacity: 0; }
+  .scene.gold { background: var(--albero); color: var(--ink); }
+
+  .kicker { font: 600 30px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--albero); margin-bottom: 36px; }
+  .gold .kicker { color: var(--ink); opacity: .7; }
+  .serif { font-family: var(--serif); font-weight: 400; font-style: italic; color: var(--albero); letter-spacing: -.01em; }
+  .gold .serif { color: var(--cream); }
+
+  .hook { font: 800 150px/.92 var(--sans); letter-spacing: -.045em; }
+  .hook .big-num { font-size: 300px; line-height: .8; display: block; color: var(--albero); }
+  .sub { font: 400 46px/1.3 var(--sans); margin-top: 44px; opacity: .8; }
+
+  .num { font: 800 64px/1 var(--sans); color: var(--ink); background: var(--albero); width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 40px; }
+  .title { font: 800 104px/.98 var(--sans); letter-spacing: -.04em; }
+  .note { font: 500 40px/1.3 var(--sans); margin-top: 40px; opacity: .75; }
+
+  /* Escena 1 · chat de WhatsApp */
+  .chat { margin-top: 56px; display: flex; flex-direction: column; gap: 22px; }
+  .bubble { max-width: 720px; padding: 28px 34px; border-radius: 34px; font: 400 38px/1.3 var(--sans); }
+  .bubble.in { background: #23252d; align-self: flex-start; border-bottom-left-radius: 10px; }
+  .bubble.out { background: #1f5c46; align-self: flex-end; border-bottom-right-radius: 10px; }
+  .bubble .who { font: 600 24px/1 var(--sans); opacity: .6; margin-bottom: 10px; letter-spacing: .04em; }
+  .bubble .time { font: 500 22px/1 var(--sans); opacity: .55; text-align: right; margin-top: 10px; }
+  .typing { display: inline-flex; gap: 10px; padding: 30px 34px; }
+  .typing i { width: 16px; height: 16px; border-radius: 50%; background: var(--cream); opacity: .5; }
+
+  /* Escena 2 · agenda */
+  .agenda { margin-top: 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .slot { padding: 30px 32px; border-radius: 26px; border: 2px solid rgba(245,238,226,.15); font: 600 38px/1 var(--sans); display: flex; justify-content: space-between; align-items: center; }
+  .slot small { font: 500 26px/1 var(--sans); opacity: .6; }
+  .slot .fill { position: absolute; inset: 0; border-radius: 24px; background: var(--albero); }
+  .slot { position: relative; overflow: hidden; }
+  .slot > span { position: relative; }
+  .slot.booked > span { color: var(--ink); }
+
+  /* Escena 3 · reseñas */
+  .review { margin-top: 56px; padding: 40px; border-radius: 34px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); }
+  .stars { font-size: 52px; color: var(--albero); letter-spacing: 6px; }
+  .review p { font: 400 36px/1.35 var(--sans); margin-top: 14px; opacity: .85; }
+  .reply { margin-top: 26px; padding: 30px 34px; border-radius: 26px; background: rgba(228,174,74,.12); border-left: 6px solid var(--albero); font: 400 34px/1.35 var(--sans); }
+  .reply b { display: block; font: 700 26px/1 var(--sans); letter-spacing: .06em; color: var(--albero); margin-bottom: 12px; }
+
+  /* Escena final */
+  .avatar { width: 230px; height: 230px; border-radius: 50%; overflow: hidden; border: 8px solid var(--ink); margin-bottom: 48px; }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; }
+  .cta-q { font: 800 108px/.98 var(--sans); letter-spacing: -.04em; }
+  .pill { display: inline-flex; align-self: flex-start; margin-top: 56px; padding: 26px 40px; border-radius: 999px; background: var(--ink); color: var(--cream); font: 700 42px/1 var(--sans); }
+  .handle { font: 600 34px/1 var(--sans); margin-top: 36px; opacity: .7; letter-spacing: .04em; }
+
+  /* Barra de progreso de las 3 tareas */
+  .progress { position: absolute; left: 96px; right: 140px; top: 260px; height: 6px; border-radius: 3px; background: rgba(245,238,226,.12); z-index: 5; overflow: hidden; }
+  .progress i { position: absolute; inset: 0; background: var(--albero); transform-origin: left; transform: scaleX(0); }
+</style>
+</head>
+<body>
+<div class="reel" id="reel">
+  <div class="brand" data-in="0" data-out="16.4"><span class="logo"><span class="dot"></span>PaMenAgency</span><span class="count" id="count"></span></div>
+  <div class="progress" data-in="3" data-out="16.4"><i id="bar"></i></div>
+
+  <!-- 0 – 3.2 s · Gancho -->
+  <section class="scene" data-scene="0,3.2">
+    <div class="hook"><span class="big-num" data-at=".1" data-fx="pop">3</span><span data-at=".35">tareas que la IA</span> <span data-at=".6">hace por tu negocio</span> <span class="serif" data-at=".9">hoy.</span></div>
+    <p class="sub" data-at="1.5">Y probablemente sigues haciéndolas a mano 👇</p>
+  </section>
+
+  <!-- 3.2 – 8 s · WhatsApp -->
+  <section class="scene" data-scene="3.2,8">
+    <div class="num" data-at=".05" data-fx="pop">1</div>
+    <div class="title" data-at=".15">Contestar tu <span class="serif">WhatsApp</span> 24/7</div>
+    <div class="chat">
+      <div class="bubble in" data-at=".9"><div class="who">CLIENTE · 23:47</div>¿Tenéis hueco mañana para un corte?</div>
+      <div class="bubble out typing" data-at="1.6" data-until="2.6"><i></i><i></i><i></i></div>
+      <div class="bubble out" data-at="2.6"><div class="who">ASISTENTE IA</div>¡Claro! Mañana tengo a las 10:00 o a las 17:30. ¿Cuál te viene mejor? 😊<div class="time">23:47 ✓✓</div></div>
+    </div>
+  </section>
+
+  <!-- 8 – 12.4 s · Agenda -->
+  <section class="scene" data-scene="8,12.4">
+    <div class="num" data-at=".05" data-fx="pop">2</div>
+    <div class="title" data-at=".15">Agendar <span class="serif">citas</span> sin que muevas un dedo</div>
+    <div class="agenda">
+      <div class="slot" data-at=".7"><span>09:00</span><small>libre</small></div>
+      <div class="slot booked" data-at=".8"><b class="fill" data-at="1.4" data-fx="grow"></b><span>10:00</span><span><small>Laura ✓</small></span></div>
+      <div class="slot booked" data-at=".9"><b class="fill" data-at="1.9" data-fx="grow"></b><span>12:30</span><span><small>Javi ✓</small></span></div>
+      <div class="slot" data-at="1"><span>16:00</span><small>libre</small></div>
+      <div class="slot booked" data-at="1.1"><b class="fill" data-at="2.4" data-fx="grow"></b><span>17:30</span><span><small>Marta ✓</small></span></div>
+      <div class="slot booked" data-at="1.2"><b class="fill" data-at="2.9" data-fx="grow"></b><span>19:00</span><span><small>Ana ✓</small></span></div>
+    </div>
+    <p class="note" data-at="3.2">Y manda el recordatorio el día antes.</p>
+  </section>
+
+  <!-- 12.4 – 16.4 s · Reseñas -->
+  <section class="scene" data-scene="12.4,16.4">
+    <div class="num" data-at=".05" data-fx="pop">3</div>
+    <div class="title" data-at=".15">Responder tus <span class="serif">reseñas</span> de Google</div>
+    <div class="review" data-at=".8">
+      <div class="stars">★★★★★</div>
+      <p>«Trato de diez y súper puntuales. Repetiré seguro.»</p>
+      <div class="reply" data-at="1.7"><b>RESPUESTA · GENERADA CON IA</b>¡Mil gracias! Nos alegra un montón que te sintieras como en casa. ¡Te esperamos pronto! 🙌</div>
+    </div>
+    <p class="note" data-at="2.6">Más reseñas respondidas = mejor posición en Google.</p>
+  </section>
+
+  <!-- 16.4 – 21 s · CTA -->
+  <section class="scene gold" data-scene="16.4,21" data-last>
+    <div class="avatar" data-at=".1" data-fx="pop"><img src="../instagram-stories/assets/foto-fundador.jpg" alt=""></div>
+    <div class="kicker" data-at=".3">PaMenAgency · Jerez</div>
+    <div class="cta-q" data-at=".45">¿Cuál te ahorraría <span class="serif">más tiempo</span>?</div>
+    <div class="pill" data-at="1.1" data-fx="pop">Escríbeme «IA» y te lo monto</div>
+    <div class="handle" data-at="1.5">@pamenagency</div>
+  </section>
+</div>
+
+<script>
+  // Toda la animación se crea con la Web Animations API para que el
+  // exportador pueda recorrerla fotograma a fotograma (currentTime).
+  const DURATION = 21000;
+  const EASE = 'cubic-bezier(.2,.8,.2,1)';
+  const ms = (s) => Math.round(parseFloat(s) * 1000);
+  // Las entradas rellenan hacia atrás (oculto antes de aparecer); las salidas
+  // solo hacia delante, para no pisar el estado de las entradas.
+  const anim = (el, frames, delay, duration, easing = EASE, fill = 'both') =>
+    el.animate(frames, { delay, duration, easing, fill });
+  const out = (el, frames, delay, duration) => anim(el, frames, delay, duration, 'linear', 'forwards');
+
+  const fx = {
+    rise: [{ opacity: 0, transform: 'translateY(60px)' }, { opacity: 1, transform: 'none' }],
+    pop: [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'none' }],
+    grow: [{ transform: 'scaleX(0)', transformOrigin: 'left' }, { transform: 'scaleX(1)', transformOrigin: 'left' }],
+  };
+
+  for (const scene of document.querySelectorAll('[data-scene]')) {
+    const [start, end] = scene.dataset.scene.split(',').map(ms);
+    const last = scene.hasAttribute('data-last');
+    // entra con fundido + leve zoom; sale con fundido (salvo la última)
+    anim(scene, [{ opacity: 0, transform: 'scale(1.04)' }, { opacity: 1, transform: 'none' }], start, 350);
+    if (!last) out(scene, [{ opacity: 1 }, { opacity: 0 }], end - 250, 250);
+    for (const el of scene.querySelectorAll('[data-at]')) {
+      const at = start + ms(el.dataset.at);
+      const kind = el.dataset.fx || 'rise';
+      anim(el, fx[kind], at, kind === 'pop' ? 600 : 700, kind === 'pop' ? 'cubic-bezier(.2,1.4,.4,1)' : EASE);
+      if (el.dataset.until) out(el, [{ opacity: 1, height: el.offsetHeight + 'px' }, { opacity: 0, height: '0px', padding: '0px' }], start + ms(el.dataset.until) - 150, 150);
+    }
+    // puntos de "escribiendo…"
+    scene.querySelectorAll('.typing i').forEach((dot, i) => {
+      for (let t = 0; t < 1000; t += 450) anim(dot, [{ opacity: .3 }, { opacity: 1 }, { opacity: .3 }], start + ms(1.6) + t + i * 120, 450, 'linear');
+    });
+  }
+
+  // marca superior y barra de progreso (1/3 → 3/3)
+  for (const el of document.querySelectorAll('[data-in]')) {
+    anim(el, [{ opacity: 0 }, { opacity: 1 }], ms(el.dataset.in), 300);
+    out(el, [{ opacity: 1 }, { opacity: 0 }], ms(el.dataset.out) - 250, 250);
+  }
+  anim(document.getElementById('bar'), [{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], 3200, 13200, 'linear');
+  const count = document.getElementById('count');
+  const steps = [[3200, '1/3'], [8000, '2/3'], [12400, '3/3']];
+  // el contador también va como animación para que el exportador lo controle
+  steps.forEach(([at, label], i) => {
+    const span = document.createElement('span');
+    span.textContent = label;
+    span.style.position = 'absolute';
+    span.style.right = '0';
+    count.style.position = 'relative';
+    count.appendChild(span);
+    anim(span, [{ opacity: 0 }, { opacity: 1 }], at, 200, 'linear');
+    if (steps[i + 1]) out(span, [{ opacity: 1 }, { opacity: 0 }], steps[i + 1][0], 1);
+  });
+
+  window.REEL_DURATION = DURATION;
+
+  // Vista previa en el navegador: escala y bucle
+  if (!new URLSearchParams(location.search).has('render')) {
+    document.body.classList.add('preview');
+    const loop = () => document.getAnimations().forEach((a) => { a.currentTime = 0; a.play(); });
+    setInterval(loop, DURATION + 800);
+  }
+</script>
+</body>
+</html>
