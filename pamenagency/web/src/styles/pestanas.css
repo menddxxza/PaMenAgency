@@ -362,6 +362,8 @@ h1, h2, h3, h4, h5, h6 {
   .pt-header .pm-wordmark { font-size: 0.86rem !important; letter-spacing: 0.12em; }
   .pt-burger__label { display: none; }
   .pt-burger { padding: 0 0.85rem; }
+  /* Con el menú abierto, "Cerrar" se ve siempre: es la salida */
+  .pt-burger[aria-expanded='true'] .pt-burger__label { display: inline; }
 }
 
 /* ----------------------------- Menú ----------------------------- */
@@ -389,8 +391,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .pt-menu__inner {
   display: grid;
-  grid-template-rows: 1fr auto;
-  gap: 2.5rem;
+  grid-template-rows: 1fr auto auto;
+  gap: clamp(1.25rem, 3vh, 2rem);
   min-height: 100%;
   width: 100%;
   max-width: var(--container);
@@ -499,6 +501,32 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 0;
     text-align: right;
   }
+}
+
+.pt-menu__cerrar {
+  justify-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 54px;
+  border: 1px solid var(--pm-gold-line);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--pm-gold-bright);
+  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+
+.pt-menu__cerrar:hover {
+  background: var(--pm-gold-soft);
+  border-color: var(--pm-gold);
+}
+
+/* En pantallas grandes sobra: el botón de arriba está a mano */
+@media (min-width: 900px) {
+  .pt-menu__cerrar { display: none; }
 }
 
 .pt-menu__foot {

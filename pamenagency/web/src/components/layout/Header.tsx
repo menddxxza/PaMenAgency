@@ -72,6 +72,12 @@ export function Header() {
     }
   }, [open])
 
+  // Cerrar a propósito (botón de abajo): el foco vuelve a las tres barras.
+  const cerrar = () => {
+    setOpen(false)
+    burgerRef.current?.focus()
+  }
+
   return (
     <>
       <header className="pt-header" data-scrolled={scrolled} data-menu={open ? 'open' : 'closed'}>
@@ -124,6 +130,11 @@ export function Header() {
               ))}
             </ol>
           </nav>
+
+          {/* Salida a mano del pulgar: en el móvil el botón de arriba queda lejos */}
+          <button type="button" className="pt-menu__cerrar" onClick={cerrar}>
+            Cerrar menú <span aria-hidden="true">✕</span>
+          </button>
 
           <div className="pt-menu__foot">
             <a href={`mailto:${site.email}`}>{site.email}</a>
