@@ -339,7 +339,7 @@ ul, ol { list-style: none; }
   height: var(--size);
   border-radius: 50%;
   background: var(--pm-gold-bright);
-  box-shadow: 0 0 6px 1px rgba(212, 175, 55, 0.55);
+  box-shadow: 0 0 6px 1px rgba(201, 160, 99, 0.55);
   opacity: 0;
   animation: pm-particle-float var(--dur) ease-in-out var(--delay) infinite alternate;
 }

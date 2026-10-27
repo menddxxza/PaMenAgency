@@ -1,79 +1,91 @@
 /* ------------------------------------------------------------------
    PaMenAgency — tokens de diseño
-   Negro dominante, dorado como acento. Nada más entra en la paleta.
+   Terciopelo burdeos, marfil de papel y oro en relieve: los tres
+   materiales de la tarjeta de visita. Nada más entra en la paleta.
+   Los valores salen de la foto de referencia de la tarjeta (oct. 2026).
    ------------------------------------------------------------------ */
 :root {
-  /* Superficies (de más profunda a más elevada) */
-  --pm-void: #050506;
-  --pm-black: #08080A;
-  --pm-surface: #0E0E11;
-  --pm-surface-2: #141418;
-  --pm-surface-3: #1B1B20;
+  /* Superficies: terciopelo, de la sombra al brillo */
+  --pm-void: #180506;
+  --pm-black: #1C0607;
+  --pm-surface: #230809;
+  --pm-surface-2: #2D0B0C;
+  --pm-surface-3: #3A1113;
+  /* Brillo del terciopelo: sólo en degradados de fondo, nunca en texto */
+  --pm-velvet-sheen: #6D2220;
 
-  /* Dorado — acento, nunca fondo amplio */
-  --pm-gold: #D4AF37;
-  --pm-gold-bright: #F0D680;
-  --pm-gold-deep: #8A6F1E;
-  --pm-gold-soft: rgba(212, 175, 55, 0.12);
-  --pm-gold-line: rgba(212, 175, 55, 0.28);
+  /* Oro en relieve — acento, nunca fondo amplio */
+  --pm-gold: #C9A063;
+  --pm-gold-bright: #E8CB94;
+  --pm-gold-deep: #7A5424;
+  --pm-gold-soft: rgba(201, 160, 99, 0.12);
+  --pm-gold-line: rgba(201, 160, 99, 0.32);
 
-  /* Texto */
-  --pm-text: #F4F4F2;
-  --pm-text-soft: #C4C4C8;
-  --pm-muted: #8E8E96;
-  /* Elevado desde #5C5C64: el original no llegaba a 4.5:1 y se usa en texto
-     real (copyright, migas de pan, contadores), no sólo en adornos. */
-  --pm-faint: #7A7A83;
+  /* Marfil del papel de la tarjeta */
+  --pm-paper: #E9DCC2;
+  --pm-paper-shadow: #C9B48F;
+  --pm-ink: #2A0B0C;
 
-  /* Líneas y bordes */
-  --pm-line: rgba(255, 255, 255, 0.07);
-  --pm-line-strong: rgba(255, 255, 255, 0.13);
+  /* Texto (marfil sobre terciopelo). Todos superan 4.5:1 sobre --pm-void. */
+  --pm-text: #EFE4CF;
+  --pm-text-soft: #D4C5AC;
+  --pm-muted: #A8957F;
+  --pm-faint: #9A8673;
 
-  /* Tipografía */
-  --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Líneas y bordes, con el tono del oro en vez de blanco */
+  --pm-line: rgba(232, 203, 148, 0.10);
+  --pm-line-strong: rgba(232, 203, 148, 0.18);
+
+  /* Tipografía: Bodoni para titulares (el mismo corte que el monograma P/M),
+     Instrument Sans para leer y para la interfaz. */
+  --font-display: 'Bodoni Moda', 'Didot', 'Bodoni 72', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Escala tipográfica fluida — nunca desborda, nunca se corta */
-  --fs-hero: clamp(2.6rem, 8vw, 6.5rem);
-  --fs-h1: clamp(2.1rem, 5.2vw, 4rem);
-  --fs-h2: clamp(1.8rem, 4vw, 3rem);
-  --fs-h3: clamp(1.25rem, 2.4vw, 1.75rem);
-  --fs-h4: clamp(1.05rem, 1.6vw, 1.25rem);
-  --fs-body: clamp(1rem, 1.05vw, 1.075rem);
+  --fs-hero: clamp(2.8rem, 7.4vw, 6.25rem);
+  --fs-h1: clamp(2.4rem, 6vw, 4.75rem);
+  --fs-h2: clamp(2rem, 4.4vw, 3.4rem);
+  --fs-h3: clamp(1.35rem, 2.4vw, 1.85rem);
+  --fs-h4: clamp(1.1rem, 1.6vw, 1.3rem);
+  --fs-body: clamp(1rem, 1.05vw, 1.0625rem);
   --fs-small: 0.875rem;
   --fs-micro: 0.75rem;
 
-  /* Ritmo vertical */
-  --space-section: clamp(4.5rem, 9vw, 9rem);
-  --space-xl: clamp(2.5rem, 5vw, 4.5rem);
+  /* Ritmo vertical: más aire que antes, cada bloque respira */
+  --space-section: clamp(5rem, 11vw, 10rem);
+  --space-xl: clamp(2.75rem, 5.5vw, 5rem);
   --space-lg: clamp(1.75rem, 3vw, 2.75rem);
   --space-md: 1.25rem;
   --space-sm: 0.75rem;
 
   /* Layout */
-  --container: 1240px;
-  --container-wide: 1480px;
+  --container: 1200px;
+  --container-wide: 1440px;
   --container-reading: 760px;
-  --gutter: clamp(1.15rem, 4vw, 2.75rem);
+  --gutter: clamp(1.25rem, 5vw, 3rem);
   --header-h: 76px;
 
   /* Formas */
-  --radius-sm: 8px;
-  --radius: 14px;
-  --radius-lg: 22px;
+  --radius-sm: 6px;
+  --radius: 12px;
+  --radius-lg: 20px;
   --radius-pill: 999px;
+
+  /* El ángulo de la barra del monograma P/M: el sello de toda la web */
+  --pm-slash-angle: -58deg;
 
   /* Movimiento */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --dur-fast: 180ms;
   --dur: 320ms;
-  --dur-slow: 620ms;
+  --dur-slow: 800ms;
 
-  /* Sombras — negras y profundas, nunca grises lechosas */
-  --shadow-card: 0 18px 50px -24px rgba(0, 0, 0, 0.9);
-  --shadow-lift: 0 30px 70px -28px rgba(0, 0, 0, 1);
-  --glow-gold: 0 0 0 1px var(--pm-gold-line), 0 12px 40px -18px rgba(212, 175, 55, 0.45);
+  /* Sombras — cálidas y profundas, del color del terciopelo */
+  --shadow-card: 0 18px 50px -24px rgba(6, 0, 0, 0.9);
+  --shadow-lift: 0 30px 70px -28px rgba(6, 0, 0, 1);
+  --glow-gold: 0 0 0 1px var(--pm-gold-line), 0 12px 40px -18px rgba(201, 160, 99, 0.45);
 
   --z-cursor: 9000;
   --z-cookie: 8000;

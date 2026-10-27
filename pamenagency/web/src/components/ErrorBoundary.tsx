@@ -33,7 +33,7 @@ export class ErrorBoundary extends Component<Props, State> {
           minHeight: '100dvh',
           display: 'grid',
           placeItems: 'center',
-          background: '#050506',
+          background: '#0E0304',
           color: '#F4F4F2',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           padding: '2rem',
@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Algo ha fallado al cargar la página</h1>
           <p style={{ color: '#8E8E96', marginBottom: '1.5rem', lineHeight: 1.6 }}>
             Prueba a recargar. Si el problema continúa, escríbenos a{' '}
-            <a href={`mailto:${site.email}`} style={{ color: '#D4AF37' }}>
+            <a href={`mailto:${site.email}`} style={{ color: '#C9A063' }}>
               {site.email}
             </a>
             .
@@ -52,8 +52,8 @@ export class ErrorBoundary extends Component<Props, State> {
           <button
             onClick={() => window.location.reload()}
             style={{
-              background: '#D4AF37',
-              color: '#050506',
+              background: '#C9A063',
+              color: '#0E0304',
               border: 'none',
               borderRadius: '999px',
               padding: '0.75rem 1.75rem',

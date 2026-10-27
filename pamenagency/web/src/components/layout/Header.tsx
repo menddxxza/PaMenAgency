@@ -1,74 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
-import { mainNav, site, type NavItem } from '@/content/site'
-import { Button } from '@/components/ui/Button'
-import { Icon } from '@/components/ui/Icon'
+import { Link, NavLink, useLocation } from 'react-router-dom'
+import { site, tabs } from '@/content/site'
 import { Logo } from './Logo'
-import { MobileMenu } from './MobileMenu'
-import { SearchOverlay } from './SearchOverlay'
 
-const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[^a-z]/g, '')
-
+/**
+ * Cabecera: logotipo, botón de contacto y el menú de las tres barras.
+ *
+ * El menú es el único sitio desde el que se navega entre pestañas, en
+ * cualquier tamaño de pantalla. Al abrirse, las tres barras se funden en
+ * la barra diagonal del monograma P/M, que es el sello de la web.
+ */
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  /** Etiqueta del grupo desplegado, o null. Sólo uno a la vez. */
-  const [openGroup, setOpenGroup] = useState<string | null>(null)
+  const [open, setOpen] = useState(false)
   const burgerRef = useRef<HTMLButtonElement>(null)
-  const navRef = useRef<HTMLElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
-
-  /** Un grupo se marca como activo si la ruta actual es la de alguno de sus hijos. */
-  const isGroupActive = (item: NavItem) =>
-    (item.children ?? []).some((c) =>
-      c.to === '/' ? location.pathname === '/' : location.pathname.startsWith(c.to),
-    )
-
-  // Escape cierra el desplegable y devuelve el foco al botón que lo abrió;
-  // un clic fuera lo cierra sin más.
-  useEffect(() => {
-    if (!openGroup) return
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      const trigger = navRef.current?.querySelector<HTMLButtonElement>(
-        '.pm-navgroup[data-open="true"] .pm-navgroup__trigger',
-      )
-      setOpenGroup(null)
-      trigger?.focus()
-    }
-    const onPointerDown = (e: PointerEvent) => {
-      if (!navRef.current?.contains(e.target as Node)) setOpenGroup(null)
-    }
-    // Si el foco sale del menú por teclado, el desplegable ya no pinta nada
-    // abierto.
-    const onFocusIn = (e: FocusEvent) => {
-      if (!navRef.current?.contains(e.target as Node)) setOpenGroup(null)
-    }
-
-    document.addEventListener('keydown', onKeyDown)
-    document.addEventListener('pointerdown', onPointerDown)
-    document.addEventListener('focusin', onFocusIn)
-    return () => {
-      document.removeEventListener('keydown', onKeyDown)
-      document.removeEventListener('pointerdown', onPointerDown)
-      document.removeEventListener('focusin', onFocusIn)
-    }
-  }, [openGroup])
-
-  // Ctrl/Cmd+K abre el buscador desde cualquier página, como en la mayoría
-  // de sitios que tienen uno.
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        setSearchOpen(true)
-      }
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -77,135 +24,120 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Cambiar de página cierra el menú, el buscador y cualquier desplegable.
+  // Cambiar de pestaña cierra el menú.
   useEffect(() => {
-    setMenuOpen(false)
-    setSearchOpen(false)
-    setOpenGroup(null)
+    setOpen(false)
   }, [location.pathname])
 
-  // Con el menú o el buscador abiertos, la página de detrás no debe poder
-  // desplazarse.
+  // Con el menú abierto: la página de detrás no se desplaza, Escape cierra,
+  // el foco entra en el menú y no se escapa de él con el tabulador.
   useEffect(() => {
-    if (!menuOpen && !searchOpen) return
+    if (!open) return
     const previous = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+
+    const menu = menuRef.current
+    const focusables = () =>
+      [
+        burgerRef.current,
+        ...Array.from(menu?.querySelectorAll<HTMLElement>('a[href], button') ?? []),
+      ].filter(Boolean) as HTMLElement[]
+
+    // La pestaña actual recibe el foco: es el punto de partida natural.
+    const actual = menu?.querySelector<HTMLElement>('[aria-current="page"]')
+    ;(actual ?? menu?.querySelector<HTMLElement>('a[href]'))?.focus({ preventScroll: true })
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        burgerRef.current?.focus()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const items = focusables()
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
     return () => {
       document.body.style.overflow = previous
+      document.removeEventListener('keydown', onKeyDown)
     }
-  }, [menuOpen, searchOpen])
-
-  const closeMenu = () => {
-    setMenuOpen(false)
-    // El foco vuelve al botón que abrió el menú.
-    burgerRef.current?.focus()
-  }
+  }, [open])
 
   return (
     <>
-      <header className="pm-header" data-scrolled={scrolled}>
-        <div className="pm-header__inner">
+      <header className="pt-header" data-scrolled={scrolled} data-menu={open ? 'open' : 'closed'}>
+        <div className="pt-header__inner">
           <Logo variant="nav" />
 
-          <nav className="pm-header__nav" aria-label="Navegación principal" ref={navRef}>
-            {mainNav.map((item) =>
-              item.children ? (
-                <div
-                  key={item.label}
-                  className="pm-navgroup"
-                  data-open={openGroup === item.label}
-                  // En escritorio con ratón el grupo se abre al pasar por
-                  // encima; el clic y el teclado siguen funcionando igual
-                  // para quien no usa puntero.
-                  onMouseEnter={() => setOpenGroup(item.label)}
-                  onMouseLeave={() => setOpenGroup(null)}
-                >
-                  <button
-                    type="button"
-                    className="pm-navlink pm-navgroup__trigger"
-                    aria-expanded={openGroup === item.label}
-                    aria-controls={`pm-navgroup-${slugify(item.label)}`}
-                    data-active={isGroupActive(item)}
-                    // El clic sólo abre, nunca cierra: con el ratón encima
-                    // el grupo ya está abierto por hover, y hacer que el
-                    // clic alternase lo cerraba justo cuando el usuario
-                    // acababa de ir a por él. Para cerrar están Escape,
-                    // salir con el ratón, clicar fuera y cambiar de página.
-                    onClick={() => setOpenGroup(item.label)}
-                  >
-                    {item.label}
-                    <Icon name="chevron" size={14} className="pm-navgroup__caret" />
-                  </button>
-
-                  <div
-                    id={`pm-navgroup-${slugify(item.label)}`}
-                    className="pm-navgroup__panel"
-                    hidden={openGroup !== item.label}
-                  >
-                    <ul>
-                      {item.children.map((child) => (
-                        <li key={child.to + child.label}>
-                          <NavLink to={child.to} className="pm-navgroup__link" end={child.to === '/'}>
-                            <span>{child.label}</span>
-                            {child.hint && <span className="pm-navgroup__hint">{child.hint}</span>}
-                          </NavLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              ) : (
-                <NavLink
-                  key={item.to}
-                  to={item.to!}
-                  className="pm-navlink"
-                  end={item.to === '/'}
-                >
-                  {item.label}
-                </NavLink>
-              ),
-            )}
-          </nav>
-
-          <div className="pm-header__actions">
-            <button
-              type="button"
-              className="pm-header__iconbtn"
-              aria-label="Buscar en el sitio (Ctrl+K)"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Icon name="search" size={18} />
-            </button>
-            <div className="pm-header__cta">
-              {/* El CTA global del sitio es la auditoría, no un contacto genérico.
-                  Ojo al ancho de la etiqueta: el corte a 1240px del header está
-                  calibrado justo para el logo + 7 enlaces + búsqueda + este botón
-                  (ver el comentario del breakpoint en components.css). */}
-              <Button to="/auditoria-ia" size="sm" arrow>
-                Auditoría
-              </Button>
-            </div>
+          <div className="pt-header__actions">
+            <Link className="pt-header__cta" to="/contacto" tabIndex={open ? -1 : undefined}>
+              Hablemos
+            </Link>
             <button
               ref={burgerRef}
               type="button"
-              className="pm-burger"
-              aria-expanded={menuOpen}
-              aria-controls="pm-mobile-menu"
-              aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-              onClick={() => setMenuOpen((v) => !v)}
+              className="pt-burger"
+              aria-expanded={open}
+              aria-controls="pt-menu"
+              onClick={() => setOpen((v) => !v)}
             >
-              <span className="pm-burger__lines" aria-hidden="true">
+              <span className="pt-burger__bars" aria-hidden="true">
                 <span />
                 <span />
                 <span />
               </span>
+              <span className="pt-burger__label">{open ? 'Cerrar' : 'Menú'}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {menuOpen && <MobileMenu onClose={closeMenu} email={site.email} />}
-      {searchOpen && <SearchOverlay onClose={() => setSearchOpen(false)} />}
+      <div
+        id="pt-menu"
+        ref={menuRef}
+        className="pt-menu"
+        data-open={open}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menú de la web"
+      >
+        <div className="pt-menu__inner">
+          <nav aria-label="Pestañas">
+            <ol className="pt-menu__list">
+              {tabs.map((tab, i) => (
+                <li key={tab.to} style={{ '--i': i } as React.CSSProperties}>
+                  <NavLink to={tab.to} end={tab.to === '/'} className="pt-menu__link">
+                    <span className="pt-menu__slash" aria-hidden="true" />
+                    <span className="pt-menu__label">{tab.label}</span>
+                    <span className="pt-menu__hint">{tab.hint}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ol>
+          </nav>
+
+          <div className="pt-menu__foot">
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+            {site.phone && <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>}
+            {site.social.map((s) =>
+              s.url ? (
+                <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer">
+                  {s.name}
+                </a>
+              ) : null,
+            )}
+          </div>
+        </div>
+      </div>
     </>
   )
 }

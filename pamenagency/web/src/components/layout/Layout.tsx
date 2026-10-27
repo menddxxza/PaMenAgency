@@ -3,14 +3,10 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { Header } from './Header'
 import { Footer } from './Footer'
 import { CookieBanner } from '@/components/cookies/CookieBanner'
-import { CustomCursor } from '@/components/ui/CustomCursor'
-import { AmbientParticles } from '@/components/ui/AmbientParticles'
-import { BackToTop } from '@/components/ui/BackToTop'
-import { StickyCta } from '@/components/ui/StickyCta'
 import { AssistantWidget } from '@/components/chat/AssistantWidget'
 import { capturarUtm } from '@/lib/utm'
 
-/** Cada navegación empieza arriba, salvo que se navegue a un ancla. */
+/** Cada pestaña empieza arriba, salvo que se navegue a un ancla. */
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
 
@@ -28,7 +24,7 @@ function ScrollToTop() {
   return null
 }
 
-/** Transición breve entre páginas; se anula con movimiento reducido. */
+/** Cambio de pestaña: la nueva entra con un fundido corto. */
 function PageFade({ children }: { children: React.ReactNode }) {
   const { pathname } = useLocation()
   return (
@@ -38,6 +34,13 @@ function PageFade({ children }: { children: React.ReactNode }) {
   )
 }
 
+/**
+ * Esqueleto común de todas las pestañas.
+ *
+ * Sin cursor propio, sin partículas, sin scroll suavizado ni secciones
+ * ancladas: el desplazamiento es el normal del navegador y lo único que
+ * se anima al bajar es la entrada de cada bloque.
+ */
 export function Layout() {
   // Solo lee la URL de entrada, no la de cada navegación interna — captura
   // el origen de la visita, no de cada clic dentro del sitio.
@@ -52,9 +55,8 @@ export function Layout() {
         Saltar al contenido
       </a>
       <ScrollToTop />
-      <CustomCursor />
-      <AmbientParticles />
-      <div className="pm-noise" aria-hidden="true" />
+      {/* Terciopelo: brillos y pliegues fijos detrás de todo el contenido. */}
+      <div className="pt-velvet" aria-hidden="true" />
       <Header />
       <main id="contenido" tabIndex={-1}>
         <Suspense fallback={<div style={{ minHeight: '70svh' }} aria-busy="true" />}>
@@ -65,8 +67,6 @@ export function Layout() {
       </main>
       <Footer />
       <CookieBanner />
-      <BackToTop />
-      <StickyCta />
       <AssistantWidget />
     </>
   )
