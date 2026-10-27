@@ -9,6 +9,9 @@ import { services } from '@/content/services'
 import { methodology } from '@/content/methodology'
 import { useCases } from '@/content/useCases'
 import { founder } from '@/content/founder'
+import { FACTOR } from '@/content/workday'
+import { WorkdayCompare } from '@/components/sections/WorkdayCompare'
+import { DiagnosticTool } from '@/components/sections/DiagnosticTool'
 
 /** El lema del fundador con la última palabra en oro ("No vendemos *humo*."). */
 function LemaConOro({ lema }: { lema: string }) {
@@ -131,6 +134,36 @@ export default function Home() {
         </div>
       </Bloque>
 
+      <Bloque id="jornada">
+        <div className="pt-split pt-split--centro">
+          <div className="pm-reveal">
+            <Antetitulo>Una jornada, dos formas de trabajar</Antetitulo>
+            <h2 className="pt-h2">
+              Hasta <em>x{FACTOR} más rápido</em> en las tareas que se repiten.
+            </h2>
+            <p className="pt-text">
+              Las mismas seis tareas, la misma jornada. A mano da tiempo a una. Con IA, a las seis
+              — y la tarde queda libre para lo que de verdad necesita a una persona.
+            </p>
+            <div className="pt-actions">
+              <Link className="pt-btn pt-btn--gold" to="/auditoria-ia">
+                Ver qué puedo automatizar <span aria-hidden="true">→</span>
+              </Link>
+              <Link className="pt-btn pt-btn--line" to="/calculadora">
+                Calcular lo que me cuesta hoy
+              </Link>
+            </div>
+          </div>
+          <div className="pm-reveal" style={escalon(1, 120)}>
+            <WorkdayCompare />
+            <p className="pt-nota pt-nota--centro">
+              Simulación ilustrativa con tareas repetitivas habituales. El resultado real depende de
+              cada proceso.
+            </p>
+          </div>
+        </div>
+      </Bloque>
+
       <Bloque className="pt-block--banda">
         <div className="pm-reveal">
           <Antetitulo>Cómo trabajamos</Antetitulo>
@@ -172,14 +205,30 @@ export default function Home() {
         </div>
       </Bloque>
 
+      <Bloque id="diagnostico" className="pt-block--banda">
+        <div className="pt-centrado pm-reveal">
+          <Antetitulo>Diagnóstico gratuito</Antetitulo>
+          <h2 className="pt-h2">
+            ¿Cuánto potencial de IA tiene tu <em>negocio</em>?
+          </h2>
+          <p className="pt-text">
+            Diez preguntas, dos minutos. Se calcula en tu propio navegador: no se envía ni se guarda
+            ninguna respuesta.
+          </p>
+        </div>
+        <div className="pt-diagnostico pm-reveal" style={escalon(1, 120)}>
+          <DiagnosticTool />
+        </div>
+      </Bloque>
+
       <Bloque>
         <div className="pt-persona">
           <figure className="pt-persona__foto pm-reveal">
             <img
-              src={founder.foto}
+              src={founder.recorte}
               alt={`${founder.nombre}, ${founder.cargo}`}
-              width={800}
-              height={1067}
+              width={900}
+              height={1200}
               loading="lazy"
               decoding="async"
             />

@@ -573,7 +573,7 @@ h1, h2, h3, h4, h5, h6 {
   flex: none;
   border-radius: 50%;
   object-fit: cover;
-  object-position: 50% 18%;
+  object-position: 50% 26%;
 }
 
 .pt-firma > span {
@@ -601,144 +601,69 @@ h1, h2, h3, h4, h5, h6 {
 
 /* En una columna (móvil y tablet), la tarjeta acompaña sin robar la pantalla. */
 @media (max-width: 959px) {
-  .pt-hero__visual { max-width: 420px; }
+  .pt-hero__visual { max-width: 520px; }
 }
 
-/* -------------------- Tarjeta de visita P/M -------------------- */
+/* -------------------- Tarjetas de visita P/M -------------------- */
 
+/* La foto real de las tarjetas. Sus bordes se funden con el terciopelo de
+   la web mediante una máscara, así no se ve el rectángulo de la imagen. */
 .pt-tarjeta {
   --rx: 0deg;
   --ry: 0deg;
-  --luz: 30%;
+  --luz: 35%;
   position: relative;
-  display: grid;
-  place-items: center;
   width: 100%;
-  aspect-ratio: 1 / 0.92;
-  perspective: 1400px;
-  animation: pt-flotar 8s ease-in-out infinite;
+  perspective: 1600px;
+  animation: pt-flotar 9s ease-in-out infinite;
 }
 
 @keyframes pt-flotar {
   0%, 100% { translate: 0 0; }
-  50% { translate: 0 -10px; }
+  50% { translate: 0 -8px; }
 }
 
-.pt-tarjeta__escena {
+.pt-tarjeta__foto {
   position: relative;
-  width: 84%;
-  aspect-ratio: 1.68;
-  transform-style: preserve-3d;
-  transform: rotateX(calc(16deg + var(--rx))) rotateY(var(--ry)) rotateZ(-9deg);
-  transition: transform 700ms var(--ease-out);
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 800ms var(--ease-out);
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 52% 52%, #000 66%, transparent 100%);
+  mask-image: radial-gradient(ellipse 50% 50% at 52% 52%, #000 66%, transparent 100%);
 }
 
-.pt-tarjeta__papel {
+.pt-tarjeta__foto img {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* El terciopelo de la foto, un punto más oscuro para casar con el fondo */
+  filter: saturate(0.95) brightness(0.96);
+}
+
+/* Reflejo que recorre el oro: entra una vez al cargar y luego sigue al ratón */
+.pt-tarjeta__reflejo {
   position: absolute;
   inset: 0;
-  border-radius: 7px;
-  overflow: hidden;
-  container-type: inline-size;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.36 0 0 0 0 0.25 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.42) 0%, transparent 38%, rgba(60, 30, 10, 0.12) 100%),
-    var(--pm-paper);
-}
-
-/* El taco de detrás: más en sombra, con el canto dorado a la vista. */
-.pt-tarjeta__papel--detras {
-  transform: translate3d(-10%, -16%, -60px) rotateZ(4deg);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, transparent 40%, rgba(40, 15, 5, 0.25) 100%),
-    var(--pm-paper-shadow);
-  overflow: visible;
-  box-shadow:
-    0 2px 0 #C9A063,
-    0 4px 0 #8A6330,
-    0 6px 0 #C9A063,
-    0 8px 0 #7A5424,
-    0 10px 0 #B8894A,
-    0 40px 60px -16px rgba(0, 0, 0, 0.85);
-}
-
-.pt-tarjeta__papel--delante {
-  box-shadow:
-    0 2px 0 #B8894A,
-    0 3px 0 #7A5424,
-    0 46px 70px -18px rgba(0, 0, 0, 0.9),
-    0 14px 28px -12px rgba(0, 0, 0, 0.7);
-}
-
-/* El monograma, estampado en oro: letras con remates de Bodoni y la
-   barra diagonal que las separa, como en el logotipo. */
-.pt-mono {
-  position: absolute;
-  inset: 0;
-  font-family: var(--font-display);
-  font-weight: 500;
-  line-height: 1;
-}
-
-.pt-mono__p,
-.pt-mono__m,
-.pt-mono__barra {
-  position: absolute;
-  background: linear-gradient(
-    105deg,
-    #7A5424 0%,
-    #B8894A calc(var(--luz) - 28%),
-    #F3DCAE var(--luz),
-    #C9A063 calc(var(--luz) + 18%),
-    #8A6330 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  /* Relieve: luz arriba, sombra abajo, como un estampado en caliente */
-  filter: drop-shadow(0 -0.6px 0 rgba(255, 255, 255, 0.55)) drop-shadow(0 1px 0.5px rgba(70, 40, 10, 0.45));
-}
-
-.pt-mono__p {
-  font-size: 33cqw;
-  left: 30cqw;
-  top: 5cqw;
-}
-
-.pt-mono__m {
-  font-size: 27cqw;
-  left: 46cqw;
-  top: 19cqw;
-}
-
-.pt-mono__barra {
-  left: 49.5cqw;
-  top: 6cqw;
-  width: 0.55cqw;
-  height: 47cqw;
-  background-clip: border-box;
-  -webkit-background-clip: border-box;
-  transform: rotate(calc(90deg + var(--pm-slash-angle)));
-  transform-origin: center;
-}
-
-.pt-tarjeta__brillo {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, transparent 30%, rgba(255, 248, 230, 0.55) 46%, transparent 62%);
-  mix-blend-mode: soft-light;
-  transform: translateX(-110%);
-  animation: pt-barrido 2.4s var(--ease-out) 0.9s both;
   pointer-events: none;
+  mix-blend-mode: soft-light;
+  background: linear-gradient(
+    112deg,
+    transparent calc(var(--luz) - 22%),
+    rgba(255, 244, 220, 0.55) var(--luz),
+    transparent calc(var(--luz) + 22%)
+  );
+  animation: pt-reflejo 2.6s var(--ease-out) 0.8s both;
 }
 
-@keyframes pt-barrido {
-  to { transform: translateX(110%); }
+@keyframes pt-reflejo {
+  from { opacity: 0; transform: translateX(-30%); }
+  60% { opacity: 1; }
+  to { opacity: 0.8; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pt-tarjeta,
-  .pt-tarjeta__brillo { animation: none; }
-  .pt-tarjeta__escena { transition: none; }
+  .pt-tarjeta__reflejo { animation: none; }
+  .pt-tarjeta__foto { transition: none; }
 }
 
 /* ------------------------ Cabecera de pestaña ------------------------ */
@@ -813,6 +738,45 @@ h1, h2, h3, h4, h5, h6 {
   display: grid;
   gap: var(--space-xl);
 }
+
+@media (min-width: 960px) {
+  .pt-split.pt-split--centro {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+}
+
+.pt-centrado {
+  max-width: 44rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.pt-centrado .pt-h2,
+.pt-centrado .pt-text {
+  margin-inline: auto;
+}
+
+.pt-nota--centro {
+  text-align: center;
+  margin-inline: auto;
+}
+
+/* El diagnóstico de diez preguntas, con el aspecto de la web */
+.pt-diagnostico {
+  max-width: 760px;
+  margin: var(--space-lg) auto 0;
+}
+
+/* El reloj de la jornada, con los materiales de la tarjeta */
+.pt-block .pm-workday {
+  background: linear-gradient(160deg, rgba(53, 16, 18, 0.7), rgba(20, 5, 6, 0.5));
+  border-color: var(--pm-line-strong);
+}
+
+.pt-block .pm-workday__face { fill: rgba(20, 5, 6, 0.6); stroke: var(--pm-gold-line); }
+.pt-block .pm-workday__hora { font-family: var(--font-display); }
+.pt-block .pm-workday__coltitle { font-family: var(--font-display); font-weight: 500; font-size: 1.15rem; }
 
 @media (min-width: 960px) {
   .pt-split {
@@ -930,23 +894,36 @@ h1, h2, h3, h4, h5, h6 {
   .pt-persona { grid-template-columns: minmax(260px, 0.8fr) 1.2fr; }
 }
 
+/* Persona: el recorte sin fondo, con la luz dorada en diagonal de la foto
+   original detrás (la misma barra del monograma) para que el traje negro
+   se despegue del terciopelo. */
 .pt-persona__foto {
+  position: relative;
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
   justify-self: center;
-  padding: 0.65rem 0.65rem 2.4rem;
-  background: var(--pm-paper);
-  border-radius: 4px;
-  transform: rotate(-2deg);
-  box-shadow: 0 2px 0 #B8894A, 0 40px 70px -24px rgba(0, 0, 0, 0.9);
+  isolation: isolate;
+}
+
+.pt-persona__foto::before {
+  content: '';
+  position: absolute;
+  inset: 4% -12% 8%;
+  z-index: -1;
+  background:
+    linear-gradient(calc(90deg + var(--pm-slash-angle)), transparent 30%, rgba(201, 160, 99, 0.2) 46%, rgba(232, 203, 148, 0.28) 50%, rgba(201, 160, 99, 0.2) 54%, transparent 70%),
+    radial-gradient(ellipse 55% 50% at 50% 38%, rgba(109, 34, 32, 0.75), transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse 48% 50% at 50% 45%, #000 25%, transparent 100%);
+  mask-image: radial-gradient(ellipse 48% 50% at 50% 45%, #000 25%, transparent 100%);
 }
 
 .pt-persona__foto img {
   width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: 50% 20%;
-  border-radius: 2px;
+  height: auto;
+  /* La foto acaba cortada a la altura de las rodillas: se funde hacia abajo */
+  -webkit-mask-image: linear-gradient(#000 74%, transparent 98%);
+  mask-image: linear-gradient(#000 74%, transparent 98%);
+  filter: drop-shadow(0 0 1px rgba(232, 203, 148, 0.25));
 }
 
 .pt-datos {

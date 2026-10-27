@@ -10,6 +10,8 @@ export const founder = {
   nombre: 'Pablo Mendoza',
   cargo: 'Fundador de PaMenAgency',
   foto: '/pablo-mendoza.jpg',
+  /** La misma foto sin fondo, sólo la persona (recortada con rembg/BiRefNet). */
+  recorte: '/pablo-mendoza-recorte.webp',
   anosExperiencia: 2,
   formacionesIa: 4,
   productos: ['IAPyme', 'LeadScope', 'Notiq'],

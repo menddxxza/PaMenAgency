@@ -64,10 +64,10 @@ export default function Nosotros() {
         <div className="pt-persona">
           <figure className="pt-persona__foto pm-reveal">
             <img
-              src={founder.foto}
+              src={founder.recorte}
               alt={`${founder.nombre}, ${founder.cargo}`}
-              width={800}
-              height={1067}
+              width={900}
+              height={1200}
               decoding="async"
             />
           </figure>
