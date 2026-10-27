@@ -34,6 +34,7 @@ function Mark({ size }: { size: number }) {
         alt=""
         width={size * LOGO_ASPECT}
         height={size}
+        className="pt-logo-mark"
         style={{ height: size, width: 'auto', objectFit: 'contain' }}
       />
     )
@@ -75,7 +76,7 @@ function Mark({ size }: { size: number }) {
 }
 
 export function Logo({ variant = 'nav', size, asLink = true }: Props) {
-  const markSize = size ?? (variant === 'footer' ? 40 : 32)
+  const markSize = size ?? (variant === 'footer' ? 42 : 36)
 
   const content = (
     <span

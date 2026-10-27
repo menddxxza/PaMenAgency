@@ -1,100 +1,86 @@
 import { Link } from 'react-router-dom'
-import { footerNav, site } from '@/content/site'
+import { legalNav, moreResources, site, tabs } from '@/content/site'
 import { openCookieSettings } from '@/lib/consent'
 import { Logo } from './Logo'
 
+/**
+ * Pie: las seis pestañas, las páginas que ya no están en el menú (para que
+ * sigan enlazadas y Google no las pierda), contacto y legal.
+ */
 export function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="pm-footer">
-      <div
-        className="pm-glow"
-        aria-hidden="true"
-        style={{
-          width: 'min(620px, 90vw)',
-          height: '360px',
-          left: '50%',
-          top: '-180px',
-          transform: 'translateX(-50%)',
-          background: 'rgba(212, 175, 55, 0.09)',
-        }}
-      />
-
-      <div className="pm-container pm-container--wide pm-above">
-        <div className="pm-footer__top">
-          <div>
+    <footer className="pt-footer">
+      <div className="pm-container">
+        <div className="pt-footer__top">
+          <div className="pt-footer__brand">
             <Logo variant="footer" />
-            <p className="pm-lead" style={{ marginTop: '1.25rem', maxWidth: '30ch' }}>
-              {site.tagline}
-            </p>
-            <a
-              className="pm-link"
-              href={`mailto:${site.email}`}
-              style={{ marginTop: '1.5rem' }}
-            >
-              {site.email}
-            </a>
+            <p className="pt-footer__tagline">{site.tagline}</p>
           </div>
 
-          <div className="pm-footer__cols">
-            {footerNav.map((col) => (
-              <nav key={col.title} aria-label={col.title}>
-                <h2 className="pm-footer__coltitle">{col.title}</h2>
-                <ul>
-                  {col.links.map((link) => (
-                    <li key={link.to}>
-                      <Link className="pm-footer__link" to={link.to}>
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ))}
+          <nav className="pt-footer__col" aria-label="Pestañas">
+            <h2 className="pt-footer__title">La web</h2>
+            <ul>
+              {tabs.map((t) => (
+                <li key={t.to}>
+                  <Link to={t.to}>{t.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-            <div>
-              <h2 className="pm-footer__coltitle">Social</h2>
-              <ul>
-                {site.social.map((s) => (
+          <nav className="pt-footer__col" aria-label="Más recursos">
+            <h2 className="pt-footer__title">Más recursos</h2>
+            <ul>
+              {moreResources.map((r) => (
+                <li key={r.to}>
+                  <Link to={r.to}>{r.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="pt-footer__col">
+            <h2 className="pt-footer__title">Escríbenos</h2>
+            <ul>
+              <li>
+                <a href={`mailto:${site.email}`}>{site.email}</a>
+              </li>
+              {site.phone && (
+                <li>
+                  <a href={`tel:${site.phone.replace(/\s/g, '')}`}>{site.phone}</a>
+                </li>
+              )}
+              {site.social.map((s) =>
+                s.url ? (
                   <li key={s.name}>
-                    {s.url ? (
-                      <a
-                        className="pm-footer__link"
-                        href={s.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {s.name}
-                      </a>
-                    ) : (
-                      // Sin perfil publicado todavía: se muestra el canal sin
-                      // enlazar en lugar de un enlace que no lleva a ningún sitio.
-                      <span
-                        className="pm-footer__link"
-                        style={{ opacity: 0.5, cursor: 'default' }}
-                        title="Perfil aún no publicado"
-                      >
-                        {s.name}
-                      </span>
-                    )}
+                    <a href={s.url} target="_blank" rel="noopener noreferrer">
+                      {s.name}
+                    </a>
                   </li>
-                ))}
-              </ul>
-            </div>
+                ) : null,
+              )}
+            </ul>
           </div>
         </div>
 
-        <div className="pm-footer__bottom">
-          <p>© {year} {site.name} — Todos los derechos reservados.</p>
-          <div className="pm-row" style={{ gap: '1.25rem' }}>
-            <button type="button" className="pm-footer__link" onClick={openCookieSettings}>
-              Configurar cookies
-            </button>
-            <Link className="pm-footer__link" to="/legal/aviso-legal">
-              Aviso legal
-            </Link>
-          </div>
+        <div className="pt-footer__bottom">
+          <p>
+            © {year} {site.name}
+          </p>
+          <ul className="pt-footer__legal">
+            {legalNav.map((l) => (
+              <li key={l.to}>
+                <Link to={l.to}>{l.label}</Link>
+              </li>
+            ))}
+            <li>
+              <button type="button" onClick={openCookieSettings}>
+                Configurar cookies
+              </button>
+            </li>
+          </ul>
         </div>
       </div>
     </footer>

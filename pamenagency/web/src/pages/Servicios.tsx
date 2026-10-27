@@ -1,14 +1,10 @@
-import { PageHead } from '@/components/ui/PageHead'
-import { Section } from '@/components/ui/Section'
-import { ServiceCard } from '@/components/sections/ServiceCard'
-import { ServiceGuide } from '@/components/sections/ServiceGuide'
-import ScrollStack, { ScrollStackItem } from '@/components/ui/ScrollStack'
-import { CtaBand } from '@/components/sections/CtaBand'
-import { MethodologySection } from '@/components/sections/MethodologySection'
+import { Link } from 'react-router-dom'
+import { Bloque, CabeceraPestana, LlamadaFinal, escalon } from '@/components/pestanas/Bloques'
 import { services } from '@/content/services'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
 import { site } from '@/content/site'
 
+/** Pestaña Servicios: los diez, en una lista que se lee de un vistazo. */
 export default function Servicios() {
   useSeo({
     title: 'Servicios',
@@ -37,38 +33,43 @@ export default function Servicios() {
 
   return (
     <>
-      <PageHead
-        eyebrow="Servicios"
-        title="En qué podemos ayudarte"
-        lead="Diez formas de trabajar la Inteligencia Artificial, desde entender qué te conviene hasta dejarlo funcionando y documentado. Casi nadie necesita las diez: se empieza por una."
-        breadcrumb={[{ label: 'Servicios' }]}
+      <CabeceraPestana
+        antetitulo="Servicios"
+        titulo={
+          <>
+            En qué podemos <em>ayudarte</em>.
+          </>
+        }
+        entradilla="Diez formas de trabajar la Inteligencia Artificial, desde entender qué te conviene hasta dejarlo funcionando y documentado. Casi nadie necesita las diez: se empieza por una."
       />
 
-      <ServiceGuide />
-
-      <Section divided={false}>
-        <ScrollStack
-          useWindowScroll
-          itemDistance={60}
-          itemStackDistance={10}
-          baseScale={0.9}
-          itemScale={0.01}
-          blurAmount={4}
-          fadeAmount={0.55}
-          minOpacity={0.12}
-        >
-          {services.map((service) => (
-            <ScrollStackItem key={service.slug}>
-              <ServiceCard service={service} />
-            </ScrollStackItem>
+      <Bloque className="pt-block--pegado">
+        <ul className="pt-servicios">
+          {services.map((s, i) => (
+            <li key={s.slug} className="pm-reveal" style={escalon(i % 4)}>
+              <Link to={`/servicios/${s.slug}`} className="pt-servicio">
+                <h2 className="pt-servicio__name">{s.name}</h2>
+                <p className="pt-servicio__text">{s.short}</p>
+                <p className="pt-servicio__benefit">{s.benefit}</p>
+                <span className="pt-servicio__meta">
+                  <span>{s.priceFrom}</span>
+                  <span className="pt-servicio__more">
+                    Ver el servicio <span aria-hidden="true">→</span>
+                  </span>
+                </span>
+              </Link>
+            </li>
           ))}
-        </ScrollStack>
-      </Section>
+        </ul>
+      </Bloque>
 
-      <MethodologySection compact />
-      <CtaBand
-        title="¿No sabes cuál te toca?"
-        text="Es lo más habitual. Cuéntanos tu situación y te decimos por dónde empezaríamos nosotros."
+      <LlamadaFinal
+        titulo={
+          <>
+            ¿No sabes cuál te <em>toca</em>?
+          </>
+        }
+        texto="Es lo más habitual. Cuéntanos tu situación y te decimos por dónde empezaríamos nosotros."
       />
     </>
   )

@@ -1,88 +1,78 @@
-import { PageHead } from '@/components/ui/PageHead'
-import { Section, SectionHead, Reveal } from '@/components/ui/Section'
-import { MethodologySection } from '@/components/sections/MethodologySection'
-import { CtaBand } from '@/components/sections/CtaBand'
-import { advantageSteps, pipeline } from '@/content/methodology'
+import { Bloque, CabeceraPestana, LlamadaFinal } from '@/components/pestanas/Bloques'
+import { methodology, pipeline } from '@/content/methodology'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
 
+const NUMEROS = ['Cero', 'Una', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete', 'Ocho', 'Nueve', 'Diez']
+
+/**
+ * Pestaña Cómo trabajamos. Aquí la numeración sí significa algo: las fases
+ * van en orden y ninguna empieza hasta que la anterior ha entregado lo suyo.
+ */
 export default function Metodologia() {
+  const total = NUMEROS[methodology.length] ?? String(methodology.length)
+
   useSeo({
-    title: 'Metodología',
+    title: 'Cómo trabajamos',
     description:
-      'Descubrir, analizar, diseñar, implementar y optimizar. Las cinco fases con las que PaMenAgency aborda cualquier proyecto de IA, con sus entregables.',
+      'Descubrir, analizar, diseñar, implementar, optimizar y escalar. Las fases con las que PaMenAgency aborda cualquier proyecto de IA, con lo que se entrega en cada una.',
     path: '/metodologia',
     jsonLd: breadcrumbJsonLd([
       { name: 'Inicio', path: '/' },
-      { name: 'Metodología', path: '/metodologia' },
+      { name: 'Cómo trabajamos', path: '/metodologia' },
     ]),
   })
 
   return (
     <>
-      <PageHead
-        eyebrow="Metodología"
-        title="Cómo trabajamos"
-        lead="Cinco fases, siempre en el mismo orden. Cada una produce algo por escrito, y la siguiente no empieza hasta que eso existe."
-        breadcrumb={[{ label: 'Metodología' }]}
+      <CabeceraPestana
+        antetitulo="Cómo trabajamos"
+        titulo={
+          <>
+            {total} fases, siempre en el mismo <em>orden</em>.
+          </>
+        }
+        entradilla="Cada una produce algo por escrito, y la siguiente no empieza hasta que eso existe. Así sabes en todo momento qué se ha hecho, qué falta y por qué."
       />
 
-      <MethodologySection />
-
-      <Section>
-        <SectionHead
-          eyebrow="El recorrido"
-          title="De problema a resultado"
-          lead="La misma cadena, aplicada a cualquier caso. La IA es una etapa del recorrido, no el recorrido entero."
-        />
-        <Reveal>
-          <div className="pm-pipeline">
-            {pipeline.map((node) => (
-              <div className="pm-pipe" key={node.label}>
-                <p className="pm-pipe__label">{node.label}</p>
-                <p className="pm-pipe__text">{node.text}</p>
+      <Bloque className="pt-block--pegado">
+        <ol className="pt-timeline">
+          {methodology.map((f) => (
+            <li key={f.titulo} className="pt-timeline__item pm-reveal">
+              <span className="pt-timeline__num" aria-hidden="true">
+                {f.num}
+              </span>
+              <div className="pt-timeline__body">
+                <h2 className="pt-timeline__title">
+                  {f.titulo}
+                  <span className="pt-timeline__resumen">{f.resumen}</span>
+                </h2>
+                <p className="pt-text">{f.texto}</p>
+                <p className="pt-timeline__entrega">
+                  <span>Lo que te llevas:</span> {f.entregables.join(' · ')}
+                </p>
               </div>
-            ))}
-          </div>
-        </Reveal>
-      </Section>
-
-      <Section>
-        <SectionHead
-          eyebrow="En detalle"
-          title="Los nueve pasos"
-          lead="Lo que hay dentro de las fases, en el orden en que se recorre."
-        />
-        <div className="pm-grid pm-grid--cards">
-          {advantageSteps.map((step, i) => (
-            <Reveal key={step.titulo} delay={(i % 3) * 80}>
-              <article
-                style={{
-                  display: 'grid',
-                  gap: '0.4rem',
-                  padding: '1.15rem 1.25rem',
-                  borderLeft: '1px solid var(--pm-line-strong)',
-                  height: '100%',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '0.72rem',
-                    letterSpacing: '0.16em',
-                    color: 'var(--pm-gold)',
-                  }}
-                >
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <h3 style={{ fontSize: '1.05rem' }}>{step.titulo}</h3>
-                <p style={{ color: 'var(--pm-muted)', fontSize: '0.92rem' }}>{step.texto}</p>
-              </article>
-            </Reveal>
+            </li>
           ))}
-        </div>
-      </Section>
+        </ol>
+      </Bloque>
 
-      <CtaBand />
+      <Bloque className="pt-block--banda">
+        <div className="pm-reveal">
+          <h2 className="pt-h2">
+            La IA es una etapa del recorrido, <em>no el recorrido</em>.
+          </h2>
+        </div>
+        <ol className="pt-cadena">
+          {pipeline.map((p, i) => (
+            <li key={p.label} className="pm-reveal" style={{ '--reveal-delay': `${i * 90}ms` } as React.CSSProperties}>
+              <span className="pt-cadena__label">{p.label}</span>
+              <span className="pt-cadena__text">{p.text}</span>
+            </li>
+          ))}
+        </ol>
+      </Bloque>
+
+      <LlamadaFinal />
     </>
   )
 }

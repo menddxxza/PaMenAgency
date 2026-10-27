@@ -1,13 +1,10 @@
 import { Link } from 'react-router-dom'
-import { PageHead } from '@/components/ui/PageHead'
-import { Section, Reveal } from '@/components/ui/Section'
-import { Icon } from '@/components/ui/Icon'
-import { CtaBand } from '@/components/sections/CtaBand'
+import { Bloque, CabeceraPestana, LlamadaFinal, escalon } from '@/components/pestanas/Bloques'
 import { useCases } from '@/content/useCases'
 import { site } from '@/content/site'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
 
-/** Índice de sectores. Los datos son los mismos que la home ya usaba en pestañas. */
+/** Pestaña Sectores: la situación típica de cada negocio y dónde aporta la IA. */
 export default function Sectores() {
   useSeo({
     title: 'IA por sector',
@@ -34,49 +31,45 @@ export default function Sectores() {
 
   return (
     <>
-      <PageHead
-        eyebrow="Sectores"
-        title="La IA no se aplica igual en todos los negocios."
-        lead="Lo que ahorra tiempo en una clínica no es lo mismo que lo que lo ahorra en un taller. Estos son los puntos donde solemos encontrar algo aprovechable en cada sector."
-        breadcrumb={[{ label: 'Sectores' }]}
+      <CabeceraPestana
+        antetitulo="Sectores"
+        titulo={
+          <>
+            La IA no se aplica igual en todos los <em>negocios</em>.
+          </>
+        }
+        entradilla="Lo que ahorra tiempo en una clínica no es lo mismo que lo que lo ahorra en un taller. Estos son los puntos donde solemos encontrar algo aprovechable en cada sector."
       />
 
-      <Section divided={false}>
-        <div className="pm-grid pm-grid--cards">
+      <Bloque className="pt-block--pegado">
+        <ul className="pt-sectores">
           {useCases.map((u, i) => (
-            <Reveal key={u.slug} delay={(i % 3) * 80}>
-              <article className="pm-card pm-card--link">
-                <span className="pm-card__icon" aria-hidden="true">
-                  <Icon name={u.icon} size={22} />
+            <li key={u.slug} className="pm-reveal" style={escalon(i % 3, 90)}>
+              <Link to={`/sectores/${u.slug}`} className="pt-sector">
+                <h2 className="pt-sector__name">{u.sector}</h2>
+                <p className="pt-sector__text">{u.situacion}</p>
+                <span className="pt-sector__more">
+                  {u.mejoras.length} puntos de mejora <span aria-hidden="true">→</span>
                 </span>
-                <h2 className="pm-card__title">
-                  <Link to={`/sectores/${u.slug}`} className="pm-card__cover">
-                    {u.sector}
-                  </Link>
-                </h2>
-                <p className="pm-card__text">{u.situacion}</p>
-                <p className="pm-card__benefit">
-                  <Icon name="check" size={15} />
-                  <span>{u.mejoras.length} puntos de mejora habituales</span>
-                </p>
-              </article>
-            </Reveal>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
+        <p className="pt-nota pm-reveal">
+          Son ejemplos de aplicación, no proyectos realizados: no atribuimos ningún trabajo a
+          ninguna empresa concreta. Si tu sector no está aquí, el método es el mismo.
+        </p>
+      </Bloque>
 
-        <Reveal delay={120}>
-          <p style={{ color: 'var(--pm-muted)', marginTop: 'var(--space-lg)', fontSize: '0.92rem', maxWidth: '62ch' }}>
-            Son ejemplos de aplicación, no proyectos realizados: no atribuimos ningún trabajo a
-            ninguna empresa concreta. Si tu sector no está aquí, el método es el mismo.
-          </p>
-        </Reveal>
-      </Section>
-
-      <CtaBand
-        title="¿Y en tu caso concreto?"
-        text="Un sector es una generalización. La auditoría mira tu empresa, no tu categoría."
-        primary={{ label: 'Solicitar auditoría de IA', to: '/auditoria-ia' }}
-        secondary={{ label: 'Diagnóstico gratuito', to: '/diagnostico' }}
+      <LlamadaFinal
+        titulo={
+          <>
+            ¿Y en tu caso <em>concreto</em>?
+          </>
+        }
+        texto="Un sector es una generalización. La auditoría mira tu empresa, no tu categoría."
+        principal={{ label: 'Pedir auditoría de IA', to: '/auditoria-ia' }}
+        secundaria={{ label: 'Cuéntanos tu caso', to: '/contacto' }}
       />
     </>
   )

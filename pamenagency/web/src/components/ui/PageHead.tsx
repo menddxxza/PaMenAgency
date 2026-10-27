@@ -28,7 +28,7 @@ export function PageHead({
           height: '320px',
           right: '-8%',
           top: '-120px',
-          background: 'rgba(212, 175, 55, 0.10)',
+          background: 'rgba(201, 160, 99, 0.10)',
         }}
       />
 

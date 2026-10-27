@@ -9,7 +9,7 @@ import './styles/tokens.css'
 import './styles/base.css'
 import './styles/components.css'
 import './styles/sections.css'
-import './styles/journey.css'
+import './styles/pestanas.css'
 
 // Antes que cualquier otra cosa, para que capture hasta un fallo al montar.
 initSentry()
