@@ -15,6 +15,16 @@ export const site = {
   email: 'soporte.atiende@gmail.com',
   phone: '+34 600 366 395' as string | null,
   whatsapp: null as string | null,
+  /**
+   * Titular del sitio. La LSSI (art. 10) y el RGPD (art. 13) exigen
+   * publicar nombre, NIF y domicilio de quien presta el servicio; el
+   * aviso legal y la política de privacidad los leen de aquí.
+   */
+  titular: {
+    nombre: 'Pablo Angel Piñeiro Mendoza',
+    nif: '32098237N',
+    domicilio: 'Plaza La Piquera, 33, 11404 Jerez de la Frontera (Cádiz), España',
+  },
   social: [
     { name: 'Instagram', url: 'https://www.instagram.com/pamenagency' as string | null },
     { name: 'TikTok', url: 'https://www.tiktok.com/@pamenagency' as string | null },

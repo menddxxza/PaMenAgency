@@ -15,6 +15,9 @@ export default function AvisoLegal() {
         datos:
       </p>
       <ul>
+        <li>Titular: {site.titular.nombre}</li>
+        <li>NIF: {site.titular.nif}</li>
+        <li>Domicilio: {site.titular.domicilio}</li>
         <li>Nombre comercial: {site.name}</li>
         <li>Correo electrónico: {site.email}</li>
         <li>Nombre de dominio: {site.url.replace(/^https?:\/\//, '')}</li>
@@ -79,11 +82,10 @@ export default function AvisoLegal() {
 
       <h2>8. Identificación del titular</h2>
       <p>
-        El titular de este sitio web es una persona física, con domicilio en Jerez de la Frontera,
-        Cádiz, España (11404). Por motivos de privacidad, el NIF no se publica en este aviso
-        legal; queda identificado ante las autoridades competentes que lo requieran, y puede
-        facilitarse de forma no pública si es necesario para un trámite concreto. El canal de
-        contacto disponible es el correo electrónico indicado arriba.
+        El titular de este sitio web es {site.titular.nombre}, persona física con NIF{' '}
+        {site.titular.nif} y domicilio en {site.titular.domicilio}, que opera bajo el nombre
+        comercial {site.name}. El canal de contacto disponible es el correo electrónico indicado
+        arriba.
       </p>
     </LegalPage>
   )

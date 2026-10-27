@@ -10,13 +10,13 @@ export default function Privacidad() {
     >
       <h2>1. Responsable del tratamiento</h2>
       <ul>
-        <li>Responsable: {site.name}</li>
+        <li>
+          Responsable: {site.titular.nombre} (nombre comercial: {site.name})
+        </li>
+        <li>NIF: {site.titular.nif}</li>
+        <li>Domicilio: {site.titular.domicilio}</li>
         <li>Correo de contacto: {site.email}</li>
       </ul>
-      <p className="pm-muted" style={{ fontSize: '0.9rem' }}>
-        Faltan por confirmar el NIF/CIF y el domicilio del responsable, exigidos por el RGPD para
-        una identificación completa. Se añadirán en cuanto estén disponibles.
-      </p>
 
       <h2>2. Qué datos tratamos</h2>
       <p>Este sitio recoge datos personales únicamente en un caso: el formulario de contacto.</p>
