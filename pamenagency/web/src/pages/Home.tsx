@@ -16,7 +16,8 @@ import TextLoop from '@/components/reactbits/TextLoop'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 
 /** La cinta de la portada: los servicios por los que suele empezar quien llega. */
-const CINTA = 'Consultoría ✦ Automatización ✦ Asistentes ✦ Formación'
+const SEP = ' · '
+const CINTA = ['Consultoría', 'Automatización', 'Asistentes', 'Formación'].join(` ${SEP} `)
 
 /** El lema del fundador con la última palabra en oro ("No vendemos *humo*."). */
 function LemaConOro({ lema }: { lema: string }) {
@@ -172,12 +173,12 @@ export default function Home() {
           shape="wave"
           speed={85}
           direction="forward"
-          separator="✦"
+          separator={SEP}
           curviness={28}
           tilt={-3}
-          fontSize={54}
+          fontSize={46}
           fontWeight={600}
-          letterSpacing={3}
+          letterSpacing={2}
           uppercase
           ribbon
           ribbonColor="#6d0a1b"

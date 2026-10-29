@@ -232,9 +232,17 @@ const TextLoop = ({
     if (typeof document !== 'undefined' && document.fonts?.ready) {
       document.fonts.ready.then(measure).catch(() => {});
     }
+    // PaMenAgency: en Safari de iPhone la primera medida puede hacerse con la
+    // letra provisional (más estrecha) y fonts.ready llega antes de que se use
+    // la definitiva; se vuelve a medir un poco después y al cargar cada fuente.
+    const timers = [400, 1200, 2500].map(ms => setTimeout(measure, ms));
+    const onFont = () => measure();
+    document.fonts?.addEventListener?.('loadingdone', onFont);
 
     return () => {
       cancelled = true;
+      timers.forEach(clearTimeout);
+      document.fonts?.removeEventListener?.('loadingdone', onFont);
     };
   }, [d, crossD, unit, fontSize, fontWeight, letterSpacing]);
 
