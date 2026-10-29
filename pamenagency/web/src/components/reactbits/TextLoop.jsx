@@ -1,6 +1,7 @@
 /* React Bits (reactbits.dev) · TextLoop · licencia MIT + Commons Clause.
-   Copia sin cambios de la fuente oficial, salvo la directiva 'use client'
-   (sólo tiene sentido en Next.js; Vite la avisa como innecesaria). */
+   Copia de la fuente oficial con dos cambios: sin la directiva 'use client'
+   (sólo tiene sentido en Next.js) y las repeticiones se redondean hacia
+   abajo para que el texto nunca se comprima (ver "PaMenAgency:"). */
 
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
@@ -211,7 +212,11 @@ const TextLoop = ({
       }
       if (!length) return;
 
-      const repsFor = total => (unitWidth > 0 ? Math.max(1, Math.round(total / unitWidth)) : 1);
+      // PaMenAgency: hacia abajo, no al más cercano. textLength encaja las
+      // repeticiones en la curva; redondeando al más cercano a veces sobra
+      // texto y se comprime hasta pegar las palabras (sobre todo en iPhone,
+      // donde la medida no cuenta igual el espaciado). Así sólo se ensancha.
+      const repsFor = total => (unitWidth > 0 ? Math.max(1, Math.floor(total / (unitWidth * 1.03))) : 1);
       const next = { length, reps: repsFor(length), crossLength, crossReps: repsFor(crossLength) };
       setMetrics(prev =>
         prev.length === next.length &&

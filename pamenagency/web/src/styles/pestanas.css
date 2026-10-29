@@ -1476,6 +1476,11 @@ h1, h2, h3, h4, h5, h6 {
   border-block: 1px solid var(--pm-line-strong);
 }
 
+/* Portada: cuatro servicios destacados, filas algo más altas. */
+.pt-flowing.pt-flowing--inicio {
+  height: calc(4 * clamp(84px, 9vw, 116px));
+}
+
 .pt-flowing .flowing-menu__label-text {
   font-family: var(--font-display);
   font-weight: 500;

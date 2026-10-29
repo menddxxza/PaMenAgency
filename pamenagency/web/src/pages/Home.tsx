@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Antetitulo, Bloque, EnlaceFlecha, LlamadaFinal, escalon } from '@/components/pestanas/Bloques'
 import { TarjetaPM } from '@/components/pestanas/TarjetaPM'
 import { organizationJsonLd, useSeo } from '@/lib/seo'
@@ -13,6 +13,7 @@ import { FACTOR } from '@/content/workday'
 import { WorkdayCompare } from '@/components/sections/WorkdayCompare'
 import { DiagnosticTool } from '@/components/sections/DiagnosticTool'
 import TextLoop from '@/components/reactbits/TextLoop'
+import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 
 /** La cinta de la portada: los servicios por los que suele empezar quien llega. */
 const CINTA = 'Consultoría ✦ Automatización ✦ Asistentes ✦ Formación'
@@ -63,6 +64,15 @@ export default function Home() {
   })
 
   const heroRef = useRevealRoot<HTMLElement>()
+  const navigate = useNavigate()
+
+  // Las filas del menú son <a href> normales: se cambia de pestaña sin
+  // recargar, salvo si se abre en una pestaña nueva (Ctrl/Cmd + clic).
+  const abrirServicio = (item: FlowingMenuItem, _i: number, e: React.MouseEvent<HTMLElement>) => {
+    if (!item.link || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+    e.preventDefault()
+    navigate(item.link)
+  }
   const destacados = DESTACADOS.map((slug) => services.find((s) => s.slug === slug)).filter(
     (s): s is (typeof services)[number] => Boolean(s),
   )
@@ -122,19 +132,35 @@ export default function Home() {
             <EnlaceFlecha to="/servicios">Ver los {services.length} servicios</EnlaceFlecha>
           </div>
 
-          <ul className="pt-rows">
-            {destacados.map((s, i) => (
-              <li key={s.slug} className="pm-reveal" style={escalon(i)}>
-                <Link to={`/servicios/${s.slug}`} className="pt-row">
-                  <span className="pt-row__name">{s.name}</span>
-                  <span className="pt-row__text">{s.short}</span>
-                  <span className="pt-row__arrow" aria-hidden="true">
-                    →
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {/* Los cuatro destacados con franja dorada deslizante (React Bits · FlowingMenu). */}
+          <div className="pt-flowing pt-flowing--inicio pm-reveal" style={escalon(1, 120)}>
+            <FlowingMenu
+              items={destacados.map((s) => ({
+                text: s.name,
+                link: `/servicios/${s.slug}`,
+                marquee: s.name,
+                meta: s.priceFrom,
+              }))}
+              speed={90}
+              stretch={0.6}
+              magnet={0.35}
+              followCursor={0.85}
+              direction="alternate"
+              duration={0.6}
+              bandInset={14}
+              bandRadius={80}
+              carryContent
+              showArrow
+              align="left"
+              textColor="#EFE4CF"
+              bgColor="transparent"
+              marqueeBgColor="#C9A063"
+              marqueeTextColor="#2A0B0C"
+              borderColor="rgba(232, 203, 148, 0.18)"
+              ariaLabel="Servicios destacados"
+              onItemClick={abrirServicio}
+            />
+          </div>
         </div>
       </Bloque>
 
