@@ -1445,3 +1445,68 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.85rem;
   color: var(--pm-muted);
 }
+
+/* ------------------- Componentes de React Bits ------------------- */
+
+/* Cinta de la portada (TextLoop). El SVG mide 1200 × 520: se centra y se
+   recorta a la franja de la cinta. En móvil se dibuja más ancho que la
+   pantalla para que el texto no quede diminuto. */
+.pt-cinta {
+  position: relative;
+  height: clamp(200px, 24vw, 340px);
+  overflow: hidden;
+}
+
+.pt-cinta .text-loop {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 860px);
+  transform: translate(-50%, -50%);
+}
+
+.pt-cinta .text-loop-text {
+  font-family: var(--font-ui);
+}
+
+/* Menú de servicios (FlowingMenu). Cada fila es un contenedor y su letra
+   se calcula sobre la altura de la fila: basta con fijar la altura total. */
+.pt-flowing {
+  height: calc(10 * clamp(64px, 8.5vw, 96px));
+  border-block: 1px solid var(--pm-line-strong);
+}
+
+.pt-flowing .flowing-menu__label-text {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.pt-flowing .flowing-menu__part-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.pt-flowing .flowing-menu__meta {
+  font-family: var(--font-ui);
+  font-weight: 500;
+  color: var(--pm-gold);
+}
+
+/* La franja, con el oro de la web en lugar de un color plano. */
+.pt-flowing .flowing-menu__band,
+.pt-flowing .flowing-menu__float {
+  background: linear-gradient(135deg, var(--pm-gold-bright), var(--pm-gold) 50%, #A57B42) !important;
+}
+
+/* En móvil el precio no cabe junto al nombre: se ve en la página del servicio. */
+@media (max-width: 640px) {
+  .pt-flowing .flowing-menu__meta { display: none; }
+  .pt-flowing .flowing-menu__link { padding-inline: 8px; gap: 8px; }
+}
+
+.pt-flowing .flowing-menu__link:focus-visible {
+  outline: 2px solid var(--pm-gold);
+  outline-offset: -4px;
+}

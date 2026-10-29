@@ -12,6 +12,10 @@ import { founder } from '@/content/founder'
 import { FACTOR } from '@/content/workday'
 import { WorkdayCompare } from '@/components/sections/WorkdayCompare'
 import { DiagnosticTool } from '@/components/sections/DiagnosticTool'
+import TextLoop from '@/components/reactbits/TextLoop'
+
+/** La cinta de la portada: los servicios por los que suele empezar quien llega. */
+const CINTA = 'Consultoría ✦ Automatización ✦ Asistentes ✦ Formación'
 
 /** El lema del fundador con la última palabra en oro ("No vendemos *humo*."). */
 function LemaConOro({ lema }: { lema: string }) {
@@ -133,6 +137,31 @@ export default function Home() {
           </ul>
         </div>
       </Bloque>
+
+      {/* Cinta burdeos en movimiento entre bloques (React Bits · TextLoop).
+          Se puede arrastrar; con movimiento reducido se queda quieta. */}
+      <div className="pt-cinta" aria-label="Servicios de PaMenAgency" role="region">
+        <TextLoop
+          text={CINTA}
+          shape="wave"
+          speed={85}
+          direction="forward"
+          separator="✦"
+          curviness={28}
+          tilt={-3}
+          fontSize={54}
+          fontWeight={600}
+          letterSpacing={3}
+          uppercase
+          ribbon
+          ribbonColor="#6d0a1b"
+          ribbonWidth={86}
+          color="#E8CB94"
+          edgeFade={0}
+          draggable
+          pauseOnHover={false}
+        />
+      </div>
 
       <Bloque id="jornada">
         <div className="pt-split pt-split--centro">

@@ -1,11 +1,34 @@
-import { Link } from 'react-router-dom'
-import { Bloque, CabeceraPestana, LlamadaFinal, escalon } from '@/components/pestanas/Bloques'
+import { useNavigate } from 'react-router-dom'
+import { Bloque, CabeceraPestana, LlamadaFinal } from '@/components/pestanas/Bloques'
+import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 import { services } from '@/content/services'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
 import { site } from '@/content/site'
 
-/** Pestaña Servicios: los diez, en una lista que se lee de un vistazo. */
+/** Los diez servicios como filas del menú: nombre, precio de partida y enlace. */
+const FILAS: FlowingMenuItem[] = services.map((s) => ({
+  text: s.name,
+  link: `/servicios/${s.slug}`,
+  marquee: s.name,
+  meta: s.priceFrom,
+}))
+
+/**
+ * Pestaña Servicios: los diez en un menú con franja deslizante (React Bits ·
+ * FlowingMenu). Al pasar por una fila, una franja dorada se desliza hasta ella
+ * con el nombre en movimiento; cada fila lleva a la página del servicio.
+ */
 export default function Servicios() {
+  const navigate = useNavigate()
+
+  // Los enlaces del componente son <a href> normales: se interceptan para
+  // cambiar de pestaña sin recargar, salvo si se abre en una pestaña nueva.
+  const abrir = (item: FlowingMenuItem, _i: number, e: React.MouseEvent<HTMLElement>) => {
+    if (!item.link || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+    e.preventDefault()
+    navigate(item.link)
+  }
+
   useSeo({
     title: 'Servicios',
     description:
@@ -44,23 +67,33 @@ export default function Servicios() {
       />
 
       <Bloque className="pt-block--pegado">
-        <ul className="pt-servicios">
-          {services.map((s, i) => (
-            <li key={s.slug} className="pm-reveal" style={escalon(i % 4)}>
-              <Link to={`/servicios/${s.slug}`} className="pt-servicio">
-                <h2 className="pt-servicio__name">{s.name}</h2>
-                <p className="pt-servicio__text">{s.short}</p>
-                <p className="pt-servicio__benefit">{s.benefit}</p>
-                <span className="pt-servicio__meta">
-                  <span>{s.priceFrom}</span>
-                  <span className="pt-servicio__more">
-                    Ver el servicio <span aria-hidden="true">→</span>
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="pt-flowing pm-reveal">
+          <FlowingMenu
+            items={FILAS}
+            speed={90}
+            stretch={0.6}
+            magnet={0.35}
+            followCursor={0.85}
+            direction="alternate"
+            duration={0.6}
+            bandInset={17}
+            bandRadius={80}
+            carryContent
+            showArrow
+            align="left"
+            textColor="#EFE4CF"
+            bgColor="transparent"
+            marqueeBgColor="#C9A063"
+            marqueeTextColor="#2A0B0C"
+            borderColor="rgba(232, 203, 148, 0.18)"
+            ariaLabel="Servicios"
+            onItemClick={abrir}
+          />
+        </div>
+        <p className="pt-nota">
+          Entra en cada servicio para ver qué incluye, para quién tiene sentido, cómo se trabaja y
+          cuándo no merece la pena.
+        </p>
       </Bloque>
 
       <LlamadaFinal
