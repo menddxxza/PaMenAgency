@@ -1,21 +1,24 @@
 # PaMenAgency
 
-> Agencia de Inteligencia Artificial y centro de conocimiento. Ayudamos a personas, PYMEs y empresas a entender, implementar y aprovechar la IA con criterio — sin humo, sin vender lo que no necesitan.
+> Consultora de inteligencia artificial, automatización de procesos e integración de sistemas para empresas en España. Sin humo, sin vender lo que no se necesita: la IA no sustituye tu capacidad, la multiplica con criterio.
 
 PaMenAgency (también escrito PAMEN AGENCY) es una agencia española de consultoría, automatización, integración y formación en Inteligencia Artificial. Contacto: soporte.atiende@gmail.com.
 
 ## Servicios
 
-- [Consultoría de IA](https://pamenagency.com/servicios/consultoria-de-ia): mirar el caso concreto de un negocio antes de proponer nada.
-- [Estrategia de IA](https://pamenagency.com/servicios/estrategia-de-ia): decidir qué merece implementarse y en qué orden.
-- [Automatización](https://pamenagency.com/servicios/automatizacion): detectar y automatizar tareas repetitivas.
-- [Integración de IA](https://pamenagency.com/servicios/integracion-de-ia): conectar herramientas que ya usa el negocio.
-- [Asistentes de IA](https://pamenagency.com/servicios/asistentes-de-ia): asistentes a medida para atención o procesos internos.
-- [IA para empresas](https://pamenagency.com/servicios/ia-para-empresas): adopción de IA a nivel de empresa.
-- [IA para PYMEs](https://pamenagency.com/servicios/ia-para-pymes): adopción de IA adaptada a pequeños negocios.
-- [IA para productividad](https://pamenagency.com/servicios/ia-para-productividad): usos de la IA más allá de generar texto — clasificar, extraer, priorizar, resumir.
-- [Creación digital](https://pamenagency.com/servicios/creacion-digital): contenido y presencia digital apoyada en IA.
-- [Formación](https://pamenagency.com/servicios/formacion): formación aplicada, no solo teórica.
+Precios de partida sin IVA; cada proyecto se presupuesta por escrito según su alcance.
+
+- [Automatización de procesos](https://pamenagency.com/servicios/automatizacion-de-procesos), desde 200 €: un proceso manual que pasa a funcionar solo (formularios al CRM, clasificación de correos, sincronización, avisos e informes).
+- [Procesamiento inteligente de documentos](https://pamenagency.com/servicios/procesamiento-de-documentos), desde 300 €: lectura con IA de facturas, albaranes, pedidos o contratos, con validación y revisión humana de los casos dudosos.
+- [Asistente de IA para tu empresa](https://pamenagency.com/servicios/asistente-de-ia-empresarial), desde 400 €: asistente interno que responde con la documentación de la empresa, cita sus fuentes, respeta permisos y reconoce cuándo no lo sabe.
+- [Integración de sistemas](https://pamenagency.com/servicios/integracion-de-sistemas), desde 500 €: conectar CRM, ERP, facturación, pedidos y bases de datos para que la información circule sola.
+- [Consultoría de IA](https://pamenagency.com/servicios/consultoria-de-ia): analizar el caso concreto antes de proponer nada.
+- [Formación](https://pamenagency.com/servicios/formacion): formación aplicada sobre casos reales del equipo.
+- [Mantenimiento mensual](https://pamenagency.com/servicios#mantenimiento): Esencial 49 €/mes, Profesional 99 €/mes y Avanzado 199 €/mes, con alcance por contrato; nunca soporte ilimitado ni 24/7.
+
+## Sectores prioritarios
+
+Industria y fabricación, logística y distribución, servicios profesionales e inmobiliarias y gestión de activos. Las oportunidades descritas son hipótesis que se validan con cada empresa.
 
 ## Páginas clave
 

@@ -1472,7 +1472,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Menú de servicios (FlowingMenu). Cada fila es un contenedor y su letra
    se calcula sobre la altura de la fila: basta con fijar la altura total. */
 .pt-flowing {
-  height: calc(10 * clamp(64px, 8.5vw, 96px));
+  /* --filas la pone la página (número de servicios). */
+  height: calc(var(--filas, 10) * clamp(64px, 8.5vw, 96px));
   border-block: 1px solid var(--pm-line-strong);
 }
 
@@ -1514,4 +1515,86 @@ h1, h2, h3, h4, h5, h6 {
 .pt-flowing .flowing-menu__link:focus-visible {
   outline: 2px solid var(--pm-gold);
   outline-offset: -4px;
+}
+
+/* ----------------------- Mantenimiento mensual ----------------------- */
+
+.pt-planes {
+  display: grid;
+  gap: 1rem;
+  margin-top: var(--space-lg);
+}
+
+@media (min-width: 860px) {
+  .pt-planes { grid-template-columns: repeat(3, 1fr); }
+}
+
+.pt-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.9rem 1.7rem;
+  border: 1px solid var(--pm-line-strong);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, rgba(53, 16, 18, 0.6), rgba(20, 5, 6, 0.35));
+}
+
+/* El plan intermedio, destacado con el oro de la web */
+.pt-plan:nth-child(2) {
+  border-color: var(--pm-gold-line);
+  box-shadow: inset 0 1px 0 rgba(232, 203, 148, 0.18);
+}
+
+.pt-plan__nombre {
+  font-size: 1.7rem;
+}
+
+.pt-plan__precio {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--pm-gold-bright);
+}
+
+.pt-plan__precio span {
+  margin-left: 0.35rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  color: var(--pm-muted);
+}
+
+.pt-plan__resumen {
+  color: var(--pm-text-soft);
+}
+
+.pt-plan__lista {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pm-line);
+}
+
+.pt-plan__lista li {
+  position: relative;
+  padding-left: 1.3rem;
+  font-size: 0.95rem;
+  color: var(--pm-text-soft);
+}
+
+.pt-plan__lista li::before {
+  content: '';
+  position: absolute;
+  left: 0.15rem;
+  top: 0.35em;
+  width: 1px;
+  height: 0.85em;
+  background: var(--pm-gold);
+  transform: rotate(calc(90deg + var(--pm-slash-angle)));
+}
+
+/* El titular del plan es más largo que el anterior: algo más contenido
+   en pantallas grandes para que quepa junto a las tarjetas. */
+@media (min-width: 960px) {
+  .pt-hero__title { font-size: clamp(3rem, 4.9vw, 4.6rem); line-height: 1.02; }
 }

@@ -17,7 +17,7 @@ import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/Flowin
 
 /** La cinta de la portada: los servicios por los que suele empezar quien llega. */
 const SEP = ' · '
-const CINTA = ['Consultoría', 'Automatización', 'Asistentes', 'Formación'].join(` ${SEP} `)
+const CINTA = ['Automatización', 'Documentos', 'Asistentes', 'Integración'].join(` ${SEP} `)
 
 /** El lema del fundador con la última palabra en oro ("No vendemos *humo*."). */
 function LemaConOro({ lema }: { lema: string }) {
@@ -32,7 +32,7 @@ function LemaConOro({ lema }: { lema: string }) {
 }
 
 /** Los cuatro servicios por los que suele empezar quien llega a la web. */
-const DESTACADOS = ['consultoria-de-ia', 'automatizacion', 'asistentes-de-ia', 'formacion']
+const DESTACADOS = ['automatizacion-de-procesos', 'procesamiento-de-documentos', 'asistente-de-ia-empresarial', 'integracion-de-sistemas']
 
 /**
  * Pestaña Inicio: qué hacemos en una pantalla, y una muestra de cada una
@@ -84,19 +84,19 @@ export default function Home() {
         <div className="pm-container pt-hero__grid">
           <div className="pt-hero__text">
             <div className="pm-reveal">
-              <Antetitulo>Agencia de Inteligencia Artificial</Antetitulo>
+              <Antetitulo>Inteligencia artificial y automatización para empresas</Antetitulo>
             </div>
             <h1 className="pt-hero__title pm-reveal" style={escalon(1, 90)}>
-              Convierte la IA en una ventaja <em>real</em>.
+              La tecnología debe trabajar para tu empresa. <em>No al revés.</em>
             </h1>
             <p className="pt-hero__lead pm-reveal" style={escalon(2, 90)}>
-              Ayudamos a personas, autónomos y PYMEs a entender, implantar y aprovechar la
-              Inteligencia Artificial con criterio. Si en tu caso no aporta nada, te lo decimos
-              antes de cobrar.
+              Identificamos oportunidades, diseñamos soluciones e implementamos inteligencia
+              artificial y automatización en procesos empresariales. Si en tu caso no aporta nada,
+              te lo decimos antes de cobrar.
             </p>
             <div className="pt-actions pm-reveal" style={escalon(3, 90)}>
               <Link className="pt-btn pt-btn--gold" to="/contacto">
-                Cuéntanos tu caso <span aria-hidden="true">→</span>
+                Solicitar una valoración de mi empresa <span aria-hidden="true">→</span>
               </Link>
               <Link className="pt-btn pt-btn--line" to="/servicios">
                 Ver servicios
@@ -127,8 +127,8 @@ export default function Home() {
               Se empieza por <em>uno</em>.
             </h2>
             <p className="pt-text">
-              Tenemos diez formas de trabajar la IA, pero casi nadie necesita las diez. Estas son
-              las cuatro por las que suele empezar quien llega aquí.
+              Cuatro servicios para empresas, cada uno con un alcance y un precio de partida claros.
+              Casi siempre se empieza por automatizar un solo proceso.
             </p>
             <EnlaceFlecha to="/servicios">Ver los {services.length} servicios</EnlaceFlecha>
           </div>

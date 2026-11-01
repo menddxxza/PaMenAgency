@@ -28,13 +28,160 @@ export type Service = {
 }
 
 /**
- * Catálogo de servicios.
+ * Catálogo de servicios (noviembre de 2026, plan maestro).
  *
- * Añadir un servicio = añadir un objeto a este array. La rejilla de la home,
- * el listado `/servicios`, la ruta `/servicios/:slug`, el sitemap y los
- * selectores del formulario de contacto se generan a partir de aquí.
+ * Los cuatro primeros son los servicios para empresas del plan; Consultoría
+ * y Formación se mantienen como complemento. Precios de partida decididos
+ * por Pablo, sin IVA: el proyecto mínimo de cada uno es pequeño y está
+ * delimitado, y cada proyecto se presupuesta según su alcance.
+ *
+ * Añadir un servicio = añadir un objeto a este array. La portada, el listado
+ * /servicios, la ruta /servicios/:slug, el sitemap y el formulario de
+ * contacto se generan a partir de aquí. Los servicios retirados redirigen
+ * al más parecido (ver vercel.json).
  */
 export const services: Service[] = [
+  {
+    slug: 'automatizacion-de-procesos',
+    name: 'Automatización de procesos',
+    short:
+      'Hacemos que un proceso que hoy se hace a mano funcione solo: datos que se pasan entre programas, correos que se clasifican, avisos e informes que se generan sin que nadie los toque.',
+    benefit: 'Dejas de dedicar horas cada semana a la misma tarea administrativa.',
+    priceRange:
+      'Desde 200 € (sin IVA) para un proceso sencillo y bien delimitado. Lo habitual es un proceso por proyecto; el precio final depende de cuántos pasos, herramientas y excepciones tenga.',
+    priceFrom: 'Desde 200 €',
+    icon: 'gears',
+    detail: {
+      intro:
+        'Casi todas las empresas tienen un proceso que alguien repite cada día: copiar los datos de un formulario al CRM, reenviar correos al departamento que toca, actualizar una hoja con los pedidos o preparar el mismo informe cada lunes. Elegimos uno de esos procesos, lo diseñamos paso a paso y lo dejamos funcionando de forma automática, con una persona revisando donde sigue haciendo falta.',
+      incluye: [
+        'Análisis del proceso tal y como se hace hoy: pasos, herramientas, volumen y excepciones.',
+        'Diseño del flujo automático, marcando los puntos donde decide o revisa una persona.',
+        'Construcción con herramientas como n8n o Make, conectadas a los programas que ya usáis.',
+        'Avisos cuando algo falla, registro de cada ejecución y reintentos ante errores.',
+        'Pruebas con casos reales antes de ponerlo en marcha y documentación para que sepáis cómo funciona.',
+      ],
+      paraQuien: [
+        'Empresas que pasan información de una herramienta a otra a mano.',
+        'Equipos administrativos que repiten las mismas tareas cada día o cada semana.',
+        'Negocios que reciben solicitudes por formularios o correo y las reparten a mano.',
+      ],
+      proceso: [
+        { titulo: 'Elegir el proceso', texto: 'Escogemos uno concreto, con un inicio y un final claros.' },
+        { titulo: 'Diseñar', texto: 'Dibujamos el flujo y acordamos qué se automatiza y qué no.' },
+        { titulo: 'Construir y probar', texto: 'Lo montamos y lo probamos con casos reales de vuestra empresa.' },
+        { titulo: 'Entregar', texto: 'Lo ponemos en marcha, os enseñamos a usarlo y dejamos la documentación.' },
+      ],
+      cuandoNo:
+        'Si el proceso cambia cada semana o se hace muy pocas veces al año, automatizarlo cuesta más de lo que ahorra. Te lo diremos antes de empezar.',
+    },
+  },
+  {
+    slug: 'procesamiento-de-documentos',
+    name: 'Procesamiento inteligente de documentos',
+    short:
+      'Un sistema que recibe facturas, albaranes, pedidos o contratos, lee sus datos con IA, los comprueba y los guarda, y manda a revisión humana los que tienen dudas.',
+    benefit: 'Los datos de tus documentos llegan a tus sistemas sin teclearlos a mano.',
+    priceRange:
+      'Desde 300 € (sin IVA) para un solo tipo de documento con pocos campos. El precio final depende de cuántos tipos de documento haya, del volumen y de dónde tengan que acabar los datos.',
+    priceFrom: 'Desde 300 €',
+    icon: 'layers',
+    detail: {
+      intro:
+        'Muchas empresas siguen tecleando a mano los datos de facturas, albaranes o pedidos que reciben en PDF o por correo. Montamos un sistema que recibe esos documentos, reconoce de qué tipo son, extrae los datos que importan (por ejemplo, en una factura: número, proveedor, NIF, fecha, base imponible, IVA y total), comprueba que cuadran y los guarda. Lo que no está claro no se da por bueno: pasa a una persona para que lo revise.',
+      incluye: [
+        'Recepción de documentos por correo, carpeta o formulario.',
+        'Lectura de los datos con IA, incluidos documentos escaneados.',
+        'Comprobaciones automáticas: campos obligatorios, importes que cuadran y documentos duplicados.',
+        'Bandeja de revisión para los casos dudosos, con los datos editables antes de guardarlos.',
+        'Panel con lo recibido, lo procesado, lo pendiente y los errores, con historial de cada documento.',
+        'Envío de los datos validados a vuestra base de datos, hoja de cálculo, ERP o programa de facturación.',
+      ],
+      paraQuien: [
+        'Departamentos de administración que reciben muchas facturas de proveedores.',
+        'Empresas de logística o distribución que gestionan albaranes y pedidos.',
+        'Cualquier equipo que pasa a mano datos de documentos a otro programa.',
+      ],
+      proceso: [
+        { titulo: 'Muestras', texto: 'Revisamos ejemplos reales de vuestros documentos y qué datos necesitáis de cada uno.' },
+        { titulo: 'Diseño', texto: 'Definimos las comprobaciones, la revisión humana y adónde van los datos.' },
+        { titulo: 'Construcción', texto: 'Montamos el sistema y lo probamos con documentos reales.' },
+        { titulo: 'Puesta en marcha', texto: 'Arranca con revisión humana de todo y se relaja a medida que demuestra fiabilidad.' },
+      ],
+      cuandoNo:
+        'Si recibís pocos documentos al mes, teclearlos sigue siendo más barato. Y la IA no sustituye la revisión cuando un error tiene consecuencias económicas: por eso siempre hay una persona en los casos dudosos.',
+    },
+  },
+  {
+    slug: 'asistente-de-ia-empresarial',
+    name: 'Asistente de IA para tu empresa',
+    short:
+      'Un asistente interno que responde a tu equipo usando los documentos de la empresa, dice de dónde saca cada respuesta y reconoce cuándo no lo sabe.',
+    benefit: 'Tu equipo encuentra la información en segundos en lugar de preguntar o buscar en carpetas.',
+    priceRange:
+      'Desde 400 € (sin IVA) para un asistente sobre un conjunto pequeño de documentos. El precio final depende del volumen de documentación, de los permisos y de dónde tenga que funcionar.',
+    priceFrom: 'Desde 400 €',
+    icon: 'chat',
+    detail: {
+      intro:
+        'Manuales, procedimientos, catálogos, condiciones o normas internas: la información existe, pero encontrarla cuesta. Montamos un asistente que responde a las preguntas del equipo basándose solo en vuestros documentos. Cada respuesta indica de qué documento sale, cada persona solo ve lo que tiene permiso para ver, y cuando no encuentra información suficiente lo dice en lugar de inventársela. No es un chatbot genérico: se diseña para resolver una necesidad concreta.',
+      incluye: [
+        'Selección y preparación de los documentos que va a usar el asistente.',
+        'Respuestas con la referencia al documento y la parte de donde salen.',
+        'Control de permisos: cada persona solo accede a la información que le corresponde.',
+        'Respuesta de «no tengo información suficiente» cuando no encuentra base para contestar.',
+        'Pruebas con preguntas reales del equipo y ajustes antes de entregarlo.',
+      ],
+      paraQuien: [
+        'Empresas con mucha documentación interna que el equipo consulta a menudo.',
+        'Equipos de atención o comerciales que necesitan respuestas rápidas sobre productos o condiciones.',
+        'Organizaciones que incorporan personas nuevas y quieren que encuentren las respuestas solas.',
+      ],
+      proceso: [
+        { titulo: 'Necesidad', texto: 'Definimos qué preguntas tiene que resolver y quién lo va a usar.' },
+        { titulo: 'Documentación', texto: 'Reunimos y ordenamos los documentos y los permisos de acceso.' },
+        { titulo: 'Construcción', texto: 'Montamos el asistente y lo probamos con preguntas reales.' },
+        { titulo: 'Entrega', texto: 'Lo ponemos en marcha y revisamos las primeras semanas de uso.' },
+      ],
+      cuandoNo:
+        'Si la documentación está desordenada o desactualizada, el asistente responderá con información desordenada o desactualizada. A veces el primer paso es ordenar los documentos, y te lo diremos.',
+    },
+  },
+  {
+    slug: 'integracion-de-sistemas',
+    name: 'Integración de sistemas',
+    short:
+      'Conectamos entre sí los programas que ya usáis (CRM, ERP, facturación, pedidos, bases de datos) para que la información pase de uno a otro sola.',
+    benefit: 'Dejas de copiar los mismos datos en varios programas y de tener versiones distintas en cada uno.',
+    priceRange:
+      'Desde 500 € (sin IVA) para conectar dos herramientas con una integración sencilla. El precio final depende de cuántos sistemas intervienen y de sus conexiones; los ERP especializados se presupuestan aparte.',
+    priceFrom: 'Desde 500 €',
+    icon: 'plug',
+    detail: {
+      intro:
+        'Cuando el CRM no habla con la facturación y la facturación no habla con el almacén, alguien acaba copiando los mismos datos en varios sitios, con errores y versiones distintas. Conectamos esos programas mediante sus conexiones oficiales (APIs) para que un cliente nuevo, un pedido o una factura aparezcan solos donde hacen falta.',
+      incluye: [
+        'Revisión de los programas que usáis y de qué información tiene que pasar de uno a otro.',
+        'Conexión entre sistemas a través de sus APIs o de herramientas como n8n.',
+        'Reglas para evitar duplicados y decidir qué dato manda cuando hay diferencias.',
+        'Registro de cada sincronización y aviso cuando algo falla.',
+        'Panel o informe con la información unificada, si hace falta.',
+      ],
+      paraQuien: [
+        'Empresas que usan varios programas que no se comunican entre sí.',
+        'Equipos que copian clientes, pedidos o facturas de una herramienta a otra.',
+        'Negocios con información repartida en hojas de cálculo y programas distintos.',
+      ],
+      proceso: [
+        { titulo: 'Mapa', texto: 'Dibujamos qué sistemas hay y qué datos tienen que circular entre ellos.' },
+        { titulo: 'Viabilidad', texto: 'Comprobamos qué permite cada programa antes de comprometer nada.' },
+        { titulo: 'Construcción', texto: 'Hacemos las conexiones y las probamos con datos reales.' },
+        { titulo: 'Entrega', texto: 'Las ponemos en marcha con supervisión y dejamos la documentación.' },
+      ],
+      cuandoNo:
+        'Si alguno de los programas no permite conectarse (no tiene API ni forma de exportar), la integración no es viable o sale cara. Lo comprobamos antes de presupuestar. Para integraciones de ERP muy especializadas contamos con colaboradores.',
+    },
+  },
   {
     slug: 'consultoria-de-ia',
     name: 'Consultoría de IA',
@@ -68,241 +215,7 @@ export const services: Service[] = [
       cuandoNo:
         'Si ya tienes claro qué quieres automatizar y solo necesitas que alguien lo construya, sáltate la consultoría y ve directo a automatización.',
     },
-  },
-  {
-    slug: 'automatizacion',
-    name: 'Automatización',
-    short:
-      'Diseñamos procesos que se ejecutan solos para que dejes de hacer lo mismo cada día.',
-    benefit: 'Recuperas horas concretas de la semana, medibles desde el primer mes.',
-    priceRange: 'Entre 150 € y 8.000 €, según la complejidad del proceso.',
-    priceFrom: 'Desde 150 €',
-    icon: 'gears',
-    detail: {
-      intro:
-        'Automatizar no es "poner una IA". Es identificar una secuencia de pasos que haces siempre igual y convertirla en un flujo que se dispara solo. Algunos de esos pasos usan IA; muchos otros no la necesitan, y decirlo forma parte del trabajo.',
-      incluye: [
-        'Mapa del proceso actual, paso a paso, tal y como se hace hoy.',
-        'Diseño del flujo automatizado, con los puntos donde sigue haciendo falta una persona.',
-        'Implementación y conexión de las herramientas implicadas.',
-        'Pruebas con casos reales antes de dejarlo funcionando.',
-        'Documentación para que puedas mantenerlo o modificarlo tú.',
-      ],
-      paraQuien: [
-        'Negocios con tareas administrativas repetitivas: presupuestos, facturas, altas, seguimientos.',
-        'Equipos que copian información de una herramienta a otra a mano.',
-        'Profesionales que responden una y otra vez a las mismas consultas.',
-      ],
-      proceso: [
-        { titulo: 'Observar', texto: 'Vemos cómo se hace hoy la tarea, con sus excepciones incluidas.' },
-        { titulo: 'Simplificar', texto: 'Quitamos pasos innecesarios antes de automatizar nada.' },
-        { titulo: 'Construir', texto: 'Montamos el flujo y lo probamos con datos reales.' },
-        { titulo: 'Vigilar', texto: 'Revisamos el comportamiento durante las primeras semanas.' },
-      ],
-      cuandoNo:
-        'Si un proceso cambia cada semana o se ejecuta tres veces al año, automatizarlo cuesta más de lo que ahorra. Te lo diremos.',
-    },
-  },
-  {
-    slug: 'integracion-de-ia',
-    name: 'Integración de IA',
-    short:
-      'Conectamos tus herramientas y sistemas para que la información deje de moverse a mano.',
-    benefit: 'Tus herramientas dejan de ser islas y empiezan a trabajar juntas.',
-    priceRange: 'Entre 300 € y 6.000 €.',
-    priceFrom: 'Desde 300 €',
-    icon: 'plug',
-    detail: {
-      intro:
-        'Casi nadie tiene un problema de falta de herramientas: tienen un problema de herramientas que no se hablan entre ellas. La integración consiste en unir lo que ya usas —CRM, correo, hojas de cálculo, tienda, mensajería, facturación— con capacidades de IA en los puntos donde aportan.',
-      incluye: [
-        'Inventario de las herramientas que ya utilizas y de los datos que maneja cada una.',
-        'Diseño del flujo de información entre ellas.',
-        'Conexiones mediante APIs, automatizadores o desarrollo a medida según el caso.',
-        'Capa de IA sólo donde aporta: clasificar, resumir, extraer, redactar, priorizar.',
-        'Control de errores: qué pasa cuando algo falla y quién se entera.',
-      ],
-      paraQuien: [
-        'Empresas con varias herramientas y datos duplicados en todas ellas.',
-        'Negocios que reciben información por canales distintos y la consolidan a mano.',
-      ],
-      proceso: [
-        { titulo: 'Inventario', texto: 'Qué herramientas hay, qué guarda cada una y quién las usa.' },
-        { titulo: 'Diseño', texto: 'Definimos el recorrido de cada dato y sus reglas.' },
-        { titulo: 'Conexión', texto: 'Implementamos las integraciones y los controles de error.' },
-        { titulo: 'Verificación', texto: 'Comprobamos consistencia con casos reales antes de abrir el flujo.' },
-      ],
-      cuandoNo:
-        'Si tus herramientas actuales no tienen forma de conectarse y cambiarlas no es viable ahora, es mejor esperar que forzar una integración frágil.',
-    },
-  },
-  {
-    slug: 'asistentes-de-ia',
-    name: 'Asistentes de IA',
-    short:
-      'Diseñamos e implementamos asistentes y sistemas conversacionales con un propósito claro.',
-    benefit: 'Respuestas coherentes a cualquier hora, con límites definidos por ti.',
-    priceRange: 'Entre 200 € y 15.000 €, según el alcance del asistente.',
-    priceFrom: 'Desde 200 €',
-    icon: 'chat',
-    detail: {
-      intro:
-        'Un asistente útil no es el que habla bonito: es el que sabe qué puede responder, qué no y cuándo pasar la conversación a una persona. Trabajamos ese diseño antes que la tecnología, y lo construimos sobre tu información real.',
-      incluye: [
-        'Definición del alcance: qué debe resolver el asistente y qué debe derivar.',
-        'Preparación de la base de conocimiento a partir de tu documentación.',
-        'Diseño del tono y del comportamiento, incluida la respuesta ante lo que no sabe.',
-        'Implementación en el canal que corresponda: web, mensajería, interno.',
-        'Identificación como sistema de IA ante el usuario, como exige la normativa europea.',
-        'Revisión de conversaciones reales para corregir desviaciones.',
-      ],
-      paraQuien: [
-        'Negocios que reciben muchas consultas repetidas antes de vender.',
-        'Equipos internos que pierden tiempo buscando información en documentos dispersos.',
-      ],
-      proceso: [
-        { titulo: 'Alcance', texto: 'Acotamos qué entra y qué queda fuera del asistente.' },
-        { titulo: 'Conocimiento', texto: 'Estructuramos tu información para que pueda consultarla.' },
-        { titulo: 'Comportamiento', texto: 'Definimos tono, límites y ruta de escalado a persona.' },
-        { titulo: 'Ajuste', texto: 'Revisamos conversaciones reales y corregimos lo que se desvía.' },
-      ],
-      cuandoNo:
-        'Si tus consultas son siempre distintas y requieren criterio profesional, un asistente frustrará a tus clientes. Mejor automatizar la parte administrativa.',
-    },
-  },
-  {
-    slug: 'ia-para-empresas',
-    name: 'IA para empresas',
-    short:
-      'Detectamos dónde tiene sentido aplicar IA dentro de una organización con varios equipos.',
-    benefit: 'Un plan por áreas, no una herramienta suelta que nadie adopta.',
-    priceRange: 'Entre 300 € y 9.000 €.',
-    priceFrom: 'Desde 300 €',
-    icon: 'building',
-    detail: {
-      intro:
-        'En una empresa con varios departamentos el problema no es técnico, es de coordinación: cada área prueba cosas por su cuenta, nadie mide y la iniciativa se apaga. Trabajamos por áreas, con responsables identificados y con criterios de éxito acordados antes de empezar.',
-      incluye: [
-        'Diagnóstico por áreas: operaciones, atención, administración, comercial, marketing.',
-        'Identificación de casos de uso con impacto medible.',
-        'Criterios de decisión sobre datos: qué se puede enviar a un tercero y qué no.',
-        'Plan por fases, con una prueba controlada antes de extender nada.',
-        'Formación de los equipos que van a convivir con el sistema.',
-      ],
-      paraQuien: [
-        'Organizaciones con varios departamentos y procesos ya definidos.',
-        'Empresas que necesitan orden antes que herramientas.',
-      ],
-      proceso: [
-        { titulo: 'Diagnóstico', texto: 'Entrevistas por área y revisión de procesos existentes.' },
-        { titulo: 'Selección', texto: 'Elegimos uno o dos casos con impacto claro para empezar.' },
-        { titulo: 'Prueba', texto: 'Implantación acotada, con métricas definidas de antemano.' },
-        { titulo: 'Extensión', texto: 'Sólo si la prueba funciona, se lleva a más áreas.' },
-      ],
-      cuandoNo:
-        'Si los procesos no están definidos, la IA amplificará el desorden. Primero orden, después automatización.',
-    },
-  },
-  {
-    slug: 'ia-para-pymes',
-    name: 'IA para PYMEs',
-    short:
-      'Soluciones proporcionadas para negocios pequeños, sin infraestructura ni presupuestos grandes.',
-    benefit: 'Mejoras que caben en tu día a día y en tu presupuesto.',
-    priceRange: 'Entre 500 € y 12.000 €, con mantenimiento opcional desde 50 € a 250 € al mes.',
-    priceFrom: 'Desde 500 €',
-    icon: 'store',
-    detail: {
-      intro:
-        'Un negocio de tres personas no necesita lo mismo que una empresa de trescientas, y aplicarle la misma receta es la forma más rápida de tirar el dinero. Aquí trabajamos con lo que ya tienes y buscamos la mejora más pequeña que produzca un cambio notable.',
-      incluye: [
-        'Revisión honesta de si necesitas IA o simplemente ordenar algo que ya haces.',
-        'Una o dos automatizaciones concretas, no un proyecto interminable.',
-        'Selección de herramientas con coste contenido y sin dependencias innecesarias.',
-        'Explicación en lenguaje claro de cómo funciona y cómo mantenerlo.',
-      ],
-      paraQuien: [
-        'Comercios, talleres, despachos, clínicas, hostelería y negocios locales.',
-        'Autónomos que lo llevan todo y no tienen tiempo para investigar.',
-      ],
-      proceso: [
-        { titulo: 'Escuchar', texto: 'Nos cuentas tu semana. Ahí está el problema, no en la tecnología.' },
-        { titulo: 'Elegir una cosa', texto: 'Empezamos por una sola mejora, la que más tiempo te devuelva.' },
-        { titulo: 'Montar', texto: 'Lo dejamos funcionando y te enseñamos a usarlo.' },
-        { titulo: 'Revisar', texto: 'Comprobamos si de verdad te ha cambiado la semana.' },
-      ],
-      cuandoNo:
-        'Si tu problema es que no llegan clientes, la automatización no lo resuelve. Te lo diremos antes de cobrarte nada.',
-    },
-  },
-  {
-    slug: 'ia-para-productividad',
-    name: 'IA para productividad',
-    short:
-      'Te enseñamos a usar la IA para trabajar, estudiar, crear y organizarte mejor.',
-    benefit: 'Dejas de pedirle cosas a una IA y empiezas a trabajar con ella.',
-    priceRange:
-      'Desde 30 €/mes por usuario con software comercial, o pago único de 2.000 € a 6.000 € por un sistema a medida.',
-    priceFrom: 'Desde 30 €/mes',
-    icon: 'gauge',
-    detail: {
-      intro:
-        'La diferencia entre alguien que le saca partido a la IA y alguien que no, casi nunca es la herramienta: es el método. Cómo pedir, cómo dar contexto, cómo revisar, cuándo desconfiar y qué tareas merecen delegarse.',
-      incluye: [
-        'Revisión de cómo trabajas ahora y de dónde se te va el tiempo.',
-        'Método de trabajo con IA aplicado a tus tareas reales, no a ejemplos genéricos.',
-        'Plantillas e instrucciones reutilizables para lo que repites cada semana.',
-        'Criterios de revisión: cómo detectar cuándo la respuesta no es fiable.',
-      ],
-      paraQuien: [
-        'Profesionales que escriben, analizan, preparan documentos o gestionan información.',
-        'Estudiantes y personas en formación que quieren aprender bien desde el principio.',
-        'Equipos pequeños que quieren un método común.',
-      ],
-      proceso: [
-        { titulo: 'Diagnóstico', texto: 'Qué haces cada semana y cuánto tiempo te lleva.' },
-        { titulo: 'Método', texto: 'Trabajamos la forma de pedir, dar contexto y revisar.' },
-        { titulo: 'Plantillas', texto: 'Dejamos preparado lo que vas a repetir.' },
-        { titulo: 'Práctica', texto: 'Se aplica sobre tus tareas reales hasta que sale solo.' },
-      ],
-      cuandoNo:
-        'Si tu trabajo es casi todo presencial o manual, el margen es pequeño. Preferimos decirlo antes.',
-    },
-  },
-  {
-    slug: 'creacion-digital',
-    name: 'Creación digital',
-    short:
-      'Usamos IA para acelerar la creación de contenido, webs, documentos y materiales digitales.',
-    benefit: 'Produces más sin que se note que has producido más rápido.',
-    priceRange:
-      'Desde 20 € a 100 € al mes en licencias de software, o entre 2.500 € y 8.000 € por proyecto de flujos a medida.',
-    priceFrom: 'Desde 20 €/mes',
-    icon: 'sparkles',
-    detail: {
-      intro:
-        'La IA acelera la producción, pero no sustituye el criterio. Trabajamos el proceso completo: qué se produce, con qué estructura, con qué revisión y con qué identidad, para que el resultado no tenga ese aspecto genérico que todo el mundo reconoce a la primera.',
-      incluye: [
-        'Definición de la línea editorial o visual antes de producir nada.',
-        'Flujos de producción de contenido, documentos y materiales digitales.',
-        'Construcción de webs y páginas apoyada en IA donde acelera de verdad.',
-        'Sistema de revisión para que nada salga sin criterio humano detrás.',
-      ],
-      paraQuien: [
-        'Negocios que necesitan producir contenido de forma sostenida.',
-        'Creadores y equipos de marketing con más ideas que horas.',
-      ],
-      proceso: [
-        { titulo: 'Identidad', texto: 'Definimos tono, estructura y límites de lo que se produce.' },
-        { titulo: 'Flujo', texto: 'Montamos el circuito de producción de principio a fin.' },
-        { titulo: 'Revisión', texto: 'Establecemos el filtro humano antes de publicar.' },
-        { titulo: 'Ritmo', texto: 'Ajustamos volumen a lo que se puede sostener.' },
-      ],
-      cuandoNo:
-        'Si buscas volumen sin criterio, no somos el sitio. Ese camino desgasta la marca más de lo que aporta.',
-    },
-  },
-  {
+  },  {
     slug: 'formacion',
     name: 'Formación',
     short:
@@ -334,41 +247,7 @@ export const services: Service[] = [
       cuandoNo:
         'Si nadie del equipo va a tener tiempo para practicar entre sesiones, la formación no cuaja. Mejor esperar a un momento con margen.',
     },
-  },
-  {
-    slug: 'estrategia-de-ia',
-    name: 'Estrategia de IA',
-    short:
-      'Analizamos dónde merece la pena implementar IA y, sobre todo, dónde no.',
-    benefit: 'Decisiones argumentadas, con el coste de no hacer nada incluido.',
-    priceRange: 'Entre 700 € y 25.000 €, según el tamaño de la empresa.',
-    priceFrom: 'Desde 700 €',
-    icon: 'map',
-    detail: {
-      intro:
-        'La parte más valiosa de una estrategia suele ser la lista de cosas que se descartan. Aquí se decide en qué orden se hacen las cosas, qué se descarta, con qué presupuesto y con qué criterios se sabrá si ha funcionado.',
-      incluye: [
-        'Análisis de tu posición actual y del margen real de mejora.',
-        'Escenarios: qué pasa si se hace, qué pasa si no se hace nada.',
-        'Priorización por impacto, coste, riesgo y dependencia de terceros.',
-        'Criterios de medición definidos antes de implementar.',
-        'Revisión de riesgos: privacidad, dependencia y cumplimiento normativo.',
-      ],
-      paraQuien: [
-        'Empresas que van a destinar presupuesto y necesitan justificarlo.',
-        'Negocios que han acumulado herramientas sin un plan detrás.',
-      ],
-      proceso: [
-        { titulo: 'Situación', texto: 'Dónde estás hoy, con datos y no con impresiones.' },
-        { titulo: 'Escenarios', texto: 'Qué caminos existen y qué cuesta cada uno.' },
-        { titulo: 'Decisión', texto: 'Qué se hace, en qué orden y qué se descarta.' },
-        { titulo: 'Medición', texto: 'Cómo sabremos dentro de tres meses si iba bien.' },
-      ],
-      cuandoNo:
-        'Si el proyecto es una sola automatización concreta, no necesitas estrategia: necesitas ejecutarla.',
-    },
-  },
-]
+  },]
 
 export const getService = (slug: string | undefined) =>
   services.find((s) => s.slug === slug)

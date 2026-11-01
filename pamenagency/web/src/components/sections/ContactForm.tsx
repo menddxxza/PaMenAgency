@@ -63,12 +63,13 @@ function leadScore(values: Fields): number {
 }
 
 const sectores = [
+  'Industria o fabricación',
+  'Logística o distribución',
+  'Servicios profesionales',
+  'Inmobiliaria o gestión de activos',
   'Comercio o tienda',
   'Hostelería',
   'Salud o consulta',
-  'Servicios profesionales',
-  'Industria o taller',
-  'Inmobiliaria',
   'Educación o formación',
   'Agencia o estudio',
   'Creación de contenido',

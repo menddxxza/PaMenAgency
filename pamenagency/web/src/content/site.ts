@@ -49,7 +49,7 @@ export type Tab = {
  */
 export const tabs: Tab[] = [
   { label: 'Inicio', to: '/', hint: 'Qué hacemos, en un vistazo' },
-  { label: 'Servicios', to: '/servicios', hint: 'Diez formas de trabajar la IA' },
+  { label: 'Servicios', to: '/servicios', hint: 'Qué hacemos y desde cuánto' },
   { label: 'Cómo trabajamos', to: '/metodologia', hint: 'Seis fases, siempre en orden' },
   { label: 'Sectores', to: '/sectores', hint: 'Dónde aporta en cada negocio' },
   { label: 'Nosotros', to: '/nosotros', hint: 'Quién hay detrás' },

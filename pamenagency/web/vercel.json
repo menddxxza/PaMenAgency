@@ -1,3 +1,50 @@
 {
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/servicios/automatizacion",
+      "destination": "/servicios/automatizacion-de-procesos",
+      "permanent": true
+    },
+    {
+      "source": "/servicios/integracion-de-ia",
+      "destination": "/servicios/integracion-de-sistemas",
+      "permanent": true
+    },
+    {
+      "source": "/servicios/asistentes-de-ia",
+      "destination": "/servicios/asistente-de-ia-empresarial",
+      "permanent": true
+    },
+    {
+      "source": "/servicios/ia-para-empresas",
+      "destination": "/servicios/consultoria-de-ia",
+      "permanent": true
+    },
+    {
+      "source": "/servicios/ia-para-pymes",
+      "destination": "/servicios/automatizacion-de-procesos",
+      "permanent": true
+    },
+    {
+      "source": "/servicios/ia-para-productividad",
+      "destination": "/servicios/formacion",
+      "permanent": true
+    },
+    {
+      "source": "/servicios/estrategia-de-ia",
+      "destination": "/servicios/consultoria-de-ia",
+      "permanent": true
+    },
+    {
+      "source": "/servicios/creacion-digital",
+      "destination": "/servicios",
+      "permanent": true
+    }
+  ]
 }

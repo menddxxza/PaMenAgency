@@ -61,7 +61,7 @@ export const solutions: Solution[] = [
     ],
     cuandoNo:
       'Si todavía no entran contactos suficientes, esto no es lo tuyo: automatizar un embudo vacío no lo llena. Primero hay que generar demanda, y eso es otro trabajo.',
-    servicios: ['automatizacion', 'integracion-de-ia', 'consultoria-de-ia'],
+    servicios: ['automatizacion-de-procesos', 'integracion-de-sistemas', 'consultoria-de-ia'],
   },
   {
     slug: 'operaciones',
@@ -88,7 +88,7 @@ export const solutions: Solution[] = [
     ],
     cuandoNo:
       'Si el proceso cambia cada vez y depende del criterio de una persona, automatizarlo sale caro y frágil. Ahí es mejor apoyar a quien decide, no sustituir la decisión.',
-    servicios: ['automatizacion', 'integracion-de-ia', 'ia-para-productividad'],
+    servicios: ['automatizacion-de-procesos', 'integracion-de-sistemas', 'formacion'],
   },
   {
     slug: 'atencion-al-cliente',
@@ -115,7 +115,7 @@ export const solutions: Solution[] = [
     ],
     cuandoNo:
       'Si tu volumen de consultas es bajo o cada una es distinta y delicada, un sistema así aporta poco y añade un intermediario donde no hacía falta.',
-    servicios: ['asistentes-de-ia', 'integracion-de-ia', 'consultoria-de-ia'],
+    servicios: ['asistente-de-ia-empresarial', 'integracion-de-sistemas', 'consultoria-de-ia'],
   },
   {
     slug: 'agentes',
@@ -142,7 +142,7 @@ export const solutions: Solution[] = [
     ],
     cuandoNo:
       'Si el proceso no está claro ni escrito, un agente no lo va a ordenar: lo va a ejecutar mal más rápido. Primero se define el proceso, después se automatiza.',
-    servicios: ['integracion-de-ia', 'automatizacion', 'estrategia-de-ia'],
+    servicios: ['integracion-de-sistemas', 'automatizacion-de-procesos', 'consultoria-de-ia'],
   },
   {
     slug: 'conocimiento-interno',
@@ -168,7 +168,7 @@ export const solutions: Solution[] = [
     ],
     cuandoNo:
       'Si la documentación no existe o está desactualizada, esto no la arregla: un sistema que responde con información obsoleta es peor que no tener sistema. Primero hay que escribirla.',
-    servicios: ['asistentes-de-ia', 'ia-para-empresas', 'formacion'],
+    servicios: ['asistente-de-ia-empresarial', 'consultoria-de-ia', 'formacion'],
   },
   {
     slug: 'datos',
@@ -194,7 +194,7 @@ export const solutions: Solution[] = [
     ],
     cuandoNo:
       'Si trabajas con una sola herramienta y pocos datos, esta fase es un gasto innecesario: se ve a simple vista lo que hay y dónde está.',
-    servicios: ['consultoria-de-ia', 'integracion-de-ia', 'estrategia-de-ia'],
+    servicios: ['consultoria-de-ia', 'integracion-de-sistemas'],
   },
   {
     slug: 'gobernanza',
@@ -221,7 +221,7 @@ export const solutions: Solution[] = [
     ],
     cuandoNo:
       'Si sois dos personas y una sola herramienta, esto es burocracia prematura. La gobernanza empieza a compensar cuando hay varios equipos usando cosas distintas.',
-    servicios: ['consultoria-de-ia', 'ia-para-empresas', 'formacion'],
+    servicios: ['consultoria-de-ia', 'formacion'],
   },
 ]
 

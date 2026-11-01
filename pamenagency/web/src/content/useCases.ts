@@ -15,11 +15,74 @@ export type UseCase = {
 /**
  * Casos de uso por sector.
  *
+ * Los cuatro primeros son los sectores prioritarios del plan maestro
+ * (noviembre de 2026): son hipótesis de oportunidad que cada empresa valida;
+ * después siguen los sectores que la web ya tenía.
+ *
  * Importante: son ejemplos de aplicación, no proyectos realizados. No se
  * atribuye ningún trabajo a ninguna empresa concreta.
  */
 export const useCases: UseCase[] = [
   {
+    slug: 'industria',
+    sector: 'Industria y fabricación',
+    icon: 'gauge',
+    situacion:
+      'Pedidos, incidencias y documentación de proveedores que pasan por varias manos, datos de producción repartidos entre programas e informes que alguien monta a mano cada semana.',
+    mejoras: [
+      { titulo: 'Gestión documental', texto: 'Leer y registrar automáticamente pedidos, albaranes y documentación de proveedores, con revisión humana en los casos dudosos.' },
+      { titulo: 'Incidencias', texto: 'Recoger cada incidencia, clasificarla, asignarla al responsable y hacer su seguimiento hasta cerrarla.' },
+      { titulo: 'Integración ERP y CRM', texto: 'Que pedidos, clientes y existencias pasen solos entre los programas, sin copiarlos.' },
+      { titulo: 'Informes', texto: 'Informes de producción y de proveedores que se generan solos con los datos de los sistemas.' },
+    ],
+    limite:
+      'Lo que toca maquinaria, seguridad o calidad certificada no se automatiza a la ligera: ahí decide siempre una persona con criterio técnico.',
+  },
+  {
+    slug: 'logistica',
+    sector: 'Logística y distribución',
+    icon: 'map',
+    situacion:
+      'Albaranes y pedidos en papel o PDF, incidencias de entrega que se comunican por correo y teléfono, e información que no cuadra entre el almacén, la oficina y el cliente.',
+    mejoras: [
+      { titulo: 'Albaranes y pedidos', texto: 'Extraer los datos de albaranes y pedidos y llevarlos al sistema sin teclearlos.' },
+      { titulo: 'Incidencias', texto: 'Registrar, priorizar y avisar de cada incidencia de entrega al momento.' },
+      { titulo: 'Comunicaciones', texto: 'Avisos automáticos a clientes y transportistas en los momentos clave del envío.' },
+      { titulo: 'Informes operativos', texto: 'Un panel con pedidos, entregas e incidencias, actualizado sin intervención.' },
+    ],
+    limite:
+      'La planificación de rutas y las decisiones ante imprevistos siguen siendo trabajo de personas: la automatización les da la información a tiempo.',
+  },
+  {
+    slug: 'servicios-profesionales',
+    sector: 'Servicios profesionales',
+    icon: 'people',
+    situacion:
+      'Despachos y consultoras que reciben documentación y consultas por muchas vías, preparan informes parecidos una y otra vez y buscan información en carpetas compartidas.',
+    mejoras: [
+      { titulo: 'Gestión de clientes', texto: 'Altas, seguimiento y recordatorios que no dependen de la memoria de nadie.' },
+      { titulo: 'Clasificación de correos', texto: 'Que cada correo llegue clasificado a la persona o la carpeta que toca.' },
+      { titulo: 'Documentación e informes', texto: 'Borradores de informes a partir de plantillas y datos, revisados siempre por el profesional.' },
+      { titulo: 'Asistente interno', texto: 'Un asistente que responde con la documentación del despacho y cita de dónde saca cada respuesta.' },
+    ],
+    limite:
+      'El criterio profesional no se automatiza: la IA prepara y ordena, pero quien firma y asesora es una persona.',
+  },
+  {
+    slug: 'inmobiliarias',
+    sector: 'Inmobiliarias y gestión de activos',
+    icon: 'building',
+    situacion:
+      'Leads que llegan a cualquier hora y se enfrían, descripciones de inmuebles repetitivas y visitas mal filtradas.',
+    mejoras: [
+      { titulo: 'Respuesta inmediata', texto: 'Atender y cualificar el lead en el momento en que entra, no al día siguiente.' },
+      { titulo: 'Descripciones', texto: 'Textos de inmueble a partir de características, con tono coherente en toda la cartera.' },
+      { titulo: 'Filtrado', texto: 'Reunir presupuesto, zona y requisitos antes de organizar una visita.' },
+      { titulo: 'Documentación y seguimiento', texto: 'Ordenar la documentación de cada operación y hacer el seguimiento de clientes y solicitudes sin hojas sueltas.' },
+    ],
+    limite:
+      'La negociación y la visita son el trabajo real. Lo que se automatiza es lo que ocurre antes.',
+  },  {
     slug: 'restaurantes',
     sector: 'Restaurantes y hostelería',
     icon: 'store',
@@ -91,20 +154,7 @@ export const useCases: UseCase[] = [
     limite:
       'La parte creativa y la relación con el cliente son el producto. Automatizarlas es competir en lo mismo que todos.',
   },
-  {
-    slug: 'inmobiliarias',
-    sector: 'Inmobiliarias',
-    icon: 'building',
-    situacion:
-      'Leads que llegan a cualquier hora y se enfrían, descripciones de inmuebles repetitivas y visitas mal filtradas.',
-    mejoras: [
-      { titulo: 'Respuesta inmediata', texto: 'Atender y cualificar el lead en el momento en que entra, no al día siguiente.' },
-      { titulo: 'Descripciones', texto: 'Textos de inmueble a partir de características, con tono coherente en toda la cartera.' },
-      { titulo: 'Filtrado', texto: 'Reunir presupuesto, zona y requisitos antes de organizar una visita.' },
-    ],
-    limite:
-      'La negociación y la visita son el trabajo real. Lo que se automatiza es lo que ocurre antes.',
-  },
+
   {
     slug: 'servicios',
     sector: 'Empresas de servicios',

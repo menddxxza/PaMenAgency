@@ -63,7 +63,7 @@ export const paths: Path[] = [
       'Automatiza los que siguen reglas fijas.',
       'Deja en manos de una persona los que exigen criterio.',
     ],
-    cta: { label: 'Ver cómo automatizamos', to: '/servicios/automatizacion' },
+    cta: { label: 'Ver cómo automatizamos', to: '/servicios/automatizacion-de-procesos' },
   },
   {
     slug: 'ganar-dinero',

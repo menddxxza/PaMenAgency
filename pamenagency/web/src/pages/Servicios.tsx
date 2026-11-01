@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { Bloque, CabeceraPestana, LlamadaFinal } from '@/components/pestanas/Bloques'
+import { Antetitulo, Bloque, CabeceraPestana, LlamadaFinal, escalon } from '@/components/pestanas/Bloques'
+import { mantenimientoNoIncluye, planesMantenimiento } from '@/content/mantenimiento'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 import { services } from '@/content/services'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
@@ -32,7 +33,7 @@ export default function Servicios() {
   useSeo({
     title: 'Servicios',
     description:
-      'Consultoría de IA, automatización, integración, asistentes, formación y estrategia. Servicios de inteligencia artificial para personas, PYMEs y empresas.',
+      'Automatización de procesos, procesamiento inteligente de documentos, asistentes de IA e integración de sistemas para empresas, con precio de partida sin IVA y mantenimiento mensual.',
     path: '/servicios',
     jsonLd: [
       breadcrumbJsonLd([
@@ -63,11 +64,11 @@ export default function Servicios() {
             En qué podemos <em>ayudarte</em>.
           </>
         }
-        entradilla="Diez formas de trabajar la Inteligencia Artificial, desde entender qué te conviene hasta dejarlo funcionando y documentado. Casi nadie necesita las diez: se empieza por una."
+        entradilla="Cuatro servicios para empresas y dos complementarios. Cada uno tiene un alcance definido y un precio de partida sin IVA; el presupuesto final depende de tu caso y te lo damos por escrito antes de empezar."
       />
 
       <Bloque className="pt-block--pegado">
-        <div className="pt-flowing pm-reveal">
+        <div className="pt-flowing pm-reveal" style={{ '--filas': FILAS.length } as React.CSSProperties}>
           <FlowingMenu
             items={FILAS}
             speed={90}
@@ -92,7 +93,42 @@ export default function Servicios() {
         </div>
         <p className="pt-nota">
           Entra en cada servicio para ver qué incluye, para quién tiene sentido, cómo se trabaja y
-          cuándo no merece la pena.
+          cuándo no merece la pena. Precios sin IVA.
+        </p>
+      </Bloque>
+
+      <Bloque id="mantenimiento" className="pt-block--banda">
+        <div className="pm-reveal">
+          <Antetitulo>Después de la entrega</Antetitulo>
+          <h2 className="pt-h2">
+            Mantenimiento <em>mensual</em>.
+          </h2>
+          <p className="pt-text">
+            Una automatización necesita que alguien la vigile: las herramientas cambian, las APIs se
+            actualizan y los datos no siempre llegan como se esperaba. Tres planes, con un alcance
+            fijado por contrato. Nunca soporte ilimitado ni disponibilidad 24 horas.
+          </p>
+        </div>
+        <ul className="pt-planes">
+          {planesMantenimiento.map((plan, i) => (
+            <li key={plan.nombre} className="pt-plan pm-reveal" style={escalon(i, 90)}>
+              <h3 className="pt-plan__nombre">{plan.nombre}</h3>
+              <p className="pt-plan__precio">
+                {plan.precio}
+                <span> al mes</span>
+              </p>
+              <p className="pt-plan__resumen">{plan.resumen}</p>
+              <ul className="pt-plan__lista">
+                {plan.incluye.map((x) => (
+                  <li key={x}>{x}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+        <p className="pt-nota pm-reveal">
+          Precios sin IVA. Ningún plan incluye {mantenimientoNoIncluye.length} cosas, que se presupuestan
+          aparte cuando hacen falta: {mantenimientoNoIncluye.join(' ')}
         </p>
       </Bloque>
 
