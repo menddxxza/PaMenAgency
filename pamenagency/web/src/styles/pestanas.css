@@ -1488,6 +1488,34 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.01em;
 }
 
+/* Los nombres de servicio son largos ("Procesamiento inteligente de
+   documentos"): el componente solo escala la letra con la altura de la fila y
+   los cortaba. Aquí pueden ir a dos líneas, la letra también se limita por el
+   ancho y el precio y la flecha conservan su hueco. */
+.pt-flowing .flowing-menu[data-align='left'] .flowing-menu__link {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+/* Sin numeración: la columna del índice no ocupa sitio. */
+.pt-flowing .flowing-menu__index {
+  min-width: 0;
+}
+
+.pt-flowing .flowing-menu__meta {
+  white-space: nowrap;
+}
+
+.pt-flowing .flowing-menu__label {
+  min-width: 0;
+  white-space: normal;
+  font-size: clamp(17px, min(30cqh, 5.6cqw), 52px);
+  line-height: 1.05;
+}
+
+.pt-flowing .flowing-menu__label-text {
+  text-wrap: balance;
+}
+
 .pt-flowing .flowing-menu__part-text {
   font-family: var(--font-display);
   font-style: italic;
