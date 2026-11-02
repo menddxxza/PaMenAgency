@@ -9,6 +9,7 @@ import { services } from '@/content/services'
 import { methodology } from '@/content/methodology'
 import { useCases } from '@/content/useCases'
 import { founder } from '@/content/founder'
+import { perfilGoogle, resenas } from '@/content/resenas'
 import { FACTOR } from '@/content/workday'
 import { WorkdayCompare } from '@/components/sections/WorkdayCompare'
 import { DiagnosticTool } from '@/components/sections/DiagnosticTool'
@@ -302,6 +303,39 @@ export default function Home() {
             </p>
             <EnlaceFlecha to="/nosotros">Conocer la agencia</EnlaceFlecha>
           </div>
+        </div>
+      </Bloque>
+
+      <Bloque id="resenas" className="pt-block--banda">
+        <div className="pt-resenas__cabecera pm-reveal">
+          <div>
+            <Antetitulo>Reseñas en Google</Antetitulo>
+            <h2 className="pt-h2">
+              Lo que dicen quienes ya han <em>trabajado</em> con nosotros.
+            </h2>
+          </div>
+          <p className="pt-resenas__nota" aria-label={`${perfilGoogle.media} de 5 estrellas en ${perfilGoogle.total} reseñas de Google`}>
+            <span className="pt-resenas__media">{perfilGoogle.media}</span>
+            <span className="pt-estrellas" aria-hidden="true">★★★★★</span>
+            <span>{perfilGoogle.total} reseñas en Google</span>
+          </p>
+        </div>
+        <ul className="pt-resenas">
+          {resenas.map((r, i) => (
+            <li key={r.autor} className="pt-resena pm-reveal" style={escalon(i, 90)}>
+              <span className="pt-estrellas" role="img" aria-label={`${r.estrellas} de 5 estrellas`}>
+                {'★'.repeat(r.estrellas)}
+              </span>
+              <blockquote>«{r.texto}»</blockquote>
+              <p className="pt-resena__autor">{r.autor}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="pm-reveal">
+          <a className="pt-arrowlink" href={perfilGoogle.url} target="_blank" rel="noopener noreferrer">
+            <span>Ver todas las reseñas en Google</span>
+            <span className="pt-arrowlink__arrow" aria-hidden="true">→</span>
+          </a>
         </div>
       </Bloque>
 
