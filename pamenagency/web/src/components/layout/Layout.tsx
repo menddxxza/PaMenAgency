@@ -4,6 +4,7 @@ import { Header } from './Header'
 import { Footer } from './Footer'
 import { CookieBanner } from '@/components/cookies/CookieBanner'
 import { AssistantWidget } from '@/components/chat/AssistantWidget'
+import { CursorDorado } from '@/components/ui/CursorDorado'
 import { capturarUtm } from '@/lib/utm'
 
 /** Cada pestaña empieza arriba, salvo que se navegue a un ancla. */
@@ -37,9 +38,10 @@ function PageFade({ children }: { children: React.ReactNode }) {
 /**
  * Esqueleto común de todas las pestañas.
  *
- * Sin cursor propio, sin partículas, sin scroll suavizado ni secciones
- * ancladas: el desplazamiento es el normal del navegador y lo único que
- * se anima al bajar es la entrada de cada bloque.
+ * Sin partículas, sin scroll suavizado ni secciones ancladas: el
+ * desplazamiento es el normal del navegador y lo único que se anima al
+ * bajar es la entrada de cada bloque. El cursor dorado sólo aparece con
+ * ratón o trackpad y sin «reducir movimiento».
  */
 export function Layout() {
   // Solo lee la URL de entrada, no la de cada navegación interna — captura
@@ -68,6 +70,7 @@ export function Layout() {
       <Footer />
       <CookieBanner />
       <AssistantWidget />
+      <CursorDorado />
     </>
   )
 }

@@ -15,6 +15,7 @@ import { WorkdayCompare } from '@/components/sections/WorkdayCompare'
 import { DiagnosticTool } from '@/components/sections/DiagnosticTool'
 import TextLoop from '@/components/reactbits/TextLoop'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
+import { FlujoIA } from '@/components/pestanas/FlujoIA'
 
 /** La cinta de la portada: los servicios por los que suele empezar quien llega. */
 const SEP = ' · '
@@ -236,6 +237,7 @@ export default function Home() {
             </li>
           ))}
         </ol>
+        <FlujoIA />
         <div className="pm-reveal">
           <EnlaceFlecha to="/metodologia">Qué entregamos en cada fase</EnlaceFlecha>
         </div>
