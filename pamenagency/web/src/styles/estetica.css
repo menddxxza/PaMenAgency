@@ -1,0 +1,612 @@
+/* ------------------------------------------------------------------
+   PaMenAgency — estética aireada (nov. 2026)
+
+   A partir de la web de referencia que eligió Pablo: composición
+   centrada, mucho aire, manchas de luz difusas, formas de cristal,
+   tarjetas translúcidas y la palabra clave de cada titular en
+   degradado. Sobre el terciopelo oscuro y con los mismos colores
+   (burdeos, rojo vino, oro, beige, negro) y las mismas letras (Bodoni
+   Moda e Instrument Sans).
+
+   El menú y la cabecera no se tocan. Va la última: ajusta piezas de
+   pestanas.css y components.css sin reescribirlas.
+   ------------------------------------------------------------------ */
+
+:root {
+  --cristal: linear-gradient(160deg, rgba(255, 240, 220, 0.06), rgba(255, 240, 220, 0.018) 55%, rgba(109, 34, 32, 0.08));
+  --cristal-borde: rgba(232, 203, 148, 0.15);
+  --cristal-brillo: inset 0 1px 0 rgba(255, 240, 220, 0.08);
+  --cristal-sombra: 0 34px 90px -46px rgba(0, 0, 0, 0.95);
+  /* Oro que se enciende y acaba en rojo vino, para la palabra clave. */
+  --degradado-clave: linear-gradient(100deg, #f4dfb2 0%, var(--pm-gold-bright) 22%, var(--pm-gold) 50%, #d58f72 78%, #c0574a 100%);
+}
+
+/* ----------------------------- Fondo ----------------------------- */
+
+/* La capa fija del terciopelo va con z-index -1 y el fondo opaco del body
+   la tapaba. Con el body como contexto de apilamiento, la capa se pinta
+   encima de su fondo y debajo de todo el contenido. */
+body { position: relative; z-index: 0; }
+
+.pt-ambiente {
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 115%, rgba(60, 18, 20, 0.9), transparent 70%),
+    var(--pm-void);
+}
+
+.pt-ambiente__luz,
+.pt-ambiente__forma,
+.pt-ambiente__puntos {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Manchas de luz: degradados radiales, sin filtros (no cuestan GPU). */
+.pt-ambiente__luz {
+  border-radius: 50%;
+  animation: pt-deriva 34s ease-in-out infinite alternate;
+}
+
+.pt-ambiente__luz--1 {
+  top: -18vh;
+  left: -12vw;
+  width: 70vw;
+  height: 70vh;
+  background: radial-gradient(closest-side, rgba(128, 36, 38, 0.55), transparent);
+}
+
+.pt-ambiente__luz--2 {
+  top: 18vh;
+  right: -18vw;
+  width: 62vw;
+  height: 72vh;
+  background: radial-gradient(closest-side, rgba(201, 160, 99, 0.13), transparent);
+  animation-duration: 41s;
+  animation-direction: alternate-reverse;
+}
+
+.pt-ambiente__luz--3 {
+  bottom: -26vh;
+  left: 18vw;
+  width: 64vw;
+  height: 60vh;
+  background: radial-gradient(closest-side, rgba(150, 40, 52, 0.32), transparent);
+  animation-duration: 47s;
+}
+
+/* Formas de cristal: rectángulos muy redondeados, girados, con filo dorado. */
+.pt-ambiente__forma {
+  border-radius: 28%;
+  border: 1px solid rgba(232, 203, 148, 0.1);
+  background: linear-gradient(140deg, rgba(255, 240, 220, 0.055), rgba(255, 240, 220, 0.01) 45%, rgba(109, 34, 32, 0.08));
+  box-shadow: inset 0 1px 0 rgba(255, 240, 220, 0.06), 0 40px 90px -50px rgba(0, 0, 0, 0.9);
+  animation: pt-flota 26s ease-in-out infinite alternate;
+}
+
+.pt-ambiente__forma--1 { top: 9vh; left: 4vw; width: 120px; height: 120px; rotate: 32deg; }
+.pt-ambiente__forma--2 { top: 14vh; right: -10vw; width: 46vw; height: 46vw; max-width: 640px; max-height: 640px; rotate: 36deg; animation-duration: 38s; opacity: 0.8; }
+.pt-ambiente__forma--3 { bottom: 6vh; left: -14vw; width: 36vw; height: 36vw; max-width: 520px; max-height: 520px; rotate: -22deg; animation-duration: 33s; animation-direction: alternate-reverse; opacity: 0.7; }
+.pt-ambiente__forma--4 { bottom: 14vh; right: 9vw; width: 150px; height: 150px; rotate: 18deg; animation-duration: 29s; }
+
+/* Rejilla de puntos a la derecha, como en la referencia. */
+.pt-ambiente__puntos {
+  top: 22vh;
+  right: 2.5vw;
+  width: 140px;
+  height: 220px;
+  background-image: radial-gradient(rgba(232, 203, 148, 0.22) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+  mask-image: linear-gradient(transparent, #000 30%, #000 70%, transparent);
+}
+
+@keyframes pt-deriva {
+  from { translate: 0 0; }
+  to { translate: 4vw 3vh; }
+}
+
+@keyframes pt-flota {
+  from { translate: 0 0; }
+  to { translate: -2.2vw 3.5vh; }
+}
+
+@media (max-width: 760px) {
+  .pt-ambiente__forma--1,
+  .pt-ambiente__forma--4,
+  .pt-ambiente__puntos { display: none; }
+  .pt-ambiente__forma--2 { width: 80vw; height: 80vw; right: -40vw; }
+  .pt-ambiente__forma--3 { width: 70vw; height: 70vw; left: -40vw; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-ambiente__luz,
+  .pt-ambiente__forma { animation: none; }
+}
+
+/* ------------------------ Titulares y textos ------------------------ */
+
+/* La palabra clave: degradado de oro a rojo vino, como el de la referencia. */
+.pt-hero__title em,
+.pt-tabhead__title em,
+.pt-h2 em,
+.pt-final__title em {
+  background-image: var(--degradado-clave);
+  background-size: 200% 100%;
+}
+
+.pt-h2 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.pt-centrado {
+  max-width: 48rem;
+}
+
+.pt-centrado.pt-centrado--ancho {
+  max-width: 56rem;
+}
+
+.pt-centrado .pt-actions,
+.pt-centro {
+  justify-content: center;
+  text-align: center;
+}
+
+.pt-centrado .pt-eyebrow {
+  justify-content: center;
+}
+
+/* Las cabeceras centradas dejan aire debajo antes de su contenido. */
+.pt-centrado + .pt-panel,
+.pt-centrado + .pt-ventana,
+.pt-centrado + .pt-chips {
+  margin-top: var(--space-xl);
+}
+
+/* ----------------------------- Botones ----------------------------- */
+
+.pt-btn {
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.pt-btn--gold {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 55%),
+    linear-gradient(135deg, var(--pm-gold-bright), var(--pm-gold) 48%, #a57b42);
+  box-shadow:
+    0 14px 34px -14px rgba(201, 160, 99, 0.7),
+    0 0 0 1px rgba(232, 203, 148, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.pt-btn--line {
+  background: var(--cristal);
+  border-color: var(--cristal-borde);
+  box-shadow: var(--cristal-brillo);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ----------------------------- Portada ----------------------------- */
+
+.pt-hero--centro {
+  position: relative;
+  text-align: center;
+  padding-block: clamp(3rem, 8vw, 6.5rem) clamp(3rem, 7vw, 6rem);
+}
+
+.pt-hero--centro .pt-hero__text {
+  max-width: 64rem;
+  margin-inline: auto;
+}
+
+.pt-hero--centro .pt-eyebrow {
+  justify-content: center;
+}
+
+.pt-hero--centro .pt-hero__title {
+  max-width: 17ch;
+  margin-inline: auto;
+  font-size: clamp(2.7rem, 6.3vw, 5.75rem);
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+}
+
+.pt-hero--centro .pt-hero__lead {
+  max-width: 60ch;
+  margin-inline: auto;
+}
+
+.pt-hero__lead strong {
+  font-weight: 600;
+  color: var(--pm-text);
+}
+
+.pt-hero--centro .pt-actions {
+  justify-content: center;
+}
+
+.pt-garantias {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem 1.75rem;
+  margin-top: 1.9rem;
+  list-style: none;
+  font-size: 0.88rem;
+  color: var(--pm-muted);
+}
+
+.pt-garantias li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.pt-garantias svg { color: var(--pm-gold); flex: none; }
+
+.pt-hero--centro .pt-firma {
+  margin-top: 2.25rem;
+  background: var(--cristal);
+  border-color: var(--cristal-borde);
+  text-align: left;
+}
+
+/* Las tarjetas P/M, como pieza central bajo la portada. */
+.pt-hero--centro .pt-hero__visual {
+  max-width: 400px;
+  margin: clamp(2rem, 5vw, 3rem) auto 0;
+}
+
+/* --------------------------- Cristal --------------------------- */
+
+/* Superficies translúcidas: tarjetas, paneles, reseñas, planes. */
+.pt-panel,
+.pt-ventana,
+.pm-card,
+.pt-resena,
+.pt-plan {
+  background: var(--cristal);
+  border: 1px solid var(--cristal-borde);
+  box-shadow: var(--cristal-brillo), var(--cristal-sombra);
+}
+
+.pt-panel {
+  border-radius: 26px;
+  padding: clamp(0.5rem, 1.6vw, 1.25rem) clamp(0.5rem, 2vw, 1.75rem);
+}
+
+.pt-panel .pt-flowing { border-block: 0; }
+
+.pm-card { border-radius: 22px; }
+.pm-card:hover,
+.pm-card:focus-within { border-color: rgba(232, 203, 148, 0.32); }
+
+.pt-resena { border-radius: 22px; }
+
+/* Ventana con barra, como las demostraciones de la referencia. */
+.pt-ventana {
+  max-width: 1080px;
+  margin-inline: auto;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.pt-ventana__barra {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--cristal-borde);
+  background: rgba(14, 3, 4, 0.35);
+}
+
+.pt-ventana__barra span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(232, 203, 148, 0.2);
+}
+
+.pt-ventana__barra span:first-child { background: rgba(192, 87, 74, 0.7); }
+.pt-ventana__barra span:nth-child(2) { background: rgba(201, 160, 99, 0.6); }
+
+.pt-ventana__barra p {
+  margin-left: 0.7rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--pm-faint);
+}
+
+.pt-ventana__cuerpo { padding: clamp(0.75rem, 2.5vw, 2rem); }
+
+/* Dentro de la ventana la simulación ya no necesita su propio marco. */
+.pt-ventana .pm-workday {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Bandas: un velo apenas visible, sin cortes duros. */
+.pt-block--banda {
+  background: linear-gradient(180deg, transparent, rgba(255, 240, 220, 0.018) 18%, rgba(255, 240, 220, 0.018) 82%, transparent);
+  border-block: 0;
+}
+
+/* ------------------------ Línea de tiempo ------------------------ */
+
+.pt-linea {
+  position: relative;
+  display: grid;
+  gap: clamp(2.25rem, 5vw, 3.5rem);
+  margin-block: var(--space-xl) var(--space-xl);
+  list-style: none;
+  --carril: 58px;
+}
+
+/* El carril, y encima el oro que se va llenando al bajar. */
+.pt-linea::before,
+.pt-linea::after {
+  content: '';
+  position: absolute;
+  top: 29px;
+  bottom: 29px;
+  left: calc(var(--carril) / 2);
+  width: 1px;
+  background: rgba(232, 203, 148, 0.16);
+}
+
+.pt-linea::after {
+  background: linear-gradient(var(--pm-gold-bright), var(--pm-gold) 60%, #c0574a);
+  transform-origin: top;
+  transform: scaleY(1);
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .pt-linea::after {
+      animation: pt-linea-llena linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 70%;
+    }
+  }
+}
+
+@keyframes pt-linea-llena {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+.pt-linea__paso {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--carril) 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.pt-linea__num {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--carril);
+  height: var(--carril);
+  border-radius: 50%;
+  border: 1px solid var(--pm-gold-line);
+  background: radial-gradient(circle at 35% 30%, #3a1113, #140405 75%);
+  box-shadow: 0 0 0 6px var(--pm-void), 0 0 28px -6px rgba(201, 160, 99, 0.45);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--pm-gold-bright);
+}
+
+.pt-linea__etq {
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--pm-gold);
+}
+
+.pt-linea--pegada { margin-top: 0; }
+
+.pt-linea__texto :is(h2, h3) {
+  margin-top: 0.5rem;
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.pt-linea__texto > p:not(.pt-linea__etq, .pt-linea__llevas) {
+  margin-top: 0.7rem;
+  max-width: 52ch;
+  line-height: 1.65;
+  color: var(--pm-text-soft);
+}
+
+.pt-linea__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  list-style: none;
+}
+
+.pt-linea__chips li {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--pm-gold-line);
+  border-radius: 8px;
+  background: var(--pm-gold-soft);
+  font-size: 0.8rem;
+  color: var(--pm-gold-bright);
+}
+
+/* Escritorio: carril en el centro y pasos alternos a cada lado. */
+@media (min-width: 900px) {
+  .pt-linea::before,
+  .pt-linea::after { left: 50%; }
+
+  .pt-linea__paso {
+    grid-template-columns: 1fr var(--carril) 1fr;
+    gap: clamp(1.5rem, 3vw, 2.75rem);
+  }
+
+  .pt-linea__num { grid-column: 2; grid-row: 1; }
+
+  .pt-linea__paso[data-lado='izq'] .pt-linea__texto {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: right;
+    justify-self: end;
+  }
+
+  .pt-linea__paso[data-lado='izq'] .pt-linea__texto > p { margin-left: auto; }
+  .pt-linea__paso[data-lado='izq'] .pt-linea__chips { justify-content: flex-end; }
+
+  .pt-linea__paso[data-lado='der'] .pt-linea__texto { grid-column: 3; grid-row: 1; }
+
+  /* Cada paso baja un poco respecto al anterior: la línea se lee en zigzag. */
+  .pt-linea__paso[data-lado='der'] { margin-top: -1.5rem; }
+}
+
+/* ------------------------------ Etiquetas ------------------------------ */
+
+.pt-chips--centro { justify-content: center; }
+
+.pt-chip {
+  background: var(--cristal);
+  border-color: var(--cristal-borde);
+  box-shadow: var(--cristal-brillo);
+}
+
+/* ------------------------- Cabecera de pestaña ------------------------- */
+
+.pt-tabhead {
+  text-align: center;
+  padding-block: clamp(3.5rem, 9vw, 7rem) clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.pt-tabhead .pt-eyebrow { justify-content: center; }
+
+.pt-tabhead__title {
+  margin-inline: auto;
+  max-width: 18ch;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.pt-tabhead__lead { margin-inline: auto; }
+
+.pt-tabhead .pt-actions { justify-content: center; }
+
+/* --------------------------- Llamada final --------------------------- */
+
+/* Tarjeta de cristal grande, con un halo de luz detrás. */
+.pt-final__inner {
+  position: relative;
+  max-width: 64rem;
+  padding: clamp(2.75rem, 7vw, 5.5rem) clamp(1.5rem, 6vw, 5rem);
+  border-radius: 32px;
+  background: var(--cristal);
+  border: 1px solid rgba(232, 203, 148, 0.22);
+  box-shadow:
+    var(--cristal-brillo),
+    0 0 0 8px rgba(232, 203, 148, 0.035),
+    0 50px 120px -50px rgba(0, 0, 0, 1);
+  isolation: isolate;
+}
+
+.pt-final__inner::before {
+  content: '';
+  position: absolute;
+  inset: -20% -10%;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 45% 55% at 20% 30%, rgba(128, 36, 38, 0.45), transparent 70%),
+    radial-gradient(ellipse 40% 50% at 85% 75%, rgba(201, 160, 99, 0.16), transparent 70%);
+  pointer-events: none;
+}
+
+.pt-final__title { font-weight: 600; letter-spacing: -0.03em; }
+
+/* ------------------------------ Logo ------------------------------ */
+
+/* El JPG del logo trae un margen negro cuadrado alrededor del disco. Sobre
+   el fondo casi negro de antes no se notaba; con las luces nuevas sí. Se
+   recorta al círculo del propio logo (el archivo no cambia). */
+.pt-logo-mark { border-radius: 50%; }
+
+/* Antetítulo centrado: la barra va en línea con el texto, así no se queda
+   sola a la izquierda cuando el texto ocupa dos líneas en móvil. */
+:is(.pt-hero--centro, .pt-centrado, .pt-tabhead) .pt-eyebrow {
+  display: block;
+  text-align: center;
+}
+
+:is(.pt-hero--centro, .pt-centrado, .pt-tabhead) .pt-eyebrow::before {
+  display: inline-block;
+  margin-right: 0.75rem;
+  vertical-align: -0.2em;
+}
+
+.pt-linea__llevas {
+  margin-top: 1.1rem;
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pm-faint);
+}
+
+.pt-linea__llevas + .pt-linea__chips { margin-top: 0.5rem; }
+
+/* ---------------- Principios (Nosotros): tarjetas de cristal ---------------- */
+
+.pt-principios { gap: 1rem; }
+
+.pt-principios li {
+  padding: 1.6rem 1.6rem 1.7rem;
+  border: 1px solid var(--cristal-borde);
+  border-radius: 22px;
+  background: var(--cristal);
+  box-shadow: var(--cristal-brillo), var(--cristal-sombra);
+}
+
+/* ------------- Preguntas frecuentes: filas de cristal separadas ------------- */
+
+.pt-block .pm-accordion {
+  display: grid;
+  gap: 0.6rem;
+  border-top: 0;
+}
+
+.pt-block .pm-accordion__item {
+  padding-inline: 1.1rem;
+  border: 1px solid var(--cristal-borde);
+  border-radius: 16px;
+  background: var(--cristal);
+  box-shadow: var(--cristal-brillo);
+  transition: border-color var(--dur) var(--ease-out);
+}
+
+.pt-block .pm-accordion__item:hover,
+.pt-block .pm-accordion__item:focus-within { border-color: var(--pm-gold-line); }
+
+/* ---------------- Cabecera de página (PageHead): centrada ---------------- */
+
+.pm-pagehead { border-bottom: 0; text-align: center; }
+.pm-pagehead .pm-breadcrumb { justify-content: center; }
+.pm-pagehead .pm-eyebrow { display: block; text-align: center; }
+.pm-pagehead .pm-eyebrow::before { display: inline-block; margin-right: 0.75rem; vertical-align: -0.2em; }
+.pm-pagehead__title { max-width: 20ch; margin-inline: auto; font-weight: 600; letter-spacing: -0.03em; }
+.pm-pagehead .pm-lead { margin-inline: auto; }
+.pm-pagehead .pm-above > :not(.pm-breadcrumb, .pm-eyebrow, .pm-pagehead__title, .pm-lead) { justify-content: center; }
+
+/* Los botones de las páginas fuera del menú, con el mismo radio. */
+.pm-btn { border-radius: 14px; }

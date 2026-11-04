@@ -34,6 +34,17 @@ function LemaConOro({ lema }: { lema: string }) {
   )
 }
 
+/** Tres compromisos de la portada, sacados de cómo se trabaja (metodología y servicios). */
+const GARANTIAS = ['Diagnóstico antes de proponer', 'Precio de partida claro', 'Revisión humana donde hace falta']
+
+function Check() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 /** Los cuatro servicios por los que suele empezar quien llega a la web. */
 const DESTACADOS = ['automatizacion-de-procesos', 'procesamiento-de-documentos', 'asistente-de-ia-empresarial', 'integracion-de-sistemas']
 
@@ -83,8 +94,8 @@ export default function Home() {
 
   return (
     <>
-      <section className="pt-hero" ref={heroRef}>
-        <div className="pm-container pt-hero__grid">
+      <section className="pt-hero pt-hero--centro" ref={heroRef}>
+        <div className="pm-container">
           <div className="pt-hero__text">
             <div className="pm-reveal">
               <Antetitulo>Inteligencia artificial y automatización para empresas</Antetitulo>
@@ -93,9 +104,10 @@ export default function Home() {
               La tecnología debe trabajar para tu empresa. <em>No al revés.</em>
             </h1>
             <p className="pt-hero__lead pm-reveal" style={escalon(2, 90)}>
-              Identificamos oportunidades, diseñamos soluciones e implementamos inteligencia
-              artificial y automatización en procesos empresariales. Si en tu caso no aporta nada,
-              te lo decimos antes de cobrar.
+              Identificamos oportunidades, diseñamos soluciones e implementamos{' '}
+              <strong>inteligencia artificial</strong> y <strong>automatización</strong> en{' '}
+              <strong>procesos empresariales</strong>. Si en tu caso no aporta nada, te lo decimos
+              antes de cobrar.
             </p>
             <div className="pt-actions pm-reveal" style={escalon(3, 90)}>
               <Link className="pt-btn pt-btn--gold" to="/contacto">
@@ -105,7 +117,15 @@ export default function Home() {
                 Ver servicios
               </Link>
             </div>
-            <Link to="/nosotros" className="pt-firma pm-reveal" style={escalon(4, 90)}>
+            <ul className="pt-garantias pm-reveal" style={escalon(4, 90)}>
+              {GARANTIAS.map((g) => (
+                <li key={g}>
+                  <Check />
+                  {g}
+                </li>
+              ))}
+            </ul>
+            <Link to="/nosotros" className="pt-firma pm-reveal" style={escalon(5, 90)}>
               <img src={founder.foto} alt="" width={800} height={1067} />
               <span>
                 <strong>{founder.lema}</strong>
@@ -116,28 +136,28 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="pt-hero__visual pm-reveal" style={escalon(2, 120)}>
+          <div className="pt-hero__visual pm-reveal" style={escalon(5, 120)}>
             <TarjetaPM />
           </div>
         </div>
       </section>
 
       <Bloque>
-        <div className="pt-split">
-          <div className="pm-reveal">
-            <Antetitulo>Servicios</Antetitulo>
-            <h2 className="pt-h2">
-              Se empieza por <em>uno</em>.
-            </h2>
-            <p className="pt-text">
-              Cuatro servicios para empresas, cada uno con un alcance y un precio de partida claros.
-              Casi siempre se empieza por automatizar un solo proceso.
-            </p>
-            <EnlaceFlecha to="/servicios">Ver los {services.length} servicios</EnlaceFlecha>
-          </div>
+        <div className="pt-centrado pm-reveal">
+          <Antetitulo>Servicios</Antetitulo>
+          <h2 className="pt-h2">
+            Se empieza por <em>uno</em>.
+          </h2>
+          <p className="pt-text">
+            Cuatro servicios para empresas, cada uno con un alcance y un precio de partida claros.
+            Casi siempre se empieza por automatizar un solo proceso.
+          </p>
+          <EnlaceFlecha to="/servicios">Ver los {services.length} servicios</EnlaceFlecha>
+        </div>
 
+        <div className="pt-panel pm-reveal" style={escalon(1, 120)}>
           {/* Los cuatro destacados con franja dorada deslizante (React Bits · FlowingMenu). */}
-          <div className="pt-flowing pt-flowing--inicio pt-flowing--simbolos pm-reveal" style={escalon(1, 120)}>
+          <div className="pt-flowing pt-flowing--inicio pt-flowing--simbolos">
             <FlowingMenu
               items={destacados.map((s) => ({
                 text: s.name,
@@ -195,33 +215,39 @@ export default function Home() {
       </div>
 
       <Bloque id="jornada">
-        <div className="pt-split pt-split--centro">
-          <div className="pm-reveal">
-            <Antetitulo>Una jornada, dos formas de trabajar</Antetitulo>
-            <h2 className="pt-h2">
-              Hasta <em>x{FACTOR} más rápido</em> en las tareas que se repiten.
-            </h2>
-            <p className="pt-text">
-              Las mismas seis tareas, la misma jornada. A mano da tiempo a una. Con IA, a las seis
-              — y la tarde queda libre para lo que de verdad necesita a una persona.
-            </p>
-            <div className="pt-actions">
-              <Link className="pt-btn pt-btn--gold" to="/auditoria-ia">
-                Ver qué puedo automatizar <span aria-hidden="true">→</span>
-              </Link>
-              <Link className="pt-btn pt-btn--line" to="/calculadora">
-                Calcular lo que me cuesta hoy
-              </Link>
-            </div>
-          </div>
-          <div className="pm-reveal" style={escalon(1, 120)}>
-            <WorkdayCompare />
-            <p className="pt-nota pt-nota--centro">
-              Simulación ilustrativa con tareas repetitivas habituales. El resultado real depende de
-              cada proceso.
-            </p>
+        <div className="pt-centrado pt-centrado--ancho pm-reveal">
+          <Antetitulo>Una jornada, dos formas de trabajar</Antetitulo>
+          <h2 className="pt-h2">
+            Hasta <em>x{FACTOR} más rápido</em> en las tareas que se repiten.
+          </h2>
+          <p className="pt-text">
+            Las mismas seis tareas, la misma jornada. A mano da tiempo a una. Con IA, a las seis —
+            y la tarde queda libre para lo que de verdad necesita a una persona.
+          </p>
+          <div className="pt-actions">
+            <Link className="pt-btn pt-btn--gold" to="/auditoria-ia">
+              Ver qué puedo automatizar <span aria-hidden="true">→</span>
+            </Link>
+            <Link className="pt-btn pt-btn--line" to="/calculadora">
+              Calcular lo que me cuesta hoy
+            </Link>
           </div>
         </div>
+        <div className="pt-ventana pm-reveal" style={escalon(1, 120)}>
+          <div className="pt-ventana__barra" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <p>Una jornada · simulación</p>
+          </div>
+          <div className="pt-ventana__cuerpo">
+            <WorkdayCompare />
+          </div>
+        </div>
+        <p className="pt-nota pt-nota--centro">
+          Simulación ilustrativa con tareas repetitivas habituales. El resultado real depende de
+          cada proceso.
+        </p>
       </Bloque>
 
       <Bloque className="pt-block--banda">
@@ -231,11 +257,24 @@ export default function Home() {
             Siempre en el mismo <em>orden</em>.
           </h2>
         </div>
-        <ol className="pt-fases" aria-label="Fases de trabajo">
+        <ol className="pt-linea" aria-label="Fases de trabajo">
           {methodology.map((f, i) => (
-            <li key={f.titulo} className="pm-reveal" style={escalon(i, 80)}>
-              <span className="pt-fases__nombre">{f.titulo}</span>
-              <span className="pt-fases__resumen">{f.resumen}</span>
+            <li key={f.titulo} className="pt-linea__paso pm-reveal" data-lado={i % 2 ? 'der' : 'izq'}>
+              <span className="pt-linea__num" aria-hidden="true">
+                {f.num}
+              </span>
+              <div className="pt-linea__texto">
+                <p className="pt-linea__etq">
+                  Paso {Number(f.num)} · {f.titulo}
+                </p>
+                <h3>{f.resumen}</h3>
+                <p>{f.texto}</p>
+                <ul className="pt-linea__chips">
+                  {f.entregables.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+              </div>
             </li>
           ))}
         </ol>
@@ -246,13 +285,13 @@ export default function Home() {
       </Bloque>
 
       <Bloque>
-        <div className="pm-reveal">
+        <div className="pt-centrado pm-reveal">
           <Antetitulo>Sectores</Antetitulo>
           <h2 className="pt-h2">
             La IA no se aplica igual en todos los <em>negocios</em>.
           </h2>
         </div>
-        <ul className="pt-chips">
+        <ul className="pt-chips pt-chips--centro">
           {useCases.map((u, i) => (
             <li key={u.slug} className="pm-reveal" style={escalon(i, 50)}>
               <Link to={`/sectores/${u.slug}`} className="pt-chip">
@@ -261,7 +300,7 @@ export default function Home() {
             </li>
           ))}
         </ul>
-        <div className="pm-reveal">
+        <div className="pt-centro pm-reveal">
           <EnlaceFlecha to="/sectores">Ver dónde aporta en cada uno</EnlaceFlecha>
         </div>
       </Bloque>

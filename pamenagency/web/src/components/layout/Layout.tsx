@@ -5,6 +5,7 @@ import { Footer } from './Footer'
 import { CookieBanner } from '@/components/cookies/CookieBanner'
 import { AssistantWidget } from '@/components/chat/AssistantWidget'
 import { CursorDorado } from '@/components/ui/CursorDorado'
+import { FondoAmbiental } from './FondoAmbiental'
 import { capturarUtm } from '@/lib/utm'
 
 /** Cada pestaña empieza arriba, salvo que se navegue a un ancla. */
@@ -57,8 +58,8 @@ export function Layout() {
         Saltar al contenido
       </a>
       <ScrollToTop />
-      {/* Terciopelo: brillos y pliegues fijos detrás de todo el contenido. */}
-      <div className="pt-velvet" aria-hidden="true" />
+      {/* Terciopelo con luces difusas y formas de cristal, fijo detrás de todo. */}
+      <FondoAmbiental />
       <Header />
       <main id="contenido" tabIndex={-1}>
         <Suspense fallback={<div style={{ minHeight: '70svh' }} aria-busy="true" />}>

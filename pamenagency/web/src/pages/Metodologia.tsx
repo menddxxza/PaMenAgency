@@ -35,21 +35,24 @@ export default function Metodologia() {
       />
 
       <Bloque className="pt-block--pegado">
-        <ol className="pt-timeline">
-          {methodology.map((f) => (
-            <li key={f.titulo} className="pt-timeline__item pm-reveal">
-              <span className="pt-timeline__num" aria-hidden="true">
+        <ol className="pt-linea pt-linea--pegada">
+          {methodology.map((f, i) => (
+            <li key={f.titulo} className="pt-linea__paso pm-reveal" data-lado={i % 2 ? 'der' : 'izq'}>
+              <span className="pt-linea__num" aria-hidden="true">
                 {f.num}
               </span>
-              <div className="pt-timeline__body">
-                <h2 className="pt-timeline__title">
-                  {f.titulo}
-                  <span className="pt-timeline__resumen">{f.resumen}</span>
-                </h2>
-                <p className="pt-text">{f.texto}</p>
-                <p className="pt-timeline__entrega">
-                  <span>Lo que te llevas:</span> {f.entregables.join(' · ')}
+              <div className="pt-linea__texto">
+                <p className="pt-linea__etq">
+                  Fase {Number(f.num)} · {f.resumen.replace(/\.$/, '')}
                 </p>
+                <h2>{f.titulo}</h2>
+                <p>{f.texto}</p>
+                <p className="pt-linea__llevas">Lo que te llevas</p>
+                <ul className="pt-linea__chips">
+                  {f.entregables.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
               </div>
             </li>
           ))}

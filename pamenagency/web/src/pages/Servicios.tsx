@@ -70,7 +70,8 @@ export default function Servicios() {
       />
 
       <Bloque className="pt-block--pegado">
-        <div className="pt-flowing pt-flowing--simbolos pm-reveal" style={{ '--filas': FILAS.length } as React.CSSProperties}>
+        <div className="pt-panel pm-reveal">
+          <div className="pt-flowing pt-flowing--simbolos" style={{ '--filas': FILAS.length } as React.CSSProperties}>
           <FlowingMenu
             items={FILAS}
             speed={90}
@@ -92,6 +93,7 @@ export default function Servicios() {
             ariaLabel="Servicios"
             onItemClick={abrir}
           />
+        </div>
         </div>
         <p className="pt-nota">
           Entra en cada servicio para ver qué incluye, para quién tiene sentido, cómo se trabaja y
