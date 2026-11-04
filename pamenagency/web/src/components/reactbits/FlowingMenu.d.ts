@@ -1,4 +1,4 @@
-import type { CSSProperties, FC, MouseEvent } from 'react'
+import type { CSSProperties, FC, MouseEvent, ReactNode } from 'react'
 
 /** Tipos de FlowingMenu.jsx (React Bits), según la tabla de props oficial. */
 export type FlowingMenuItem = {
@@ -7,6 +7,8 @@ export type FlowingMenuItem = {
   image?: string
   marquee?: string
   meta?: string
+  /** PaMenAgency: elemento decorativo en la columna del índice. */
+  icon?: ReactNode
 }
 
 export type FlowingMenuProps = {

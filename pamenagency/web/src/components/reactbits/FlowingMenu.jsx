@@ -1,7 +1,8 @@
 /* React Bits (reactbits.dev) · FlowingMenu · licencia MIT + Commons Clause.
-   Copia de la fuente oficial con dos cambios: sin la directiva 'use client'
-   (sólo tiene sentido en Next.js) y el bucle de animación se reinicia al
-   desmontarse (ver "PaMenAgency:" más abajo). */
+   Copia de la fuente oficial con tres cambios: sin la directiva 'use client'
+   (sólo tiene sentido en Next.js), el bucle de animación se reinicia al
+   desmontarse y cada fila admite un `icon` en la columna del índice (ver
+   "PaMenAgency:" más abajo). */
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -563,7 +564,8 @@ function FlowingMenu({
           const content = (
             <>
               <span className={INDEX} data-intro-fade="" aria-hidden="true">
-                {showIndex ? String(index + 1).padStart(2, '0') : null}
+                {/* PaMenAgency: símbolo propio de la fila, si lo hay, en lugar del número. */}
+                {item.icon ?? (showIndex ? String(index + 1).padStart(2, '0') : null)}
               </span>
               <span className={LABEL}>
                 <span className={LABEL_TEXT} data-intro-line="">

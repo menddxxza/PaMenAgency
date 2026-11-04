@@ -16,6 +16,7 @@ import { DiagnosticTool } from '@/components/sections/DiagnosticTool'
 import TextLoop from '@/components/reactbits/TextLoop'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 import { FlujoIA } from '@/components/pestanas/FlujoIA'
+import { SimboloServicio } from '@/components/three/SimboloServicio'
 
 /** La cinta de la portada: los servicios por los que suele empezar quien llega. */
 const SEP = ' · '
@@ -136,13 +137,14 @@ export default function Home() {
           </div>
 
           {/* Los cuatro destacados con franja dorada deslizante (React Bits · FlowingMenu). */}
-          <div className="pt-flowing pt-flowing--inicio pm-reveal" style={escalon(1, 120)}>
+          <div className="pt-flowing pt-flowing--inicio pt-flowing--simbolos pm-reveal" style={escalon(1, 120)}>
             <FlowingMenu
               items={destacados.map((s) => ({
                 text: s.name,
                 link: `/servicios/${s.slug}`,
                 marquee: s.name,
                 meta: s.priceFrom,
+                icon: <SimboloServicio slug={s.slug} variante="fila" />,
               }))}
               speed={90}
               stretch={0.6}

@@ -3,6 +3,7 @@ import { Antetitulo, Bloque, CabeceraPestana, LlamadaFinal, escalon } from '@/co
 import { mantenimientoNoIncluye, planesMantenimiento } from '@/content/mantenimiento'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 import { services } from '@/content/services'
+import { SimboloServicio } from '@/components/three/SimboloServicio'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
 import { site } from '@/content/site'
 
@@ -12,6 +13,7 @@ const FILAS: FlowingMenuItem[] = services.map((s) => ({
   link: `/servicios/${s.slug}`,
   marquee: s.name,
   meta: s.priceFrom,
+  icon: <SimboloServicio slug={s.slug} variante="fila" />,
 }))
 
 /**
@@ -68,7 +70,7 @@ export default function Servicios() {
       />
 
       <Bloque className="pt-block--pegado">
-        <div className="pt-flowing pm-reveal" style={{ '--filas': FILAS.length } as React.CSSProperties}>
+        <div className="pt-flowing pt-flowing--simbolos pm-reveal" style={{ '--filas': FILAS.length } as React.CSSProperties}>
           <FlowingMenu
             items={FILAS}
             speed={90}

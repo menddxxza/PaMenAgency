@@ -21,7 +21,8 @@ function hayWebGL(): boolean {
 }
 
 /**
- * Símbolo 3D de un servicio, para colocar dentro de su tarjeta (decorativo).
+ * Símbolo 3D de un servicio, para colocar dentro de su tarjeta o de su fila
+ * del menú de servicios (decorativo).
  *
  * - `three` llega en un chunk aparte y sólo si hay WebGL.
  * - Con movimiento reducido, en pantallas pequeñas o en equipos modestos se
@@ -29,7 +30,7 @@ function hayWebGL(): boolean {
  * - Fuera de pantalla no se pinta; dentro, reacciona al ratón sobre la tarjeta.
  * - Si algo falla, no se muestra nada y la tarjeta queda como estaba.
  */
-export function SimboloServicio({ slug }: { slug: string }) {
+export function SimboloServicio({ slug, variante = 'tarjeta' }: { slug: string; variante?: 'tarjeta' | 'fila' }) {
   const kind = SIMBOLOS[slug]
   const ref = useRef<HTMLCanvasElement>(null)
   const [fallo, setFallo] = useState(false)
@@ -50,7 +51,7 @@ export function SimboloServicio({ slug }: { slug: string }) {
     let handle: SimboloHandle | null = null
     let cancelado = false
     let observador: IntersectionObserver | null = null
-    const tarjeta = canvas.closest<HTMLElement>('.pm-card') ?? canvas.parentElement!
+    const tarjeta = canvas.closest<HTMLElement>('.pm-card, .flowing-menu__item') ?? canvas.parentElement!
     const entrar = () => handle?.setHover(true)
     const salir = () => { handle?.setHover(false); handle?.setPuntero(0, 0) }
     const mover = (e: PointerEvent) => {
@@ -87,7 +88,7 @@ export function SimboloServicio({ slug }: { slug: string }) {
 
   if (!kind || fallo) return null
   return (
-    <span className="pm-simbolo" aria-hidden="true">
+    <span className={variante === 'fila' ? 'pm-simbolo pm-simbolo--fila' : 'pm-simbolo'} aria-hidden="true">
       <canvas ref={ref} width={224} height={224} />
     </span>
   )

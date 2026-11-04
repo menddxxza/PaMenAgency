@@ -2114,3 +2114,30 @@ html[data-cursor-pulsado][data-cursor='boton'] .pt-cursor__aro span { transform:
 @media (prefers-reduced-motion: reduce) {
   .pm-simbolo { animation: none; opacity: 1; }
 }
+
+/* En las filas del menú de servicios: en la columna izquierda, y la franja
+   dorada empieza a su derecha para no taparlo al pasar por encima. */
+.pt-flowing--simbolos { --simbolo: clamp(48px, 6vw, 76px); --fila-pad: clamp(16px, 4%, 40px); }
+.pt-flowing--inicio.pt-flowing--simbolos { --simbolo: clamp(56px, 6.6vw, 88px); }
+
+.pt-flowing--simbolos .flowing-menu__index {
+  display: block;
+  opacity: 1;
+}
+
+.pm-simbolo.pm-simbolo--fila {
+  position: relative;
+  top: auto;
+  right: auto;
+  display: block;
+  width: var(--simbolo);
+}
+
+.pt-flowing--simbolos .flowing-menu__float {
+  left: calc(var(--fila-pad) + var(--simbolo) - 6px);
+}
+
+@media (max-width: 640px) {
+  .pt-flowing--simbolos,
+  .pt-flowing--inicio.pt-flowing--simbolos { --simbolo: 44px; --fila-pad: 8px; }
+}
