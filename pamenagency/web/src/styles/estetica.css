@@ -610,3 +610,42 @@ body { position: relative; z-index: 0; }
 
 /* Los botones de las páginas fuera del menú, con el mismo radio. */
 .pm-btn { border-radius: 14px; }
+
+/* ------------------------------ Teléfonos ------------------------------ */
+
+/* Botones a lo ancho, uno debajo de otro, con el texto en una línea. */
+@media (max-width: 520px) {
+  .pt-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 26rem;
+  }
+
+  .pt-centrado .pt-actions,
+  .pt-hero--centro .pt-actions,
+  .pt-final .pt-actions,
+  .pt-tabhead .pt-actions { margin-inline: auto; }
+
+  .pt-actions .pt-btn {
+    width: 100%;
+    padding-inline: 1.1rem;
+    font-size: 0.93rem;
+  }
+
+  .pt-garantias { gap: 0.5rem 1.1rem; font-size: 0.84rem; }
+}
+
+/* Teléfonos estrechos (iPhone SE, Android pequeños). */
+@media (max-width: 380px) {
+  .pt-hero--centro .pt-hero__title { font-size: 2.3rem; }
+  .pt-actions .pt-btn { font-size: 0.86rem; gap: 0.45rem; padding-inline: 0.85rem; }
+  .pt-final__inner { padding-inline: 1.1rem; }
+}
+
+/* 320-350 px: el texto largo de algunos botones no cabe en una línea; se
+   reparte en dos equilibradas y la flecha decorativa se quita. */
+@media (max-width: 350px) {
+  .pt-actions .pt-btn { padding-inline: 0.7rem; line-height: 1.25; text-wrap: balance; }
+  .pt-actions .pt-btn span[aria-hidden='true'] { display: none; }
+}
