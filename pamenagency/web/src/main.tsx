@@ -20,7 +20,14 @@ initSentry()
 // mostrar el aviso de ErrorBoundary o el sitio.
 function dismissBootScreen() {
   document.getElementById('pm-boot')?.setAttribute('data-done', 'true')
-  window.setTimeout(() => document.getElementById('pm-boot')?.remove(), 600)
+  window.setTimeout(() => document.getElementById('pm-boot')?.remove(), 1100)
+}
+// Si todo va bien, la pantalla se queda hasta completar su secuencia mínima
+// (logo, palabras y contador; la marca index.html en window.__pmBoot).
+function dismissBootScreenWhenReady() {
+  const boot = (window as Window & { __pmBoot?: { listo: Promise<void> } }).__pmBoot
+  if (boot) void boot.listo.then(dismissBootScreen)
+  else dismissBootScreen()
 }
 window.addEventListener('error', dismissBootScreen, { once: true })
 window.addEventListener('unhandledrejection', dismissBootScreen, { once: true })
@@ -39,5 +46,5 @@ try {
     </React.StrictMode>,
   )
 } finally {
-  requestAnimationFrame(dismissBootScreen)
+  requestAnimationFrame(dismissBootScreenWhenReady)
 }

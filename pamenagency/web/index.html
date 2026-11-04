@@ -51,7 +51,10 @@
 
     <style>
       /* Pantalla de carga en línea: se ve antes de que llegue el JavaScript y
-         evita el destello blanco sobre un sitio íntegramente oscuro. */
+         evita el destello blanco sobre un sitio íntegramente oscuro. Logo
+         real, anillo dorado que se completa, palabras de la agencia que van
+         pasando y un contador. Dura un mínimo (ver window.__pmBoot) y sale
+         como un telón que sube. */
       html { background: #0E0304; }
       #pm-boot {
         position: fixed;
@@ -59,71 +62,208 @@
         z-index: 9500;
         display: grid;
         place-items: center;
-        background: #0E0304;
-        transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
+        overflow: hidden;
+        background:
+          radial-gradient(ellipse 70% 55% at 50% 42%, rgba(109, 34, 32, 0.38), transparent 70%),
+          #0E0304;
+        color: #efe4cf;
+        clip-path: inset(0 0 0 0);
+        transition: clip-path 0.95s cubic-bezier(0.76, 0, 0.24, 1), visibility 0s linear 0.95s;
       }
-      #pm-boot[data-done='true'] { opacity: 0; visibility: hidden; }
+      #pm-boot[data-done='true'] { clip-path: inset(0 0 100% 0); visibility: hidden; }
+      #pm-boot[data-done='true'] .pm-boot__inner { opacity: 0; transform: translateY(-40px); }
+
+      /* Filo dorado en el borde inferior del telón mientras sube. */
+      #pm-boot::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e8cb94 50%, transparent);
+        opacity: 0.7;
+      }
+
       #pm-boot .pm-boot__inner {
         display: grid;
-        gap: 1.25rem;
         justify-items: center;
         padding: 1.5rem;
+        text-align: center;
+        transition: opacity 0.6s ease, transform 0.95s cubic-bezier(0.76, 0, 0.24, 1);
+      }
+
+      /* Símbolo: el logo real dentro de un anillo que se va completando. */
+      #pm-boot .pm-boot__simbolo {
+        position: relative;
+        width: 132px;
+        height: 132px;
+        display: grid;
+        place-items: center;
+        animation: pm-boot-entra 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      #pm-boot .pm-boot__anillo { position: absolute; inset: 0; transform: rotate(-90deg); }
+      #pm-boot .pm-boot__guia { fill: none; stroke: rgba(232, 203, 148, 0.14); stroke-width: 1; }
+      #pm-boot .pm-boot__arco {
+        fill: none;
+        stroke: url(#pm-boot-oro);
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-dasharray: 389.6;
+        stroke-dashoffset: 389.6;
       }
       /* Mismo archivo que el logo real (`public/logo.jpg`, ver Logo.tsx):
          se referencia tal cual porque esta pantalla vive en index.html y se
          pinta antes de que llegue React, no porque sea un logo aparte. */
       #pm-boot .pm-boot__logo {
-        width: 64px;
-        height: 64px;
+        width: 84px;
+        height: 84px;
         border-radius: 50%;
         object-fit: cover;
-        animation: pm-boot-pulse 1.8s ease-in-out infinite;
+        mix-blend-mode: lighten;
+        animation: pm-boot-respira 2.4s ease-in-out infinite;
       }
+
       #pm-boot .pm-boot__name {
+        margin-top: 1.6rem;
         font-family: 'Bodoni Moda', Georgia, serif;
         font-weight: 500;
-        letter-spacing: 0.2em;
-        font-size: 0.9rem;
-        color: #a8957f;
-        text-align: center;
-      }
-      @keyframes pm-boot-pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
+        letter-spacing: 0.32em;
+        font-size: 0.95rem;
+        color: #d4c5ac;
+        animation: pm-boot-entra 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
       }
       #pm-boot .pm-boot__name b { color: #c9a063; font-weight: 500; }
-      #pm-boot .pm-boot__bar {
-        width: min(200px, 55vw);
-        height: 2px;
-        background: rgba(232, 203, 148, 0.16);
-        border-radius: 2px;
+
+      /* Palabras de la agencia: cada una sube dentro de una máscara y deja
+         paso a la siguiente. La última se queda. */
+      #pm-boot .pm-boot__palabras {
+        position: relative;
+        width: min(90vw, 34rem);
+        height: 1.3em;
+        margin-top: 2.1rem;
         overflow: hidden;
+        font-family: 'Bodoni Moda', Georgia, serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: clamp(1.7rem, 5.2vw, 2.6rem);
+        line-height: 1.3;
+        color: #e8cb94;
       }
-      #pm-boot .pm-boot__fill {
-        height: 100%;
-        background: linear-gradient(90deg, #7a5424, #e8cb94);
-        transform-origin: left;
-        animation: pm-boot-load 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      #pm-boot .pm-boot__palabras span {
+        position: absolute;
+        inset: 0;
+        transform: translateY(110%);
+        /* Cada palabra entra (0-25 %) mientras la anterior sale (75-100 %):
+           el relevo coincide y nunca se ven dos a la vez. */
+        animation: pm-boot-palabra 0.56s cubic-bezier(0.65, 0, 0.35, 1) both;
+        animation-delay: calc(0.35s + var(--i) * 0.42s);
       }
-      @keyframes pm-boot-load {
-        from { transform: scaleX(0); }
-        to { transform: scaleX(1); }
+      #pm-boot .pm-boot__palabras span:last-child { animation-name: pm-boot-ultima; animation-duration: 0.14s; }
+
+      #pm-boot .pm-boot__pie {
+        display: flex;
+        align-items: center;
+        gap: 0.9rem;
+        margin-top: 2rem;
+        font-family: 'Instrument Sans', system-ui, sans-serif;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #9a8673;
+      }
+      #pm-boot .pm-boot__pie i {
+        display: block;
+        width: 2.5rem;
+        height: 1px;
+        background: rgba(232, 203, 148, 0.3);
+      }
+      #pm-boot .pm-boot__pct { min-width: 3ch; color: #c9a063; font-variant-numeric: tabular-nums; }
+
+      @keyframes pm-boot-entra {
+        from { opacity: 0; transform: translateY(14px) scale(0.96); }
+        to { opacity: 1; transform: none; }
+      }
+      @keyframes pm-boot-respira {
+        0%, 100% { filter: brightness(1); }
+        50% { filter: brightness(1.18); }
+      }
+      @keyframes pm-boot-palabra {
+        0% { transform: translateY(110%); }
+        25%, 75% { transform: translateY(0); }
+        100% { transform: translateY(-110%); }
+      }
+      @keyframes pm-boot-ultima {
+        from { transform: translateY(110%); }
+        to { transform: translateY(0); }
       }
       @media (prefers-reduced-motion: reduce) {
-        #pm-boot .pm-boot__fill { animation: none; }
+        #pm-boot { transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+        #pm-boot[data-done='true'] { clip-path: none; opacity: 0; }
+        #pm-boot .pm-boot__simbolo,
+        #pm-boot .pm-boot__name,
         #pm-boot .pm-boot__logo { animation: none; }
+        #pm-boot .pm-boot__palabras span { animation: none; transform: translateY(110%); }
+        #pm-boot .pm-boot__palabras span:last-child { transform: none; }
       }
     </style>
   </head>
   <body>
     <div id="pm-boot" role="status" aria-live="polite">
       <div class="pm-boot__inner">
-        <img class="pm-boot__logo" src="/logo.jpg" alt="" width="64" height="64" />
+        <div class="pm-boot__simbolo">
+          <svg class="pm-boot__anillo" viewBox="0 0 132 132" aria-hidden="true">
+            <defs>
+              <linearGradient id="pm-boot-oro" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#e8cb94" />
+                <stop offset="0.55" stop-color="#c9a063" />
+                <stop offset="1" stop-color="#7a5424" />
+              </linearGradient>
+            </defs>
+            <circle class="pm-boot__guia" cx="66" cy="66" r="62" />
+            <circle class="pm-boot__arco" cx="66" cy="66" r="62" />
+          </svg>
+          <img class="pm-boot__logo" src="/logo.jpg" alt="" width="84" height="84" />
+        </div>
         <p class="pm-boot__name">PAMEN <b>AGENCY</b></p>
-        <div class="pm-boot__bar"><div class="pm-boot__fill"></div></div>
+        <p class="pm-boot__palabras" aria-hidden="true">
+          <span style="--i:0">Automatización</span>
+          <span style="--i:1">Inteligencia artificial</span>
+          <span style="--i:2">Procesos</span>
+          <span style="--i:3">Integración</span>
+          <span style="--i:4">Criterio</span>
+          <span style="--i:5">Eficiencia</span>
+          <span style="--i:6">Resultados</span>
+        </p>
+        <p class="pm-boot__pie" aria-hidden="true"><i></i><span class="pm-boot__pct">0</span><i></i></p>
         <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)">Cargando</span>
       </div>
     </div>
+    <script>
+      // Duración mínima de la carga y avance del anillo y el contador.
+      // main.tsx espera a window.__pmBoot.listo antes de retirar la pantalla.
+      ;(function () {
+        var boot = document.getElementById('pm-boot')
+        var reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        var inicio = performance.now()
+        var min = reducido ? 500 : 3200
+        var arco = boot.querySelector('.pm-boot__arco')
+        var pct = boot.querySelector('.pm-boot__pct')
+        var L = 389.6
+        window.__pmBoot = {
+          listo: new Promise(function (ok) { setTimeout(ok, min) }),
+        }
+        function paso(ahora) {
+          var p = Math.min(1, (ahora - inicio) / (min - 200))
+          var e = 1 - Math.pow(1 - p, 2.4)
+          arco.style.strokeDashoffset = String(L * (1 - e))
+          pct.textContent = String(Math.round(e * 100))
+          if (p < 1 && !boot.hasAttribute('data-done')) requestAnimationFrame(paso)
+        }
+        requestAnimationFrame(paso)
+      })()
+    </script>
 
     <div id="root"></div>
 
