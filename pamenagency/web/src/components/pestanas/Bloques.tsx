@@ -95,7 +95,7 @@ export function LlamadaFinal({
       ¿Y si <em>empezamos</em>?
     </>
   ),
-  texto = 'No hace falta que traigas nada preparado ni que sepas qué necesitas. Con que nos cuentes cómo es tu semana, sobra para empezar.',
+  texto = 'No hace falta que traigas nada preparado ni que sepas qué necesitas. La primera conversación, un diagnóstico de 30 minutos, es gratis y sin compromiso.',
   principal = { label: 'Cuéntanos tu caso', to: '/contacto' },
   secundaria = { label: 'Pedir auditoría de IA', to: '/auditoria-ia' },
 }: {

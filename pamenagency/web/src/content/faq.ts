@@ -136,6 +136,14 @@ export const faqs: FaqItem[] = [
     ],
   },
   {
+    categoria: 'Precio',
+    q: '¿La primera reunión cuesta algo?',
+    a: [
+      'No. Es un diagnóstico de 30 minutos por videollamada, gratis y sin compromiso: miramos un proceso de tu empresa y te decimos con sinceridad si compensa automatizarlo.',
+      'Si compensa, te enviamos una propuesta por escrito con el alcance y el precio cerrado. Si no compensa, te lo decimos y ahí se queda.',
+    ],
+  },
+  {
     categoria: 'General',
     q: '¿Puedo solicitar una consultoría?',
     a: [

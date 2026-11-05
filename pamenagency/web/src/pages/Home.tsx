@@ -35,7 +35,7 @@ function LemaConOro({ lema }: { lema: string }) {
 }
 
 /** Tres compromisos de la portada, sacados de cómo se trabaja (metodología y servicios). */
-const GARANTIAS = ['Diagnóstico antes de proponer', 'Precio de partida claro', 'Revisión humana donde hace falta']
+const GARANTIAS = ['Diagnóstico gratis de 30 minutos', 'Precio de partida claro', 'Revisión humana donde hace falta']
 
 function Check() {
   return (

@@ -34,7 +34,7 @@ export default function Contacto() {
             ¿Y si <em>empezamos</em>?
           </>
         }
-        entradilla="No hace falta que traigas nada preparado ni que sepas qué necesitas. Con que nos cuentes cómo es tu semana, sobra para empezar."
+        entradilla="No hace falta que traigas nada preparado ni que sepas qué necesitas. La primera conversación es un diagnóstico de 30 minutos por videollamada, gratis y sin compromiso."
       />
 
       <Bloque id="contacto" className="pt-block--pegado">

@@ -207,7 +207,7 @@ export const services: Service[] = [
         'Quien va a invertir tiempo o dinero y prefiere hacerlo con un plan.',
       ],
       proceso: [
-        { titulo: 'Conversación inicial', texto: 'Entendemos a qué te dedicas y qué te duele. Sin tecnicismos.' },
+        { titulo: 'Conversación inicial', texto: 'Un diagnóstico de 30 minutos, gratis: entendemos a qué te dedicas y qué te duele. Sin tecnicismos.' },
         { titulo: 'Análisis', texto: 'Revisamos procesos, volúmenes, herramientas y puntos de fricción.' },
         { titulo: 'Priorización', texto: 'Ordenamos oportunidades por relación entre esfuerzo e impacto.' },
         { titulo: 'Entrega', texto: 'Te llevas un plan escrito que puedes ejecutar con nosotros o por tu cuenta.' },
