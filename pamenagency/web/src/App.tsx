@@ -14,6 +14,7 @@ import Home from '@/pages/Home'
  */
 const Nosotros = lazy(() => import('@/pages/Nosotros'))
 const Servicios = lazy(() => import('@/pages/Servicios'))
+const Herramientas = lazy(() => import('@/pages/Herramientas'))
 const ServicioDetalle = lazy(() => import('@/pages/ServicioDetalle'))
 const IaParaTodos = lazy(() => import('@/pages/IaParaTodos'))
 const Conocimiento = lazy(() => import('@/pages/Conocimiento'))
@@ -59,6 +60,7 @@ export function App() {
           <Route index element={<Home />} />
           <Route path="nosotros" element={<Nosotros />} />
           <Route path="servicios" element={<Servicios />} />
+          <Route path="herramientas" element={<Herramientas />} />
           <Route path="servicios/:slug" element={<ServicioDetalle />} />
           <Route path="ia-para-todos" element={<IaParaTodos />} />
           <Route path="conocimiento" element={<Conocimiento />} />

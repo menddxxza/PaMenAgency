@@ -1,0 +1,299 @@
+/* ------------------------------------------------------------------
+   Herramientas de pago: botón destacado de la cabecera, tarjeta de la
+   portada y pestaña /herramientas. Destaca con un borde dorado que gira.
+   ------------------------------------------------------------------ */
+
+@property --herr-giro {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes herr-giro { to { --herr-giro: 360deg; } }
+@keyframes herr-latido {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 203, 148, 0.55); }
+  60% { box-shadow: 0 0 0 6px rgba(232, 203, 148, 0); }
+}
+
+/* Borde dorado giratorio: el fondo va en padding-box y el degradado cónico en border-box. */
+.pt-header__herr,
+.pt-herr-tarjeta {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--herr-fondo), var(--herr-fondo)) padding-box,
+    conic-gradient(from var(--herr-giro), rgba(232, 203, 148, 0.18) 0deg, rgba(232, 203, 148, 0.18) 200deg,
+      var(--pm-gold-bright) 280deg, #fff6e2 310deg, var(--pm-gold) 340deg, rgba(232, 203, 148, 0.18) 360deg) border-box;
+  animation: herr-giro 4.5s linear infinite;
+}
+
+/* ── Botón de la cabecera ── */
+.pt-header__herr {
+  --herr-fondo: rgba(35, 8, 9, 0.92);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 42px;
+  padding: 0 1.05rem 0 0.9rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--pm-gold-bright);
+  box-shadow: 0 0 22px -6px rgba(201, 160, 99, 0.55);
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), opacity var(--dur) var(--ease-out);
+}
+.pt-header__herr:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 30px -4px rgba(232, 203, 148, 0.7);
+}
+.pt-header__herr-icono { flex: none; filter: drop-shadow(0 0 6px rgba(232, 203, 148, 0.7)); }
+.pt-header__herr-corto { display: none; }
+.pt-header[data-menu='open'] .pt-header__herr { opacity: 0; pointer-events: none; }
+
+@media (max-width: 640px) {
+  .pt-header__herr { min-height: 38px; padding: 0 0.8rem 0 0.7rem; font-size: 0.85rem; }
+  .pt-header__herr-largo { display: none; }
+  .pt-header__herr-corto { display: inline; }
+}
+
+/* Con el botón de herramientas, la cabecera compacta (la de 380 px) empieza antes
+   para que el logotipo no se recorte. */
+@media (max-width: 520px) {
+  .pt-header__actions { gap: 0.5rem; }
+  .pt-header .pm-wordmark { font-size: 0.86rem !important; letter-spacing: 0.12em; }
+  .pt-burger__label { display: none; }
+  .pt-burger { padding: 0 0.85rem; }
+  .pt-burger[aria-expanded='true'] .pt-burger__label { display: inline; }
+}
+
+/* Pantallas muy estrechas: el botón se queda en la estrella, que sigue brillando. */
+@media (max-width: 360px) {
+  .pt-header__herr { padding: 0 0.7rem; }
+  .pt-header__herr-corto { display: none; }
+}
+
+/* ── Chip «Nuevo» ── */
+.pt-herr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pm-ink);
+  background: linear-gradient(135deg, var(--pm-gold-bright), var(--pm-gold));
+}
+.pt-herr-chip__punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pm-ink);
+  animation: herr-latido 2s ease-out infinite;
+}
+.pt-herr-chip--tenue { color: var(--pm-gold-bright); background: var(--pm-gold-soft); border: 1px solid var(--pm-gold-line); }
+
+/* ── Tarjeta grande (portada y pestaña) ── */
+.pt-block--herr { padding-top: clamp(1rem, 3vw, 2.5rem); }
+
+.pt-herr-tarjeta {
+  --herr-fondo: var(--pm-surface);
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  padding: clamp(1.5rem, 4vw, 3.25rem);
+  border-radius: 28px;
+  box-shadow: 0 40px 90px -40px rgba(201, 160, 99, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.2);
+  isolation: isolate;
+  overflow: hidden;
+}
+.pt-herr-tarjeta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 60% 70% at 100% 0%, rgba(201, 160, 99, 0.2), transparent 70%),
+    radial-gradient(ellipse 50% 60% at 0% 100%, rgba(109, 34, 32, 0.55), transparent 70%);
+  pointer-events: none;
+}
+.pt-herr-tarjeta .pt-h2 { margin-top: 1rem; max-width: 18ch; }
+.pt-herr-frase {
+  margin-top: 0.6rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  color: var(--pm-gold-bright);
+}
+.pt-herr-puntos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem 1.4rem;
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--pm-text-soft);
+  font-size: 0.95rem;
+}
+.pt-herr-puntos li, .pt-herr-plan li { display: flex; gap: 0.55rem; align-items: flex-start; }
+.pt-herr-puntos svg, .pt-herr-plan svg { flex: none; margin-top: 0.2em; color: var(--pm-gold-bright); }
+.pt-herr-acciones { margin-top: 1.75rem; }
+.pt-herr-pronto { cursor: default; opacity: 0.75; filter: saturate(0.7); }
+.pt-herr-pronto:hover { transform: none; filter: saturate(0.7); }
+.pt-herr-prueba { margin-top: 0.9rem; font-size: 0.86rem; color: var(--pm-muted); }
+.pt-herr-enlace { color: var(--pm-gold-bright); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── La factura que se lee sola ── */
+.pt-herr-doc { position: relative; display: grid; justify-items: center; padding: 1rem 0 2rem; }
+.pt-herr-doc__hoja {
+  position: relative;
+  width: min(100%, 290px);
+  padding: 1.4rem 1.3rem 1.6rem;
+  border-radius: 14px;
+  background: linear-gradient(170deg, #f6eedd, var(--pm-paper));
+  box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  transform: rotate(-3deg);
+  overflow: hidden;
+}
+.pt-herr-doc__cab {
+  display: block;
+  width: 55%;
+  height: 12px;
+  margin-bottom: 1.1rem;
+  border-radius: 4px;
+  background: var(--pm-ink);
+  opacity: 0.85;
+}
+.pt-herr-doc__fila {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr 1.2rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed rgba(42, 11, 12, 0.18);
+  font-family: var(--font-ui);
+  font-size: 0.74rem;
+  color: var(--pm-ink);
+}
+.pt-herr-doc__fila b { font-weight: 700; }
+.pt-herr-doc__fila i { height: 7px; border-radius: 4px; background: rgba(42, 11, 12, 0.22); }
+.pt-herr-doc__fila em {
+  display: grid;
+  place-items: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #fff;
+  background: #3f7a4a;
+  opacity: 0;
+  transform: scale(0.4);
+  animation: herr-marca 5s calc(var(--i) * 0.45s + 0.6s) infinite;
+}
+@keyframes herr-marca {
+  0% { opacity: 0; transform: scale(0.4); }
+  8%, 80% { opacity: 1; transform: scale(1); }
+  92%, 100% { opacity: 0; transform: scale(0.4); }
+}
+.pt-herr-doc__scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 46px;
+  background: linear-gradient(180deg, transparent, rgba(201, 160, 99, 0.35) 70%, var(--pm-gold-bright) 96%, transparent);
+  mix-blend-mode: multiply;
+  animation: herr-scan 5s ease-in-out infinite;
+}
+@keyframes herr-scan {
+  0% { transform: translateY(-50px); }
+  55% { transform: translateY(260px); }
+  100% { transform: translateY(260px); opacity: 0; }
+}
+.pt-herr-doc__sello {
+  position: absolute;
+  bottom: 0.4rem;
+  right: 6%;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--pm-ink);
+  background: linear-gradient(135deg, var(--pm-gold-bright), var(--pm-gold));
+  box-shadow: 0 12px 30px -10px rgba(201, 160, 99, 0.8);
+  transform: rotate(4deg);
+}
+
+/* ── Planes ── */
+.pt-herr-planes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.1rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+  align-items: stretch;
+}
+.pt-herr-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.75rem 1.5rem;
+  border-radius: 22px;
+  background: rgba(35, 8, 9, 0.7);
+  border: 1px solid var(--pm-line-strong);
+}
+.pt-herr-plan h3 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 500; color: var(--pm-text); }
+.pt-herr-plan__precio { display: flex; align-items: baseline; gap: 0.3rem; }
+.pt-herr-plan__precio b { font-family: var(--font-display); font-size: 2.8rem; font-weight: 500; line-height: 1; color: var(--pm-gold-bright); }
+.pt-herr-plan__precio span { color: var(--pm-muted); }
+.pt-herr-plan ul { display: grid; gap: 0.55rem; margin: 0; padding: 0; list-style: none; color: var(--pm-text-soft); font-size: 0.93rem; }
+.pt-herr-plan--destacado {
+  background: radial-gradient(ellipse 80% 60% at 100% 0%, rgba(201, 160, 99, 0.24), transparent 70%), linear-gradient(160deg, #4a1218, #1e0507);
+  border-color: rgba(232, 203, 148, 0.5);
+  box-shadow: 0 30px 70px -30px rgba(201, 160, 99, 0.55);
+}
+.pt-herr-plan__etiqueta {
+  position: absolute;
+  top: -12px;
+  left: 1.4rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--pm-ink);
+  background: linear-gradient(135deg, var(--pm-gold-bright), var(--pm-gold));
+}
+.pt-herr-planes__pie { display: grid; justify-items: center; text-align: center; margin-top: 1.5rem; }
+.pt-herr-planes__pie .pt-actions { justify-content: center; }
+
+/* ── Próximamente ── */
+.pt-herr-pronto-lista { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem; margin-top: 2rem; }
+.pt-herr-pronto-item { padding: 1.5rem; border-radius: 20px; border: 1px dashed var(--pm-gold-line); background: rgba(35, 8, 9, 0.45); }
+.pt-herr-pronto-item h3 { margin-top: 0.9rem; font-family: var(--font-display); font-size: 1.3rem; font-weight: 500; color: var(--pm-text); }
+.pt-herr-pronto-item p { margin-top: 0.4rem; color: var(--pm-text-soft); font-size: 0.93rem; }
+
+@media (max-width: 900px) {
+  .pt-herr-tarjeta { grid-template-columns: 1fr; }
+  .pt-herr-doc { order: -1; padding-bottom: 2.2rem; }
+  .pt-herr-planes { grid-template-columns: 1fr; max-width: 30rem; margin-inline: auto; }
+}
+@media (max-width: 640px) {
+  .pt-herr-puntos { grid-template-columns: 1fr; }
+  .pt-herr-pronto-lista { grid-template-columns: 1fr; }
+  .pt-herr-doc__hoja { width: min(100%, 250px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-header__herr, .pt-herr-tarjeta, .pt-herr-chip__punto, .pt-herr-doc__scan { animation: none; }
+  .pt-herr-doc__scan { display: none; }
+  .pt-herr-doc__fila em { animation: none; opacity: 1; transform: none; }
+}

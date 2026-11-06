@@ -85,6 +85,13 @@ export function Header() {
           <Logo variant="nav" />
 
           <div className="pt-header__actions">
+            <Link className="pt-header__herr" to="/herramientas" aria-label="Herramientas" tabIndex={open ? -1 : undefined}>
+              <svg className="pt-header__herr-icono" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2.5 14.2 9.8 21.5 12l-7.3 2.2L12 21.5l-2.2-7.3L2.5 12l7.3-2.2z" fill="currentColor" />
+              </svg>
+              <span className="pt-header__herr-largo">Herramientas</span>
+              <span className="pt-header__herr-corto">Entrar</span>
+            </Link>
             <Link className="pt-header__cta" to="/contacto" tabIndex={open ? -1 : undefined}>
               Hablemos
             </Link>

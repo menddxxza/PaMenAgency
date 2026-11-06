@@ -27,6 +27,7 @@ const staticRoutes = [
   ['/metodologia', 0.7, 'monthly'],
   ['/auditoria-ia', 0.9, 'monthly'],
   ['/soluciones', 0.9, 'monthly'],
+  ['/herramientas', 0.9, 'monthly'],
   ['/sectores', 0.8, 'monthly'],
   ['/escenarios', 0.8, 'monthly'],
   ['/calculadora', 0.8, 'monthly'],

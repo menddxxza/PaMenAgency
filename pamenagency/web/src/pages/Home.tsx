@@ -17,6 +17,8 @@ import TextLoop from '@/components/reactbits/TextLoop'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 import { FlujoIA } from '@/components/pestanas/FlujoIA'
 import { SimboloServicio } from '@/components/three/SimboloServicio'
+import { EntradaHerramienta, FacturaLeyendose } from '@/components/sections/HerramientaPiezas'
+import { facturas } from '@/content/herramientas'
 
 /** La cinta de la portada: los servicios por los que suele empezar quien llega. */
 const SEP = ' · '
@@ -141,6 +143,31 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Herramientas de pago: lo que se puede usar hoy mismo, destacado sobre el resto. */}
+      <Bloque className="pt-block--herr">
+        <article className="pt-herr-tarjeta pt-herr-tarjeta--inicio pm-reveal">
+          <div className="pt-herr-tarjeta__texto">
+            <span className="pt-herr-chip">
+              <span className="pt-herr-chip__punto" aria-hidden="true" /> Nuevo · Herramientas
+            </span>
+            <h2 className="pt-h2">
+              Lee tus facturas con IA. <em>Hoy mismo.</em>
+            </h2>
+            <p className="pt-text">
+              {facturas.descripcion} Desde {Math.min(...facturas.planes.map((p) => p.precio))} € al mes, sin permanencia.
+            </p>
+            <EntradaHerramienta ruta={facturas.ruta} compacto />
+            <p className="pt-herr-prueba">
+              {facturas.prueba}{' '}
+              <Link to="/herramientas" className="pt-herr-enlace">
+                Ver planes y herramientas →
+              </Link>
+            </p>
+          </div>
+          <FacturaLeyendose />
+        </article>
+      </Bloque>
 
       <Bloque>
         <div className="pt-centrado pm-reveal">

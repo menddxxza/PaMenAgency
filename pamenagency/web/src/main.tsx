@@ -11,6 +11,7 @@ import './styles/components.css'
 import './styles/sections.css'
 import './styles/pestanas.css'
 import './styles/estetica.css'
+import './styles/herramientas.css'
 
 // Antes que cualquier otra cosa, para que capture hasta un fallo al montar.
 initSentry()
