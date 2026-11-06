@@ -1,11 +1,24 @@
 {
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/facturas/",
+      "destination": "https://pamenagency-facturas.vercel.app/"
+    },
+    {
+      "source": "/facturas/:ruta*",
+      "destination": "https://pamenagency-facturas.vercel.app/:ruta*"
+    },
+    {
+      "source": "/((?!api/|facturas/).*)",
       "destination": "/index.html"
     }
   ],
   "redirects": [
+    {
+      "source": "/facturas",
+      "destination": "/facturas/",
+      "permanent": false
+    },
     {
       "source": "/servicios/automatizacion",
       "destination": "/servicios/automatizacion-de-procesos",
