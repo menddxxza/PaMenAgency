@@ -30,6 +30,31 @@ export function FacturaLeyendose() {
   )
 }
 
+/** Una pregunta y su respuesta con la cita al documento, que aparece al leerse. */
+export function ChatCitado() {
+  return (
+    <div className="pt-herr-chat" aria-hidden="true">
+      <p className="pt-herr-chat__pregunta">¿Cuántos días hay para devolver un producto?</p>
+      <div className="pt-herr-chat__respuesta">
+        <p>
+          <span className="pt-herr-chat__linea" style={{ '--i': 0 } as React.CSSProperties} />
+          <span className="pt-herr-chat__linea" style={{ '--i': 1 } as React.CSSProperties} />
+          <span className="pt-herr-chat__linea pt-herr-chat__linea--corta" style={{ '--i': 2 } as React.CSSProperties} />
+        </p>
+        <span className="pt-herr-chat__cita">
+          <b>1</b> Manual de atención · pág. 1
+        </span>
+      </div>
+      <span className="pt-herr-doc__sello">Con su fuente</span>
+    </div>
+  )
+}
+
+/** La ilustración de cada herramienta. */
+export function Ilustracion({ slug }: { slug: string }) {
+  return slug === 'asistente' ? <ChatCitado /> : <FacturaLeyendose />
+}
+
 /** Botones de entrada a una herramienta, según si ya admite altas. */
 export function EntradaHerramienta({ ruta, compacto = false }: { ruta: string; compacto?: boolean }) {
   const altas = useAltasAbiertas(ruta)

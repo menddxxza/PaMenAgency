@@ -21,6 +21,10 @@ export type Herramienta = {
   puntos: string[]
   prueba: string
   planes: PlanHerramienta[]
+  /** Bloque de planes: antetítulo, titular (la palabra en oro va aparte) y nota. */
+  planesTitulo: string
+  planesLema: [string, string, string]
+  planesNota: string
 }
 
 export const facturas: Herramienta = {
@@ -60,10 +64,57 @@ export const facturas: Herramienta = {
       ],
     },
   ],
+  planesTitulo: 'Planes del lector de facturas',
+  planesLema: ['Pagas según lo que ', 'lees', '.'],
+  planesNota: 'Las facturas de ejemplo y los duplicados no cuentan.',
 }
+
+export const asistente: Herramienta = {
+  slug: 'asistente',
+  nombre: 'Asistente de documentos',
+  ruta: '/asistente/',
+  frase: 'Pregunta a tus documentos.',
+  descripcion:
+    'Sube los manuales, procedimientos y normas de tu empresa: tu equipo pregunta en lenguaje normal y la respuesta sale solo de esos documentos, con el documento y la página de donde sale. Si no está, lo dice.',
+  puntos: [
+    'Lee PDF, Word y texto',
+    'Cita el documento y la página',
+    'Si no lo sabe, no se lo inventa',
+    'Permisos por departamento',
+  ],
+  prueba: '30 preguntas gratis para probar. Sin tarjeta.',
+  planes: [
+    {
+      nombre: 'Básico',
+      precio: 19,
+      ventajas: ['Hasta 300 preguntas al mes', 'Hasta 50 documentos', '3 usuarios'],
+    },
+    {
+      nombre: 'Profesional',
+      precio: 49,
+      destacado: true,
+      ventajas: ['Hasta 1.500 preguntas al mes', 'Hasta 300 documentos', '10 usuarios', 'Permisos por departamento'],
+    },
+    {
+      nombre: 'Empresa',
+      precio: 99,
+      ventajas: [
+        'Hasta 5.000 preguntas al mes',
+        'Hasta 2.000 documentos',
+        'Usuarios ilimitados',
+        'Permisos por departamento',
+        'Entrada automática desde una carpeta o n8n',
+      ],
+    },
+  ],
+  planesTitulo: 'Planes del asistente',
+  planesLema: ['Pagas según lo que ', 'preguntas', '.'],
+  planesNota: 'Los documentos de ejemplo no cuentan.',
+}
+
+export const herramientas: Herramienta[] = [facturas, asistente]
 
 /** Las siguientes herramientas, aún sin fecha: no se prometen funciones concretas. */
 export const proximamente = [
-  { nombre: 'Asistente de tus documentos', texto: 'Pregunta en lenguaje normal y responde con lo que dicen tus documentos.' },
   { nombre: 'Gestor de incidencias', texto: 'Recoge, ordena y sigue las incidencias de tus clientes o de tu equipo.' },
 ]
