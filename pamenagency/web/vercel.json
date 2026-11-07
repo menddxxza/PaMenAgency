@@ -9,7 +9,15 @@
       "destination": "https://pamenagency-facturas.vercel.app/:ruta*"
     },
     {
-      "source": "/((?!api/|facturas/).*)",
+      "source": "/asistente/",
+      "destination": "https://pamenagency-facturas.vercel.app/asistente/"
+    },
+    {
+      "source": "/asistente/:ruta*",
+      "destination": "https://pamenagency-facturas.vercel.app/asistente/:ruta*"
+    },
+    {
+      "source": "/((?!api/|facturas/|asistente/).*)",
       "destination": "/index.html"
     }
   ],
@@ -17,6 +25,11 @@
     {
       "source": "/facturas",
       "destination": "/facturas/",
+      "permanent": false
+    },
+    {
+      "source": "/asistente",
+      "destination": "/asistente/",
       "permanent": false
     },
     {
