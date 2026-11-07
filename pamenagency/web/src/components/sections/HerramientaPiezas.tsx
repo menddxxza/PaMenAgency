@@ -50,9 +50,30 @@ export function ChatCitado() {
   )
 }
 
+/** Una incidencia que entra, se clasifica y se asigna. */
+export function IncidenciaClasificada() {
+  return (
+    <div className="pt-herr-inci" aria-hidden="true">
+      <div className="pt-herr-inci__tarjeta">
+        <span className="pt-herr-inci__codigo">INC-0042</span>
+        <p className="pt-herr-inci__asunto">No puedo entrar en la aplicación</p>
+        <span className="pt-herr-inci__lineas"><i /><i /></span>
+        <div className="pt-herr-inci__etiquetas">
+          <b className="pt-herr-inci__chip" style={{ '--i': 0 } as React.CSSProperties}>Soporte técnico</b>
+          <b className="pt-herr-inci__chip pt-herr-inci__chip--urgente" style={{ '--i': 1 } as React.CSSProperties}>Urgente · 4 h</b>
+          <b className="pt-herr-inci__chip pt-herr-inci__chip--persona" style={{ '--i': 2 } as React.CSSProperties}>→ Javier</b>
+        </div>
+      </div>
+      <span className="pt-herr-doc__sello">Asignada sola</span>
+    </div>
+  )
+}
+
 /** La ilustración de cada herramienta. */
 export function Ilustracion({ slug }: { slug: string }) {
-  return slug === 'asistente' ? <ChatCitado /> : <FacturaLeyendose />
+  if (slug === 'asistente') return <ChatCitado />
+  if (slug === 'incidencias') return <IncidenciaClasificada />
+  return <FacturaLeyendose />
 }
 
 /** Botones de entrada a una herramienta, según si ya admite altas. */

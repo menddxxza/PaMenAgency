@@ -325,3 +325,25 @@
 @media (prefers-reduced-motion: reduce) {
   .pt-herr-chat__pregunta, .pt-herr-chat__linea, .pt-herr-chat__cita { animation: none; opacity: 1; transform: none; }
 }
+
+/* ── La incidencia clasificada (gestor de incidencias) ── */
+.pt-herr-inci { position: relative; display: grid; justify-items: center; padding: 1rem 0 2.4rem; }
+.pt-herr-inci__tarjeta {
+  width: min(100%, 310px); padding: 1.15rem 1.2rem 1.25rem; border-radius: 16px; transform: rotate(-2deg);
+  background: linear-gradient(170deg, #f6eedd, var(--pm-paper)); box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7);
+}
+.pt-herr-inci__codigo { font-family: var(--font-ui); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; color: #8e2c27; }
+.pt-herr-inci__asunto { margin: 0.35rem 0 0.7rem; font-family: var(--font-display); font-size: 1.15rem; color: var(--pm-ink); }
+.pt-herr-inci__lineas { display: grid; gap: 0.45rem; }
+.pt-herr-inci__lineas i { display: block; height: 7px; border-radius: 4px; background: rgba(42, 11, 12, 0.18); }
+.pt-herr-inci__lineas i:last-child { width: 70%; }
+.pt-herr-inci__etiquetas { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.95rem; }
+.pt-herr-inci__chip {
+  padding: 0.28rem 0.6rem; border-radius: var(--radius-pill); font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+  color: var(--pm-ink); background: rgba(201, 160, 99, 0.35);
+  opacity: 0; transform: translateY(6px) scale(0.9); animation: herr-chip 6s ease-out infinite; animation-delay: calc(0.8s + var(--i) * 0.5s);
+}
+.pt-herr-inci__chip--urgente { color: #fff; background: #8e2c27; }
+.pt-herr-inci__chip--persona { color: var(--pm-gold-bright); background: var(--pm-ink); }
+@keyframes herr-chip { 0% { opacity: 0; transform: translateY(6px) scale(0.9); } 8%, 82% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pt-herr-inci__chip { animation: none; opacity: 1; transform: none; } }

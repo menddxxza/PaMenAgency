@@ -112,9 +112,49 @@ export const asistente: Herramienta = {
   planesNota: 'Los documentos de ejemplo no cuentan.',
 }
 
-export const herramientas: Herramienta[] = [facturas, asistente]
+export const incidencias: Herramienta = {
+  slug: 'incidencias',
+  nombre: 'Gestor de incidencias',
+  ruta: '/incidencias/',
+  frase: 'Cada incidencia, en su sitio.',
+  descripcion:
+    'Tus clientes cuentan su problema en un formulario con tu nombre. La IA la clasifica, le pone prioridad y plazo, y llega a la persona que toca. Lo dudoso o repetido lo revisa alguien antes.',
+  puntos: [
+    'Formulario para tus clientes, con tu nombre',
+    'Categoría, prioridad y plazo automáticos',
+    'Asignación por reglas a cada persona',
+    'Historial de cada cliente',
+  ],
+  prueba: '30 incidencias gratis para probar. Sin tarjeta.',
+  planes: [
+    {
+      nombre: 'Básico',
+      precio: 19,
+      ventajas: ['Hasta 200 incidencias al mes', '3 usuarios', 'Formulario y clasificación con IA'],
+    },
+    {
+      nombre: 'Profesional',
+      precio: 49,
+      destacado: true,
+      ventajas: ['Hasta 1.000 incidencias al mes', '10 usuarios', 'Asignación automática por reglas'],
+    },
+    {
+      nombre: 'Empresa',
+      precio: 99,
+      ventajas: [
+        'Hasta 5.000 incidencias al mes',
+        'Usuarios ilimitados',
+        'Asignación automática por reglas',
+        'Entrada automática desde el correo (n8n)',
+      ],
+    },
+  ],
+  planesTitulo: 'Planes del gestor de incidencias',
+  planesLema: ['Pagas según lo que ', 'recibes', '.'],
+  planesNota: 'Las incidencias de ejemplo no cuentan.',
+}
+
+export const herramientas: Herramienta[] = [facturas, asistente, incidencias]
 
 /** Las siguientes herramientas, aún sin fecha: no se prometen funciones concretas. */
-export const proximamente = [
-  { nombre: 'Gestor de incidencias', texto: 'Recoge, ordena y sigue las incidencias de tus clientes o de tu equipo.' },
-]
+export const proximamente: { nombre: string; texto: string }[] = []

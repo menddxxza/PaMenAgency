@@ -9,7 +9,7 @@ export default function Herramientas() {
   useSeo({
     title: 'Herramientas de IA',
     description:
-      'Herramientas de PaMenAgency listas para usar: el lector de facturas con IA y el asistente que responde con los documentos de tu empresa. Pruébalas gratis.',
+      'Herramientas de PaMenAgency listas para usar: el lector de facturas con IA, el asistente que responde con los documentos de tu empresa y el gestor de incidencias para tus clientes. Pruébalas gratis.',
     path: '/herramientas',
     jsonLd: [
       breadcrumbJsonLd([
@@ -48,23 +48,25 @@ export default function Herramientas() {
 
       {herramientas.map((h) => <BloqueHerramienta key={h.slug} h={h} />)}
 
+      {proximamente.length > 0 && (
       <Bloque>
-        <div className="pt-centrado pm-reveal">
-          <Antetitulo>Próximamente</Antetitulo>
-          <h2 className="pt-h2">
-            Vienen <em>más</em>.
-          </h2>
-        </div>
-        <div className="pt-herr-pronto-lista">
-          {proximamente.map((h, i) => (
-            <article key={h.nombre} className="pt-herr-pronto-item pm-reveal" style={escalon(i + 1, 90)}>
-              <span className="pt-herr-chip pt-herr-chip--tenue">Próximamente</span>
-              <h3>{h.nombre}</h3>
-              <p>{h.texto}</p>
-            </article>
-          ))}
-        </div>
-      </Bloque>
+          <div className="pt-centrado pm-reveal">
+            <Antetitulo>Próximamente</Antetitulo>
+            <h2 className="pt-h2">
+              Vienen <em>más</em>.
+            </h2>
+          </div>
+          <div className="pt-herr-pronto-lista">
+            {proximamente.map((h, i) => (
+              <article key={h.nombre} className="pt-herr-pronto-item pm-reveal" style={escalon(i + 1, 90)}>
+                <span className="pt-herr-chip pt-herr-chip--tenue">Próximamente</span>
+                <h3>{h.nombre}</h3>
+                <p>{h.texto}</p>
+              </article>
+            ))}
+          </div>
+        </Bloque>
+      )}
 
       <LlamadaFinal
         titulo={
