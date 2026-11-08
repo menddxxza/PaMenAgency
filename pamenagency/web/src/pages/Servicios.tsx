@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { Antetitulo, Bloque, CabeceraPestana, LlamadaFinal, escalon } from '@/components/pestanas/Bloques'
-import { mantenimientoNoIncluye, planesMantenimiento } from '@/content/mantenimiento'
+import { planesMantenimiento } from '@/content/mantenimiento'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 import { services } from '@/content/services'
+import { SimboloServicio } from '@/components/three/SimboloServicio'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
 import { site } from '@/content/site'
 
@@ -12,6 +13,7 @@ const FILAS: FlowingMenuItem[] = services.map((s) => ({
   link: `/servicios/${s.slug}`,
   marquee: s.name,
   meta: s.priceFrom,
+  icon: <SimboloServicio slug={s.slug} variante="fila" />,
 }))
 
 /**
@@ -64,12 +66,12 @@ export default function Servicios() {
             En qué podemos <em>ayudarte</em>.
           </>
         }
-        entradilla="Cuatro servicios para empresas y dos complementarios. Cada uno tiene un alcance definido y un precio de partida sin IVA; el presupuesto final depende de tu caso y te lo damos por escrito antes de empezar."
+        entradilla="Precio de partida claro, sin IVA. El presupuesto final, por escrito antes de empezar."
       />
 
       <Bloque className="pt-block--pegado">
         <div className="pt-panel pm-reveal">
-          <div className="pt-flowing" style={{ '--filas': FILAS.length } as React.CSSProperties}>
+          <div className="pt-flowing pt-flowing--simbolos" style={{ '--filas': FILAS.length } as React.CSSProperties}>
           <FlowingMenu
             items={FILAS}
             speed={90}
@@ -93,10 +95,6 @@ export default function Servicios() {
           />
         </div>
         </div>
-        <p className="pt-nota">
-          Entra en cada servicio para ver qué incluye, para quién tiene sentido, cómo se trabaja y
-          cuándo no merece la pena. Precios sin IVA.
-        </p>
       </Bloque>
 
       <Bloque id="mantenimiento" className="pt-block--banda">
@@ -105,11 +103,7 @@ export default function Servicios() {
           <h2 className="pt-h2">
             Mantenimiento <em>mensual</em>.
           </h2>
-          <p className="pt-text">
-            Una automatización necesita que alguien la vigile: las herramientas cambian, las APIs se
-            actualizan y los datos no siempre llegan como se esperaba. Tres planes, con un alcance
-            fijado por contrato. Nunca soporte ilimitado ni disponibilidad 24 horas.
-          </p>
+          <p className="pt-text">Para que lo que funciona siga funcionando.</p>
         </div>
         <ul className="pt-planes">
           {planesMantenimiento.map((plan, i) => (
@@ -128,10 +122,7 @@ export default function Servicios() {
             </li>
           ))}
         </ul>
-        <p className="pt-nota pm-reveal">
-          Precios sin IVA. Ningún plan incluye {mantenimientoNoIncluye.length} cosas, que se presupuestan
-          aparte cuando hacen falta: {mantenimientoNoIncluye.join(' ')}
-        </p>
+        <p className="pt-nota pm-reveal">Precios sin IVA.</p>
       </Bloque>
 
       <LlamadaFinal
@@ -140,7 +131,7 @@ export default function Servicios() {
             ¿No sabes cuál te <em>toca</em>?
           </>
         }
-        texto="Es lo más habitual. Cuéntanos tu situación y te decimos por dónde empezaríamos nosotros."
+        texto="Cuéntanos tu caso y te decimos por dónde empezar."
       />
     </>
   )

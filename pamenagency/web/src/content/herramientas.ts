@@ -33,7 +33,7 @@ export const facturas: Herramienta = {
   ruta: '/facturas/',
   frase: 'Tus facturas, leídas solas.',
   descripcion:
-    'Sube tus facturas y albaranes: la IA lee los datos, comprueba que cuadran y te deja solo lo dudoso para revisar. Lo demás queda listo para tu gestoría.',
+    'La IA lee tus facturas, comprueba que cuadran y las deja listas para tu gestoría.',
   puntos: [
     'Lee PDF, escaneos y fotos de facturas',
     'Comprueba NIF, fechas, importes y duplicados',
@@ -75,7 +75,7 @@ export const asistente: Herramienta = {
   ruta: '/asistente/',
   frase: 'Pregunta a tus documentos.',
   descripcion:
-    'Sube los manuales, procedimientos y normas de tu empresa: tu equipo pregunta en lenguaje normal y la respuesta sale solo de esos documentos, con el documento y la página de donde sale. Si no está, lo dice.',
+    'Tu equipo pregunta y responde con los documentos de tu empresa, citando la página.',
   puntos: [
     'Lee PDF, Word y texto',
     'Cita el documento y la página',
@@ -118,7 +118,7 @@ export const incidencias: Herramienta = {
   ruta: '/incidencias/',
   frase: 'Cada incidencia, en su sitio.',
   descripcion:
-    'Tus clientes cuentan su problema en un formulario con tu nombre. La IA la clasifica, le pone prioridad y plazo, y llega a la persona que toca. Lo dudoso o repetido lo revisa alguien antes.',
+    'Tus clientes abren incidencias y llegan clasificadas a la persona que toca.',
   puntos: [
     'Formulario para tus clientes, con tu nombre',
     'Categoría, prioridad y plazo automáticos',

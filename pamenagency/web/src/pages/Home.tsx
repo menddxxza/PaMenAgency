@@ -11,6 +11,7 @@ import { DiagnosticTool } from '@/components/sections/DiagnosticTool'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 import { EntradaHerramienta, FacturaLeyendose } from '@/components/sections/HerramientaPiezas'
 import { facturas } from '@/content/herramientas'
+import { SimboloServicio } from '@/components/three/SimboloServicio'
 
 /** Tres compromisos de la portada. */
 const GARANTIAS = ['Diagnóstico gratis de 30 minutos', 'Precio de partida claro', 'Revisión humana donde hace falta']
@@ -76,7 +77,7 @@ export default function Home() {
               Inteligencia artificial y automatización <em>para tu empresa</em>.
             </h1>
             <p className="pt-hero__lead pm-reveal" style={escalon(2, 90)}>
-              Automatizamos las tareas que se repiten. Si en tu caso la IA no aporta nada, te lo decimos antes de cobrar.
+              Automatizamos las tareas que se repiten en tu negocio.
             </p>
             <div className="pt-actions pm-reveal" style={escalon(3, 90)}>
               <Link className="pt-btn pt-btn--gold" to="/contacto">
@@ -129,9 +130,15 @@ export default function Home() {
           </h2>
         </div>
         <div className="pt-panel pm-reveal" style={escalon(1, 120)}>
-          <div className="pt-flowing pt-flowing--inicio">
+          <div className="pt-flowing pt-flowing--inicio pt-flowing--simbolos">
             <FlowingMenu
-              items={destacados.map((s) => ({ text: s.name, link: `/servicios/${s.slug}`, marquee: s.name, meta: s.priceFrom }))}
+              items={destacados.map((s) => ({
+                text: s.name,
+                link: `/servicios/${s.slug}`,
+                marquee: s.name,
+                meta: s.priceFrom,
+                icon: <SimboloServicio slug={s.slug} variante="fila" />,
+              }))}
               speed={90}
               stretch={0.6}
               magnet={0.35}
@@ -142,7 +149,7 @@ export default function Home() {
               bandRadius={80}
               carryContent
               showArrow
-              align="center"
+              align="left"
               textColor="#EFE4CF"
               bgColor="transparent"
               marqueeBgColor="#C9A063"
@@ -176,11 +183,8 @@ export default function Home() {
           <img className="pt-persona-mini" src={founder.recorte} alt={`${founder.nombre}, ${founder.cargo}`}
             width={900} height={1200} loading="lazy" decoding="async" />
           <Antetitulo>Quién hay detrás</Antetitulo>
-          <h2 className="pt-h2">{founder.lema}</h2>
-          <p className="pt-text">
-            {founder.nombre}, {founder.cargo.toLowerCase()}. Ayudo a pymes y autónomos a ahorrar tiempo con IA, sin
-            complicarles la vida.
-          </p>
+          <h2 className="pt-h2">{founder.nombre}</h2>
+          <p className="pt-text">Fundador. Ayudo a pymes y autónomos a ahorrar tiempo con IA.</p>
           <EnlaceFlecha to="/nosotros">Conocer la agencia</EnlaceFlecha>
         </div>
       </Bloque>

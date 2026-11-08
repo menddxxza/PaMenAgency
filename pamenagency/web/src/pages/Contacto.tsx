@@ -34,7 +34,7 @@ export default function Contacto() {
             ¿Y si <em>empezamos</em>?
           </>
         }
-        entradilla="No hace falta que traigas nada preparado ni que sepas qué necesitas. La primera conversación es un diagnóstico de 30 minutos por videollamada, gratis y sin compromiso."
+        entradilla="Diagnóstico de 30 minutos por videollamada, gratis."
       />
 
       <Bloque id="contacto" className="pt-block--pegado">
@@ -67,10 +67,7 @@ export default function Contacto() {
               </ol>
             </div>
 
-            <p className="pt-nota">
-              Solo pedimos los datos necesarios para responderte y no se comparten con nadie. Si
-              prefieres no dejar ninguno, escríbenos directamente al correo.
-            </p>
+            <p className="pt-nota">Tus datos solo se usan para responderte.</p>
           </aside>
         </div>
       </Bloque>
@@ -78,9 +75,6 @@ export default function Contacto() {
       <Bloque id="preguntas" estrecho className="pt-block--banda">
         <div className="pm-reveal">
           <Antetitulo>Preguntas frecuentes</Antetitulo>
-          <h2 className="pt-h2">
-            Lo que suele preguntarse antes de <em>empezar</em>.
-          </h2>
         </div>
         <div className="pm-reveal">
           <Accordion items={faqs.slice(0, PREGUNTAS)} />

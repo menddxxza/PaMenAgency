@@ -43,7 +43,7 @@ export default function Herramientas() {
             IA lista para usar, <em>hoy</em>.
           </>
         }
-        entradilla="Aplicaciones de PaMenAgency que funcionan desde el navegador, sin instalar nada ni esperar a un proyecto a medida. Te das de alta, pruebas gratis y pagas solo si te sirve."
+        entradilla="Desde el navegador, sin instalar nada. Pruebas gratis y pagas solo si te sirve."
       />
 
       {herramientas.map((h) => <BloqueHerramienta key={h.slug} h={h} />)}
@@ -74,7 +74,7 @@ export default function Herramientas() {
             ¿Necesitas algo <em>a medida</em>?
           </>
         }
-        texto="Si tu proceso no encaja en una herramienta hecha, lo automatizamos para tu empresa. El diagnóstico de 30 minutos es gratis."
+        texto="Lo automatizamos para tu empresa. El diagnóstico es gratis."
         principal={{ label: 'Cuéntanos tu caso', to: '/contacto' }}
         secundaria={{ label: 'Ver servicios', to: '/servicios' }}
       />
@@ -120,7 +120,7 @@ function BloqueHerramienta({ h }: { h: Herramienta }) {
             {h.planesLema[2]}
           </h2>
           <p className="pt-text">
-            Sin permanencia: cambias de plan o te das de baja cuando quieras. Precios al mes y sin IVA. {h.planesNota}
+            Sin permanencia. Al mes, sin IVA.
           </p>
         </div>
         <div className="pt-herr-planes">
@@ -150,8 +150,7 @@ function BloqueHerramienta({ h }: { h: Herramienta }) {
         <div className="pt-herr-planes__pie pm-reveal">
           <EntradaHerramienta ruta={h.ruta} />
           <p className="pt-herr-prueba">
-            Empiezas con {h.prueba.charAt(0).toLowerCase() + h.prueba.slice(1)} El plan se elige y se paga con tarjeta
-            dentro de la herramienta.
+            {h.prueba}
           </p>
         </div>
       </Bloque>
