@@ -8,6 +8,7 @@ import { services } from '@/content/services'
 import { founder } from '@/content/founder'
 import { perfilGoogle, resenas } from '@/content/resenas'
 import { DiagnosticTool } from '@/components/sections/DiagnosticTool'
+import { WorkdayCompare } from '@/components/sections/WorkdayCompare'
 import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/FlowingMenu'
 import { EntradaHerramienta, FacturaLeyendose } from '@/components/sections/HerramientaPiezas'
 import { facturas } from '@/content/herramientas'
@@ -95,6 +96,13 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+            <Link to="/nosotros" className="pt-firma pm-reveal" style={escalon(5, 90)}>
+              <img src={founder.foto} alt="" width={800} height={1067} />
+              <span>
+                <strong>{founder.nombre}</strong>
+                <span>{founder.cargo}</span>
+              </span>
+            </Link>
           </div>
         </div>
       </section>
@@ -173,19 +181,39 @@ export default function Home() {
           </h2>
           <p className="pt-text">Diez preguntas, dos minutos. No se guarda nada.</p>
         </div>
-        <div className="pt-diagnostico pm-reveal" style={escalon(1, 120)}>
-          <DiagnosticTool />
+        <div className="pt-diag-reloj">
+          <div className="pt-diagnostico pm-reveal" style={escalon(1, 120)}>
+            <DiagnosticTool />
+          </div>
+          <div className="pt-ventana pm-reveal" style={escalon(2, 120)}>
+            <div className="pt-ventana__barra" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <p>Una jornada, a mano y con IA</p>
+            </div>
+            <div className="pt-ventana__cuerpo">
+              <WorkdayCompare />
+            </div>
+          </div>
         </div>
+        <p className="pt-nota pt-nota--centro">Simulación ilustrativa con tareas repetitivas habituales.</p>
       </Bloque>
 
       <Bloque>
-        <div className="pt-centrado pm-reveal">
-          <img className="pt-persona-mini" src={founder.recorte} alt={`${founder.nombre}, ${founder.cargo}`}
-            width={900} height={1200} loading="lazy" decoding="async" />
-          <Antetitulo>Quién hay detrás</Antetitulo>
-          <h2 className="pt-h2">{founder.nombre}</h2>
-          <p className="pt-text">Fundador. Ayudo a pymes y autónomos a ahorrar tiempo con IA.</p>
-          <EnlaceFlecha to="/nosotros">Conocer la agencia</EnlaceFlecha>
+        <div className="pt-persona">
+          <figure className="pt-persona__foto pm-reveal">
+            <img src={founder.recorte} alt={`${founder.nombre}, ${founder.cargo}`} width={900} height={1200}
+              loading="lazy" decoding="async" />
+          </figure>
+          <div className="pm-reveal" style={escalon(1, 120)}>
+            <Antetitulo>Quién hay detrás</Antetitulo>
+            <h2 className="pt-h2">
+              Soy <em>{founder.nombre}</em>.
+            </h2>
+            <p className="pt-text">Fundador. Ayudo a pymes y autónomos a ahorrar tiempo con IA.</p>
+            <EnlaceFlecha to="/nosotros">Conocer la agencia</EnlaceFlecha>
+          </div>
         </div>
       </Bloque>
 

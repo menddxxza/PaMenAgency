@@ -39,3 +39,11 @@
 /* Fraunces es más ancha que Bodoni: titulares algo más contenidos */
 .pt-hero__title { letter-spacing: -0.02em; }
 .pt-h2, .pt-tabhead__title { letter-spacing: -0.015em; }
+
+/* La firma con la foto, centrada bajo el titular */
+.pt-hero--simple .pt-firma { margin-inline: auto; }
+
+/* Diagnóstico y jornada simulada, uno al lado del otro */
+.pt-diag-reloj { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; align-items: start; margin-top: 2rem; }
+.pt-diag-reloj > .pt-diagnostico, .pt-diag-reloj > .pt-ventana { margin: 0; max-width: none; width: 100%; }
+@media (max-width: 960px) { .pt-diag-reloj { grid-template-columns: 1fr; } }
