@@ -36,11 +36,11 @@
   --pm-line: rgba(232, 203, 148, 0.10);
   --pm-line-strong: rgba(232, 203, 148, 0.18);
 
-  /* Tipografía: Bodoni para titulares (el mismo corte que el monograma P/M),
-     Instrument Sans para leer y para la interfaz. */
-  --font-display: 'Bodoni Moda', 'Didot', 'Bodoni 72', Georgia, serif;
-  --font-body: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-ui: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Tipografía: Fraunces para titulares (serif suave, se lee bien en pantalla)
+     e Inter para leer y para la interfaz. Dos familias, pocas variantes: carga rápida. */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Escala tipográfica fluida — nunca desborda, nunca se corta */
   --fs-hero: clamp(2.8rem, 7.4vw, 6.25rem);

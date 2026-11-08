@@ -131,7 +131,7 @@ export function Header() {
                   <NavLink to={tab.to} end={tab.to === '/'} className="pt-menu__link">
                     <span className="pt-menu__slash" aria-hidden="true" />
                     <span className="pt-menu__label">{tab.label}</span>
-                    <span className="pt-menu__hint">{tab.hint}</span>
+                    {tab.hint && <span className="pt-menu__hint">{tab.hint}</span>}
                   </NavLink>
                 </li>
               ))}

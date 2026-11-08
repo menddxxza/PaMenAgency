@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button'
 import { CtaBand } from '@/components/sections/CtaBand'
 import { getService, services } from '@/content/services'
 import { breadcrumbJsonLd, useSeo } from '@/lib/seo'
-import { SimboloServicio } from '@/components/three/SimboloServicio'
 import { site } from '@/content/site'
 
 export default function ServicioDetalle() {
@@ -187,7 +186,6 @@ function ServicioContenido({ service }: { service: NonNullable<ReturnType<typeof
                   </Link>
                 </h3>
                 <p className="pm-card__text">{s.short}</p>
-                <SimboloServicio slug={s.slug} />
               </article>
             </Reveal>
           ))}

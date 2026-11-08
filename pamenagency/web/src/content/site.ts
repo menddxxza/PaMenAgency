@@ -48,16 +48,17 @@ export type Tab = {
  * posición en Google no se pierden, y el pie las recoge en "Más recursos".
  */
 export const tabs: Tab[] = [
-  { label: 'Inicio', to: '/', hint: 'Qué hacemos, en un vistazo' },
-  { label: 'Servicios', to: '/servicios', hint: 'Qué hacemos y desde cuánto' },
-  { label: 'Cómo trabajamos', to: '/metodologia', hint: 'Seis fases, siempre en orden' },
-  { label: 'Sectores', to: '/sectores', hint: 'Dónde aporta en cada negocio' },
-  { label: 'Nosotros', to: '/nosotros', hint: 'Quién hay detrás' },
-  { label: 'Contacto', to: '/contacto', hint: 'Cuéntanos tu caso' },
+  { label: 'Inicio', to: '/', hint: '' },
+  { label: 'Servicios', to: '/servicios', hint: '' },
+  { label: 'Herramientas', to: '/herramientas', hint: '' },
+  { label: 'Nosotros', to: '/nosotros', hint: '' },
+  { label: 'Contacto', to: '/contacto', hint: '' },
 ]
 
 /** Páginas fuera del menú que el pie sigue enlazando. */
 export const moreResources: { label: string; to: string }[] = [
+  { label: 'Cómo trabajamos', to: '/metodologia' },
+  { label: 'Sectores', to: '/sectores' },
   { label: 'Auditoría de IA', to: '/auditoria-ia' },
   { label: 'Diagnóstico gratuito', to: '/diagnostico' },
   { label: 'Centro de conocimiento', to: '/conocimiento' },

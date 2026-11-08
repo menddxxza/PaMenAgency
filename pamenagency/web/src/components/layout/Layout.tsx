@@ -4,7 +4,6 @@ import { Header } from './Header'
 import { Footer } from './Footer'
 import { CookieBanner } from '@/components/cookies/CookieBanner'
 import { AssistantWidget } from '@/components/chat/AssistantWidget'
-import { CursorDorado } from '@/components/ui/CursorDorado'
 import { FondoAmbiental } from './FondoAmbiental'
 import { capturarUtm } from '@/lib/utm'
 
@@ -71,7 +70,6 @@ export function Layout() {
       <Footer />
       <CookieBanner />
       <AssistantWidget />
-      <CursorDorado />
     </>
   )
 }

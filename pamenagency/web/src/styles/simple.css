@@ -1,0 +1,41 @@
+/* ------------------------------------------------------------------
+   Web más simple y centrada (nov. 2026): titulares y textos al centro,
+   anchos de lectura cortos y piezas nuevas de la portada.
+   ------------------------------------------------------------------ */
+
+/* Cabeceras de pestaña, titulares y textos de bloque, al centro */
+.pt-tabhead .pm-container,
+.pm-pagehead .pm-container { text-align: center; }
+.pt-tabhead__title, .pt-tabhead__lead, .pt-h2, .pt-text { margin-inline: auto; }
+.pt-tabhead .pt-eyebrow, .pm-pagehead .pm-eyebrow { justify-content: center; }
+.pt-tabhead .pt-actions, .pm-pagehead .pt-actions { justify-content: center; }
+.pt-block .pt-centrado, .pt-centro { text-align: center; }
+
+/* Portada: titular centrado sin columna de imagen */
+.pt-hero--simple .pm-container { display: block; }
+.pt-hero--simple .pt-hero__text { max-width: 52rem; margin-inline: auto; text-align: center; }
+.pt-hero--simple .pt-hero__title { margin-inline: auto; }
+.pt-hero--simple .pt-hero__lead { max-width: 38rem; margin-inline: auto; }
+.pt-hero--simple .pt-actions, .pt-hero--simple .pt-garantias { justify-content: center; }
+
+/* Foto pequeña del fundador */
+.pt-persona-mini {
+  display: block; width: 120px; height: 120px; margin: 0 auto 1.2rem; border-radius: 50%;
+  object-fit: cover; object-position: center 18%; border: 2px solid var(--pm-gold-line);
+}
+
+/* Reseñas: la nota media centrada */
+.pt-resenas__nota--centro { justify-content: center; margin-top: 0.8rem; }
+
+/* Preguntas frecuentes compactas */
+.pt-faq-simple { display: grid; gap: 0.6rem; margin: 1.5rem auto 1.2rem; max-width: 46rem; }
+.pt-faq-simple details { border: 1px solid var(--pm-line-strong); border-radius: 14px; padding: 1rem 1.2rem; background: rgba(35, 8, 9, 0.45); }
+.pt-faq-simple summary { cursor: pointer; font-family: var(--font-display); font-size: 1.12rem; color: var(--pm-text); list-style: none; }
+.pt-faq-simple summary::-webkit-details-marker { display: none; }
+.pt-faq-simple summary::after { content: '+'; float: right; color: var(--pm-gold-bright); }
+.pt-faq-simple details[open] summary::after { content: '–'; }
+.pt-faq-simple p { margin-top: 0.7rem; color: var(--pm-text-soft); line-height: 1.6; }
+
+/* Fraunces es más ancha que Bodoni: titulares algo más contenidos */
+.pt-hero__title { letter-spacing: -0.02em; }
+.pt-h2, .pt-tabhead__title { letter-spacing: -0.015em; }
