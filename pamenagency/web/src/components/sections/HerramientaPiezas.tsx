@@ -69,10 +69,30 @@ export function IncidenciaClasificada() {
   )
 }
 
+/** Un presupuesto que se prepara con la tarifa y se acepta en línea (mismas piezas que la incidencia). */
+export function PresupuestoAceptado() {
+  return (
+    <div className="pt-herr-inci" aria-hidden="true">
+      <div className="pt-herr-inci__tarjeta">
+        <span className="pt-herr-inci__codigo">P-2026-0012</span>
+        <p className="pt-herr-inci__asunto">Reforma de baño</p>
+        <span className="pt-herr-inci__lineas"><i /><i /></span>
+        <div className="pt-herr-inci__etiquetas">
+          <b className="pt-herr-inci__chip" style={{ '--i': 0 } as React.CSSProperties}>Con tu tarifa</b>
+          <b className="pt-herr-inci__chip" style={{ '--i': 1 } as React.CSSProperties}>PDF con tu logo</b>
+          <b className="pt-herr-inci__chip pt-herr-inci__chip--persona" style={{ '--i': 2 } as React.CSSProperties}>→ Aceptado</b>
+        </div>
+      </div>
+      <span className="pt-herr-doc__sello">Aceptado en línea</span>
+    </div>
+  )
+}
+
 /** La ilustración de cada herramienta. */
 export function Ilustracion({ slug }: { slug: string }) {
   if (slug === 'asistente') return <ChatCitado />
   if (slug === 'incidencias') return <IncidenciaClasificada />
+  if (slug === 'presupuestos') return <PresupuestoAceptado />
   return <FacturaLeyendose />
 }
 

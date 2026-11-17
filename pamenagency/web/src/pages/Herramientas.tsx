@@ -9,7 +9,7 @@ export default function Herramientas() {
   useSeo({
     title: 'Herramientas de IA',
     description:
-      'Herramientas de PaMenAgency listas para usar: el lector de facturas con IA, el asistente que responde con los documentos de tu empresa y el gestor de incidencias para tus clientes. Pruébalas gratis.',
+      'Herramientas de PaMenAgency listas para usar: el lector de facturas con IA, el asistente que responde con los documentos de tu empresa, el gestor de incidencias y los presupuestos con IA para reformas e instalaciones. Pruébalas gratis.',
     path: '/herramientas',
     jsonLd: [
       breadcrumbJsonLd([

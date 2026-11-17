@@ -154,7 +154,49 @@ export const incidencias: Herramienta = {
   planesNota: 'Las incidencias de ejemplo no cuentan.',
 }
 
-export const herramientas: Herramienta[] = [facturas, asistente, incidencias]
+export const presupuestos: Herramienta = {
+  slug: 'presupuestos',
+  nombre: 'Presupuestos para reformas',
+  ruta: '/presupuestos/',
+  frase: 'Presupuestos en minutos.',
+  descripcion:
+    'Para reformas e instalaciones: cuentas el trabajo con texto, voz o fotos y sale el presupuesto con tus precios.',
+  puntos: [
+    'Texto, nota de voz o fotos de la obra',
+    'Solo tus precios: la IA no se inventa importes',
+    'PDF con tu logo y aceptación en línea',
+    'Aviso cuando toca llamar al cliente',
+  ],
+  prueba: '15 presupuestos gratis para probar. Sin tarjeta.',
+  planes: [
+    {
+      nombre: 'Básico',
+      precio: 19,
+      ventajas: ['Hasta 60 presupuestos al mes', '2 usuarios', 'Borradores con IA, PDF y aceptación en línea'],
+    },
+    {
+      nombre: 'Profesional',
+      precio: 49,
+      destacado: true,
+      ventajas: ['Hasta 300 presupuestos al mes', '5 usuarios', 'Recordatorio automático al cliente'],
+    },
+    {
+      nombre: 'Empresa',
+      precio: 99,
+      ventajas: [
+        'Hasta 1.500 presupuestos al mes',
+        'Usuarios ilimitados',
+        'Recordatorio automático al cliente',
+        'Entrada automática (WhatsApp, n8n o tu web)',
+      ],
+    },
+  ],
+  planesTitulo: 'Planes de presupuestos',
+  planesLema: ['Pagas según lo que ', 'presupuestas', '.'],
+  planesNota: 'Los presupuestos de ejemplo no cuentan.',
+}
+
+export const herramientas: Herramienta[] = [facturas, asistente, incidencias, presupuestos]
 
 /** Las siguientes herramientas, aún sin fecha: no se prometen funciones concretas. */
 export const proximamente: { nombre: string; texto: string }[] = []

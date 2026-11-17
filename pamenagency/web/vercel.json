@@ -25,7 +25,15 @@
       "destination": "https://pamenagency-facturas.vercel.app/incidencias/:ruta*"
     },
     {
-      "source": "/((?!api/|facturas/|asistente/|incidencias/).*)",
+      "source": "/presupuestos/",
+      "destination": "https://pamenagency-facturas.vercel.app/presupuestos/"
+    },
+    {
+      "source": "/presupuestos/:ruta*",
+      "destination": "https://pamenagency-facturas.vercel.app/presupuestos/:ruta*"
+    },
+    {
+      "source": "/((?!api/|facturas/|asistente/|incidencias/|presupuestos/).*)",
       "destination": "/index.html"
     }
   ],
@@ -43,6 +51,11 @@
     {
       "source": "/incidencias",
       "destination": "/incidencias/",
+      "permanent": false
+    },
+    {
+      "source": "/presupuestos",
+      "destination": "/presupuestos/",
       "permanent": false
     },
     {
