@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { site, tabs } from '@/content/site'
 import { Logo } from './Logo'
+import { bfActivo, blackFriday } from '@/content/blackfriday'
 
 /**
  * Cabecera: logotipo, botón de contacto y el menú de las tres barras.
@@ -126,7 +127,10 @@ export function Header() {
         <div className="pt-menu__inner">
           <nav aria-label="Pestañas">
             <ol className="pt-menu__list">
-              {tabs.map((tab, i) => (
+              {(bfActivo()
+                ? [tabs[0], { label: 'Black Friday', to: '/blackfriday', hint: `${blackFriday.plazas} herramientas gratis` }, ...tabs.slice(1)]
+                : tabs
+              ).map((tab, i) => (
                 <li key={tab.to} style={{ '--i': i } as React.CSSProperties}>
                   <NavLink to={tab.to} end={tab.to === '/'} className="pt-menu__link">
                     <span className="pt-menu__slash" aria-hidden="true" />

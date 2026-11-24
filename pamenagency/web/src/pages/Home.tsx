@@ -13,6 +13,8 @@ import FlowingMenu, { type FlowingMenuItem } from '@/components/reactbits/Flowin
 import { EntradaHerramienta, FacturaLeyendose } from '@/components/sections/HerramientaPiezas'
 import { facturas } from '@/content/herramientas'
 import { SimboloServicio } from '@/components/three/SimboloServicio'
+import { BlackFridayPildora, BlackFridayTarjeta } from '@/components/sections/BlackFridayPromo'
+import { bfActivo } from '@/content/blackfriday'
 
 /** Tres compromisos de la portada. */
 const GARANTIAS = ['Diagnóstico gratis de 30 minutos', 'Precio de partida claro', 'Revisión humana donde hace falta']
@@ -72,6 +74,7 @@ export default function Home() {
         <div className="pm-container">
           <div className="pt-hero__text">
             <div className="pm-reveal">
+              <BlackFridayPildora />
               <Antetitulo>Agencia de inteligencia artificial</Antetitulo>
             </div>
             <h1 className="pt-hero__title pm-reveal" style={escalon(1, 90)}>
@@ -106,6 +109,13 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Black Friday 2026 (se quita sola tras el cierre). */}
+      {bfActivo() && (
+        <Bloque className="pt-block--herr">
+          <BlackFridayTarjeta />
+        </Bloque>
+      )}
 
       {/* Herramientas de pago: lo que se puede usar hoy mismo. */}
       <Bloque className="pt-block--herr">

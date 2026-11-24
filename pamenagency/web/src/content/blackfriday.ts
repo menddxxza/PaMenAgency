@@ -4,6 +4,19 @@
  * el caso. Decidido por Pablo (24/11/2026): 10 plazas, y que se diga «herramientas», no
  * «automatizaciones». Es una selección, no un sorteo.
  */
+/** La campaña sigue abierta (la promoción de la web desaparece sola al cerrar). */
+export function bfActivo(ahora = Date.now()) {
+  return ahora <= Date.parse(blackFriday.cierre)
+}
+
+/** «Quedan 6 días», o «Último día» en las 24 horas finales. */
+export function bfQuedan(ahora = Date.now()) {
+  const ms = Date.parse(blackFriday.cierre) - ahora
+  if (ms < 864e5) return 'Último día'
+  const d = Math.floor(ms / 864e5)
+  return d === 1 ? 'Queda 1 día' : `Quedan ${d} días`
+}
+
 export const blackFriday = {
   plazas: 10,
   /** Último momento para apuntarse (hora peninsular). */

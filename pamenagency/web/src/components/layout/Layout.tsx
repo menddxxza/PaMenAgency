@@ -6,6 +6,7 @@ import { CookieBanner } from '@/components/cookies/CookieBanner'
 import { AssistantWidget } from '@/components/chat/AssistantWidget'
 import { FondoAmbiental } from './FondoAmbiental'
 import { capturarUtm } from '@/lib/utm'
+import { BlackFridayBarra } from '@/components/sections/BlackFridayPromo'
 
 /** Cada pestaña empieza arriba, salvo que se navegue a un ancla. */
 function ScrollToTop() {
@@ -59,6 +60,8 @@ export function Layout() {
       <ScrollToTop />
       {/* Terciopelo con luces difusas y formas de cristal, fijo detrás de todo. */}
       <FondoAmbiental />
+      {/* Black Friday 2026: desaparece sola al cerrar la campaña. */}
+      <BlackFridayBarra />
       <Header />
       <main id="contenido" tabIndex={-1}>
         <Suspense fallback={<div style={{ minHeight: '70svh' }} aria-busy="true" />}>

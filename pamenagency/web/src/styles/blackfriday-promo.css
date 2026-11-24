@@ -1,0 +1,178 @@
+/* ------------------------------------------------------------------
+   Black Friday 2026: barra de todas las páginas, píldora y tarjeta de la
+   portada. Dorado sobre burdeos, como el resto de la web.
+   ------------------------------------------------------------------ */
+
+/* ── Barra superior ── */
+.bf-barra {
+  position: relative;
+  z-index: calc(var(--z-menu) + 11);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-height: 42px;
+  padding: 0.45rem var(--gutter);
+  overflow: hidden;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  line-height: 1.25;
+  color: var(--pm-ink);
+  background: linear-gradient(100deg, #c9a063, #e8cb94 45%, #f3dfb4 55%, #c9a063);
+  text-align: center;
+}
+/* Destello que cruza la barra */
+.bf-barra::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -30%;
+  width: 30%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  animation: bf-destello 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes bf-destello { 0%, 35% { left: -30%; } 75%, 100% { left: 110%; } }
+.bf-barra__regalo { font-size: 1.05rem; }
+.bf-barra strong { font-weight: 800; }
+.bf-barra__corto { display: none; }
+.bf-barra__quedan {
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f3dfb4;
+  background: #3a0d0f;
+  white-space: nowrap;
+}
+.bf-barra__accion {
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.bf-barra:hover .bf-barra__accion { text-decoration-thickness: 2px; }
+.bf-barra:focus-visible { outline: 2px solid var(--pm-ink); outline-offset: -4px; }
+/* Con el menú abierto la barra se aparta: el menú cuenta con la cabecera arriba del todo. */
+body:has(.pt-header[data-menu='open']) .bf-barra { display: none; }
+
+.bf-barra__quedan-corto { display: none; }
+@media (max-width: 640px) {
+  .bf-barra { gap: 0.5rem; font-size: 0.8rem; white-space: nowrap; }
+  .bf-barra__largo,
+  .bf-barra__accion,
+  .bf-barra__quedan-largo { display: none; }
+  .bf-barra__corto,
+  .bf-barra__quedan-corto { display: inline; }
+}
+@media (max-width: 360px) {
+  .bf-barra__regalo { display: none; }
+}
+
+/* ── Píldora de la portada ── */
+.bf-pildora {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.4rem;
+  padding: 0.3rem 0.95rem 0.3rem 0.3rem;
+  border: 1px solid var(--pm-gold-line);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--pm-gold-bright);
+  background: rgba(35, 8, 9, 0.7);
+  box-shadow: 0 0 26px -8px rgba(232, 203, 148, 0.6);
+  white-space: nowrap;
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+}
+@media (max-width: 400px) {
+  .bf-pildora { gap: 0.45rem; font-size: 0.8rem; padding-right: 0.75rem; }
+  .bf-pildora__chip { font-size: 0.62rem; padding: 0.25rem 0.55rem; letter-spacing: 0.08em; }
+}
+.bf-pildora:hover { transform: translateY(-1px); box-shadow: 0 0 32px -6px rgba(232, 203, 148, 0.75); }
+.bf-pildora__chip {
+  padding: 0.28rem 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pm-ink);
+  background: linear-gradient(135deg, var(--pm-gold-bright), var(--pm-gold));
+}
+
+/* ── Tarjeta de la portada ── */
+.bf-tarjeta .pt-h2 { max-width: 20ch; margin-inline: 0; text-align: left; }
+.bf-tarjeta .pt-text { margin: 0.9rem 0 0; max-width: 46ch; text-align: left; }
+.bf-tarjeta__lista {
+  display: grid;
+  gap: 0.45rem;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-ui);
+  color: var(--pm-cream, #efe4cf);
+}
+.bf-tarjeta__lista li { display: flex; align-items: center; gap: 0.6rem; }
+.bf-tarjeta__lista li::before {
+  content: '✓';
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--pm-ink);
+  background: linear-gradient(135deg, var(--pm-gold-bright), var(--pm-gold));
+}
+.bf-tarjeta__accion { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1.2rem; margin-top: 1.6rem; }
+.bf-tarjeta__nota { font-family: var(--font-ui); font-size: 0.85rem; color: var(--pm-gold-bright); }
+
+.bf-tarjeta__visual { display: grid; justify-items: center; gap: 1.1rem; text-align: center; }
+.bf-tarjeta__precio { display: grid; justify-items: center; line-height: 1; }
+.bf-tarjeta__precio s {
+  font-family: var(--font-ui);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: rgba(239, 228, 207, 0.55);
+  text-decoration-color: #e0584f;
+  text-decoration-thickness: 2px;
+}
+.bf-tarjeta__precio b {
+  margin-top: 0.3rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(4rem, 9vw, 6.5rem);
+  background: linear-gradient(180deg, #fff3d6, var(--pm-gold-bright) 45%, var(--pm-gold));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.bf-tarjeta__plazas { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; }
+.bf-tarjeta__plazas span {
+  display: grid;
+  place-items: center;
+  width: clamp(38px, 5vw, 48px);
+  aspect-ratio: 1;
+  border: 1px solid var(--pm-gold-line);
+  border-radius: 12px;
+  font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+  background: rgba(232, 203, 148, 0.08);
+  animation: bf-salto 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.14s);
+}
+@keyframes bf-salto { 0%, 70%, 100% { transform: none; } 80% { transform: translateY(-5px); } }
+.bf-tarjeta__pie { font-family: var(--font-ui); font-size: 0.8rem; letter-spacing: 0.04em; color: rgba(239, 228, 207, 0.65); }
+
+@media (max-width: 820px) {
+  .bf-tarjeta { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-barra::after { display: none; }
+  .bf-tarjeta__plazas span { animation: none; }
+}
