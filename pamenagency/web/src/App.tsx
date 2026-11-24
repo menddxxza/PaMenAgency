@@ -32,6 +32,7 @@ const Escenarios = lazy(() => import('@/pages/Escenarios'))
 const Faq = lazy(() => import('@/pages/Faq'))
 const Contacto = lazy(() => import('@/pages/Contacto'))
 const Referidos = lazy(() => import('@/pages/Referidos'))
+const BlackFriday = lazy(() => import('@/pages/BlackFriday'))
 const Novedades = lazy(() => import('@/pages/Novedades'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
@@ -78,6 +79,7 @@ export function App() {
           <Route path="faq" element={<Faq />} />
           <Route path="contacto" element={<Contacto />} />
           <Route path="referidos" element={<Referidos />} />
+          <Route path="blackfriday" element={<BlackFriday />} />
           <Route path="novedades" element={<Novedades />} />
 
           <Route path="legal">
