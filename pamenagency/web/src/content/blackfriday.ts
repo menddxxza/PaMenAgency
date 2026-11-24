@@ -1,7 +1,8 @@
 /**
  * Campaña de Black Friday 2026: «Black Friday al revés». No se bajan precios: se regalan
- * 10 automatizaciones sencillas a cambio de poder contar el caso. Decidido por Pablo
- * (24/11/2026): 10 plazas. Es una selección, no un sorteo.
+ * 10 herramientas a medida (cada una automatiza un proceso sencillo) a cambio de poder contar
+ * el caso. Decidido por Pablo (24/11/2026): 10 plazas, y que se diga «herramientas», no
+ * «automatizaciones». Es una selección, no un sorteo.
  */
 export const blackFriday = {
   plazas: 10,
@@ -12,7 +13,7 @@ export const blackFriday = {
 
   regalamos: [
     { titulo: 'Diagnóstico de 30 minutos', texto: 'Vemos a qué te dedicas y dónde se te va el tiempo. Sin tecnicismos.' },
-    { titulo: 'Una automatización hecha', texto: 'Un proceso sencillo y concreto que hoy haces a mano, montado y funcionando.' },
+    { titulo: 'Una herramienta a tu medida', texto: 'Hace sola una tarea sencilla y concreta que hoy haces a mano. Te la dejamos montada y funcionando.' },
     { titulo: 'Con tus herramientas', texto: 'Con los programas que ya usas. Lo probamos con casos reales antes de entregarlo.' },
   ],
 
@@ -32,9 +33,9 @@ export const blackFriday = {
     'Organiza PaMenAgency (ver el aviso legal para los datos del titular).',
     'Pueden apuntarse empresas y autónomos con actividad en España, hasta el lunes 30 de noviembre de 2026 a las 23:59 (hora peninsular).',
     'No es un sorteo: PaMenAgency elige las 10 empresas según lo bien que encaje su caso, con los criterios de esta página.',
-    'El regalo es un diagnóstico de 30 minutos y la automatización de un proceso sencillo y bien delimitado (lo que en la web aparece como «desde 200 €»).',
+    'El regalo es un diagnóstico de 30 minutos y una herramienta a medida que automatiza un proceso sencillo y bien delimitado (lo que en la web aparece como «desde 200 €»).',
     'Si el proceso necesita una herramienta o suscripción de pago de terceros, su coste no está incluido; te lo diremos antes de empezar y puedes renunciar sin coste.',
-    'Las automatizaciones se hacen entre diciembre de 2026 y enero de 2027, por orden de selección. El mantenimiento posterior no está incluido (es opcional).',
+    'Las herramientas se hacen entre diciembre de 2026 y enero de 2027, por orden de selección. El mantenimiento posterior no está incluido (es opcional).',
     'A cambio, la empresa autoriza a PaMenAgency a contar el caso y a publicar su opinión, con o sin su nombre, a su elección. No hay obligación de contratar nada.',
     'Todas las empresas que se apunten, elegidas o no, pueden pedir el diagnóstico gratuito de 30 minutos.',
     'Los datos del formulario se usan solo para gestionar esta campaña y contactar contigo, según la política de privacidad.',

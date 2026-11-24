@@ -18,11 +18,11 @@ function Lista({ items }: { items: string[] }) {
   )
 }
 
-/** Black Friday 2026: 10 automatizaciones gratis a cambio de contar el caso. */
+/** Black Friday 2026: 10 herramientas gratis a cambio de contar el caso. */
 export default function BlackFriday() {
   useSeo({
-    title: 'Black Friday: 10 automatizaciones gratis',
-    description: `Este Black Friday no bajamos precios: regalamos una automatización a ${blackFriday.plazas} empresas a cambio de poder contar su caso. Apúntate hasta el ${blackFriday.cierreTexto}.`,
+    title: 'Black Friday: 10 herramientas gratis',
+    description: `Este Black Friday no bajamos precios: regalamos una herramienta a medida a ${blackFriday.plazas} empresas a cambio de poder contar su caso. Apúntate hasta el ${blackFriday.cierreTexto}.`,
     path: '/blackfriday',
     jsonLd: breadcrumbJsonLd([{ name: 'Inicio', path: '/' }, { name: 'Black Friday', path: '/blackfriday' }]),
   })
@@ -31,8 +31,8 @@ export default function BlackFriday() {
     <>
       <PageHead
         eyebrow="Black Friday · solo hasta el 30 de noviembre"
-        title={`Este Black Friday no bajamos precios. Regalamos ${blackFriday.plazas} automatizaciones.`}
-        lead={`Elegimos ${blackFriday.plazas} empresas y les dejamos funcionando sola una tarea que hoy hacen a mano. Gratis. A cambio, solo te pedimos poder contar tu caso. Apúntate hasta el ${blackFriday.cierreTexto}.`}
+        title={`Este Black Friday no bajamos precios. Regalamos ${blackFriday.plazas} herramientas.`}
+        lead={`Elegimos ${blackFriday.plazas} empresas y les hacemos una herramienta a medida que hace sola una tarea que hoy hacen a mano. Gratis. A cambio, solo te pedimos poder contar tu caso. Apúntate hasta el ${blackFriday.cierreTexto}.`}
         breadcrumb={[{ label: 'Black Friday' }]}
       />
 

@@ -19,7 +19,7 @@ const campos: { k: Exclude<Clave, 'acepta' | 'tarea'>; label: string; tipo: stri
   { k: 'sector', label: 'A qué se dedica tu empresa', tipo: 'text', obligatorio: true },
 ]
 
-/** Formulario de /blackfriday: quién eres y qué tarea repites cada día. */
+/** Formulario de /blackfriday (10 herramientas gratis): quién eres y qué tarea repites cada día. */
 export function BlackFridayForm() {
   const [values, setValues] = useState<Fields>(empty)
   const [errors, setErrors] = useState<Partial<Record<Clave, string>>>({})
@@ -48,7 +48,7 @@ export function BlackFridayForm() {
     }
     setStatus('sending')
     const cuerpo = [
-      '🎁 BLACK FRIDAY 2026 · solicitud de automatización gratis',
+      '🎁 BLACK FRIDAY 2026 · solicitud de herramienta gratis',
       `Nombre: ${values.nombre}`,
       `Empresa: ${values.empresa}`,
       `Email: ${values.email}`,
@@ -61,7 +61,7 @@ export function BlackFridayForm() {
     const resultado = await enviarLead({
       payload: {
         nombre: values.nombre, empresa: values.empresa, email: values.email, telefono: values.telefono,
-        sector: values.sector, necesidad: 'BLACK FRIDAY 2026 · automatización gratis',
+        sector: values.sector, necesidad: 'BLACK FRIDAY 2026 · herramienta gratis',
         mensaje: cuerpo, score: 5, ...obtenerUtm(),
       },
       asunto: `Black Friday · ${values.empresa}`,
@@ -143,7 +143,7 @@ export function BlackFridayForm() {
 
       <div style={{ marginTop: '1.75rem' }}>
         <Button type="submit" disabled={status === 'sending'} arrow full>
-          {status === 'sending' ? 'Enviando…' : 'Quiero mi automatización gratis'}
+          {status === 'sending' ? 'Enviando…' : 'Quiero mi herramienta gratis'}
         </Button>
       </div>
     </form>
