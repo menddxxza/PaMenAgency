@@ -26,7 +26,7 @@ function dismissBootScreen() {
   window.setTimeout(() => document.getElementById('pm-boot')?.remove(), 1100)
 }
 // Si todo va bien, la pantalla se queda hasta completar su secuencia mínima
-// (logo, palabras y contador; la marca index.html en window.__pmBoot).
+// (el logo se dibuja en trazo y se rellena; la marca index.html en window.__pmBoot).
 function dismissBootScreenWhenReady() {
   const boot = (window as Window & { __pmBoot?: { listo: Promise<void> } }).__pmBoot
   if (boot) void boot.listo.then(dismissBootScreen)
